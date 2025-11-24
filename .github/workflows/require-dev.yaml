@@ -1,0 +1,21 @@
+name: Require dev as source
+# This workflow is run on every pull requests on main.
+# It aims to blocks any of said PRs wich doesn't comes from the dev branch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [main]
+
+env:
+  MIRROR_URL: 'git@github.com:EpitechPGE3-2025/G-DEV-500-NAN-5-1-area-2'
+
+jobs:
+  check-source:
+    if: github.repository != 'EpitechPGE3-2025/G-DEV-500-NAN-5-1-area-2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR source branch
+        if: ${{ github.head_ref != 'dev' }}
+        run: |
+          echo "::error title=Illegal-pull-request-source::All pull requests to the main branch must come from the dev branch."
+          exit 1
