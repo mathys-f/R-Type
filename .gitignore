@@ -2,6 +2,7 @@
 build/
 
 # executables files
-*.exe
-client
-server
+R-Type.exe
+R-Type-server.exe
+R-Type
+R-Type-server
