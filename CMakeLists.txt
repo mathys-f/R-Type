@@ -19,4 +19,11 @@ file(
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
+# Add dependencies below with CPMAddPackage(...)
+CPMAddPackage(
+	NAME raylib
+	GITHUB_REPOSITORY raysan5/raylib
+	GIT_TAG 5.5
+)
+
 add_subdirectory(src)
