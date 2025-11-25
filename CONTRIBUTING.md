@@ -37,7 +37,7 @@ With 3 folders: getting started, guides & API references.
 
 #### PR Title & Description
 - Use a descriptive title explaining the change.
-- Include a short summary, Jira stories or tasks, List of changes/features/fixes and how you tested the feature in the description.
+- Include a short summary, GitHub issues, List of changes/features/fixes and how you tested the feature in the description.
 
 > [!TIP]
 > Use the pull request template when creating a new one, it will set the skeleton for the description + tasks you have to do.
