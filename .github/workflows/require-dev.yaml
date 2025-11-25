@@ -11,7 +11,7 @@ env:
 
 jobs:
   check-source:
-    if: github.repository != env.MIRROR_REPO
+    if: ${{ github.repository != env.MIRROR_REPO }}
     runs-on: ubuntu-latest
     steps:
       - name: Check PR source branch
