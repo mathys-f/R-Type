@@ -12,5 +12,5 @@ target_include_directories(server PRIVATE
 target_link_libraries(server PRIVATE ecs networking)
 
 set_target_properties(server PROPERTIES
-    OUTPUT_NAME "R-Type-server"
+    OUTPUT_NAME "R-Type_server"
 )
