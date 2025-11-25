@@ -1,1 +1,1 @@
-rm -rf R-Type*
+rm -rf t-type*

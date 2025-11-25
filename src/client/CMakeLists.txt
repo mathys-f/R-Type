@@ -12,5 +12,5 @@ target_include_directories(client PRIVATE
 target_link_libraries(client PRIVATE ecs networking raylib)
 
 set_target_properties(client PROPERTIES
-    OUTPUT_NAME "R-Type_client"
+    OUTPUT_NAME "r-type_client"
 )

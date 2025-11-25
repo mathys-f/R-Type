@@ -14,8 +14,8 @@ cmake .. -DCMAKE_BUILD_TYPE=$build_type
 
 cmake --build .
 
-cp bin/$build_type/R-Type_client ../R-Type_client
-cp bin/$build_type/R-Type_server ../R-Type_server
+cp bin/$build_type/r-type_client ../r-type_client
+cp bin/$build_type/r-type_server ../r-type_server
 
 echo "Do you want to run the program now ? (y/N)"
 
@@ -56,6 +56,6 @@ launch_in_terminal() {
 if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
     cd ..
 
-    launch_in_terminal "echo running $build_type ./R-Type_client; ./R-Type"
-    launch_in_terminal "echo running $build_type ./R-Type_server -p 8080; ./R-Type_server -p 8080"
+    launch_in_terminal "echo running $build_type ./r-type_client; ./r-type"
+    launch_in_terminal "echo running $build_type ./r-type_server -p 8080; ./r-type_server -p 8080"
 fi
