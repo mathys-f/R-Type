@@ -56,6 +56,6 @@ launch_in_terminal() {
 if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
     cd ..
 
-    launch_in_terminal "echo running $build_type ./r-type_client; ./r-type"
+    launch_in_terminal "echo running $build_type ./r-type_client; ./r-type_client"
     launch_in_terminal "echo running $build_type ./r-type_server -p 8080; ./r-type_server -p 8080"
 fi
