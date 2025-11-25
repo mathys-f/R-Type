@@ -59,7 +59,7 @@ Every UDP datagram transmitted by either Client or Server MUST begin with the fo
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      |          Fragment ID          |   Frag Index  |  Total Frags  |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |          Payload Size         |            Reserved           |
+     |          Payload Size         |            Checksum           |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 ## Field Definitions
@@ -69,13 +69,15 @@ Every UDP datagram transmitted by either Client or Server MUST begin with the fo
 * **Flags (8 bits):** A bitmask defining packet behavior.
     * `0x01` (RELIABLE): The receiver MUST send an acknowledgment.
     * `0x02` (IS_FRAGMENT): The payload is part of a larger message.
-    * `0x04` (IS_ACK): The packet is an acknowledgment; payload is empty.
+    * `0x03` (IS_ACK): The packet is an acknowledgment; payload is empty.
+    * `0x04` (IS_ERROR): The packet indicates an error condition. The payload contains an error code and message.
 * **Sequence ID (32 bits):** A monotonic counter incremented by the sender for every new packet. Used for ordering and loss detection.
 * **Ack ID (32 bits):** The `Sequence ID` of the last valid reliable packet received by the sender.
 * **Fragment ID (16 bits):** A unique identifier grouping fragmented chunks.
 * **Frag Index (8 bits):** The current chunk index (0 to N).
 * **Total Frags (8 bits):** The total number of chunks.
 * **Payload Size (16 bits):** The size of the data following the header, in bytes.
+* **Checksum (16 bits):** A simple checksum (e.g., CRC16) covering the entire packet (header + payload) for data integrity verification. (the checksum field is set to 0 during checksum calculation).
 
 # Reliability Mechanism
 

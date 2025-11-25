@@ -153,7 +153,7 @@ Internet-Draft                   R-Type                    November 2025
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |          Fragment ID          |   Frag Index  |  Total Frags  |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |          Payload Size         |            Reserved           |
+    |          Payload Size         |            Checksum           |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 3.1.  Field Definitions
@@ -179,8 +179,11 @@ Internet-Draft                   R-Type                    November 2025
 
       -  0x02 (IS_FRAGMENT): The payload is part of a larger message.
 
-      -  0x04 (IS_ACK): The packet is an acknowledgment; payload is
+      -  0x03 (IS_ACK): The packet is an acknowledgment; payload is
          empty.
+
+      - 0x04 (IS_ERROR): The packet indicates an error condition. The
+         payload contains an error code and message.
 
    *  *Sequence ID (32 bits):* A monotonic counter incremented by the
       sender for every new packet.  Used for ordering and loss
@@ -198,6 +201,11 @@ Internet-Draft                   R-Type                    November 2025
 
    *  *Payload Size (16 bits):* The size of the data following the
       header, in bytes.
+
+    *  *Checksum (16 bits):* A simple checksum (e.g., CRC16) covering
+       the entire packet (header + payload) for data integrity
+       verification. (the checksum field is set to 0 during checksum
+       calculation).
 
 4.  Reliability Mechanism
 
