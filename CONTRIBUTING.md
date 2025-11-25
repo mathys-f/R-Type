@@ -104,12 +104,12 @@ This will block the PR from being merged, remember to check back more often in o
 
 ## The team
 
-The core team of the AREA project is actually composed of 5 peoples:
-- Arthuryan Loheac: Project director & web frontend dev.
-- Jean Bizeul: SCRUM master & DevOps.
-- Nathan Bezard: Mobile dev.
-- Mathys Fillon: Backend dev.
-- Léopold Pintard: Backend dev.
+The core team of the R-Type project is actually composed of 5 peoples:
+- Mathys Fillon: Team leader & SCRUM Master.
+- Carlos So Buaro: Lead Engine & Architecture.
+- Nathan Bezard: Lead Client & Gamedesign.
+- Léopold Pintard: Lead Server & Network.
+- Jean Bizeul: Docs & Build & CI/CD.
 
 ## Questions?
-Open an issue on the [GitHub project page](https://github.com/Five-Stacks/area/issues) or contact the maintainers via contact@area.azerty.
+Open an issue on the [GitHub project page](https://github.com/mathys-f/R-Type/issues).
