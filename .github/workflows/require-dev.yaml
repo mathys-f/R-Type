@@ -7,11 +7,11 @@ on:
     branches: [main]
 
 env:
-  MIRROR_URL: 'git@github.com:EpitechPGE3-2025/G-DEV-500-NAN-5-1-area-2'
+  MIRROR_REPO: 'EpitechPGE3-2025/G-CPP-500-NAN-5-2-rtype-1'
 
 jobs:
   check-source:
-    if: github.repository != 'EpitechPGE3-2025/G-DEV-500-NAN-5-1-area-2'
+    if: github.repository != env.MIRROR_REPO
     runs-on: ubuntu-latest
     steps:
       - name: Check PR source branch
