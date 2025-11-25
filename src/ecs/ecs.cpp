@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-using namespace ecs;
-
-void hello()
+void ecs::hello()
 {
     std::printf("Hello world from ecs !\n");
 }

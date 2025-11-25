@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-using namespace net;
-
-void hello()
+void net::hello()
 {
     std::printf("Hello world from networking !\n");
 }

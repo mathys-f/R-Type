@@ -19,3 +19,4 @@ jobs:
         run: |
           echo "::error title=Illegal-pull-request-source::All pull requests to the main branch must come from the dev branch."
           exit 1
+
