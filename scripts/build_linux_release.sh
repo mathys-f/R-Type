@@ -6,8 +6,8 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 
 cmake --build .
 
-cp bin/R-Type ../
-cp bin/R-Type-server ../
+cp bin/Release/R-Type ../
+cp bin/Release/R-Type-server ../
 
 echo "Do you want to run the program now ? (y/N)"
 
