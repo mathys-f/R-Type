@@ -5,6 +5,11 @@ cd build
 read -p "Build type (Release/Debug) [Debug]: " build_type
 build_type=${build_type:-Debug}
 
+if ([ "$build_type" != "Release" ] && [ "$build_type" != "Debug" ]); then
+    echo "Invalid build type. Please choose 'Release' or 'Debug'."
+    exit 1
+fi
+
 cmake .. -DCMAKE_BUILD_TYPE=$build_type
 
 cmake --build .
@@ -30,6 +35,7 @@ launch_in_terminal() {
         "tilix -e"
         "mate-terminal -e"
         "alacritty -e"
+        "ptyxis -e"
     )
 
     for term in "${TERMINALS[@]}"; do
