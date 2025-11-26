@@ -1,6 +1,6 @@
 ---
 title: C++ Naming Conventions
-id: cpp_naming_conventions
+id: cpp-naming-conventions
 ---
 
 ## 1. Files

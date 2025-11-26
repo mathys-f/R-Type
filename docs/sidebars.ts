@@ -14,7 +14,9 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
  */
 const sidebars: SidebarsConfig = {
   setupSidebar: [
-    "setup/installation",
+    "setup/overview",
+    "setup/prerequisites",
+    "setup/repository-structure",
   ],
   architectureSidebar: [
     "architecture/overview",
@@ -27,6 +29,7 @@ const sidebars: SidebarsConfig = {
   ],
   contributingSidebar: [
     "contributing/contributing",
+    "contributing/cpp-naming-conventions"
   ],
 
   // But you can create a sidebar manually
