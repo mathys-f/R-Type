@@ -5,7 +5,6 @@
 <!-- Closes the correct issues -->
 
 
-
 <!-- Use the part you need for your specific type of PR only, delete the rest -->
 
 <!-- ########## FEATURE PULL REQUEST ##########-->
@@ -25,7 +24,6 @@
 <!-- ########## HOTFIX PULL REQUEST ##########-->
 ## Root Cause & Solution
 <!-- Explain the cause of the bug and how you fixed it -->
--
 
 ## Risk & Rollback
 <!-- Explain any potential risks and how to roll back if needed -->
