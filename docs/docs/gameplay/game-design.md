@@ -1,7 +1,9 @@
 ---
-title: Game-design
+title: Game Design
 id: game-design
+slug: /gameplay/
 ---
+
 
 # Game Design
 

@@ -23,7 +23,7 @@ const sidebars: SidebarsConfig = {
     "gameplay/game-design",
     "gameplay/entities",
     "gameplay/gameplay-philosophie",
-    "gameplay/level-structure",
+    "gameplay/level-structure"
   ],
   networkingSidebar: [
     "networking/rfc",
