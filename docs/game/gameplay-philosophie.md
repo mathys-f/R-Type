@@ -1,3 +1,8 @@
+---
+title: Gameplay-philosophie
+id: gameplay-philosophie
+---
+
 # Gameplay philosophie
 
 The game will be created for multiplayer experience, the enemies in the game will be bigger with lots of hp (healthpoint) to encourage playing together.

@@ -1,3 +1,8 @@
+---
+title: Entities
+id: entities
+---
+
 # Entities
 
 This document will explain the various entities and their behaviour that are present in our game.

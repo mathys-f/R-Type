@@ -21,6 +21,9 @@ const sidebars: SidebarsConfig = {
   ],
   gameplaySidebar: [
     "gameplay/game-design",
+    "gameplay/entities",
+    "gameplay/gameplay-philosophie",
+    "gameplay/level-structure",
   ],
   networkingSidebar: [
     "networking/rfc",
