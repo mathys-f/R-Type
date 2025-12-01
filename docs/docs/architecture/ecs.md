@@ -62,7 +62,7 @@ Collision bounds.
 |-----------------|----------------|-----------------------------------------------|
 | `x, y, z`       | float          | Position                                      |
 | `w, h, d`       | float          | Size                                          |
-| `colisionLayer` | CollisionLayer | The layer in which the collision box lives in |
+| `collisionLayer` | CollisionLayer | The layer in which the collision box lives in |
 
 ```cpp
 enum CollisionLayer {
@@ -142,7 +142,7 @@ When running on the client, they run in prediction mode (no authority).
 
 ### 1. MoveSystem
 
-Dependencies: [`Transform`](#2-transform), [`Velocity`](#2-velocity)
+Dependencies: [`Transform`](#2-transform), [`Velocity`](#3-velocity)
 
 Applies velocities to transforms every tick.
 
