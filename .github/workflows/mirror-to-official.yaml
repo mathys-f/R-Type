@@ -1,0 +1,26 @@
+name: Copy Mirror to Official Repo
+# This workflow is run on every push on main.
+# It aims to mirror the repository to the official one.
+on:
+  push:
+    branches: [main]
+
+env:
+  MIRROR_URL: 'git@github.com:EpitechPGE3-2025/G-CPP-500-NAN-5-2-rtype-1.git'
+
+jobs:
+  push_to_mirror:
+    runs-on: ubuntu-latest
+    if: github.repository != 'EpitechPGE3-2025/G-CPP-500-NAN-5-2-rtype-1'
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "Mirroring"
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            ${{ env.MIRROR_URL }}
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
