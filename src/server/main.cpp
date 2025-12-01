@@ -1,4 +1,4 @@
-#include "ecs/ecs.h"
+#include "game_engine/ecs/ecs.hpp"
 #include "networking/networking.h"
 
 int main()

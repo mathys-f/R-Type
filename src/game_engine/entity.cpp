@@ -2,14 +2,14 @@
 
 Entity::operator Entity::IdType() const noexcept
 {
-    return _id;
+    return m_id;
 }
 
 Entity::IdType Entity::value() const noexcept
 {
-    return _id;
+    return m_id;
 }
 
-Entity::Entity(IdType v) noexcept : _id(v)
+Entity::Entity(IdType v) noexcept : m_id(v)
 {
 }

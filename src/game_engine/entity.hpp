@@ -4,25 +4,34 @@
 
 class Registry;
 
-/// Strongly-typed entity ID wrapper.
-/// Explicit construction from size_t, implicit conversion to size_t.
-/// Only Registry can construct arbitrary IDs.
+/// Strongly-typed wrapper for entity identifiers used by the ECS.
+/// Provides an explicit IdType alias and safe conversions to the underlying
+/// integral identifier.
 class Entity
 {
   public:
+    /// Underlying integer type used for entity ids.
     using IdType = std::size_t;
 
+    /// Default-construct an invalid / null entity.
     Entity() noexcept = default;
 
-    // implicit conversion to the underlying index
+    /// Convert the Entity to its underlying `IdType` value.
+    /// @return The raw entity id as `IdType`.
     operator IdType() const noexcept;
 
+    /// Get the underlying id value for this entity.
+    /// @return The raw entity id as `IdType`.
     IdType value() const noexcept;
 
   private:
+    /// Construct an Entity from a raw id. Only `Registry` may create entities.
+    /// @param v The raw id to wrap.
     explicit Entity(IdType v) noexcept;
 
-    IdType _id{0};
+    /// The underlying id stored for this entity.
+    IdType m_id{0};
 
+    /// `Registry` is a friend to allow it to construct and manage entities.
     friend class Registry;
 };

@@ -1,34 +1,34 @@
-#include "registry.h"
+#include "registry.hpp"
 
-Registry::entity_t Registry::spawn_entity()
+Registry::EntityType Registry::spawn_entity()
 {
-    if (!_free_entities.empty())
+    if (!m_free_entities.empty())
     {
-        entity_t e = _free_entities.back();
-        _free_entities.pop_back();
+        EntityType e = m_free_entities.back();
+        m_free_entities.pop_back();
         return e;
     }
-    return entity_t{_next_entity++};
+    return EntityType{m_next_entity++};
 }
 
-Registry::entity_t Registry::entity_from_index(std::size_t idx) const noexcept
+Registry::EntityType Registry::entity_from_index(std::size_t idx) const noexcept
 {
-    return entity_t{static_cast<Entity::IdType>(idx)};
+    return EntityType{static_cast<Entity::IdType>(idx)};
 }
 
-void Registry::kill_entity(entity_t const &e)
+void Registry::kill_entity(EntityType const &e)
 {
-    for (auto &fn : _erase_functions)
+    for (auto &fn : m_erase_functions)
     {
         if (fn)
             fn(*this, e);
     }
-    _free_entities.push_back(e);
+    m_free_entities.push_back(e);
 }
 
 void Registry::run_systems()
 {
-    for (auto &sys : _systems)
+    for (auto &sys : m_systems)
     {
         if (sys)
             sys(*this);

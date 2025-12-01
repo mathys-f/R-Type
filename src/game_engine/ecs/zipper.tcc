@@ -9,8 +9,10 @@
 
 namespace containers
 {
+    /// Iterator that zips multiple containers together producing tuples of
+    /// references to the underlying container elements.
     template <class... Containers>
-    class zipper_iterator
+    class ZipperIterator
     {
         template <class Container>
         using iterator_t =
@@ -28,12 +30,12 @@ namespace containers
 
         using iterator_tuple = std::tuple<iterator_t<Containers>...>;
 
-        zipper_iterator() = default;
+        ZipperIterator() = default;
 
-        zipper_iterator(iterator_tuple iters,
-                        std::size_t max,
-                        std::size_t idx)
-            : _iters(std::move(iters)), _max(max), _idx(idx)
+        ZipperIterator(iterator_tuple iters,
+                       std::size_t max,
+                       std::size_t idx)
+            : m_iters(std::move(iters)), m_max(max), m_idx(idx)
         {
         }
 
@@ -42,53 +44,53 @@ namespace containers
             return deref(std::index_sequence_for<Containers...>{});
         }
 
-        zipper_iterator &operator++()
+        ZipperIterator &operator++()
         {
             increment(std::index_sequence_for<Containers...>{});
-            ++_idx;
+            ++m_idx;
             return *this;
         }
 
-        zipper_iterator operator++(int)
+        ZipperIterator operator++(int)
         {
-            zipper_iterator tmp(*this);
+            ZipperIterator tmp(*this);
             ++(*this);
             return tmp;
         }
 
-        bool operator==(zipper_iterator const &rhs) const
+        bool operator==(ZipperIterator const &rhs) const
         {
-            return _idx == rhs._idx;
+            return m_idx == rhs.m_idx;
         }
 
-        bool operator!=(zipper_iterator const &rhs) const
+        bool operator!=(ZipperIterator const &rhs) const
         {
             return !(*this == rhs);
         }
 
-        std::size_t index() const noexcept { return _idx; }
+        std::size_t index() const noexcept { return m_idx; }
 
     private:
-        iterator_tuple _iters{};
-        std::size_t _max{0};
-        std::size_t _idx{0};
+        iterator_tuple m_iters{};
+        std::size_t m_max{0};
+        std::size_t m_idx{0};
 
         template <std::size_t... Is>
         reference deref(std::index_sequence<Is...>)
         {
-            return reference(*std::get<Is>(_iters)...);
+            return reference(*std::get<Is>(m_iters)...);
         }
 
         template <std::size_t... Is>
         void increment(std::index_sequence<Is...>)
         {
             (void)std::initializer_list<int>{
-                (++std::get<Is>(_iters), 0)...};
+                (++std::get<Is>(m_iters), 0)...};
         }
     };
 
     template <class... Containers>
-    class zipper
+    class Zipper
     {
         template <class Container>
         using iterator_t =
@@ -97,48 +99,51 @@ namespace containers
         using iterator_tuple = std::tuple<iterator_t<Containers>...>;
 
     public:
-        using iterator       = zipper_iterator<Containers...>;
+        using iterator       = ZipperIterator<Containers...>;
         using const_iterator = iterator;
 
-        explicit zipper(Containers &...cs)
-            : _begin_iters(iterator_tuple{std::begin(cs)...})
-            , _max_size(std::min({static_cast<std::size_t>(cs.size())...}))
+        /// Construct a zipper from multiple containers.
+        /// @param cs Variadic list of containers to zip together.
+        explicit Zipper(Containers &...cs)
+            : m_begin_iters(iterator_tuple{std::begin(cs)...})
+            , m_max_size(std::min({static_cast<std::size_t>(cs.size())...}))
         {
         }
 
         iterator begin()
         {
-            return iterator(_begin_iters, _max_size, 0);
+            return iterator(m_begin_iters, m_max_size, 0);
         }
 
         iterator end()
         {
-            // same iterators, index = max_size (never dereferenced)
-            return iterator(_begin_iters, _max_size, _max_size);
+            return iterator(m_begin_iters, m_max_size, m_max_size);
         }
 
-        const_iterator begin() const { return const_cast<zipper *>(this)->begin(); }
-        const_iterator end() const { return const_cast<zipper *>(this)->end(); }
+        const_iterator begin() const { return const_cast<Zipper *>(this)->begin(); }
+        const_iterator end() const { return const_cast<Zipper *>(this)->end(); }
 
     private:
-        iterator_tuple _begin_iters;
-        std::size_t _max_size{0};
+        iterator_tuple m_begin_iters;
+        std::size_t m_max_size{0};
     };
 
+    /// Helper that creates a `Zipper` instance from given containers.
     template <class... Containers>
-    zipper<Containers...> make_zipper(Containers &...cs)
+    Zipper<Containers...> make_zipper(Containers &...cs)
     {
-        return zipper<Containers...>(cs...);
+        return Zipper<Containers...>(cs...);
     }
 
-    // indexed_zipper: yields (index, c0[i], c1[i], ...)
+    /// Like `Zipper` but provides the element index together with the tuple
+    /// of references for each zipped element.
     template <class... Containers>
-    class indexed_zipper
+    class IndexedZipper
     {
     public:
         class iterator
         {
-            using base_zipper_t    = zipper<Containers...>;
+            using base_zipper_t    = Zipper<Containers...>;
             using base_iterator_t  = typename base_zipper_t::iterator;
 
             template <class Container>
@@ -153,7 +158,7 @@ namespace containers
 
             iterator() = default;
 
-            explicit iterator(base_iterator_t it) : _it(it) {}
+            explicit iterator(base_iterator_t it) : m_it(it) {}
 
             reference operator*()
             {
@@ -173,41 +178,41 @@ namespace containers
                 return tmp;
             }
 
-            bool operator==(iterator const &rhs) const { return _it == rhs._it; }
+            bool operator==(iterator const &rhs) const { return m_it == rhs.m_it; }
             bool operator!=(iterator const &rhs) const { return !(*this == rhs); }
 
         private:
-            base_iterator_t _it{};
+            base_iterator_t m_it{};
 
             template <std::size_t... Is>
             reference expand(std::index_sequence<Is...>)
             {
-                auto t = *_it; // tuple<ref...>
-                return reference(_it.index(), std::get<Is>(t)...);
+                auto t = *m_it;
+                return reference(m_it.index(), std::get<Is>(t)...);
             }
         };
 
-        explicit indexed_zipper(Containers &...cs)
-            : _zip(cs...)
+        explicit IndexedZipper(Containers &...cs)
+            : m_zip(cs...)
         {
         }
 
-        iterator begin() { return iterator(_zip.begin()); }
-        iterator end() { return iterator(_zip.end()); }
+        iterator begin() { return iterator(m_zip.begin()); }
+        iterator end() { return iterator(m_zip.end()); }
 
     private:
-        zipper<Containers...> _zip;
+        Zipper<Containers...> m_zip;
     };
 
+    /// Helper to create an `IndexedZipper` instance.
     template <class... Containers>
-    indexed_zipper<Containers...> make_indexed_zipper(Containers &...cs)
+    IndexedZipper<Containers...> make_indexed_zipper(Containers &...cs)
     {
-        return indexed_zipper<Containers...>(cs...);
+        return IndexedZipper<Containers...>(cs...);
     }
 
-} // namespace containers
+}
 
-// Convenience free functions in global namespace
 template <class... Containers>
 auto zipper(Containers &...cs)
 {
