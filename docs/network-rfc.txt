@@ -487,7 +487,7 @@ Internet-Draft                   R-Type                    November 2025
 8.  IANA Considerations
 
    This document has no IANA actions.  The protocol operates on a user-
-   defined UDP port (Default: 4242).
+   defined UDP port (Default: 8080).
 
 9.  Normative References
 

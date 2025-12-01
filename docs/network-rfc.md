@@ -154,7 +154,7 @@ Implementations MUST adhere to the following security and operational guidelines
 
 # IANA Considerations {#IANA}
 
-This document has no IANA actions. The protocol operates on a user-defined UDP port (Default: 4242).
+This document has no IANA actions. The protocol operates on a user-defined UDP port (Default: 8080).
 
 --- back
 

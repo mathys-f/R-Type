@@ -1,0 +1,42 @@
+flowchart TD
+  A[Start]
+  B{Reliable}
+  C11[BuildHeader]
+  C12[BuildHeader]
+  C2[FragmentIfNeeded]
+  C3[SendUDP]
+  D1[DoneUnrel]
+
+  A --> B
+  B -- No --> C11
+  C11 --> C3
+  C3 --> D1
+
+  B -- Yes --> C12
+  C12 --> C2
+  C2 --> SR[StoreSentQueue]
+  SR --> C3
+  C3 --> WA[WaitAck]
+
+  WA -->|Ack| ACKED[MarkedDelivered]
+  ACKED --> DR[DoneRel]
+
+  WA -->|RTO| R{RetransmitsLessThanMax}
+  R -- yes --> RS[RetransmitPacket] --> WA
+  R -- no --> GU[GiveUp]
+
+  %% Receiver
+  Rcv[OnReceive]
+  Rcv --> V[Validate]
+  V -->|invalid| DRP[Drop]
+  V --> P[Parse]
+  P -->|fragment| FH[FragHandler]
+  FH -->|complete| RAS[Reassemble]
+  RAS --> DEL[Deliver]
+  FH -->|timeout| DISC[Discard]
+  P -->|single| DELS[DeliverSingle]
+
+  DEL --> ACKOPT[AckPiggyback]
+  DELS --> ACKOPT
+  ACKOPT -->|no| EACK[SendExplicitAck]
+	%% Notes
