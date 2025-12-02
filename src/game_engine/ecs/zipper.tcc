@@ -15,20 +15,20 @@ namespace containers
     class ZipperIterator
     {
         template <class Container>
-        using iterator_t =
+        using IteratorT =
             decltype(std::begin(std::declval<Container &>()));
 
         template <class Container>
-        using ref_t = decltype(*std::declval<iterator_t<Container>>());
+        using RefT = decltype(*std::declval<IteratorT<Container>>());
 
     public:
-        using value_type        = std::tuple<ref_t<Containers>...>;
-        using reference         = value_type;
-        using pointer           = void;
-        using difference_type   = std::ptrdiff_t;
-        using iterator_category = std::input_iterator_tag;
+        using ValueType        = std::tuple<RefT<Containers>...>;
+        using Reference         = ValueType;
+        using Pointer           = void;
+        using DifferenceType   = std::ptrdiff_t;
+        using IteratorCategory = std::input_iterator_tag;
 
-        using iterator_tuple = std::tuple<iterator_t<Containers>...>;
+        using IteratorTuple = std::tuple<IteratorT<Containers>...>;
 
         ZipperIterator() = default;
 
@@ -71,7 +71,7 @@ namespace containers
         std::size_t index() const noexcept { return m_idx; }
 
     private:
-        iterator_tuple m_iters{};
+        IteratorTuple m_iters{};
         std::size_t m_max{0};
         std::size_t m_idx{0};
 
@@ -93,38 +93,38 @@ namespace containers
     class Zipper
     {
         template <class Container>
-        using iterator_t =
+        using IteratorT =
             decltype(std::begin(std::declval<Container &>()));
 
-        using iterator_tuple = std::tuple<iterator_t<Containers>...>;
+        using IteratorTuple = std::tuple<IteratorT<Containers>...>;
 
     public:
-        using iterator       = ZipperIterator<Containers...>;
-        using const_iterator = iterator;
+        using Iterator       = ZipperIterator<Containers...>;
+        using ConstIterator = Iterator;
 
         /// Construct a zipper from multiple containers.
         /// @param cs Variadic list of containers to zip together.
         explicit Zipper(Containers &...cs)
-            : m_begin_iters(iterator_tuple{std::begin(cs)...})
+            : m_begin_iters(IteratorTuple{std::begin(cs)...})
             , m_max_size(std::min({static_cast<std::size_t>(cs.size())...}))
         {
         }
 
-        iterator begin()
+        Iterator begin()
         {
-            return iterator(m_begin_iters, m_max_size, 0);
+            return Iterator(m_begin_iters, m_max_size, 0);
         }
 
-        iterator end()
+        Iterator end()
         {
-            return iterator(m_begin_iters, m_max_size, m_max_size);
+            return Iterator(m_begin_iters, m_max_size, m_max_size);
         }
 
-        const_iterator begin() const { return const_cast<Zipper *>(this)->begin(); }
-        const_iterator end() const { return const_cast<Zipper *>(this)->end(); }
+        ConstIterator begin() const { return const_cast<Zipper *>(this)->begin(); }
+        ConstIterator end() const { return const_cast<Zipper *>(this)->end(); }
 
     private:
-        iterator_tuple m_begin_iters;
+        IteratorTuple m_begin_iters;
         std::size_t m_max_size{0};
     };
 
@@ -143,22 +143,22 @@ namespace containers
     public:
         class iterator
         {
-            using base_zipper_t    = Zipper<Containers...>;
-            using base_iterator_t  = typename base_zipper_t::iterator;
+            using BaseZipperT    = Zipper<Containers...>;
+            using BaseIteratorT  = typename BaseZipperT::Iterator;
 
             template <class Container>
-            using ref_t = decltype(*std::begin(std::declval<Container &>()));
+            using RefT = decltype(*std::begin(std::declval<Container &>()));
 
         public:
-            using value_type        = std::tuple<std::size_t, ref_t<Containers>...>;
-            using reference         = value_type;
-            using pointer           = void;
-            using difference_type   = std::ptrdiff_t;
-            using iterator_category = std::input_iterator_tag;
+            using ValueType        = std::tuple<std::size_t, RefT<Containers>...>;
+            using Reference         = ValueType;
+            using Pointer           = void;
+            using DifferenceType   = std::ptrdiff_t;
+            using IteratorCategory = std::input_iterator_tag;
 
             iterator() = default;
 
-            explicit iterator(base_iterator_t it) : m_it(it) {}
+            explicit iterator(BaseIteratorT it) : m_it(it) {}
 
             reference operator*()
             {
@@ -167,7 +167,7 @@ namespace containers
 
             iterator &operator++()
             {
-                ++_it;
+                ++m_it;
                 return *this;
             }
 
@@ -182,7 +182,7 @@ namespace containers
             bool operator!=(iterator const &rhs) const { return !(*this == rhs); }
 
         private:
-            base_iterator_t m_it{};
+            BaseIteratorT m_it{};
 
             template <std::size_t... Is>
             reference expand(std::index_sequence<Is...>)

@@ -21,7 +21,7 @@ SparseArray<Component> &Registry::register_component()
             [](Registry &reg, EntityType const &e)
             {
                 auto &arr = reg.get_components<Component>();
-                arr.erase(static_cast<typename SparseArray<Component>::size_type>(
+                arr.erase(static_cast<typename SparseArray<Component>::SizeType>(
                     static_cast<Entity::IdType>(e)));
             });
 
@@ -65,12 +65,12 @@ SparseArray<Component> const &Registry::get_components() const
 /// @param c The component instance (moved or copied).
 /// @return Reference to the inserted component slot.
 template <typename Component>
-typename SparseArray<Component>::reference_type
+typename SparseArray<Component>::ReferenceType
 Registry::add_component(EntityType const &to, Component &&c)
 {
     register_component<Component>();
     auto &arr = get_components<Component>();
-    auto idx = static_cast<typename SparseArray<Component>::size_type>(
+    auto idx = static_cast<typename SparseArray<Component>::SizeType>(
         static_cast<Entity::IdType>(to));
     return arr.insert_at(idx, std::forward<Component>(c));
 }
@@ -80,12 +80,12 @@ Registry::add_component(EntityType const &to, Component &&c)
 /// @tparam Params Constructor parameters forwarded to `Component`.
 /// @param to Target entity receiving the component.
 template <typename Component, typename... Params>
-typename SparseArray<Component>::reference_type
+typename SparseArray<Component>::ReferenceType
 Registry::emplace_component(EntityType const &to, Params &&...p)
 {
     register_component<Component>();
     auto &arr = get_components<Component>();
-    auto idx = static_cast<typename SparseArray<Component>::size_type>(
+    auto idx = static_cast<typename SparseArray<Component>::SizeType>(
         static_cast<Entity::IdType>(to));
     return arr.emplace_at(idx, std::forward<Params>(p)...);
 }
@@ -97,7 +97,7 @@ template <typename Component>
 void Registry::remove_component(EntityType const &from)
 {
     auto &arr = get_components<Component>();
-    auto idx = static_cast<typename SparseArray<Component>::size_type>(
+    auto idx = static_cast<typename SparseArray<Component>::SizeType>(
         static_cast<Entity::IdType>(from));
     arr.erase(idx);
 }

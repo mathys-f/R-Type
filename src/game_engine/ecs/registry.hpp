@@ -61,7 +61,7 @@ public:
     /// @param c The component instance to add (moved or copied).
     /// @return A reference to the inserted component storage slot.
     template <typename Component>
-    typename SparseArray<Component>::reference_type
+    typename SparseArray<Component>::ReferenceType
     add_component(EntityType const &to, Component &&c);
 
     /// Emplace-construct a component for the entity in-place.
@@ -71,7 +71,7 @@ public:
     /// @param p Parameters forwarded to Component's constructor.
     /// @return A reference to the emplaced component storage slot.
     template <typename Component, typename... Params>
-    typename SparseArray<Component>::reference_type
+    typename SparseArray<Component>::ReferenceType
     emplace_component(EntityType const &to, Params &&...p);
 
     /// Remove the component of type `Component` from an entity.

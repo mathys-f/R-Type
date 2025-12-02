@@ -4,23 +4,23 @@
 
 /// Non-const indexed access to the underlying optional slot.
 template <typename Component>
-typename SparseArray<Component>::reference_type
-SparseArray<Component>::operator[](size_type idx)
+typename SparseArray<Component>::ReferenceType
+SparseArray<Component>::operator[](SizeType idx)
 {
     return m_data[idx];
 }
 
 /// Const indexed access to the underlying optional slot.
 template <typename Component>
-typename SparseArray<Component>::const_reference_type
-SparseArray<Component>::operator[](size_type idx) const
+typename SparseArray<Component>::ConstReferenceType
+SparseArray<Component>::operator[](SizeType idx) const
 {
     return m_data[idx];
 }
 
 /// Iterator to first element.
 template <typename Component>
-typename SparseArray<Component>::iterator
+typename SparseArray<Component>::Iterator
 SparseArray<Component>::begin() noexcept
 {
     return m_data.begin();
@@ -28,7 +28,7 @@ SparseArray<Component>::begin() noexcept
 
 /// Const iterator to first element.
 template <typename Component>
-typename SparseArray<Component>::const_iterator
+typename SparseArray<Component>::ConstIterator
 SparseArray<Component>::begin() const noexcept
 {
     return m_data.begin();
@@ -36,7 +36,7 @@ SparseArray<Component>::begin() const noexcept
 
 /// Const iterator to first element.
 template <typename Component>
-typename SparseArray<Component>::const_iterator
+typename SparseArray<Component>::ConstIterator
 SparseArray<Component>::cbegin() const noexcept
 {
     return m_data.cbegin();
@@ -44,7 +44,7 @@ SparseArray<Component>::cbegin() const noexcept
 
 /// Iterator past-the-end.
 template <typename Component>
-typename SparseArray<Component>::iterator
+typename SparseArray<Component>::Iterator
 SparseArray<Component>::end() noexcept
 {
     return m_data.end();
@@ -52,7 +52,7 @@ SparseArray<Component>::end() noexcept
 
 /// Const past-the-end iterator.
 template <typename Component>
-typename SparseArray<Component>::const_iterator
+typename SparseArray<Component>::ConstIterator
 SparseArray<Component>::end() const noexcept
 {
     return m_data.end();
@@ -60,7 +60,7 @@ SparseArray<Component>::end() const noexcept
 
 /// Const past-the-end iterator.
 template <typename Component>
-typename SparseArray<Component>::const_iterator
+typename SparseArray<Component>::ConstIterator
 SparseArray<Component>::cend() const noexcept
 {
     return m_data.cend();
@@ -68,7 +68,7 @@ SparseArray<Component>::cend() const noexcept
 
 /// Number of slots in the underlying container.
 template <typename Component>
-typename SparseArray<Component>::size_type
+typename SparseArray<Component>::SizeType
 SparseArray<Component>::size() const noexcept
 {
     return m_data.size();
@@ -76,8 +76,8 @@ SparseArray<Component>::size() const noexcept
 
 /// Insert a copy of `value` at `pos`, resizing storage if necessary.
 template <typename Component>
-typename SparseArray<Component>::reference_type
-SparseArray<Component>::insert_at(size_type pos, Component const &value)
+typename SparseArray<Component>::ReferenceType
+SparseArray<Component>::insert_at(SizeType pos, Component const &value)
 {
     if (pos >= m_data.size())
         m_data.resize(pos + 1);
@@ -87,8 +87,8 @@ SparseArray<Component>::insert_at(size_type pos, Component const &value)
 
 /// Insert by moving `value` into the storage at `pos`.
 template <typename Component>
-typename SparseArray<Component>::reference_type
-SparseArray<Component>::insert_at(size_type pos, Component &&value)
+typename SparseArray<Component>::ReferenceType
+SparseArray<Component>::insert_at(SizeType pos, Component &&value)
 {
     if (pos >= m_data.size())
         m_data.resize(pos + 1);
@@ -99,8 +99,8 @@ SparseArray<Component>::insert_at(size_type pos, Component &&value)
 /// Emplace a component in-place at `pos`.
 template <typename Component>
 template <class... Params>
-typename SparseArray<Component>::reference_type
-SparseArray<Component>::emplace_at(size_type pos, Params &&...params)
+typename SparseArray<Component>::ReferenceType
+SparseArray<Component>::emplace_at(SizeType pos, Params &&...params)
 {
     if (pos >= m_data.size())
         m_data.resize(pos + 1);
@@ -110,7 +110,7 @@ SparseArray<Component>::emplace_at(size_type pos, Params &&...params)
 
 /// Erase the stored component at `pos` (makes the optional empty).
 template <typename Component>
-void SparseArray<Component>::erase(size_type pos)
+void SparseArray<Component>::erase(SizeType pos)
 {
     if (pos >= m_data.size())
         return;
@@ -119,13 +119,13 @@ void SparseArray<Component>::erase(size_type pos)
 
 /// Find index by pointer comparison to the provided optional.
 template <typename Component>
-typename SparseArray<Component>::size_type
-SparseArray<Component>::get_index(value_type const &value) const
+typename SparseArray<Component>::SizeType
+SparseArray<Component>::get_index(ValueType const &value) const
 {
-    for (size_type i = 0; i < m_data.size(); ++i)
+    for (SizeType i = 0; i < m_data.size(); ++i)
     {
         if (std::addressof(m_data[i]) == std::addressof(value))
             return i;
     }
-    return static_cast<size_type>(-1);
+    return static_cast<SizeType>(-1);
 }
