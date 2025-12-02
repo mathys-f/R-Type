@@ -5,6 +5,9 @@
 #include <utility>
 #include <vector>
 
+namespace ecs
+{
+
 /// SparseArray is a compact optional-storage container for components indexed by
 /// entity ids. It provides random access insertion/erasure while keeping the
 /// storage contiguous as a vector of optional values.
@@ -86,5 +89,7 @@ template <typename Component> class SparseArray
   private:
     ContainerT m_data;
 };
+
+}  // namespace ecs
 
 #include "sparse_array.tcc"

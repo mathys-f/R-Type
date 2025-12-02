@@ -7,6 +7,9 @@
 #include <type_traits>
 #include <utility>
 
+namespace ecs
+{
+
 namespace containers
 {
 /// Iterator that zips multiple containers together producing tuples of
@@ -227,3 +230,5 @@ template <class... Containers> auto indexed_zipper(Containers&... cs)
 {
     return containers::make_indexed_zipper(cs...);
 }
+
+}  // namespace ecs

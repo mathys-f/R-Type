@@ -10,6 +10,9 @@
 #include <unordered_map>
 #include <vector>
 
+namespace ecs
+{
+
 /// Registry manages entities, component storage and registered systems.
 ///
 /// - Provides component registration and type-erased storage for component
@@ -105,5 +108,7 @@ class Registry
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
 };
+
+}  // namespace ecs
 
 #include "registry.tcc"

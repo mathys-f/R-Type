@@ -2,6 +2,9 @@
 
 #include "sparse_array.h"
 
+namespace ecs
+{
+
 /// Non-const indexed access to the underlying optional slot.
 template <typename Component>
 typename SparseArray<Component>::ReferenceType SparseArray<Component>::operator[](SizeType idx)
@@ -120,3 +123,5 @@ SparseArray<Component>::get_index(ValueType const& value) const
     }
     return static_cast<SizeType>(-1);
 }
+
+}  // namespace ecs

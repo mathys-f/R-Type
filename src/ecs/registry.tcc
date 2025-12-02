@@ -2,6 +2,9 @@
 
 #include "registry.h"
 
+namespace ecs
+{
+
 /// Ensure storage exists for `Component` and return a reference to it.
 /// @tparam Component The component type to register/access.
 /// @return Reference to the corresponding `SparseArray<Component>`.
@@ -120,3 +123,5 @@ template <class... Components, typename Function> void Registry::add_system(Func
 
     m_systems.emplace_back(wrapper);
 }
+
+}  // namespace ecs

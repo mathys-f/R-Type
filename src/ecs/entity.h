@@ -2,6 +2,9 @@
 
 #include <cstddef>
 
+namespace ecs
+{
+
 class Registry;
 
 /// Strongly-typed wrapper for entity identifiers used by the ECS.
@@ -35,3 +38,5 @@ class Entity
     /// `Registry` is a friend to allow it to construct and manage entities.
     friend class Registry;
 };
+
+}  // namespace ecs

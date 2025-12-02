@@ -1,5 +1,7 @@
 #include "registry.h"
 
+using namespace ecs;
+
 Registry::EntityType Registry::spawn_entity()
 {
     if (!m_free_entities.empty())

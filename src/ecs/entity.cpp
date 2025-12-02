@@ -1,5 +1,7 @@
 #include "entity.h"
 
+using namespace ecs;
+
 Entity::operator Entity::IdType() const noexcept
 {
     return m_id;
