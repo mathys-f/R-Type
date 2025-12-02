@@ -2,7 +2,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-const baseUrl = process.env.BASE_URL || '/whanos/';  // Used to make previews
+const baseUrl = process.env.BASE_URL || '/R-Type/';  // Used to make previews
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
