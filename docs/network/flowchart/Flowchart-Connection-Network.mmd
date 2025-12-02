@@ -1,0 +1,31 @@
+
+%% Connection flowchart
+flowchart TD
+  subgraph Client[Client]
+    C1[Start]
+    C2[REQ_LOGIN]
+    C3[Send_UDP]
+    C4[Keepalive]
+    C5[Outgoing_Packets]
+  end
+
+  subgraph Server[Server]
+    S1[Recv_Validate_Magic]
+    S2{Is REQ_LOGIN?}
+    S3[ProcessLogin]
+    S4[RES_LOGIN]
+    S5[RateLimits]
+    S6[IdleTimeout]
+  end
+
+  C1 --> C2 --> C3 --> S1
+  S1 -->|invalid| Drop[Drop packet]
+  S1 --> S2
+  S2 -- yes --> S3 --> S4 --> C5
+  S2 -- no --> S5
+
+  C5 -- piggyback --> S1
+  C5 -- no_outgoing --> ExplicitACK[Explicit_ACK] --> S1
+  C4 --> C3
+
+  S6 --> Close[Session Closed]
