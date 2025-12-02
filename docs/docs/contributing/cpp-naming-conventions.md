@@ -14,7 +14,7 @@ ecs/registry.h
 
 ### 1.1 C++ files extensions
 
-**.cpp** for source & **.hpp** for headers.
+**.cpp** for source & **.h** for headers.
 
 ```sh
 main.cpp

@@ -1,4 +1,4 @@
-#include "registry.hpp"
+#include "registry.h"
 
 Registry::EntityType Registry::spawn_entity()
 {
@@ -16,9 +16,9 @@ Registry::EntityType Registry::entity_from_index(std::size_t idx) const noexcept
     return EntityType{static_cast<Entity::IdType>(idx)};
 }
 
-void Registry::kill_entity(EntityType const &e)
+void Registry::kill_entity(EntityType const& e)
 {
-    for (auto &fn : m_erase_functions)
+    for (auto& fn : m_erase_functions)
     {
         if (fn)
             fn(*this, e);
@@ -28,7 +28,7 @@ void Registry::kill_entity(EntityType const &e)
 
 void Registry::run_systems()
 {
-    for (auto &sys : m_systems)
+    for (auto& sys : m_systems)
     {
         if (sys)
             sys(*this);

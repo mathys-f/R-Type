@@ -1,4 +1,4 @@
-#include "entity.hpp"
+#include "entity.h"
 
 Entity::operator Entity::IdType() const noexcept
 {
