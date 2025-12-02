@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../entity.h"
+#include "entity.h"
 #include "sparse_array.h"
 
 #include <any>
