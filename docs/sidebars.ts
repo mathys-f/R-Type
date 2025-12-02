@@ -17,6 +17,7 @@ const sidebars: SidebarsConfig = {
     "setup/overview",
     "setup/prerequisites",
     "setup/repository-structure",
+    "setup/technical-choices",
   ],
   architectureSidebar: [
     "architecture/overview",
