@@ -1,6 +1,6 @@
 ---
 title: Technical Choices
-id: techincal-choices
+id: technical-choices
 ---
 
 # Technical Choices
