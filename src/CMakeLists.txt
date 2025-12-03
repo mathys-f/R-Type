@@ -1,6 +1,8 @@
 # Static libraries
+add_subdirectory(utils)
 add_subdirectory(ecs)
 add_subdirectory(networking)
+add_subdirectory(game_engine)
 
 # Executables
 add_subdirectory(client)
