@@ -1,4 +1,4 @@
-namespace ecs {
+namespace engn {
 
 namespace cpnt {
 
@@ -20,4 +20,4 @@ struct UITransform {
 
 } // namespace components
 
-} // namespace ecs
+} // namespace engine
