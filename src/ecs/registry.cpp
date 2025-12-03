@@ -28,15 +28,6 @@ void Registry::kill_entity(EntityType const& e)
     m_free_entities.push_back(e);
 }
 
-void Registry::run_systems()
-{
-    for (auto& sys : m_systems)
-    {
-        if (sys)
-            sys(*this);
-    }
-}
-
 TagRegistry& Registry::tags() noexcept
 {
     return m_tag_registry;

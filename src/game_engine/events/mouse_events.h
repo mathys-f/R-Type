@@ -26,12 +26,12 @@ struct MouseButtonReleased {
     MouseButton button;
 };
 
-struct MouseMove {
+struct MouseMoved {
     int x;
     int y;
 };
 
-struct MouseScroll {
+struct MouseScrolled {
     float offset_x;
     float offset_y;
 };
