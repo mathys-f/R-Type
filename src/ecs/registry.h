@@ -80,8 +80,8 @@ class Registry
     /// @param from Entity from which the component will be removed.
     template <typename Component> void remove_component(EntityType const& from);
 
-    TagRegistry& tags() noexcept { return m_tag_registry; }
-    TagRegistry const& tags() const noexcept { return m_tag_registry; }
+    TagRegistry& tags() noexcept;
+    TagRegistry const& tags() const noexcept;
 
   private:
     // one sparse array per component type, stored via type erasure

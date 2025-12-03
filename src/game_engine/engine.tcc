@@ -9,10 +9,10 @@ namespace engn {
 /// component storages and forward them to the provided function.
 template <class... Components, typename Function> void EngineContext::add_system(Function&& f)
 {
-    (void)std::initializer_list<int>{(register_component<Components>(), 0)...};
+    (void)std::initializer_list<int>{(registry.register_component<Components>(), 0)...};
 
     auto wrapper = [fn = std::forward<Function>(f)](EngineContext& reg) mutable
-    { fn(reg, std::as_const(reg.get_components<Components>())...); };
+    { fn(reg, std::as_const(reg.registry.get_components<Components>())...); };
 
     m_systems.emplace_back(std::move(wrapper));
 }
@@ -20,10 +20,10 @@ template <class... Components, typename Function> void EngineContext::add_system
 /// Same as the rvalue overload but accepts a const-qualified callable.
 template <class... Components, typename Function> void EngineContext::add_system(Function const& f)
 {
-    (void)std::initializer_list<int>{(register_component<Components>(), 0)...};
+    (void)std::initializer_list<int>{(registry.register_component<Components>(), 0)...};
 
     auto wrapper = [&f](EngineContext& reg)
-    { f(reg, std::as_const(reg.get_components<Components>())...); };
+    { f(reg, std::as_const(reg.registry.get_components<Components>())...); };
 
     m_systems.emplace_back(wrapper);
 }

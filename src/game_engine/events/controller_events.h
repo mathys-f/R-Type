@@ -5,12 +5,12 @@ namespace engn {
 namespace evts {
 
 enum ControllerButton {
-    controller_button_unknown = -1,
+    controller_button_unknown = 0,
 
-    controller_button_south = 0, // A on Xbox, Cross on PlayStation, B on Nintendo
-    controller_button_east,      // B on Xbox, Circle on PlayStation, A on Nintendo
-    controller_button_west,      // X on Xbox, Square on PlayStation, Y on Nintendo
-    controller_button_north,     // Y on Xbox, Triangle on PlayStation, X on Nintendo
+    controller_button_south, // A on Xbox, Cross on PlayStation, B on Nintendo
+    controller_button_east,  // B on Xbox, Circle on PlayStation, A on Nintendo
+    controller_button_west,  // X on Xbox, Square on PlayStation, Y on Nintendo
+    controller_button_north, // Y on Xbox, Triangle on PlayStation, X on Nintendo
 
     controller_buttons_left_shoulder,  // LB on Xbox, L1 on PlayStation
     controller_buttons_right_shoulder, // RB on Xbox, R1 on PlayStation
@@ -53,11 +53,11 @@ struct ControllerRightJoystickMove {
 };
 
 struct ControllerLeftTriggerMove {
-    float value; // 0.0 (not pressed) to 1.0 (fully pressed)
+    float value; // -1.0 (not pressed) to 1.0 (fully pressed), 0 is the treshold for being considered pressed
 };
 
 struct ControllerRightTriggerMove {
-    float value; // 0.0 (not pressed) to 1.0 (fully pressed)
+    float value; // -1.0 (not pressed) to 1.0 (fully pressed), 0 is the treshold for being considered pressed
 };
 
 } // namespace evts

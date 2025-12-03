@@ -5,9 +5,9 @@ namespace engn {
 namespace evts {
 
 enum MouseButton {
-    mouse_button_unknown = -1,
+    mouse_button_unknown = 0,
 
-    mouse_button_left = 0,
+    mouse_button_left,
     mouse_button_right,
     mouse_button_middle,
     mouse_button_extra1, // typically the "back" button
@@ -27,8 +27,8 @@ struct MouseButtonReleased {
 };
 
 struct MouseMoved {
-    int x;
-    int y;
+    float x;
+    float y;
 };
 
 struct MouseScrolled {

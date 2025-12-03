@@ -5,9 +5,9 @@ namespace engn {
 namespace evts {
 
 enum KeyboardKeyCode {
-    key_unknown = -1,
+    key_unknown = 0,
 
-    key_a = 0,
+    key_a,
     key_b,
     key_c,
     key_d,

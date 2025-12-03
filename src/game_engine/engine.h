@@ -11,10 +11,10 @@ namespace engn {
 
 class EngineContext {
  public:
-    EngineContext() = default;
+    EngineContext();
     ~EngineContext() = default;
 
-    ecs::Registry ecs;
+    ecs::Registry registry;
 
     std::vector<evts::Event> input_events;
     std::vector<evts::UIEvent> ui_events;
