@@ -10,7 +10,6 @@ target_include_directories(game_engine PRIVATE
 )
 
 target_link_libraries(game_engine PRIVATE
-utils
     ecs
     networking
     glm
