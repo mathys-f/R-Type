@@ -36,3 +36,13 @@ void Registry::run_systems()
             sys(*this);
     }
 }
+
+TagRegistry& Registry::tags() noexcept
+{
+    return m_tag_registry;
+}
+
+TagRegistry const& Registry::tags() const noexcept
+{
+    return m_tag_registry;
+}

@@ -2,6 +2,7 @@
 
 #include "entity.h"
 #include "sparse_array.h"
+#include "tag_registry.h"
 
 #include <any>
 #include <functional>
@@ -94,6 +95,9 @@ class Registry
     /// Execute all registered systems in order.
     void run_systems();
 
+    TagRegistry& tags() noexcept { return m_tag_registry; }
+    TagRegistry const& tags() const noexcept { return m_tag_registry; }
+
   private:
     // one sparse array per component type, stored via type erasure
     std::unordered_map<std::type_index, std::any> m_components_arrays;
@@ -107,6 +111,9 @@ class Registry
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
+
+    // Tag registry
+    TagRegistry m_tag_registry;
 };
 
 }  // namespace ecs
