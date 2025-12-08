@@ -2,6 +2,15 @@
 
 // Headless components
 #include "components/tag.h"
+#include "components/transform.h"
+#include "components/velocity.hpp"
+#include "components/drawable.h"
+#include "components/controllable.h"
+#include "components/health.h"
+#include "components/stats.h"
+#include "components/weapon.h"
+#include "components/hitbox.h"
+#include "components/replicated.h"
 
 // Non headless components
 #include "components/ui/ui_button.h"
