@@ -1,7 +1,14 @@
-#include "networking/networking.h"
+#define HEADLESS
+#include "game_engine/engine.h"
 
 int main()
 {
-    net::hello();
+    engn::EngineContext engine_ctx;
+
+    while (true) {
+        // Update engine context
+        engine_ctx.run_systems();
+    }
+
     return 0;
 }

@@ -9,7 +9,7 @@ target_include_directories(server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-target_link_libraries(server PRIVATE ecs networking)
+target_link_libraries(server PRIVATE ecs networking game_engine)
 
 set_target_properties(server PROPERTIES
     OUTPUT_NAME "r-type_server"
