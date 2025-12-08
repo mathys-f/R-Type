@@ -66,11 +66,13 @@ void sys::fetch_inputs(EngineContext &ctx)
     fetch_mouse_moved_events(input_events);
     fetch_mouse_scrolled_events(input_events);
 
-    fetch_controller_button_pressed_events(input_events, gamepad_id);
-    fetch_controller_button_held_events(input_events, gamepad_id);
-    fetch_controller_button_released_events(input_events, gamepad_id);
-    fetch_controller_joystick_events(input_events, gamepad_id);
-    fetch_controller_trigger_events(input_events, gamepad_id);
+    if (gamepad_id != -1) {
+        fetch_controller_button_pressed_events(input_events, gamepad_id);
+        fetch_controller_button_held_events(input_events, gamepad_id);
+        fetch_controller_button_released_events(input_events, gamepad_id);
+        fetch_controller_joystick_events(input_events, gamepad_id);
+        fetch_controller_trigger_events(input_events, gamepad_id);
+    }
 }
 
 const std::unordered_map<std::size_t, evts::KeyboardKeyCode> keyboard_lookup_table = {

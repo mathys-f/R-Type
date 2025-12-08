@@ -18,7 +18,7 @@ EngineContext::EngineContext()
     registry.register_component<cpnt::UITransform>();
 
     add_system<>(sys::fetch_inputs);
-    add_system<>(sys::log_inputs);
+    // add_system<>(sys::log_inputs);
 #endif
 }
 
