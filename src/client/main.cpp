@@ -2,8 +2,6 @@
 
 #include "game_engine/engine.h"
 
-#include "utils/logger.h"
-
 int main()
 {
     engn::EngineContext engine_ctx;
