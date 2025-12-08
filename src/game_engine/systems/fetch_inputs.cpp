@@ -257,7 +257,6 @@ static void fetch_mouse_moved_events(std::vector<evts::Event> &input_events)
        evt.x = GetMouseX();
        evt.y = GetMouseY();
        input_events.push_back(evt);
-       LOG_DEBUG("Mouse moved: x={}, y={}", evt.x, evt.y);
    }
 }
 

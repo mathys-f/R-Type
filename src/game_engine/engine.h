@@ -3,6 +3,8 @@
 #include <vector>
 #include <functional>
 
+#include "glm/vec2.hpp"
+
 #include "ecs/registry.h"
 #include "events/events.h"
 #include "events/ui_events.h"
@@ -20,6 +22,8 @@ class EngineContext {
     std::vector<evts::UIEvent> ui_events;
 
     float delta_time = 0.0f;
+
+    const glm::vec2 window_size{1080.0f, 720.0f};
 
     // System registration / execution
     /// Register a system that accepts const views to the requested

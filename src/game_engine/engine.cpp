@@ -19,6 +19,7 @@ EngineContext::EngineContext()
 
     add_system<>(sys::fetch_inputs);
     // add_system<>(sys::log_inputs);
+    add_system<cpnt::UIParent>(sys::ui_transform_resolver);
 #endif
 }
 

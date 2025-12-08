@@ -9,9 +9,7 @@ target_include_directories(game_engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-target_link_libraries(game_engine PRIVATE
-    ecs
-    networking
-    glm
-    raylib
+target_link_libraries(game_engine
+    PUBLIC glm
+    PRIVATE ecs networking raylib
 )

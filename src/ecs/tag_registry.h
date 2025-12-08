@@ -11,6 +11,8 @@ class TagRegistry {
  public:
     using TagId = std::size_t;
 
+    static constexpr TagId k_invalid_tag_id = -1;
+
     TagRegistry() = default;
     ~TagRegistry() = default;
 
