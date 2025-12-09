@@ -32,4 +32,10 @@ CPMAddPackage(
 	GIT_TAG 1.0.2
 )
 
+CPMAddPackage(
+	NAME sol2
+	GITHUB_REPOSITORY ThePhD/sol2
+	GIT_TAG v3.5.0
+)
+
 add_subdirectory(src)
