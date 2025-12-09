@@ -80,8 +80,8 @@ class Registry
     /// @param from Entity from which the component will be removed.
     template <typename Component> void remove_component(EntityType const& from);
 
-    TagRegistry& tags() noexcept;
-    TagRegistry const& tags() const noexcept;
+    // Tag registry
+    TagRegistry tag_registry;
 
   private:
     // one sparse array per component type, stored via type erasure
@@ -96,9 +96,6 @@ class Registry
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
-
-    // Tag registry
-    TagRegistry m_tag_registry;
 };
 
 }  // namespace ecs

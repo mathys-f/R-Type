@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <optional>
 
 #include "entity.h"
 
@@ -29,10 +30,13 @@ class TagRegistry {
     TagId create_and_bind_tag(const std::string &name, Entity entity);
 
     TagId get_tag_id(const std::string &name) const;
-    std::string get_tag_name(TagId tag_id) const;
+    TagId get_tag_id(Entity entity) const;
 
-    Entity get_entity(const std::string &name) const;
-    Entity get_entity(TagId tag_id) const;
+    std::string get_tag_name(TagId tag_id) const;
+    std::string get_tag_name(Entity entity) const;
+
+    std::optional<Entity> get_entity(const std::string &name) const;
+    std::optional<Entity> get_entity(TagId tag_id) const;
 
  private:
     std::unordered_map<std::string, TagId> m_name_to_id;

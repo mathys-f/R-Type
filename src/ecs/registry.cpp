@@ -27,13 +27,3 @@ void Registry::kill_entity(EntityType const& e)
     }
     m_free_entities.push_back(e);
 }
-
-TagRegistry& Registry::tags() noexcept
-{
-    return m_tag_registry;
-}
-
-TagRegistry const& Registry::tags() const noexcept
-{
-    return m_tag_registry;
-}
