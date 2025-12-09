@@ -111,8 +111,8 @@ int main(void)
 
     // Register systems - order matches system function signatures
     registry.add_system<Position, Star>(StarScrollSystem);
-    registry.add_system<Position, Player, Sprite, Velocity>([&shipTexture, &shootSound](auto& reg, auto& positions, auto& players, auto& sprites, auto& velocity) {
-        PlayerControlSystem(reg, positions, players, sprites, velocity, shipTexture, shootSound);
+    registry.add_system<Position, Player, Sprite, Velocity>([&shipTexture, &shootSound, &dt](auto& reg, auto& positions, auto& players, auto& sprites, auto& velocity) {
+        PlayerControlSystem(reg, positions, players, sprites, velocity, shipTexture, shootSound, dt);
     });
     registry.add_system<Position, Velocity, Bullet>(BulletSystem);
     registry.add_system<Position, Velocity, Enemy, Health, Sprite>(EnemySystem);

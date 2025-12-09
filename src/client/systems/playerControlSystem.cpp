@@ -11,7 +11,8 @@ void PlayerControlSystem(ecs::Registry& reg,
                         ecs::SparseArray<Sprite> const& sprites,
                         ecs::SparseArray<Velocity> const& velocities,
                         Texture2D& shipTexture,
-                        Sound& shootSound) {
+                        Sound& shootSound,
+                        float dt) {
     for (auto [idx, pos_opt, player_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, players, sprites, velocities)) {
         if (pos_opt && player_opt) {
             auto entity = reg.entity_from_index(idx);
@@ -20,10 +21,10 @@ void PlayerControlSystem(ecs::Registry& reg,
             auto& vel = reg.get_components<Velocity>()[idx];
             
             if (pos) {
-                if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) pos->x += 10.0f;
-                if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) pos->x -= 10.0f;
-                if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) pos->y -= 10.0f;
-                if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) pos->y += 10.0f;
+                if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) pos->x += 400.0f * dt;
+                if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) pos->x -= 400.0f * dt;
+                if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) pos->y -= 400.0f * dt;
+                if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) pos->y += 400.0f * dt;
                 
                 // Clamp position
                 if (pos->x >= WIDTH - 99) pos->x = WIDTH - 99;
