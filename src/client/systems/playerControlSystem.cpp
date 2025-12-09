@@ -2,9 +2,6 @@
 #include "../../ecs/registry.h"
 #include "../../ecs/zipper.h"
 
-#define WIDTH               1920
-#define HEIGHT              1000
-
 void PlayerControlSystem(ecs::Registry& reg,
                         ecs::SparseArray<Position> const& positions,
                         ecs::SparseArray<Player> const& players,

@@ -18,12 +18,6 @@
 #include "systems/renderSystem.cpp"
 #include "systems/enemyMovementSystem.cpp"
 
-#define WIDTH               1920
-#define HEIGHT              1000
-#define STARS               1000
-#define MAX_BULLETS         100
-#define MAX_ENEMIES         8
-
 int main(void)
 {
     srand(time(NULL));

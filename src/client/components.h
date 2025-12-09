@@ -2,6 +2,14 @@
 
 #pragma once
 
+#define WIDTH               1920
+#define HEIGHT              1000
+#define SCROLL_SPEED        12
+#define PARTICLES           3
+#define STARS               1000
+#define MAX_BULLETS         100
+#define MAX_ENEMIES         8
+
 struct Position {
     float x, y;
     Vector2 origin;

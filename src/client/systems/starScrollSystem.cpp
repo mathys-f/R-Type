@@ -2,10 +2,6 @@
 #include "../../ecs/registry.h"
 #include "../../ecs/zipper.h"
 
-#define WIDTH               1920
-#define HEIGHT              1000
-#define SCROLL_SPEED        12
-
 void StarScrollSystem(ecs::Registry& reg, 
                      ecs::SparseArray<Position> const& positions,
                      ecs::SparseArray<Star> const& stars) {

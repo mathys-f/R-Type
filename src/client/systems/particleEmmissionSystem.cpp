@@ -3,8 +3,6 @@
 #include "../../ecs/zipper.h"
 #include <math.h>
 
-#define PARTICLES           3
-
 float randf() {
     return (rand() % 1000) / 1000.0f;
 }
