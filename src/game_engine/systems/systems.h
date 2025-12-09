@@ -15,7 +15,11 @@ void log_inputs(EngineContext &ctx);
 void ui_hover(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UITransform> &);
 void ui_press(EngineContext &ctx);
-
+void ui_background_renderer(EngineContext &ctx,
+    const ecs::SparseArray<cpnt::UITransform> &,
+    const ecs::SparseArray<cpnt::UIStyle> &,
+    const ecs::SparseArray<cpnt::UIInteractable> &
+);
 
 } // namespace systems
 

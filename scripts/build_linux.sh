@@ -12,7 +12,7 @@ fi
 
 cmake .. -DCMAKE_BUILD_TYPE=$build_type
 
-cmake --build .
+cmake --build . -j5
 
 cp bin/$build_type/r-type_client ../r-type_client
 cp bin/$build_type/r-type_server ../r-type_server
