@@ -9,7 +9,7 @@ using namespace engn;
 
 void sys::log_inputs(EngineContext &ctx)
 {
-    for (const auto &evt : ctx.input_events) {
+    for (const auto &evt : ctx.input_event_queue) {
         std::visit([](auto&& event) {
             using T = std::decay_t<decltype(event)>;
             if constexpr (std::is_same_v<T, evts::KeyPressed>) {

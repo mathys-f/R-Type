@@ -22,6 +22,8 @@ class EngineContext {
     evts::EventQueue<evts::Event> input_event_queue;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
+    ecs::Entity focused_entity;
+
     float delta_time = 0.0f;
 
     const glm::vec2 window_size{1080.0f, 720.0f};

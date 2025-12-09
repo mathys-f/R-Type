@@ -19,6 +19,7 @@ EngineContext::EngineContext()
     add_system<>(sys::fetch_inputs);
     // add_system<>(sys::log_inputs);
     add_system<cpnt::UITransform>(sys::ui_hover);
+    add_system<>(sys::ui_press);
 #endif
 }
 
@@ -28,3 +29,4 @@ void EngineContext::run_systems()
         sys(*this);
     }
 }
+ 

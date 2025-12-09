@@ -18,9 +18,12 @@ void sys::ui_hover(EngineContext &ctx,
         if (!transforms[i].has_value() || !interacts[i].has_value()) continue;
 
         const auto &t = transforms[i].value();
+
         if (mouse_pos->x >= t.x && mouse_pos->x <= t.x + t.w
             && mouse_pos->y >= t.y && mouse_pos->y <= t.y + t.h) {
             interacts[i].value().hovered = true;
+
+            ctx.focused_entity = ctx.registry.entity_from_index(i);
         } else {
             interacts[i].value().hovered = false;
         }
