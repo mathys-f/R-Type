@@ -8,11 +8,12 @@
 #include <random>
 
 #define WIDTH               1920
-#define HEIGHT              500
+#define HEIGHT              1000
 #define STARS               1000
 #define SCROLL_SPEED        12
 #define MAX_BULLETS         100
 #define MAX_ENEMIES         8
+#define PARTICLES           3
 
 // ========== COMPONENTS ==========
 
@@ -53,6 +54,11 @@ struct Star {
     float z; // depth for parallax
 };
 
+struct Particle {
+    float lifetime;
+    float maxLifetime;
+};
+
 struct Hitbox {
     float width, height;
     float offsetX, offsetY;
@@ -81,6 +87,33 @@ float randf() {
 }
 
 // ========== SYSTEMS ==========
+
+void ParticleEmmissionSystem(ecs::Registry& reg,
+                        ecs::SparseArray<Position> const& positions,
+                        ecs::SparseArray<Velocity> const& velocities,
+                        ecs::SparseArray<Particle> const& particles,
+                        ecs::SparseArray<Bullet> const& bullets) {
+    for (auto [idx, pos_opt, vel_opt, bullets_opt] : 
+        ecs::indexed_zipper(positions, velocities, bullets)) {
+        
+        if (pos_opt && vel_opt && bullets_opt){
+            for (int i = 0; i < PARTICLES; i++) {
+                auto particle = reg.spawn_entity();
+                float angle = randf() * 2.0f * 3.14159f;
+                float r = randf() * 20.0f;
+                float offsetX = cosf(angle) * r;
+                float offsetY = sinf(angle) * r;
+                float posX = pos_opt->x + offsetX + 50.0f;
+                float posY = pos_opt->y + offsetY + 15.0f;
+                reg.add_component(particle, Position{posX, posY});
+                float speed = randf() * 3.0f + 1.0f;
+                reg.add_component(particle, Velocity{cosf(angle) * speed, sinf(angle) * speed});
+                reg.add_component(particle, Particle{0.0f, 0.5f});
+            }
+        }
+    }
+}
+
 
 void StarScrollSystem(ecs::Registry& reg, 
                      ecs::SparseArray<Position> const& positions,
@@ -312,12 +345,32 @@ void RenderSystem(ecs::Registry& reg,
                  ecs::SparseArray<Sprite> const& sprites,
                  ecs::SparseArray<Star> const& stars,
                  ecs::SparseArray<Velocity> const& velocities,
+                 ecs::SparseArray<Particle> const& particles,
                  Texture2D& shipTexture,
                  Texture2D& enemyTexture) {
+    
     // Render stars
     for (auto [idx, pos_opt, star_opt] : ecs::indexed_zipper(positions, stars)) {
         if (pos_opt && star_opt) {
             DrawPixel(pos_opt->x, pos_opt->y, WHITE);
+        }
+    }
+
+    // Render particles
+    for (auto [idx, pos_opt, particle_opt] : ecs::indexed_zipper(positions, particles)) {
+        if (pos_opt && particle_opt) {
+            float alpha = 1.0f - (particle_opt->lifetime / particle_opt->maxLifetime);
+            DrawCircleV((Vector2){pos_opt->x, pos_opt->y}, 3.0f * alpha, (Color){0, 165, 255, (unsigned char)(alpha * 255)});
+            
+            // Update lifetime
+            auto& particle = reg.get_components<Particle>()[idx];
+            if (particle) {
+                particle->lifetime += GetFrameTime();
+                if (particle->lifetime >= particle->maxLifetime) {
+                    auto entity = reg.entity_from_index(idx);
+                    reg.kill_entity(entity);
+                }
+            }
         }
     }
     
@@ -441,7 +494,7 @@ int main(void)
 
         // Other components
         registry.add_component(enemy, Enemy{});
-        registry.add_component(enemy, Sprite{{5.0f, 6.0f, 20.0f, 23.0f}, 5.0f, 0});
+        registry.add_component(enemy, Sprite{{5.0f, 6.0f, 21.0f, 23.0f}, 5.0f, 0});
         registry.add_component(enemy, Health{3, 3});
 
         // Create a **new MovementPattern instance** for this enemy
@@ -487,6 +540,8 @@ int main(void)
         }
     );
 
+    registry.add_system<Position, Velocity, Particle, Bullet>(ParticleEmmissionSystem);
+
     PlayMusicStream(battleMusic);
     // Main game loop
     while (!WindowShouldClose())
@@ -507,6 +562,7 @@ int main(void)
                     registry.get_components<Sprite>(),
                     registry.get_components<Star>(),
                     registry.get_components<Velocity>(),
+                    registry.get_components<Particle>(),
                     shipTexture,
                     enemiesTexture);
         
