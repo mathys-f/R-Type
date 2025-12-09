@@ -74,8 +74,6 @@ struct MovementPattern {
     float baseY;
 };
 
-
-
 // ========== HELPER FUNCTIONS ==========
 
 float randf() {
@@ -214,12 +212,15 @@ void EnemySystem(ecs::Registry& reg,
                 ecs::SparseArray<Position> const& positions,
                 ecs::SparseArray<Velocity> const& velocities,
                 ecs::SparseArray<Enemy> const& enemies,
-                ecs::SparseArray<Health> const& healths) {
-    for (auto [idx, pos_opt, vel_opt, enemy_opt, health_opt] : 
-         ecs::indexed_zipper(positions, velocities, enemies, healths)) {
+                ecs::SparseArray<Health> const& healths,
+                ecs::SparseArray<Sprite> const& sprites) {
+    for (auto [idx, pos_opt, vel_opt, enemy_opt, health_opt, spr_opt] : 
+         ecs::indexed_zipper(positions, velocities, enemies, healths, sprites)) {
         if (pos_opt && vel_opt && enemy_opt && health_opt) {
             auto& pos = reg.get_components<Position>()[idx];
             auto& health = reg.get_components<Health>()[idx];
+            auto& sprite = reg.get_components<Sprite>()[idx];
+            auto& vel = reg.get_components<Velocity>()[idx];
             
             if (pos && vel_opt) {
                 pos->x += vel_opt->x;
@@ -232,6 +233,38 @@ void EnemySystem(ecs::Registry& reg,
                         health->current = health->max;
                     }
                 }
+                
+                //Animate enemies
+
+                if (vel_opt->y > 0) {
+                    if (sprite->frame <= 15 && sprite->sourceRect.x != 137.0f) {
+                        sprite->frame++;
+                        sprite->sourceRect.x = 104.0f;
+                    } else {
+                        sprite->sourceRect.x = 137.0f;
+                        sprite->frame = 0;
+                    }
+                } else if (vel_opt->y < 0) {
+                    if (sprite->frame <= 15 && sprite->sourceRect.x != 5.0f) {
+                        sprite->frame++;
+                        sprite->sourceRect.x = 38.0f;
+                    } else {
+                        sprite->sourceRect.x = 5.0f;
+                        sprite->frame = 0;
+                    }
+                } else {
+                    if (sprite->frame <= 15 && (sprite->sourceRect.x == 5.0f || sprite->sourceRect.x == 38.0f)) {
+                        sprite->frame ++;
+                        sprite->sourceRect.x = 38.0f;
+                    } else if (sprite->frame <= 15 && (sprite->sourceRect.x == 137.0f || sprite->sourceRect.x == 104.0f)) {
+                        sprite->frame ++;
+                        sprite->sourceRect.x = 104.0f;
+                    } else {
+                        sprite->sourceRect.x = 71.0f;
+                        sprite->frame = 0;
+                    }
+                }
+
             }
         }
     }
@@ -445,7 +478,7 @@ int main(void)
         PlayerControlSystem(reg, positions, players, sprites, velocity, shipTexture, shootSound);
     });
     registry.add_system<Position, Velocity, Bullet>(BulletSystem);
-    registry.add_system<Position, Velocity, Enemy, Health>(EnemySystem);
+    registry.add_system<Position, Velocity, Enemy, Health, Sprite>(EnemySystem);
     registry.add_system<Position, Bullet, Enemy, Health>(CollisionSystem);
     
     registry.add_system<Position, MovementPattern, Velocity>(
