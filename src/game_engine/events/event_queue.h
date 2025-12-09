@@ -6,12 +6,22 @@ namespace engn {
 
 namespace evts {
 
-template<typename... TEventTypes>
+template<typename TVariant>
 class EventQueue {
 public:
-    using Event = std::variant<TEventTypes...>;
+    using ContainerT = std::vector<TVariant>;
+    using SizeType = typename ContainerT::size_type;
 
-    std::vector<Event> events;
+    using Iterator = typename ContainerT::iterator;
+    using ConstIterator = typename ContainerT::const_iterator;
+
+    EventQueue() = default;
+    ~EventQueue() = default;
+
+    EventQueue(EventQueue const&) = default;
+    EventQueue(EventQueue&&) noexcept = default;
+    EventQueue& operator=(EventQueue const&) = default;
+    EventQueue& operator=(EventQueue&&) noexcept = default;
 
     /**
      * Push an element at the end of the queue
@@ -31,15 +41,34 @@ public:
     template<typename TEventType>
     const TEventType *get_last() const;
 
+    /**
+     * Each functions must follow this template:
+     * `void fn(const TEventType &evt)`
+     */
     template<typename TEventType, typename Func>
     void for_each(Func &&fn);
+    template<typename TEventType, typename Func>
+    void for_each(Func &&fn) const;
 
     void clear();
 
+    SizeType size();
+
+    // Iterators
+    Iterator begin() noexcept;
+    ConstIterator begin() const noexcept;
+    ConstIterator cbegin() const noexcept;
+
+    Iterator end() noexcept;
+    ConstIterator end() const noexcept;
+    ConstIterator cend() const noexcept;
+
+ private:
+    ContainerT m_data;
 };
 
 } // namespace evts
 
 } // namespace engn
 
-#include "events/event_queue.tcc"
+#include "event_queue.tcc"
