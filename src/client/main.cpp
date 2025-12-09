@@ -1,352 +1,492 @@
-
-
-/*******************************************************************************************
- *
- *   raylib [core] example - 3d camera fps
- *
- *   Example complexity rating: [★★★☆] 3/4
- *
- *   Example originally created with raylib 5.5, last time updated with raylib 5.5
- *
- *   Example contributed by Agnis Aldiņš (@nezvers) and reviewed by Ramon Santamaria (@raysan5)
- *
- *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
- *   BSD-like license that allows static linking with closed source software
- *
- *   Copyright (c) 2025 Agnis Aldiņš (@nezvers)
- *
- ********************************************************************************************/
-
 #include "raylib.h"
+#include "../ecs/registry.h"
+#include "../ecs/zipper.h"
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+#include <math.h>
+#include <random>
 
-#include "raymath.h"
+#define WIDTH               1920
+#define HEIGHT              500
+#define STARS               1000
+#define SCROLL_SPEED        12
+#define MAX_BULLETS         100
+#define MAX_ENEMIES         8
 
-//----------------------------------------------------------------------------------
-// Defines and Macros
-//----------------------------------------------------------------------------------
-// Movement constants
-#define GRAVITY 32.0f
-#define MAX_SPEED 20.0f
-#define CROUCH_SPEED 5.0f
-#define JUMP_FORCE 12.0f
-#define MAX_ACCEL 150.0f
-// Grounded drag
-#define FRICTION 0.86f
-// Increasing air drag, increases strafing speed
-#define AIR_DRAG 0.98f
-// Responsiveness for turning movement direction to looked direction
-#define CONTROL 15.0f
-#define CROUCH_HEIGHT 0.0f
-#define STAND_HEIGHT 1.0f
-#define BOTTOM_HEIGHT 0.5f
+// ========== COMPONENTS ==========
 
-#define NORMALIZE_INPUT 0
+struct Position {
+    float x, y;
+    Vector2 origin;
+};
 
-//----------------------------------------------------------------------------------
-// Types and Structures Definition
-//----------------------------------------------------------------------------------
-// Body structure
-typedef struct
+struct Velocity {
+    float x, y, z;
+    float rx, ry, rz;
+};
+
+struct Sprite {
+    Rectangle sourceRect;
+    float scale;
+    int frame;
+};
+
+struct Health {
+    int current;
+    int max;
+};
+
+struct Player {
+    // Tag component
+};
+
+struct Enemy {
+    // Tag component
+};
+
+struct Bullet {
+    // Tag component
+};
+
+struct Star {
+    float z; // depth for parallax
+};
+
+struct Hitbox {
+    float width, height;
+    float offsetX, offsetY;
+};
+
+enum class PatternType {
+    Straight,
+    Sine,
+    ZigZag,
+    Dive
+};
+
+struct MovementPattern {
+    PatternType type;
+    float speed;
+    float amplitude;
+    float frequency;
+    float timer;
+    float baseY;
+};
+
+
+
+// ========== HELPER FUNCTIONS ==========
+
+float randf() {
+    return (rand() % 1000) / 1000.0f;
+}
+
+// ========== SYSTEMS ==========
+
+void StarScrollSystem(ecs::Registry& reg, 
+                     ecs::SparseArray<Position> const& positions,
+                     ecs::SparseArray<Star> const& stars) {
+    for (auto [idx, pos_opt, star_opt] : ecs::indexed_zipper(positions, stars)) {
+        if (pos_opt && star_opt) {
+            auto entity = reg.entity_from_index(idx);
+            auto& pos = reg.get_components<Position>()[idx];
+            
+            if (pos) {
+                pos->x -= SCROLL_SPEED * (star_opt->z / 1);
+                
+                if (pos->x <= 0) {
+                    pos->x += WIDTH;
+                    pos->y = GetRandomValue(0, HEIGHT);
+                }
+            }
+        }
+    }
+}
+
+void PlayerControlSystem(ecs::Registry& reg,
+                        ecs::SparseArray<Position> const& positions,
+                        ecs::SparseArray<Player> const& players,
+                        ecs::SparseArray<Sprite> const& sprites,
+                        ecs::SparseArray<Velocity> const& velocities,
+                        Texture2D& shipTexture,
+                        Sound& shootSound) {
+    for (auto [idx, pos_opt, player_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, players, sprites, velocities)) {
+        if (pos_opt && player_opt) {
+            auto entity = reg.entity_from_index(idx);
+            auto& pos = reg.get_components<Position>()[idx];
+            auto& sprite = reg.get_components<Sprite>()[idx];
+            auto& vel = reg.get_components<Velocity>()[idx];
+            
+            if (pos) {
+                if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) pos->x += 10.0f;
+                if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) pos->x -= 10.0f;
+                if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) pos->y -= 10.0f;
+                if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) pos->y += 10.0f;
+                
+                // Clamp position
+                if (pos->x >= WIDTH - 99) pos->x = WIDTH - 99;
+                if (pos->x <= 0) pos->x = 0;
+                if (pos->y >= HEIGHT - 54) pos->y = HEIGHT - 54;
+                if (pos->y <= 0) pos->y = 0;
+                
+                // Animate sprite
+                if (sprite) {
+                    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
+                        if (sprite->frame <= 5 && sprite->sourceRect.x != 232.0f) {
+                            sprite->frame++;
+                            sprite->sourceRect.x = 199.0f;
+                        } else {
+                            sprite->sourceRect.x = 232.0f;
+                            sprite->frame = 0;
+                        }
+                    } else if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
+                        if (sprite->frame <= 5 && sprite->sourceRect.x != 100.0f) {
+                            sprite->frame++;
+                            sprite->sourceRect.x = 133.0f;
+                        } else {
+                            sprite->sourceRect.x = 100.0f;
+                            sprite->frame = 0;
+                        }
+                    } else {
+                        if (sprite->frame <= 5 && (sprite->sourceRect.x == 100.0f || sprite->sourceRect.x == 133.0f)) {
+                            sprite->frame ++;
+                            sprite->sourceRect.x = 133.0f;
+                        } else if (sprite->frame <= 5 && (sprite->sourceRect.x == 232.0f || sprite->sourceRect.x == 199.0f)) {
+                            sprite->frame ++;
+                            sprite->sourceRect.x = 199.0f;
+                        } else {
+                            sprite->sourceRect.x = 166.0f;
+                            sprite->frame = 0;
+                        }
+                    }
+                    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+                        vel->z = -5.0f;
+                    } else if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+                        vel->z = 5.0f;
+                    } else {
+                        vel->z = 0.0f;
+                    }
+                }
+                
+                // Shoot
+                if (IsKeyPressed(KEY_SPACE)) {
+                    auto bullet = reg.spawn_entity();
+                    reg.add_component(bullet, Position{pos->x + 50, pos->y + 30});
+                    reg.add_component(bullet, Velocity{15.0f, 0.0f});
+                    reg.add_component(bullet, Bullet{});
+                    reg.add_component(bullet, Sprite{{249.0f, 105.0f, 16.0f, 8.0f}, 2.0f});
+                    PlaySound(shootSound);
+                }
+            }
+        }
+    }
+}
+
+void BulletSystem(ecs::Registry& reg,
+                 ecs::SparseArray<Position> const& positions,
+                 ecs::SparseArray<Velocity> const& velocities,
+                 ecs::SparseArray<Bullet> const& bullets) {
+    std::vector<ecs::Entity> to_kill;
+    
+    for (auto [idx, pos_opt, vel_opt, bullet_opt] : ecs::indexed_zipper(positions, velocities, bullets)) {
+        if (pos_opt && vel_opt && bullet_opt) {
+            auto entity = reg.entity_from_index(idx);
+            auto& pos = reg.get_components<Position>()[idx];
+            
+            if (pos && vel_opt) {
+                pos->x += vel_opt->x;
+                pos->y += vel_opt->y;
+                
+                if (pos->x > WIDTH || pos->x < 0 || pos->y > HEIGHT || pos->y < 0) {
+                    to_kill.push_back(entity);
+                }
+            }
+        }
+    }
+    
+    for (auto e : to_kill) {
+        reg.kill_entity(e);
+    }
+}
+
+void EnemySystem(ecs::Registry& reg,
+                ecs::SparseArray<Position> const& positions,
+                ecs::SparseArray<Velocity> const& velocities,
+                ecs::SparseArray<Enemy> const& enemies,
+                ecs::SparseArray<Health> const& healths) {
+    for (auto [idx, pos_opt, vel_opt, enemy_opt, health_opt] : 
+         ecs::indexed_zipper(positions, velocities, enemies, healths)) {
+        if (pos_opt && vel_opt && enemy_opt && health_opt) {
+            auto& pos = reg.get_components<Position>()[idx];
+            auto& health = reg.get_components<Health>()[idx];
+            
+            if (pos && vel_opt) {
+                pos->x += vel_opt->x;
+                pos->y += vel_opt->y;
+                // Respawn if off screen or dead
+                if (pos->x < -100 || (health && health->current <= 0)) {
+                    pos->x = GetRandomValue(WIDTH, WIDTH * 1.5);
+                    pos->y = GetRandomValue(100, HEIGHT -100);
+                    if (health) {
+                        health->current = health->max;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CollisionSystem(ecs::Registry& reg,
+                    ecs::SparseArray<Position> const& positions,
+                    ecs::SparseArray<Bullet> const& bullets,
+                    ecs::SparseArray<Enemy> const& enemies,
+                    ecs::SparseArray<Health> const& healths) {
+    std::vector<ecs::Entity> bullets_to_kill;
+    
+    // Get bullet entities
+    for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : 
+         ecs::indexed_zipper(positions, bullets)) {
+        if (bullet_pos_opt && bullet_tag_opt) {
+            // Check against all enemies
+            for (auto [enemy_idx, enemy_pos_opt, enemy_tag_opt, health_opt] : 
+                 ecs::indexed_zipper(positions, enemies, healths)) {
+                if (enemy_pos_opt && enemy_tag_opt && health_opt && health_opt->current > 0) {
+                    Rectangle enemyRect = {enemy_pos_opt->x, enemy_pos_opt->y, 100, 100};
+                    Vector2 bulletPos = {bullet_pos_opt->x, bullet_pos_opt->y};
+                    
+                    if (CheckCollisionCircleRec(bulletPos, 5, enemyRect)) {
+                        bullets_to_kill.push_back(reg.entity_from_index(bullet_idx));
+                        
+                        auto& health = reg.get_components<Health>()[enemy_idx];
+                        if (health) {
+                            health->current--;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    for (auto e : bullets_to_kill) {
+        reg.kill_entity(e);
+    }
+}
+
+void RenderSystem(ecs::Registry& reg, 
+                 ecs::SparseArray<Position> const& positions,
+                 ecs::SparseArray<Sprite> const& sprites,
+                 ecs::SparseArray<Star> const& stars,
+                 ecs::SparseArray<Velocity> const& velocities,
+                 Texture2D& shipTexture,
+                 Texture2D& enemyTexture) {
+    // Render stars
+    for (auto [idx, pos_opt, star_opt] : ecs::indexed_zipper(positions, stars)) {
+        if (pos_opt && star_opt) {
+            DrawPixel(pos_opt->x, pos_opt->y, WHITE);
+        }
+    }
+    
+    // Render everything with sprites
+    for (auto [idx, pos_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, sprites, velocities)) {
+        if (pos_opt && sprite_opt) {
+            auto& enemies_arr = reg.get_components<Enemy>();
+            bool is_enemy = idx < enemies_arr.size() && enemies_arr[idx].has_value();
+            
+            Texture2D* texture = is_enemy ? &enemyTexture : &shipTexture;
+            
+            float width = sprite_opt->sourceRect.width * sprite_opt->scale;
+            float height = sprite_opt->sourceRect.height * sprite_opt->scale;
+            
+            DrawTexturePro(*texture, 
+                          sprite_opt->sourceRect,
+                          (Rectangle){pos_opt->x + sprite_opt->sourceRect.width, pos_opt->y + sprite_opt->sourceRect.height, width, height},
+                          (Vector2){pos_opt->origin.x, pos_opt->origin.y}, 
+                          vel_opt ? vel_opt->z : 0.0f,
+                          WHITE);
+        }
+    }
+}
+
+
+void EnemyMovementSystem(ecs::Registry& reg,
+                         ecs::SparseArray<Position> const& positions,
+                         ecs::SparseArray<MovementPattern> const& patterns,
+                         ecs::SparseArray<Velocity> const& velocity,
+                         float dt)
 {
-    Vector3 position;
-    Vector3 velocity;
-    Vector3 dir;
-    bool isGrounded;
-} Body;
+    for (auto [idx, pos_opt, pat_opt] : ecs::indexed_zipper(positions, patterns)) {
+        if (!pos_opt || !pat_opt) continue;
 
-//----------------------------------------------------------------------------------
-// Global Variables Definition
-//----------------------------------------------------------------------------------
-static Vector2 sensitivity = {0.001f, 0.001f};
+        auto& pos = reg.get_components<Position>()[idx].value();
+        auto& pat = reg.get_components<MovementPattern>()[idx].value();
+        auto& vel = reg.get_components<Velocity>()[idx].value();
 
-static Body player = {0};
-static Vector2 lookRotation = {0};
-static float headTimer = 0.0f;
-static float walkLerp = 0.0f;
-static float headLerp = STAND_HEIGHT;
-static Vector2 lean = {0};
+        pat.timer += dt;
 
-//----------------------------------------------------------------------------------
-// Module Functions Declaration
-//----------------------------------------------------------------------------------
-static void DrawLevel(void);
-static void UpdateCameraFPS(Camera* camera);
-static void UpdateBody(Body* body, float rot, char side, char forward, bool jumpPressed,
-                       bool crouchHold);
+        vel.x = -(pat.speed * dt); // consistent motion
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
+        switch (pat.type) {
+            case PatternType::Sine:
+                vel.y = 
+                    sinf(pat.timer * pat.frequency * 2.f * 3.14159f) *
+                    pat.amplitude;
+                break;
+
+            case PatternType::ZigZag: {
+                float phase = fmod(pat.timer * pat.frequency, 2.f);
+                int dir = (phase < 1.f) ? 1 : -1;
+                vel.y = dir * pat.amplitude;
+                break;
+            }
+
+            case PatternType::Straight:
+                break;
+
+            case PatternType::Dive:
+                vel.y = sinf(pat.timer * pat.frequency * 2.f * 3.14159f) *
+                        (pat.amplitude * 2.f);
+                break;
+        }
+    }
+}
+
+// ========== MAIN ==========
+
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    srand(time(NULL));
+    
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(0.1f, 0.8f);
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - 3d camera fps");
+    InitWindow(WIDTH, HEIGHT, "FTL-Type");
+    InitAudioDevice();
+    SetTargetFPS(60);
+    
+    Texture2D shipTexture = LoadTexture("assets/sprites/r-typesheet1.gif");
+    Texture2D enemiesTexture = LoadTexture("assets/sprites/r-typesheet5.gif");
+    Music battleMusic = LoadMusicStream("assets/music/Battle_music.mp3");
+    Sound shootSound = LoadSound("assets/music/Blaster2.mp3");
 
-    // Initialize camera variables
-    // NOTE: UpdateCameraFPS() takes care of the rest
-    Camera camera = {0};
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-    camera.position = (Vector3){
-        player.position.x,
-        player.position.y + (BOTTOM_HEIGHT + headLerp),
-        player.position.z,
-    };
+    ecs::Registry registry;
+    
+    // Create player
+    Rectangle shipSourceRect = {166.0f, 0.0f, 33.0f, 18.0f};
 
-    UpdateCameraFPS(&camera);  // Update camera parameters
+    auto player = registry.spawn_entity();
+    registry.add_component(player, Position{(float)WIDTH/2, (float)HEIGHT/2, {shipSourceRect.width, shipSourceRect.height}});
+    registry.add_component(player, Player{});
+    registry.add_component(player, Sprite{shipSourceRect, 3.0f, 0});
+    registry.add_component(player, Health{100, 100});
+    registry.add_component(player, Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+    
+    // Create stars
+    for (int i = 0; i < STARS; i++) {
+        auto star = registry.spawn_entity();
+        registry.add_component(star, Position{
+            (float)GetRandomValue(0, WIDTH),
+            (float)GetRandomValue(0, HEIGHT)
+        });
+        registry.add_component(star, Star{randf()});
+    }
+    
+    // Create enemies
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        auto enemy = registry.spawn_entity();
 
-    DisableCursor();  // Limit cursor to relative movement inside the window
+        float spawnY = (float)GetRandomValue(100, HEIGHT - 100);
+        float spawnX = (float)GetRandomValue(WIDTH, WIDTH * 2);
 
-    SetTargetFPS(60);  // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+        // Position
+        registry.add_component(enemy, Position{spawnX, spawnY, {0.0f, 0.0f}});
 
+        // Velocity
+        registry.add_component(enemy, Velocity{-(3.0f + randf() * 5.0f), 0.0f, 0.0f, 0.0f, 0.0f});
+
+        // Other components
+        registry.add_component(enemy, Enemy{});
+        registry.add_component(enemy, Sprite{{5.0f, 6.0f, 20.0f, 23.0f}, 5.0f, 0});
+        registry.add_component(enemy, Health{3, 3});
+
+        // Create a **new MovementPattern instance** for this enemy
+        MovementPattern pat;
+        pat.speed = 201.f + randf() * 3.f;
+        pat.amplitude = (float)GetRandomValue(1, 10);
+        pat.frequency = dist(gen);
+        pat.timer = 1.f;
+        int pattern_nbr = GetRandomValue(0, 3);
+        switch (pattern_nbr) {
+            case 0:
+                pat.type = PatternType::Sine;
+                break;
+            case 1:
+                pat.type = PatternType::Sine;
+                break;
+            case 2:
+                pat.type = PatternType::Dive;
+                break;
+            case 3:
+                pat.type = PatternType::Straight;
+                break;
+        }
+        pat.baseY = spawnY;
+
+        registry.add_component(enemy, MovementPattern(pat)); // <-- separate instance per enemy
+    }
+
+    float dt = GetFrameTime();
+
+    // Register systems - order matches system function signatures
+    registry.add_system<Position, Star>(StarScrollSystem);
+    registry.add_system<Position, Player, Sprite, Velocity>([&shipTexture, &shootSound](auto& reg, auto& positions, auto& players, auto& sprites, auto& velocity) {
+        PlayerControlSystem(reg, positions, players, sprites, velocity, shipTexture, shootSound);
+    });
+    registry.add_system<Position, Velocity, Bullet>(BulletSystem);
+    registry.add_system<Position, Velocity, Enemy, Health>(EnemySystem);
+    registry.add_system<Position, Bullet, Enemy, Health>(CollisionSystem);
+    
+    registry.add_system<Position, MovementPattern, Velocity>(
+        [&dt](auto& reg, auto& positions, auto& patterns, auto& velocity) {
+            EnemyMovementSystem(reg, positions, patterns, velocity, dt);
+        }
+    );
+
+    PlayMusicStream(battleMusic);
     // Main game loop
-    while (!WindowShouldClose())  // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        Vector2 mouseDelta = GetMouseDelta();
-        lookRotation.x -= mouseDelta.x * sensitivity.x;
-        lookRotation.y += mouseDelta.y * sensitivity.y;
+        dt = GetFrameTime();
+        // Run all systems
+        registry.run_systems();
 
-        char sideway = (IsKeyDown(KEY_D) - IsKeyDown(KEY_A));
-        char forward = (IsKeyDown(KEY_W) - IsKeyDown(KEY_S));
-        bool crouching = IsKeyDown(KEY_LEFT_CONTROL);
-        UpdateBody(&player, lookRotation.x, sideway, forward, IsKeyPressed(KEY_SPACE), crouching);
-
-        float delta = GetFrameTime();
-        headLerp = Lerp(headLerp, (crouching ? CROUCH_HEIGHT : STAND_HEIGHT), 20.0f * delta);
-        camera.position = (Vector3){
-            player.position.x,
-            player.position.y + (BOTTOM_HEIGHT + headLerp),
-            player.position.z,
-        };
-
-        if (player.isGrounded && ((forward != 0) || (sideway != 0)))
-        {
-            headTimer += delta * 3.0f;
-            walkLerp = Lerp(walkLerp, 1.0f, 10.0f * delta);
-            camera.fovy = Lerp(camera.fovy, 55.0f, 5.0f * delta);
-        }
-        else
-        {
-            walkLerp = Lerp(walkLerp, 0.0f, 10.0f * delta);
-            camera.fovy = Lerp(camera.fovy, 60.0f, 5.0f * delta);
-        }
-
-        lean.x = Lerp(lean.x, sideway * 0.02f, 10.0f * delta);
-        lean.y = Lerp(lean.y, forward * 0.015f, 10.0f * delta);
-
-        UpdateCameraFPS(&camera);
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
+        // Update music
+        UpdateMusicStream(battleMusic);
+        
         BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera);
-        DrawLevel();
-        EndMode3D();
-
-        // Draw info box
-        DrawRectangle(5, 5, 330, 75, Fade(SKYBLUE, 0.5f));
-        DrawRectangleLines(5, 5, 330, 75, BLUE);
-
-        DrawText("Camera controls:", 15, 15, 10, BLACK);
-        DrawText("- Move keys: W, A, S, D, Space, Left-Ctrl", 15, 30, 10, BLACK);
-        DrawText("- Look around: arrow keys or mouse", 15, 45, 10, BLACK);
-        DrawText(TextFormat("- Velocity Len: (%06.3f)",
-                            Vector2Length((Vector2){player.velocity.x, player.velocity.z})),
-                 15, 60, 10, BLACK);
+        ClearBackground((Color){0, 0, 0, 255});
+        
+        // Render system (called separately for texture access)
+        RenderSystem(registry, 
+                    registry.get_components<Position>(),
+                    registry.get_components<Sprite>(),
+                    registry.get_components<Star>(),
+                    registry.get_components<Velocity>(),
+                    shipTexture,
+                    enemiesTexture);
+        
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();  // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    
+    UnloadMusicStream(battleMusic);
+    UnloadSound(shootSound);
+    UnloadTexture(shipTexture);
+    UnloadTexture(enemiesTexture);
+    CloseAudioDevice();
+    CloseWindow();
+    
     return 0;
-}
-
-//----------------------------------------------------------------------------------
-// Module Functions Definition
-//----------------------------------------------------------------------------------
-// Update body considering current world state
-void UpdateBody(Body* body, float rot, char side, char forward, bool jumpPressed, bool crouchHold)
-{
-    Vector2 input = (Vector2){(float)side, (float)-forward};
-
-#if defined(NORMALIZE_INPUT)
-    // Slow down diagonal movement
-    if ((side != 0) && (forward != 0))
-        input = Vector2Normalize(input);
-#endif
-
-    float delta = GetFrameTime();
-
-    if (!body->isGrounded)
-        body->velocity.y -= GRAVITY * delta;
-
-    if (body->isGrounded && jumpPressed)
-    {
-        body->velocity.y = JUMP_FORCE;
-        body->isGrounded = false;
-
-        // Sound can be played at this moment
-        // SetSoundPitch(fxJump, 1.0f + (GetRandomValue(-100, 100)*0.001));
-        // PlaySound(fxJump);
-    }
-
-    Vector3 front = (Vector3){sinf(rot), 0.f, cosf(rot)};
-    Vector3 right = (Vector3){cosf(-rot), 0.f, sinf(-rot)};
-
-    Vector3 desiredDir = (Vector3){
-        input.x * right.x + input.y * front.x,
-        0.0f,
-        input.x * right.z + input.y * front.z,
-    };
-    body->dir = Vector3Lerp(body->dir, desiredDir, CONTROL * delta);
-
-    float decel = (body->isGrounded ? FRICTION : AIR_DRAG);
-    Vector3 hvel = (Vector3){body->velocity.x * decel, 0.0f, body->velocity.z * decel};
-
-    float hvelLength = Vector3Length(hvel);  // Magnitude
-    if (hvelLength < (MAX_SPEED * 0.01f))
-        hvel = (Vector3){0};
-
-    // This is what creates strafing
-    float speed = Vector3DotProduct(hvel, body->dir);
-
-    // Whenever the amount of acceleration to add is clamped by the maximum acceleration constant,
-    // a Player can make the speed faster by bringing the direction closer to horizontal velocity
-    // angle More info here: https://youtu.be/v3zT3Z5apaM?t=165
-    float maxSpeed = (crouchHold ? CROUCH_SPEED : MAX_SPEED);
-    float accel = Clamp(maxSpeed - speed, 0.f, MAX_ACCEL * delta);
-    hvel.x += body->dir.x * accel;
-    hvel.z += body->dir.z * accel;
-
-    body->velocity.x = hvel.x;
-    body->velocity.z = hvel.z;
-
-    body->position.x += body->velocity.x * delta;
-    body->position.y += body->velocity.y * delta;
-    body->position.z += body->velocity.z * delta;
-
-    // Fancy collision system against the floor
-    if (body->position.y <= 0.0f)
-    {
-        body->position.y = 0.0f;
-        body->velocity.y = 0.0f;
-        body->isGrounded = true;  // Enable jumping
-    }
-}
-
-// Update camera for FPS behaviour
-static void UpdateCameraFPS(Camera* camera)
-{
-    const Vector3 up = (Vector3){0.0f, 1.0f, 0.0f};
-    const Vector3 targetOffset = (Vector3){0.0f, 0.0f, -1.0f};
-
-    // Left and right
-    Vector3 yaw = Vector3RotateByAxisAngle(targetOffset, up, lookRotation.x);
-
-    // Clamp view up
-    float maxAngleUp = Vector3Angle(up, yaw);
-    maxAngleUp -= 0.001f;  // Avoid numerical errors
-    if (-(lookRotation.y) > maxAngleUp)
-    {
-        lookRotation.y = -maxAngleUp;
-    }
-
-    // Clamp view down
-    float maxAngleDown = Vector3Angle(Vector3Negate(up), yaw);
-    maxAngleDown *= -1.0f;   // Downwards angle is negative
-    maxAngleDown += 0.001f;  // Avoid numerical errors
-    if (-(lookRotation.y) < maxAngleDown)
-    {
-        lookRotation.y = -maxAngleDown;
-    }
-
-    // Up and down
-    Vector3 right = Vector3Normalize(Vector3CrossProduct(yaw, up));
-
-    // Rotate view vector around right axis
-    float pitchAngle = -lookRotation.y - lean.y;
-    pitchAngle =
-        Clamp(pitchAngle, -PI / 2 + 0.0001f,
-              PI / 2 - 0.0001f);  // Clamp angle so it doesn't go past straight up or straight down
-    Vector3 pitch = Vector3RotateByAxisAngle(yaw, right, pitchAngle);
-
-    // Head animation
-    // Rotate up direction around forward axis
-    float headSin = sinf(headTimer * PI);
-    float headCos = cosf(headTimer * PI);
-    const float stepRotation = 0.01f;
-    camera->up = Vector3RotateByAxisAngle(up, pitch, headSin * stepRotation + lean.x);
-
-    // Camera BOB
-    const float bobSide = 0.1f;
-    const float bobUp = 0.15f;
-    Vector3 bobbing = Vector3Scale(right, headSin * bobSide);
-    bobbing.y = fabsf(headCos * bobUp);
-
-    camera->position = Vector3Add(camera->position, Vector3Scale(bobbing, walkLerp));
-    camera->target = Vector3Add(camera->position, pitch);
-}
-
-// Draw game level
-static void DrawLevel(void)
-{
-    const int floorExtent = 25;
-    const float tileSize = 5.0f;
-    const Color tileColor1 = (Color){150, 200, 200, 255};
-
-    // Floor tiles
-    for (int y = -floorExtent; y < floorExtent; y++)
-    {
-        for (int x = -floorExtent; x < floorExtent; x++)
-        {
-            if ((y & 1) && (x & 1))
-            {
-                DrawPlane((Vector3){x * tileSize, 0.0f, y * tileSize},
-                          (Vector2){tileSize, tileSize}, tileColor1);
-            }
-            else if (!(y & 1) && !(x & 1))
-            {
-                DrawPlane((Vector3){x * tileSize, 0.0f, y * tileSize},
-                          (Vector2){tileSize, tileSize}, LIGHTGRAY);
-            }
-        }
-    }
-
-    const Vector3 towerSize = (Vector3){16.0f, 32.0f, 16.0f};
-    const Color towerColor = (Color){150, 200, 200, 255};
-
-    Vector3 towerPos = (Vector3){16.0f, 16.0f, 16.0f};
-    DrawCubeV(towerPos, towerSize, towerColor);
-    DrawCubeWiresV(towerPos, towerSize, DARKBLUE);
-
-    towerPos.x *= -1;
-    DrawCubeV(towerPos, towerSize, towerColor);
-    DrawCubeWiresV(towerPos, towerSize, DARKBLUE);
-
-    towerPos.z *= -1;
-    DrawCubeV(towerPos, towerSize, towerColor);
-    DrawCubeWiresV(towerPos, towerSize, DARKBLUE);
-
-    towerPos.x *= -1;
-    DrawCubeV(towerPos, towerSize, towerColor);
-    DrawCubeWiresV(towerPos, towerSize, DARKBLUE);
-
-    // Red sun
-    DrawSphere((Vector3){300.0f, 300.0f, 0.0f}, 100.0f, (Color){255, 0, 0, 255});
 }
