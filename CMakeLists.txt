@@ -33,6 +33,12 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+    NAME lua
+    GITHUB_REPOSITORY lua/lua
+    GIT_TAG v5.4.8
+)
+
+CPMAddPackage(
 	NAME sol2
 	GITHUB_REPOSITORY ThePhD/sol2
 	GIT_TAG v3.5.0
