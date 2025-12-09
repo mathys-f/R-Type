@@ -6,21 +6,22 @@
 
 using namespace engn;
 
-EngineContext::EngineContext()
+EngineContext::EngineContext(bool headless)
 {
     registry.register_component<cpnt::Tag>();
 
-#ifndef HEADLESS
-    registry.register_component<cpnt::UIInteractable>();
-    registry.register_component<cpnt::UINavigation>();
-    registry.register_component<cpnt::UIStyle>();
-    registry.register_component<cpnt::UITransform>();
+    if (!headless) {
+        lua_ctx = std::make_unique<LuaContext>();
+        registry.register_component<cpnt::UIInteractable>();
+        registry.register_component<cpnt::UINavigation>();
+        registry.register_component<cpnt::UIStyle>();
+        registry.register_component<cpnt::UITransform>();
 
-    add_system<>(sys::fetch_inputs);
-    // add_system<>(sys::log_inputs);
-    add_system<cpnt::UITransform>(sys::ui_hover);
-    add_system<>(sys::ui_press);
-#endif
+        add_system<>(sys::fetch_inputs);
+        // add_system<>(sys::log_inputs);
+        add_system<cpnt::UITransform>(sys::ui_hover);
+        add_system<>(sys::ui_press);
+    }
 }
 
 void EngineContext::run_systems()

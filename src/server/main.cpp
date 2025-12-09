@@ -1,9 +1,8 @@
-#define HEADLESS
 #include "game_engine/engine.h"
 
 int main()
 {
-    engn::EngineContext engine_ctx;
+    engn::EngineContext engine_ctx(true);
 
     while (true) {
         // Update engine context

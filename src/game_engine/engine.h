@@ -2,19 +2,22 @@
 
 #include <vector>
 #include <functional>
+#include <memory>
 
 #include "glm/vec2.hpp"
+#include "sol/sol.hpp"
 
 #include "ecs/registry.h"
 #include "events/events.h"
 #include "events/ui_events.h"
 #include "events/event_queue.h"
+#include "lua_context.h"
 
 namespace engn {
 
 class EngineContext {
  public:
-    EngineContext();
+    EngineContext(bool headless);
     ~EngineContext() = default;
 
     ecs::Registry registry;
@@ -23,6 +26,8 @@ class EngineContext {
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
     ecs::Entity focused_entity;
+
+    std::unique_ptr<LuaContext> lua_ctx;
 
     float delta_time = 0.0f;
 
@@ -45,7 +50,6 @@ class EngineContext {
 
  private:
     std::vector<std::function<void(EngineContext&)>> m_systems;
-
 };
 
 } // namespace engine

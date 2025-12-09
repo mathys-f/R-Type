@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <format>
 
 namespace ecs
 {
@@ -40,3 +41,10 @@ class Entity
 };
 
 }  // namespace ecs
+
+template <>
+struct std::formatter<ecs::Entity> : std::formatter<size_t> {
+    auto format(const ecs::Entity &entity, auto &ctx) const {
+        return std::formatter<size_t>::format(static_cast<size_t>(entity), ctx);
+    }
+};

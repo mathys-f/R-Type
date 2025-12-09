@@ -4,7 +4,7 @@
 
 int main()
 {
-    engn::EngineContext engine_ctx;
+    engn::EngineContext engine_ctx(false);
 
     // Initialize Raylib
     InitWindow(800, 600, "R-Type Client");
