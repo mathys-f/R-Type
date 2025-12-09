@@ -12,8 +12,8 @@ namespace sys {
 void fetch_inputs(EngineContext &ctx);
 void log_inputs(EngineContext &ctx);
 
-void ui_transform_resolver(EngineContext &ctx,
-    const ecs::SparseArray<cpnt::UIParent> &);
+void ui_hover(EngineContext &ctx,
+    const ecs::SparseArray<cpnt::UITransform> &);
 
 } // namespace systems
 

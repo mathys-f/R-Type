@@ -20,7 +20,7 @@ template<typename... TEventTypes>
 template<typename TEventType>
 const TEventType *EventQueue<TEventTypes...>::get_first() const {
     for (const auto &e : events) {
-        if (TEventType *ptr = std::get_if<TEventType>(&e)) {
+        if (const TEventType *ptr = std::get_if<TEventType>(&e)) {
             return ptr;
         }
     }
@@ -31,7 +31,7 @@ template<typename... TEventTypes>
 template<typename TEventType>
 const TEventType *EventQueue<TEventTypes...>::get_last() const {
     for (auto it = events.rbegin(); it != events.rend(); ++it) {
-        if (TEventType *ptr = std::get_if<TEventType>(&*it)) {
+        if (const TEventType *ptr = std::get_if<TEventType>(&*it)) {
             return ptr;
         }
     }

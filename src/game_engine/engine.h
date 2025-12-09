@@ -8,6 +8,7 @@
 #include "ecs/registry.h"
 #include "events/events.h"
 #include "events/ui_events.h"
+#include "events/event_queue.h"
 
 namespace engn {
 
@@ -18,8 +19,8 @@ class EngineContext {
 
     ecs::Registry registry;
 
-    std::vector<evts::Event> input_events;
-    std::vector<evts::UIEvent> ui_events;
+    evts::EventQueue<evts::Event> input_event_queue;
+    evts::EventQueue<evts::UIEvent> ui_event_queue;
 
     float delta_time = 0.0f;
 

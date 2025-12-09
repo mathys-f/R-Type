@@ -11,21 +11,21 @@
 
 using namespace engn;
 
-static void fetch_key_pressed_events(std::vector<evts::Event> &input_events);
-static void fetch_key_held_events(std::vector<evts::Event> &input_events);
-static void fetch_key_released_events(std::vector<evts::Event> &input_events);
+static void fetch_key_pressed_events(evts::EventQueue<evts::Event> &);
+static void fetch_key_held_events(evts::EventQueue<evts::Event> &);
+static void fetch_key_released_events(evts::EventQueue<evts::Event> &);
 
-static void fetch_mouse_button_pressed_events(std::vector<evts::Event> &input_events);
-static void fetch_mouse_button_held_events(std::vector<evts::Event> &input_events);
-static void fetch_mouse_button_released_events(std::vector<evts::Event> &input_events);
-static void fetch_mouse_moved_events(std::vector<evts::Event> &input_events);
-static void fetch_mouse_scrolled_events(std::vector<evts::Event> &input_events);
+static void fetch_mouse_button_pressed_events(evts::EventQueue<evts::Event> &);
+static void fetch_mouse_button_held_events(evts::EventQueue<evts::Event> &);
+static void fetch_mouse_button_released_events(evts::EventQueue<evts::Event> &);
+static void fetch_mouse_moved_events(evts::EventQueue<evts::Event> &);
+static void fetch_mouse_scrolled_events(evts::EventQueue<evts::Event> &);
 
-static void fetch_controller_button_pressed_events(std::vector<evts::Event> &input_events, int gamepad_id);
-static void fetch_controller_button_held_events(std::vector<evts::Event> &input_events, int gamepad_id);
-static void fetch_controller_button_released_events(std::vector<evts::Event> &input_events, int gamepad_id);;
-static void fetch_controller_joystick_events(std::vector<evts::Event> &input_events, int gamepad_id);
-static void fetch_controller_trigger_events(std::vector<evts::Event> &input_events, int gamepad_id);
+static void fetch_controller_button_pressed_events(evts::EventQueue<evts::Event> &, int);
+static void fetch_controller_button_held_events(evts::EventQueue<evts::Event> &, int);
+static void fetch_controller_button_released_events(evts::EventQueue<evts::Event> &, int);
+static void fetch_controller_joystick_events(evts::EventQueue<evts::Event> &, int);
+static void fetch_controller_trigger_events(evts::EventQueue<evts::Event> &, int);
 
 const std::vector<std::string> k_controllers = {
     "Xbox",
@@ -35,7 +35,7 @@ const std::vector<std::string> k_controllers = {
 
 void sys::fetch_inputs(EngineContext &ctx)
 {
-    auto &input_events = ctx.input_events;
+    auto &input_events = ctx.input_event_queue;
     int gamepad_id = -1;
 
     for (int i = 0; i < 25; i++) {
@@ -166,38 +166,38 @@ const std::unordered_map<std::size_t, evts::KeyboardKeyCode> keyboard_lookup_tab
     {KEY_RIGHT_SUPER, evts::key_right_super}
 };
 
-static void fetch_key_pressed_events(std::vector<evts::Event> &input_events)
+static void fetch_key_pressed_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_key, engn_key] : keyboard_lookup_table) {
         if (IsKeyPressed(raylib_key)) {
             evts::KeyPressed evt;
 
             evt.keycode = engn_key;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_key_held_events(std::vector<evts::Event> &input_events)
+static void fetch_key_held_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_key, engn_key] : keyboard_lookup_table) {
         if (IsKeyDown(raylib_key)) {
             evts::KeyHold evt;
 
             evt.keycode = engn_key;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_key_released_events(std::vector<evts::Event> &input_events)
+static void fetch_key_released_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_key, engn_key] : keyboard_lookup_table) {
         if (IsKeyReleased(raylib_key)) {
             evts::KeyReleased evt;
 
             evt.keycode = engn_key;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
@@ -210,43 +210,43 @@ const std::unordered_map<std::size_t, evts::MouseButton> mouse_button_lookup_tab
     {MOUSE_BUTTON_EXTRA, evts::mouse_button_extra2}
 };
 
-static void fetch_mouse_button_pressed_events(std::vector<evts::Event> &input_events)
+static void fetch_mouse_button_pressed_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_button, engn_button] : mouse_button_lookup_table) {
         if (IsMouseButtonPressed(raylib_button)) {
             evts::MouseButtonPressed evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_mouse_button_held_events(std::vector<evts::Event> &input_events)
+static void fetch_mouse_button_held_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_button, engn_button] : mouse_button_lookup_table) {
         if (IsMouseButtonDown(raylib_button)) {
             evts::MouseButtonHeld evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_mouse_button_released_events(std::vector<evts::Event> &input_events)
+static void fetch_mouse_button_released_events(evts::EventQueue<evts::Event> &input_events)
 {
     for (const auto &[raylib_button, engn_button] : mouse_button_lookup_table) {
         if (IsMouseButtonReleased(raylib_button)) {
             evts::MouseButtonReleased evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_mouse_moved_events(std::vector<evts::Event> &input_events)
+static void fetch_mouse_moved_events(evts::EventQueue<evts::Event> &input_events)
 {
    Vector2 mouseDelta = GetMouseDelta();
 
@@ -256,11 +256,11 @@ static void fetch_mouse_moved_events(std::vector<evts::Event> &input_events)
 
        evt.x = GetMouseX();
        evt.y = GetMouseY();
-       input_events.push_back(evt);
+       input_events.push(evt);
    }
 }
 
-static void fetch_mouse_scrolled_events(std::vector<evts::Event> &input_events)
+static void fetch_mouse_scrolled_events(evts::EventQueue<evts::Event> &input_events)
 {
     Vector2 mouseWheelMove = GetMouseWheelMoveV();
 
@@ -270,7 +270,7 @@ static void fetch_mouse_scrolled_events(std::vector<evts::Event> &input_events)
 
         evt.offset_x = mouseWheelMove.x;
         evt.offset_y = mouseWheelMove.y;
-        input_events.push_back(evt);
+        input_events.push(evt);
     }
 }
 
@@ -298,43 +298,43 @@ const std::unordered_map<std::size_t, evts::ControllerButton> controller_button_
     {GAMEPAD_BUTTON_RIGHT_THUMB, evts::controller_button_right_stick}
 };
 
-static void fetch_controller_button_pressed_events(std::vector<evts::Event> &input_events, int gamepad_id)
+static void fetch_controller_button_pressed_events(evts::EventQueue<evts::Event> &input_events, int gamepad_id)
 {
     for (const auto &[raylib_button, engn_button] : controller_button_lookup_table) {
         if (IsGamepadButtonPressed(gamepad_id, raylib_button)) {
             evts::ControllerButtonPressed evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_controller_button_held_events(std::vector<evts::Event> &input_events, int gamepad_id)
+static void fetch_controller_button_held_events(evts::EventQueue<evts::Event> &input_events, int gamepad_id)
 {
     for (const auto &[raylib_button, engn_button] : controller_button_lookup_table) {
         if (IsGamepadButtonDown(gamepad_id, raylib_button)) {
             evts::ControllerButtonHeld evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_controller_button_released_events(std::vector<evts::Event> &input_events, int gamepad_id)
+static void fetch_controller_button_released_events(evts::EventQueue<evts::Event> &input_events, int gamepad_id)
 {
     for (const auto &[raylib_button, engn_button] : controller_button_lookup_table) {
         if (IsGamepadButtonReleased(gamepad_id, raylib_button)) {
             evts::ControllerButtonReleased evt;
 
             evt.button = engn_button;
-            input_events.push_back(evt);
+            input_events.push(evt);
         }
     }
 }
 
-static void fetch_controller_joystick_events(std::vector<evts::Event> &input_events, int gamepad_id)
+static void fetch_controller_joystick_events(evts::EventQueue<evts::Event> &input_events, int gamepad_id)
 {
     float leftStickX = GetGamepadAxisMovement(gamepad_id, GAMEPAD_AXIS_LEFT_X);
     float leftStickY = GetGamepadAxisMovement(gamepad_id, GAMEPAD_AXIS_LEFT_Y);
@@ -349,7 +349,7 @@ static void fetch_controller_joystick_events(std::vector<evts::Event> &input_eve
 
         evt.x = leftStick.x;
         evt.y = leftStick.y;
-        input_events.push_back(evt);
+        input_events.push(evt);
     }
 
     if (rightStick.x >= 0.1f || rightStick.x <= -0.1f ||
@@ -358,11 +358,11 @@ static void fetch_controller_joystick_events(std::vector<evts::Event> &input_eve
 
         evt.x = rightStick.x;
         evt.y = rightStick.y;
-        input_events.push_back(evt);
+        input_events.push(evt);
     }
 }
 
-static void fetch_controller_trigger_events(std::vector<evts::Event> &input_events, int gamepad_id)
+static void fetch_controller_trigger_events(evts::EventQueue<evts::Event> &input_events, int gamepad_id)
 {
     float leftTrigger = GetGamepadAxisMovement(gamepad_id, GAMEPAD_AXIS_LEFT_TRIGGER);
     float rightTrigger = GetGamepadAxisMovement(gamepad_id, GAMEPAD_AXIS_RIGHT_TRIGGER);
@@ -371,13 +371,13 @@ static void fetch_controller_trigger_events(std::vector<evts::Event> &input_even
         evts::ControllerLeftTriggerMove evt;
 
         evt.value = leftTrigger;
-        input_events.push_back(evt);
+        input_events.push(evt);
     }
 
     if (rightTrigger >= 0.1f || rightTrigger <= -0.1f) {
         evts::ControllerRightTriggerMove evt;
 
         evt.value = rightTrigger;
-        input_events.push_back(evt);
+        input_events.push(evt);
     }
 }

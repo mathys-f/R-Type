@@ -13,13 +13,12 @@ EngineContext::EngineContext()
 #ifndef HEADLESS
     registry.register_component<cpnt::UIInteractable>();
     registry.register_component<cpnt::UINavigation>();
-    registry.register_component<cpnt::UIParent>();
     registry.register_component<cpnt::UIStyle>();
     registry.register_component<cpnt::UITransform>();
 
     add_system<>(sys::fetch_inputs);
     // add_system<>(sys::log_inputs);
-    add_system<cpnt::UIParent>(sys::ui_transform_resolver);
+    add_system<cpnt::UITransform>(sys::ui_hover);
 #endif
 }
 

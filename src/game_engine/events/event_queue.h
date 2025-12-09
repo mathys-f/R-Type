@@ -13,12 +13,21 @@ public:
 
     std::vector<Event> events;
 
+    /**
+     * Push an element at the end of the queue
+     */
     template<typename TEventType>
     void push(TEventType &&event);
 
+    /**
+     * Returns nullptr if not found.
+     */
     template<typename TEventType>
     const TEventType *get_first() const;
 
+    /**
+     * Returns nullptr if not found.
+     */
     template<typename TEventType>
     const TEventType *get_last() const;
 
