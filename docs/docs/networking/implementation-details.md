@@ -1,7 +1,6 @@
 ---
-title: Networking Implementation
-id: networking-implementation
-slug: /networking/
+title: Implementation Details
+id: implementation-details
 ---
 
 # Networking API Reference (concise)
