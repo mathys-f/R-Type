@@ -7,7 +7,8 @@ void EnemySystem(ecs::Registry& reg,
                 ecs::SparseArray<Velocity> const& velocities,
                 ecs::SparseArray<Enemy> const& enemies,
                 ecs::SparseArray<Health> const& healths,
-                ecs::SparseArray<Sprite> const& sprites) {
+                ecs::SparseArray<Sprite> const& sprites,
+                Texture2D& explosionTexture) {
     for (auto [idx, pos_opt, vel_opt, enemy_opt, health_opt, spr_opt] : 
          ecs::indexed_zipper(positions, velocities, enemies, healths, sprites)) {
         if (pos_opt && vel_opt && enemy_opt && health_opt) {
@@ -21,6 +22,14 @@ void EnemySystem(ecs::Registry& reg,
                 pos->y += vel_opt->y;
                 // Respawn if off screen or dead
                 if (pos->x < -100 || (health && health->current <= 0)) {
+                    if (pos->x > -100) {
+                        auto explosion = reg.spawn_entity();
+                        reg.add_component(explosion, Position{pos->x, pos->y, {0.0f, 0.0f}});
+                        reg.add_component(explosion, Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, explosionTexture});
+                        reg.add_component(explosion, Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                        reg.add_component(explosion, Explosion{ExplosionType::Large, 0.0f, 0.08f, 0, 5});
+                    }
+                    
                     pos->x = GetRandomValue(WIDTH, WIDTH * 1.5);
                     pos->y = GetRandomValue(100, HEIGHT -100);
                     if (health) {

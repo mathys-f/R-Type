@@ -7,13 +7,30 @@ void PlayerControlSystem(ecs::Registry& reg,
                         ecs::SparseArray<Player> const& players,
                         ecs::SparseArray<Sprite> const& sprites,
                         ecs::SparseArray<Velocity> const& velocities,
+                        ecs::SparseArray<Health> const& healths,
                         Texture2D& shipTexture,
+                        Texture2D& explosionTexture,
                         Sound& shootSound,
                         float dt) {
-    for (auto [idx, pos_opt, player_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, players, sprites, velocities)) {
+    std::vector<ecs::Entity> to_remove;
+    for (auto [idx, pos_opt, player_opt, sprite_opt, vel_opt, hp_opt] : ecs::indexed_zipper(positions, players, sprites, velocities, healths)) {
+        // Handl player health
+        auto& hp = reg.get_components<Health>()[idx];
+        auto& pos = reg.get_components<Position>()[idx];
+
+        if (hp && hp->current <= 0) {
+            auto explosion = reg.spawn_entity();
+            reg.add_component(explosion, Position{pos->x, pos->y, {0.0f, 0.0f}});
+            reg.add_component(explosion, Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, explosionTexture});
+            reg.add_component(explosion, Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+            reg.add_component(explosion, Explosion{ExplosionType::Large, 0.0f, 0.08f, 0, 5});
+            to_remove.push_back(reg.entity_from_index(idx));         
+            continue;
+        }
+        
+        
         if (pos_opt && player_opt) {
             auto entity = reg.entity_from_index(idx);
-            auto& pos = reg.get_components<Position>()[idx];
             auto& sprite = reg.get_components<Sprite>()[idx];
             auto& vel = reg.get_components<Velocity>()[idx];
             
@@ -72,12 +89,15 @@ void PlayerControlSystem(ecs::Registry& reg,
                 if (IsKeyPressed(KEY_SPACE)) {
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, Position{pos->x + 50, pos->y + 30});
-                    reg.add_component(bullet, Velocity{15.0f, 0.0f});
+                    reg.add_component(bullet, Velocity{650.0f, 0.0f});
                     reg.add_component(bullet, Bullet{});
-                    reg.add_component(bullet, Sprite{{249.0f, 105.0f, 16.0f, 8.0f}, 2.0f});
+                    reg.add_component(bullet, Sprite{{249.0f, 105.0f, 16.0f, 8.0f}, 2.0f, 0, shipTexture});
                     PlaySound(shootSound);
                 }
             }
         }
     }
+
+    for (auto e : to_remove)
+        reg.kill_entity(e);
 }

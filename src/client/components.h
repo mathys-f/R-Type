@@ -4,7 +4,7 @@
 
 #define WIDTH               1920
 #define HEIGHT              1000
-#define SCROLL_SPEED        12
+#define SCROLL_SPEED        5
 #define PARTICLES           3
 #define STARS               1000
 #define MAX_BULLETS         100
@@ -24,6 +24,7 @@ struct Sprite {
     Rectangle sourceRect;
     float scale;
     int frame;
+    Texture2D texture;
 };
 
 struct Health {
@@ -83,4 +84,5 @@ struct Explosion {
     float timer;
     float frameDuration;
     int currentFrame;
+    int totalFrames;
 };

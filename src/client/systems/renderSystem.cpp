@@ -7,9 +7,7 @@ void RenderSystem(ecs::Registry& reg,
                  ecs::SparseArray<Sprite> const& sprites,
                  ecs::SparseArray<Star> const& stars,
                  ecs::SparseArray<Velocity> const& velocities,
-                 ecs::SparseArray<Particle> const& particles,
-                 Texture2D& shipTexture,
-                 Texture2D& enemyTexture) {
+                 ecs::SparseArray<Particle> const& particles) {
     
     // Render stars
     for (auto [idx, pos_opt, star_opt] : ecs::indexed_zipper(positions, stars)) {
@@ -41,15 +39,13 @@ void RenderSystem(ecs::Registry& reg,
         if (pos_opt && sprite_opt) {
             auto& enemies_arr = reg.get_components<Enemy>();
             bool is_enemy = idx < enemies_arr.size() && enemies_arr[idx].has_value();
-            
-            Texture2D* texture = is_enemy ? &enemyTexture : &shipTexture;
-            
+
             float width = sprite_opt->sourceRect.width * sprite_opt->scale;
             float height = sprite_opt->sourceRect.height * sprite_opt->scale;
             
-            DrawTexturePro(*texture, 
+            DrawTexturePro((sprite_opt->texture), 
                           sprite_opt->sourceRect,
-                          (Rectangle){pos_opt->x + sprite_opt->sourceRect.width, pos_opt->y + sprite_opt->sourceRect.height, width, height},
+                          (Rectangle){pos_opt->x, pos_opt->y, width, height},
                           (Vector2){pos_opt->origin.x, pos_opt->origin.y}, 
                           vel_opt ? vel_opt->z : 0.0f,
                           WHITE);

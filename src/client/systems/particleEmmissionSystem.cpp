@@ -22,8 +22,8 @@ void ParticleEmmissionSystem(ecs::Registry& reg,
                 float r = randf() * 20.0f;
                 float offsetX = cosf(angle) * r;
                 float offsetY = sinf(angle) * r;
-                float posX = pos_opt->x + offsetX + 50.0f;
-                float posY = pos_opt->y + offsetY + 15.0f;
+                float posX = pos_opt->x + offsetX + 25.0f;
+                float posY = pos_opt->y + offsetY + 5.0f;
                 reg.add_component(particle, Position{posX, posY});
                 float speed = randf() * 3.0f + 1.0f;
                 reg.add_component(particle, Velocity{cosf(angle) * speed, sinf(angle) * speed});
