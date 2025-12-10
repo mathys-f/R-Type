@@ -1,14 +1,12 @@
-file(GLOB_RECURSE NETWORKING_SOURCES CONFIGURE_DEPENDS
+add_library(networking)
+
+file(GLOB_RECURSE NETWORKING_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
-if(NOT NETWORKING_SOURCES)
-    message(FATAL_ERROR "No SOURCES given to target: networking (no .cpp files found in ${CMAKE_CURRENT_SOURCE_DIR})")
-endif()
+target_sources(networking PRIVATE ${NETWORKING_SOURCES})
 
-add_library(networking ${NETWORKING_SOURCES})
-
-target_include_directories(networking PUBLIC
+target_include_directories(networking PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
