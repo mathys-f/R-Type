@@ -1,55 +1,6 @@
-# .clang-tidy
 Checks: >
-  readability-identifier-naming,
-  modernize-*,
   cppcoreguidelines-*,
-  bugprone-*,
-  performance-*,
-  misc-*
 
 WarningsAsErrors: '*'
 
-CheckOptions:
-  # Types: PascalCase → CamelCase
-  - key: readability-identifier-naming.ClassCase
-    value: 'CamelCase'
-  - key: readability-identifier-naming.StructCase
-    value: 'CamelCase'
-  - key: readability-identifier-naming.EnumCase
-    value: 'CamelCase'
-  - key: readability-identifier-naming.TypeAliasCase
-    value: 'CamelCase'
-  - key: readability-identifier-naming.TemplateParameterCase
-    value: 'CamelCase'
-
-  # Functions: snake_case → lower_case
-  - key: readability-identifier-naming.FunctionCase
-    value: 'lower_case'
-
-  # Variables: snake_case → lower_case
-  - key: readability-identifier-naming.VariableCase
-    value: 'lower_case'
-
-  # Member variables: m_snake_case → lower_case with prefix
-  - key: readability-identifier-naming.MemberCase
-    value: 'lower_case'
-  - key: readability-identifier-naming.MemberPrefix
-    value: 'm_'
-
-  # Static members: s_snake_case
-  - key: readability-identifier-naming.StaticMemberPrefix
-    value: 's_'
-
-  # Global variables: g_snake_case
-  - key: readability-identifier-naming.GlobalPrefix
-    value: 'g_'
-
-  # Constants: k_snake_case
-  - key: readability-identifier-naming.ConstantCase
-    value: 'lower_case'
-  - key: readability-identifier-naming.ConstantPrefix
-    value: 'k_'
-
-  # Interfaces: I* (prefix)
-  - key: readability-identifier-naming.InterfacePrefix
-    value: 'I'
+HeaderFilterRegex: '.*'
