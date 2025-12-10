@@ -33,7 +33,7 @@ jobs:
 
       - name: Build docs
         run: |
-          export BASE_URL="/R-type/"
+          export BASE_URL="/R-Type/"
           npm run build
 
       - name: Deploy production docs
