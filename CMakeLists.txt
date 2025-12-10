@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(MyProject
+project(R-Type
     VERSION 0.1.0
     LANGUAGES CXX
 )
@@ -25,5 +25,16 @@ CPMAddPackage(
 	GITHUB_REPOSITORY raysan5/raylib
 	GIT_TAG 5.5
 )
+
+# Only for Debug builds
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+    if(CLANG_TIDY_EXE)
+        message(STATUS "clang-tidy found: enabling automatic analysis")
+        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    else()
+        message(STATUS "clang-tidy not found: skipping automatic analysis")
+    endif()
+endif()
 
 add_subdirectory(src)
