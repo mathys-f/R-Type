@@ -1,7 +1,6 @@
-#include "networking/networking.h"
+#include "networking/rtp/networking.h"
 
 int main()
 {
-    net::hello();
     return 0;
 }
