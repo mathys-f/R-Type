@@ -14,8 +14,8 @@ template <typename... TArgs>
 void LuaApiEntry<TArgs...>::expose(sol::state &lua, EngineContext &ctx) const
 {
     auto &f = this->m_func;
-    lua.set_function(m_name, [&f, &ctx](TArgs&&... args) {
-        return f(ctx, std::forward<TArgs>(args)...);
+    lua.set_function(m_name, [&f, &ctx](TArgs... args) {
+        return f(ctx, std::move(args)...);
     });
 }
 
