@@ -1,5 +1,6 @@
 # Build artifacts
 build/
+.cache/
 
 # executables files
 r-type*.exe

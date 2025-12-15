@@ -1,7 +1,13 @@
-#include "networking/networking.h"
+#include "game_engine/engine.h"
 
 int main()
 {
-    net::hello();
+    engn::EngineContext engine_ctx(true);
+
+    while (true) {
+        // Update engine context
+        engine_ctx.run_systems();
+    }
+
     return 0;
 }
