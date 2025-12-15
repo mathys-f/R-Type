@@ -4,11 +4,20 @@
 
 #include "components/components.h"
 #include "utils/logger.h"
+#include "utils/color.h"
 
 using namespace engn;
 
 void lua::expose_components(sol::state &lua) {
     LOG_DEBUG("Exposing components to Lua");
+
+    lua.new_usertype<utils::Color>("Color",
+        "r", &utils::Color::r,
+        "g", &utils::Color::g,
+        "b", &utils::Color::b,
+        "a", &utils::Color::a
+    );
+
     lua.new_usertype<cpnt::UITransform>("UITransform",
         "x", &cpnt::UITransform::x,
         "y", &cpnt::UITransform::y,
