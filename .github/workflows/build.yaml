@@ -12,6 +12,7 @@ jobs:
         build_type: [Debug, Release]
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30  # Add explicit timeout
 
     steps:
     - name: Checkout code
@@ -24,15 +25,25 @@ jobs:
         cmake: true
         ninja: true
 
-    - name: Cache dependencies
+    - name: Cache CPM dependencies
       uses: actions/cache@v4
       with:
         path: |
           build/_deps
-          build/cmake/CPM.cmake
-        key: ${{ runner.os }}-deps-${{ hashFiles('CMakeLists.txt') }}
+          ~/.cache/CPM
+        key: ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt', 'src/**/CMakeLists.txt') }}
         restore-keys: |
-          ${{ runner.os }}-deps-
+          ${{ runner.os }}-cpm-
+
+    - name: Cache CMake build
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+        key: ${{ runner.os }}-build-${{ matrix.build_type }}-${{ hashFiles('CMakeLists.txt', 'src/**/*') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ matrix.build_type }}-
+          ${{ runner.os }}-build-
 
     - name: Install Linux dependencies
       if: runner.os == 'Linux'
@@ -51,15 +62,19 @@ jobs:
     - name: Create build directory
       run: mkdir -p build
 
-    - name: Configure CMake
+    - name: Configure CMake with timeout protection
+      timeout-minutes: 15  # Add step-level timeout
       run: |
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -G Ninja
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -G Ninja \
+          -DCPM_SOURCE_CACHE=~/.cache/CPM \
+          -DCMAKE_VERBOSE_MAKEFILE=OFF
 
     - name: Build project
+      timeout-minutes: 10
       run: |
         cd build
-        cmake --build . --config ${{ matrix.build_type }}
+        cmake --build . --config ${{ matrix.build_type }} --parallel 2
 
     - name: Upload Linux artifacts
       if: runner.os == 'Linux'

@@ -7,11 +7,14 @@ project(MyProject
     LANGUAGES CXX C
 )
 
-# GLobal settings
+# Global settings
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
+
+# CPM source cache for CI/CD optimization
+set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/.cache/CPM" CACHE PATH "CPM source cache")
 
 file(
 	DOWNLOAD
@@ -26,12 +29,17 @@ CPMAddPackage(
 	NAME raylib
 	GITHUB_REPOSITORY raysan5/raylib
 	GIT_TAG 5.5
+	OPTIONS
+		"BUILD_EXAMPLES OFF"
+		"BUILD_GAMES OFF"
 )
 
 CPMAddPackage(
 	NAME glm
 	GITHUB_REPOSITORY g-truc/glm
 	GIT_TAG 1.0.2
+	OPTIONS
+		"GLM_BUILD_TESTS OFF"
 )
 
 CPMAddPackage(
