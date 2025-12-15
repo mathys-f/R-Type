@@ -4,19 +4,20 @@
 
 #include "engine.h"
 #include "ecs/zipper.h"
+#include "utils/logger.h"
 
 using namespace engn;
 
 void sys::ui_background_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UITransform> &transforms,
-    const ecs::SparseArray<cpnt::UIStyle> &styles,
-    const ecs::SparseArray<cpnt::UIInteractable> &interactables
+    const ecs::SparseArray<cpnt::UIStyle> &styles
 )
 {
     const ecs::Registry &reg = ctx.registry;
 
-    for (const auto &[transform, style, interactable] :
-        ecs::zipper(transforms, styles, interactables)) {
+    for (const auto &[transform, style] :
+        ecs::zipper(transforms, styles)) {
+        LOG_DEBUG("Rendering UI Background");
         Rectangle rect{
             transform->x,
             transform->y,

@@ -28,7 +28,7 @@ EngineContext::EngineContext(bool headless)
         // add_system<>(sys::log_inputs);
         add_system<cpnt::UITransform>(sys::ui_hover);
         add_system<>(sys::ui_press);
-        add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+        add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
 
         lua::expose_components(lua_ctx->getLuaState());
         expose_cpp_api(lua_ctx->getLuaState(), *this);

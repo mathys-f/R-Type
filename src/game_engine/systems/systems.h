@@ -17,8 +17,7 @@ void ui_hover(EngineContext &ctx,
 void ui_press(EngineContext &ctx);
 void ui_background_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UITransform> &,
-    const ecs::SparseArray<cpnt::UIStyle> &,
-    const ecs::SparseArray<cpnt::UIInteractable> &
+    const ecs::SparseArray<cpnt::UIStyle> &
 );
 
 } // namespace systems

@@ -8,6 +8,7 @@
 #include "components/ui/ui_button.h"
 #include "components/ui/ui_focusable.h"
 #include "components/ui/ui_navigation.h"
+#include "components/ui/ui_style.h"
 
 #include "utils/logger.h"
 
@@ -17,7 +18,10 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
     const ecs::Entity e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.tag_registry.create_and_bind_tag(name, e);
-    if (id == ecs::TagRegistry::k_invalid_tag_id) return;
+    if (id == ecs::TagRegistry::k_invalid_tag_id) {
+        LOG_WARNING("Create_ui_button: Tag '{}' already exists", name);
+        return;
+    }
 
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
@@ -25,13 +29,26 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
     cpnt::UIFocusable focusable{true};
     ctx.registry.add_component(e, std::move(focusable));
 
-    cpnt::UIButton button{[&](){
-        LOG_WARNING("No callback assigned to the button ! {}", name);
-    }};
+    cpnt::UIButton button;
     ctx.registry.add_component(e, std::move(button));
 
     cpnt::UITransform transform{0, 0, 1000, 100, 50, 0.0f, 0.0f, 0.0f};
     ctx.registry.add_component(e, std::move(transform));
+
+    cpnt::UIStyle style{
+        utils::Color{200, 200, 200, 255},
+        utils::Color{220, 220, 220, 255},
+        utils::Color{180, 180, 180, 255},
+        utils::Color{0, 0, 0, 255},
+        utils::Color{0, 0, 0, 255},
+        utils::Color{0, 0, 0, 255},
+        utils::Color{0, 0, 0, 255},
+        utils::Color{30, 30, 30, 255},
+        utils::Color{60, 60, 60, 255},
+        5.0f,
+        2.0f
+    };
+    ctx.registry.add_component(e, std::move(style));
 
     cpnt::UINavigation navigation{ecs::TagRegistry::k_invalid_tag_id,
                                   ecs::TagRegistry::k_invalid_tag_id,
