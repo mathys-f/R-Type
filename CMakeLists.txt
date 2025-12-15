@@ -62,4 +62,17 @@ CPMAddPackage(
 	GIT_TAG v3.5.0
 )
 
+set(BOOST_ENABLE_CMAKE ON CACHE BOOL "" FORCE)
+set(BOOST_INCLUDE_LIBRARIES "asio;system" CACHE STRING "" FORCE)
+set(BOOST_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BOOST_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
+CPMAddPackage(
+	NAME boost
+	GITHUB_REPOSITORY boostorg/boost
+	GIT_TAG boost-1.85.0
+)
+
+find_package(Boost CONFIG REQUIRED COMPONENTS asio system)
+
 add_subdirectory(src)
