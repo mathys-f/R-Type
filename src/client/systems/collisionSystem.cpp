@@ -67,7 +67,7 @@ void CollisionSystem(ecs::Registry& reg,
 
                         auto& health_player = reg.get_components<Health>()[player_idx];
                         if (health_player) {
-                            health_player->current -= 10; // Reduce player health
+                            health_player->current -= 25; // Reduce player health
                         }
                     }
                 }
