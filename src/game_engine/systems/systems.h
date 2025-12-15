@@ -19,6 +19,11 @@ void ui_background_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UITransform> &,
     const ecs::SparseArray<cpnt::UIStyle> &
 );
+void ui_text_renderer(EngineContext &ctx,
+    const ecs::SparseArray<cpnt::UITransform> &,
+    const ecs::SparseArray<cpnt::UIText> &,
+    const ecs::SparseArray<cpnt::UIStyle> &
+);
 
 } // namespace systems
 

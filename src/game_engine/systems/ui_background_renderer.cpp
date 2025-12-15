@@ -4,7 +4,6 @@
 
 #include "engine.h"
 #include "ecs/zipper.h"
-#include "utils/logger.h"
 
 using namespace engn;
 
