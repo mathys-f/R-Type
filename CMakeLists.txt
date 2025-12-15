@@ -4,7 +4,7 @@ include(ExternalProject)
 
 project(MyProject
     VERSION 0.1.0
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # GLobal settings
@@ -37,22 +37,53 @@ CPMAddPackage(
 CPMAddPackage(
     NAME lua
     GITHUB_REPOSITORY lua/lua
-    GIT_TAG v5.4.4
+    GIT_TAG v5.4.6
+    DOWNLOAD_ONLY YES
 )
 
-ExternalProject_Add(lua_build
-	PREFIX ${CMAKE_BINARY_DIR}/lua
-	SOURCE_DIR ${lua_SOURCE_DIR}
-	CONFIGURE_COMMAND ""
-	BUILD_COMMAND make
-	INSTALL_COMMAND ""
-	BUILD_IN_SOURCE 1
-)
-
-add_library(lua_lib INTERFACE)
-target_include_directories(lua_lib INTERFACE ${lua_SOURCE_DIR})
-add_dependencies(lua_lib lua_build)
-
+if(lua_ADDED)
+    # Create our own CMake target for Lua
+    add_library(lua STATIC
+        ${lua_SOURCE_DIR}/lapi.c
+        ${lua_SOURCE_DIR}/lcode.c
+        ${lua_SOURCE_DIR}/lctype.c
+        ${lua_SOURCE_DIR}/ldebug.c
+        ${lua_SOURCE_DIR}/ldo.c
+        ${lua_SOURCE_DIR}/ldump.c
+        ${lua_SOURCE_DIR}/lfunc.c
+        ${lua_SOURCE_DIR}/lgc.c
+        ${lua_SOURCE_DIR}/llex.c
+        ${lua_SOURCE_DIR}/lmem.c
+        ${lua_SOURCE_DIR}/lobject.c
+        ${lua_SOURCE_DIR}/lopcodes.c
+        ${lua_SOURCE_DIR}/lparser.c
+        ${lua_SOURCE_DIR}/lstate.c
+        ${lua_SOURCE_DIR}/lstring.c
+        ${lua_SOURCE_DIR}/ltable.c
+        ${lua_SOURCE_DIR}/ltm.c
+        ${lua_SOURCE_DIR}/lundump.c
+        ${lua_SOURCE_DIR}/lvm.c
+        ${lua_SOURCE_DIR}/lzio.c
+        ${lua_SOURCE_DIR}/lauxlib.c
+        ${lua_SOURCE_DIR}/lbaselib.c
+        ${lua_SOURCE_DIR}/lcorolib.c
+        ${lua_SOURCE_DIR}/ldblib.c
+        ${lua_SOURCE_DIR}/liolib.c
+        ${lua_SOURCE_DIR}/lmathlib.c
+        ${lua_SOURCE_DIR}/loadlib.c
+        ${lua_SOURCE_DIR}/loslib.c
+        ${lua_SOURCE_DIR}/lstrlib.c
+        ${lua_SOURCE_DIR}/ltablib.c
+        ${lua_SOURCE_DIR}/lutf8lib.c
+        ${lua_SOURCE_DIR}/linit.c
+    )
+    
+    target_include_directories(lua PUBLIC ${lua_SOURCE_DIR})
+    
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(lua m dl)
+    endif()
+endif()
 
 add_compile_definitions(SOL_ALL_SAFETIES_ON)
 
