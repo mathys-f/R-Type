@@ -39,8 +39,7 @@
 ---@field right Tag
 ---@field left Tag
 
----@class UIButton
----@field on_click fun()
+---@class UIButton # Identifier component
 
 ----------------------------------------------------------
 -- Math & Utility Types
