@@ -41,6 +41,10 @@
 
 ---@class UIButton # Identifier component
 
+---@class UIText
+---@field content string
+---@field font_size integer
+
 ----------------------------------------------------------
 -- Math & Utility Types
 ----------------------------------------------------------
@@ -56,9 +60,22 @@
 -- Engine API
 ----------------------------------------------------------
 
---- Creates a UI entity and returns its entity ID.
+--- Creates a new entity with these components:
+--- - UIButton
+--- - UIFocusable
+--- - UITransform
+--- - UIStyle
+--- - UINavigation
 --- @param name string # Unique name (tag) for the entity.
 function Create_ui_button(name) end
+
+--- Create a new entity with these components:
+--- - UIButton
+--- - UITransform
+--- - UIStyle
+function Create_ui_text(name, UIText) end
+
+--- Create a UI entity
 
 ----------------------------------------------------------
 -- UI Components Setters
@@ -73,3 +90,13 @@ function Set_ui_transform(tag, UITransform) end
 --- @param tag Tag
 --- @param UIStyle UIStyle
 function Set_ui_style(tag, UIStyle) end
+
+--- Sets the UIText component for the given entity tag
+--- @param tag Tag
+--- @param UIText UIText
+function Set_ui_text(tag, UIText) end
+
+--- Sets the UINavigation component for the given entity tag
+--- @param tag Tag
+--- @param UINavigation UINavigation
+function Set_ui_navigation(tag, UINavigation) end
