@@ -73,6 +73,8 @@ function Create_ui_button(name) end
 --- - UIButton
 --- - UITransform
 --- - UIStyle
+--- @param name string # Unique name (tag) for the entity.
+--- @param UIText UIText
 function Create_ui_text(name, UIText) end
 
 --- Create a UI entity
