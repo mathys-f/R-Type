@@ -1,13 +1,10 @@
-#include "raylib.h"
-#include "../ecs/registry.h"
-#include "../ecs/zipper.h"
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
 #include <math.h>
 #include <random>
 
-#include "components.h"
+#include "raylib.h"
 
 #include "systems/particleEmmissionSystem.cpp"
 #include "systems/starScrollSystem.cpp"
@@ -18,6 +15,14 @@
 #include "systems/renderSystem.cpp"
 #include "systems/enemyMovementSystem.cpp"
 #include "systems/explosionSystem.cpp"
+
+#define WIDTH               1920
+#define HEIGHT              1000
+#define SCROLL_SPEED        5
+#define PARTICLES           3
+#define STARS               1000
+#define MAX_BULLETS         100
+#define MAX_ENEMIES         8
 
 int main(void)
 {
