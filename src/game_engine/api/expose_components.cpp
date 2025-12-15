@@ -42,7 +42,5 @@ void lua::expose_components(sol::state &lua) {
         "right", &cpnt::UINavigation::right_tag
     );
 
-    lua.new_usertype<cpnt::UIButton>("UIButton",
-        "onClick", &cpnt::UIButton::onClick
-    );
+    lua.new_usertype<cpnt::UIButton>("UIButton");
 }

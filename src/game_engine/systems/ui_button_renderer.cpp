@@ -17,7 +17,6 @@ void sys::ui_background_renderer(EngineContext &ctx,
 
     for (const auto &[transform, style] :
         ecs::zipper(transforms, styles)) {
-        LOG_DEBUG("Rendering UI Background");
         Rectangle rect{
             transform->x,
             transform->y,
