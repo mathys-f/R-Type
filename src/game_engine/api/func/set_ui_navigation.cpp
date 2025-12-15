@@ -17,7 +17,7 @@ static auto read_navigation(sol::table table) {
     return navigation;
 }
 
-void lua::set_ui_text(EngineContext &ctx, std::string tag, sol::table t)
+void lua::set_ui_navigation(EngineContext &ctx, std::string tag, sol::table t)
 {
     auto entity = ctx.registry.tag_registry.get_entity(tag);
 

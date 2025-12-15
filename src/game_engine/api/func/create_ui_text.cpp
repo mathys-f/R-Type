@@ -14,6 +14,13 @@
 
 using namespace engn;
 
+static auto read_text(sol::table table) {
+    cpnt::UIText text;
+    text.content = table["content"].get_or(std::string{"Text"});
+    text.font_size = table["font_size"].get_or(16);
+    return text;
+}
+
 void lua::create_ui_text(EngineContext &ctx, std::string name, sol::table t) {
     const ecs::Entity e = ctx.registry.spawn_entity();
 
@@ -26,7 +33,7 @@ void lua::create_ui_text(EngineContext &ctx, std::string name, sol::table t) {
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
 
-    cpnt::UIText text;
+    cpnt::UIText text = read_text(t);
     ctx.registry.add_component(e, std::move(text));
 
     cpnt::UITransform transform{0, 0, 1000, 100, 50, 0.0f, 0.0f, 0.0f};
