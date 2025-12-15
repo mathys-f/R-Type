@@ -2,7 +2,7 @@ name: Build R-Type
 
 on:
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, dev ]
 
 jobs:
   build:
