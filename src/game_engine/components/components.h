@@ -1,16 +1,20 @@
 #pragma once
 
 // Headless components
+#include "components/bullet.h"
+#include "components/controllable.h"
+#include "components/enemy.h"
+#include "components/explosion.h"
+#include "components/health.h"
+#include "components/hitbox.h"
+#include "components/movement_pattern.h"
+#include "components/player.h"
+#include "components/replicated.h"
+#include "components/stats.h"
 #include "components/tag.h"
 #include "components/transform.h"
 #include "components/velocity.hpp"
-#include "components/drawable.h"
-#include "components/controllable.h"
-#include "components/health.h"
-#include "components/stats.h"
 #include "components/weapon.h"
-#include "components/hitbox.h"
-#include "components/replicated.h"
 
 // Non headless components
 #include "components/ui/ui_button.h"
@@ -24,3 +28,5 @@
 #include "components/ui/ui_style.h"
 #include "components/ui/ui_text.h"
 #include "components/ui/ui_transform.h"
+#include "components/particle.h"
+#include "components/star.h"
