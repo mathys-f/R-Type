@@ -17,29 +17,29 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/.cache/CPM" CACHE PATH "CPM source cache")
 
 file(
-	DOWNLOAD
-	https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-	EXPECTED_HASH SHA256=2020b4fc42dba44817983e06342e682ecfc3d2f484a581f11cc5731fbe4dce8a
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=2020b4fc42dba44817983e06342e682ecfc3d2f484a581f11cc5731fbe4dce8a
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
 # Add dependencies below with CPMAddPackage(...)
 CPMAddPackage(
-	NAME raylib
-	GITHUB_REPOSITORY raysan5/raylib
-	GIT_TAG 5.5
-	OPTIONS
-		"BUILD_EXAMPLES OFF"
-		"BUILD_GAMES OFF"
+    NAME raylib
+    GITHUB_REPOSITORY raysan5/raylib
+    GIT_TAG 5.5
+    OPTIONS
+        "BUILD_EXAMPLES OFF"
+        "BUILD_GAMES OFF"
 )
 
 CPMAddPackage(
-	NAME glm
-	GITHUB_REPOSITORY g-truc/glm
-	GIT_TAG 1.0.2
-	OPTIONS
-		"GLM_BUILD_TESTS OFF"
+    NAME glm
+    GITHUB_REPOSITORY g-truc/glm
+    GIT_TAG 1.0.2
+    OPTIONS
+        "GLM_BUILD_TESTS OFF"
 )
 
 CPMAddPackage(
@@ -96,25 +96,25 @@ endif()
 add_compile_definitions(SOL_ALL_SAFETIES_ON)
 
 CPMAddPackage(
-	NAME sol2
-	GITHUB_REPOSITORY ThePhD/sol2
-	GIT_TAG v3.5.0
+    NAME sol2
+    GITHUB_REPOSITORY ThePhD/sol2
+    GIT_TAG v3.5.0
 )
 
 # Use standalone Asio instead of full Boost
 CPMAddPackage(
-	NAME asio
-	GITHUB_REPOSITORY chriskohlhoff/asio
-	GIT_TAG asio-1-30-2
-	DOWNLOAD_ONLY YES
+    NAME asio
+    GITHUB_REPOSITORY chriskohlhoff/asio
+    GIT_TAG asio-1-30-2
+    DOWNLOAD_ONLY YES
 )
 
 if(asio_ADDED)
-	add_library(asio INTERFACE)
-	target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
-	target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
-	find_package(Threads REQUIRED)
-	target_link_libraries(asio INTERFACE Threads::Threads)
+    add_library(asio INTERFACE)
+    target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+    target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+    find_package(Threads REQUIRED)
+    target_link_libraries(asio INTERFACE Threads::Threads)
 endif()
 
 add_subdirectory(src)

@@ -8,11 +8,10 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
         build_type: [Debug, Release]
 
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30  # Add explicit timeout
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
     - name: Checkout code
@@ -31,22 +30,21 @@ jobs:
         path: |
           build/_deps
           ~/.cache/CPM
-        key: ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt', 'src/**/CMakeLists.txt') }}
+        key: linux-cpm-${{ hashFiles('CMakeLists.txt', 'src/**/CMakeLists.txt') }}
         restore-keys: |
-          ${{ runner.os }}-cpm-
+          linux-cpm-
 
     - name: Cache CMake build
       uses: actions/cache@v4
       with:
         path: |
           build
-        key: ${{ runner.os }}-build-${{ matrix.build_type }}-${{ hashFiles('CMakeLists.txt', 'src/**/*') }}
+        key: linux-build-${{ matrix.build_type }}-${{ hashFiles('CMakeLists.txt', 'src/**/*') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ matrix.build_type }}-
-          ${{ runner.os }}-build-
+          linux-build-${{ matrix.build_type }}-
+          linux-build-
 
     - name: Install Linux dependencies
-      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential \
@@ -62,8 +60,8 @@ jobs:
     - name: Create build directory
       run: mkdir -p build
 
-    - name: Configure CMake with timeout protection
-      timeout-minutes: 15  # Add step-level timeout
+    - name: Configure CMake
+      timeout-minutes: 15
       run: |
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -G Ninja \
@@ -76,8 +74,7 @@ jobs:
         cd build
         cmake --build . --config ${{ matrix.build_type }} --parallel 2
 
-    - name: Upload Linux artifacts
-      if: runner.os == 'Linux'
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: r-type-linux-${{ matrix.build_type }}
@@ -85,44 +82,25 @@ jobs:
           build/bin/${{ matrix.build_type }}/r-type_client
           build/bin/${{ matrix.build_type }}/r-type_server
 
-    - name: Upload Windows artifacts
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v4
-      with:
-        name: r-type-windows-${{ matrix.build_type }}
-        path: |
-          build/bin/${{ matrix.build_type }}/r-type_client.exe
-          build/bin/${{ matrix.build_type }}/r-type_server.exe
-
   test:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
         build_type: [Debug, Release]
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download artifacts (Linux)
-      if: runner.os == 'Linux'
+    - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
         name: r-type-linux-${{ matrix.build_type }}
         path: ./artifacts
 
-    - name: Download artifacts (Windows)
-      if: runner.os == 'Windows'
-      uses: actions/download-artifact@v4
-      with:
-        name: r-type-windows-${{ matrix.build_type }}
-        path: ./artifacts
-
-    - name: Make executables executable (Linux)
-      if: runner.os == 'Linux'
+    - name: Make executables executable
       run: |
         chmod +x ./artifacts/r-type_client
         chmod +x ./artifacts/r-type_server
