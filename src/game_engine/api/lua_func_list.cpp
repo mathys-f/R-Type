@@ -10,6 +10,7 @@ const std::vector<std::unique_ptr<LuaApiEntryBase>> k_api_functions = []() {
     std::vector<std::unique_ptr<LuaApiEntryBase>> temp;
     temp.emplace_back(std::make_unique<LuaApiEntry<std::string>>("Create_ui_button", create_ui_button));
     temp.emplace_back(std::make_unique<LuaApiEntry<std::string, sol::table>>("Set_ui_style", set_ui_style));
+    temp.emplace_back(std::make_unique<LuaApiEntry<std::string, sol::table>>("Set_ui_transform", set_ui_transform));
     return temp;
 }();
 

@@ -16,3 +16,59 @@ local main_menu_style = {
 Create_ui_button("play_solo_button")
 
 Set_ui_style("play_solo_button", main_menu_style)
+
+Set_ui_transform("play_solo_button", {
+    x = 300,
+    y = 200,
+    z = 0,
+    w = 200,
+    h = 50,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button("play_multiplayer_button")
+
+Set_ui_style("play_multiplayer_button", main_menu_style)
+
+Set_ui_transform("play_multiplayer_button", {
+    x = 300,
+    y = 275,
+    z = 0,
+    w = 200,
+    h = 50,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button("setting_button")
+
+Set_ui_style("setting_button", main_menu_style)
+
+Set_ui_transform("setting_button", {
+    x = 300,
+    y = 350,
+    z = 0,
+    w = 200,
+    h = 50,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button("exit_button")
+
+Set_ui_style("exit_button", main_menu_style)
+
+Set_ui_transform("exit_button", {
+    x = 300,
+    y = 425,
+    z = 0,
+    w = 200,
+    h = 50,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})

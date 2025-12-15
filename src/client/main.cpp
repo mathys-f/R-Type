@@ -15,7 +15,6 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
         engine_ctx.run_systems();
-        DrawText("R-Type Client Running...", 190, 200, 20, LIGHTGRAY);
         EndDrawing();
     }
 
