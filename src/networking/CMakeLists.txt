@@ -14,7 +14,6 @@ find_package(Threads REQUIRED)
 
 target_link_libraries(networking
     PUBLIC
-        Boost::asio
-        Boost::system
+        asio
         Threads::Threads
 )

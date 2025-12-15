@@ -4,12 +4,12 @@
 
 namespace net
 {
-UdpTransport::UdpTransport(boost::asio::io_context& context, std::uint16_t localPort)
-    : m_socket(context, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), localPort))
+UdpTransport::UdpTransport(asio::io_context& context, std::uint16_t localPort)
+    : m_socket(context, asio::ip::udp::endpoint(asio::ip::udp::v4(), localPort))
 {
 }
 
-void UdpTransport::set_default_remote(const boost::asio::ip::udp::endpoint& endpoint)
+void UdpTransport::set_default_remote(const asio::ip::udp::endpoint& endpoint)
 {
     m_default_remote = endpoint;
 }
@@ -19,7 +19,7 @@ bool UdpTransport::has_default_remote() const noexcept
     return m_default_remote.has_value();
 }
 
-const boost::asio::ip::udp::endpoint& UdpTransport::default_remote() const
+const asio::ip::udp::endpoint& UdpTransport::default_remote() const
 {
     if (!m_default_remote.has_value())
     {
@@ -44,14 +44,14 @@ void UdpTransport::async_send(const Packet& packet)
     async_send(packet, *m_default_remote);
 }
 
-void UdpTransport::async_send(const Packet& packet, const boost::asio::ip::udp::endpoint& endpoint,
+void UdpTransport::async_send(const Packet& packet, const asio::ip::udp::endpoint& endpoint,
     SendHandler handler)
 {
     auto self = shared_from_this();
     auto buffer = std::make_shared<std::vector<std::uint8_t>>(packet.to_buffer());
     m_socket.async_send_to(
-        boost::asio::buffer(*buffer), endpoint,
-        [self, buffer, handler, packet](const boost::system::error_code& ec, std::size_t) mutable
+        asio::buffer(*buffer), endpoint,
+        [self, buffer, handler, packet](const asio::error_code& ec, std::size_t) mutable
         -> void {
             if (handler)
             {
@@ -63,7 +63,7 @@ void UdpTransport::async_send(const Packet& packet, const boost::asio::ip::udp::
 void UdpTransport::close()
 {
     m_running = false;
-    boost::system::error_code ec;
+    asio::error_code ec;
     m_socket.close(ec);
 }
 
@@ -76,8 +76,8 @@ void UdpTransport::do_receive()
 
     auto self = shared_from_this();
     m_socket.async_receive_from(
-        boost::asio::buffer(m_buffer), m_sender,
-        [self](const boost::system::error_code& error_code, std::size_t bytesTransferred)
+        asio::buffer(m_buffer), m_sender,
+        [self](const asio::error_code& error_code, std::size_t bytesTransferred)
         -> void {
             if (!self->m_running)
             {
@@ -106,9 +106,8 @@ void UdpTransport::do_receive()
                 {
                     if (self->m_handler)
                     {
-                        boost::system::error_code decode_error =
-                            boost::system::errc::make_error_code(
-                                boost::system::errc::illegal_byte_sequence);
+                        asio::error_code decode_error = 
+                            std::make_error_code(std::errc::illegal_byte_sequence);
                         self->m_handler(decode_error, Packet{}, self->m_sender);
                     }
                 }

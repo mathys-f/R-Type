@@ -132,7 +132,7 @@ std::optional<ResLogin> parse_res_login(const Packet& packet)
 }
 
 bool handle_server_handshake(const Packet& packet, const std::shared_ptr<Session>& session,
-    const boost::asio::ip::udp::endpoint& endpoint)
+    const asio::ip::udp::endpoint& endpoint)
 {
     const auto k_req = parse_req_login(packet);
     if (!k_req.has_value())

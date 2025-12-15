@@ -7,7 +7,7 @@
 
 namespace net
 {
-Session::Session(boost::asio::io_context& context, const boost::asio::ip::udp::endpoint& remote,
+Session::Session(asio::io_context& context, const asio::ip::udp::endpoint& remote,
     ReliabilityConfig config, std::uint16_t localPort)
     : m_transport(std::make_shared<UdpTransport>(context, localPort)), m_config(config),
       m_send_queue(config), m_retransmit_timer(context)
@@ -21,8 +21,8 @@ void Session::start(PacketCallback onReliable, PacketCallback onUnreliable)
     m_unreliable_callback = std::move(onUnreliable);
     m_started = true;
     auto self = shared_from_this();
-    m_transport->start([self](const boost::system::error_code& ec, Packet packet,
-        const boost::asio::ip::udp::endpoint& endpoint)
+    m_transport->start([self](const asio::error_code& ec, Packet packet,
+        const asio::ip::udp::endpoint& endpoint)
         { self->handle_packet(ec, std::move(packet), endpoint); });
     schedule_retransmission();
 }
@@ -41,7 +41,7 @@ void Session::send(Packet packet, bool reliable)
     send(std::move(packet), k_endpoint, reliable);
 }
 
-void Session::send(Packet packet, const boost::asio::ip::udp::endpoint& endpoint, bool reliable)
+void Session::send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable)
 {
     if (!m_started)
     {
@@ -83,8 +83,8 @@ const std::vector<std::uint32_t>& Session::failed_sequences() const noexcept
     return m_failed_cache;
 }
 
-void Session::handle_packet(const boost::system::error_code& ec, Packet packet,
-    const boost::asio::ip::udp::endpoint& endpoint)
+void Session::handle_packet(const asio::error_code& ec, Packet packet,
+    const asio::ip::udp::endpoint& endpoint)
 {
     if (ec)
     {
@@ -162,7 +162,7 @@ std::size_t Session::fragment_payload_size() const noexcept
     return m_fragment_payload_size;
 }
 
-void Session::send_single_packet(Packet packet, const boost::asio::ip::udp::endpoint& endpoint,
+void Session::send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint,
     bool reliable)
 {
     auto now = std::chrono::steady_clock::now();
@@ -185,7 +185,7 @@ void Session::send_single_packet(Packet packet, const boost::asio::ip::udp::endp
     m_failed_cache.clear();
 }
 
-void Session::fragment_and_send(Packet packet, const boost::asio::ip::udp::endpoint& endpoint,
+void Session::fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint,
     bool reliable)
 {
     reliable = true; // RFC: fragmented messages must be reliable
@@ -355,7 +355,7 @@ void Session::schedule_retransmission()
     m_retransmit_timer.expires_after(next_delay.value());
     auto self = shared_from_this();
     m_retransmit_timer.async_wait(
-        [self](const boost::system::error_code& ec)
+        [self](const asio::error_code& ec)
         -> void {
             if (!ec)
             {

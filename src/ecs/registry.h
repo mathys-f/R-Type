@@ -2,6 +2,7 @@
 
 #include "entity.h"
 #include "sparse_array.h"
+#include "tag_registry.h"
 
 #include <any>
 #include <functional>
@@ -79,20 +80,8 @@ class Registry
     /// @param from Entity from which the component will be removed.
     template <typename Component> void remove_component(EntityType const& from);
 
-    // System registration / execution
-    /// Register a system that accepts const views to the requested
-    /// component storages. The callable should accept `(Registry&, const
-    /// SparseArray<...>&...)` for the listed component types.
-    /// @tparam Components Component types the system requires.
-    /// @tparam Function Callable type.
-    /// @param f The function object to register.
-    template <class... Components, typename Function> void add_system(Function&& f);
-
-    /// Register a const-qualified callable system.
-    template <class... Components, typename Function> void add_system(Function const& f);
-
-    /// Execute all registered systems in order.
-    void run_systems();
+    // Tag registry
+    TagRegistry tag_registry;
 
   private:
     // one sparse array per component type, stored via type erasure
