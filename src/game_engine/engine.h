@@ -12,6 +12,7 @@
 #include "events/ui_events.h"
 #include "events/event_queue.h"
 #include "lua_context.h"
+#include "assets_manager.h"
 
 namespace engn {
 
@@ -20,16 +21,16 @@ class EngineContext {
     EngineContext(bool headless);
     ~EngineContext() = default;
 
+    float delta_time = 0.0f;
+
     ecs::Registry registry;
+    ecs::Entity focused_entity;
 
     evts::EventQueue<evts::Event> input_event_queue;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
-    ecs::Entity focused_entity;
-
     std::unique_ptr<LuaContext> lua_ctx;
-
-    float delta_time = 0.0f;
+    AssetsManager assets_manager;
 
     const glm::vec2 window_size{1080.0f, 720.0f};
 

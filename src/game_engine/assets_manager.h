@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <any>
+#include <optional>
 
 namespace engn {
 
@@ -15,15 +16,15 @@ class AssetsManager {
     ~AssetsManager() = default;
 
     template<typename TAsset, typename... TArgs>
-    TAsset& load_asset(const std::string& asset_id, TArgs&&... args);
+    bool load_asset(const std::string& asset_id, TArgs&&... args);
 
     void unload_asset(const std::string& asset_id);
 
     template<typename TAsset>
-    TAsset& get_asset(const std::string& asset_id);
+    std::optional<TAsset&> get_asset(const std::string& asset_id);
 
  private:
-    std::unordered_map<std::string, std::shared_ptr<std::any>> m_assets;
+    std::unordered_map<std::string, std::unique_ptr<std::any>> m_assets;
 };
 
 }
