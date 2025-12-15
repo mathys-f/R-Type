@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.20)
 
 include(ExternalProject)
 
@@ -93,18 +93,20 @@ CPMAddPackage(
 	GIT_TAG v3.5.0
 )
 
-set(BOOST_ENABLE_CMAKE ON CACHE BOOL "" FORCE)
-set(BOOST_INCLUDE_LIBRARIES "asio;system" CACHE STRING "" FORCE)
-set(BOOST_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(BOOST_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-
+# Use standalone Asio instead of full Boost
 CPMAddPackage(
-	NAME boost
-	GITHUB_REPOSITORY boostorg/boost
-	GIT_TAG boost-1.85.0
+	NAME asio
+	GITHUB_REPOSITORY chriskohlhoff/asio
+	GIT_TAG asio-1-30-2
+	DOWNLOAD_ONLY YES
 )
 
-find_package(Threads REQUIRED)
-find_package(Boost CONFIG REQUIRED COMPONENTS asio system)
+if(asio_ADDED)
+	add_library(asio INTERFACE)
+	target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+	target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+	find_package(Threads REQUIRED)
+	target_link_libraries(asio INTERFACE Threads::Threads)
+endif()
 
 add_subdirectory(src)

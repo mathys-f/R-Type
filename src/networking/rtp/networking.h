@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 
 namespace net
 {
@@ -217,18 +217,18 @@ namespace net
 	class UdpTransport : public std::enable_shared_from_this<UdpTransport>
 	{
 	public:
-		using PacketHandler = std::function<void(const boost::system::error_code&, Packet, const boost::asio::ip::udp::endpoint&)>;
-		using SendHandler = std::function<void(const boost::system::error_code&, const Packet&)>;
+		using PacketHandler = std::function<void(const asio::error_code&, Packet, const asio::ip::udp::endpoint&)>;
+		using SendHandler = std::function<void(const asio::error_code&, const Packet&)>;
 
 		/**
 		 * Constructs a UDP transport bound to the specified local port.
 		 */
-		explicit UdpTransport(boost::asio::io_context& context, std::uint16_t localPort = 0);
+		explicit UdpTransport(asio::io_context& context, std::uint16_t localPort = 0);
 
 		/**
 		 * Stores the default remote endpoint used when no explicit destination is provided.
 		 */
-		void set_default_remote(const boost::asio::ip::udp::endpoint& endpoint);
+		void set_default_remote(const asio::ip::udp::endpoint& endpoint);
 		/**
 		 * Returns true when a default remote endpoint has been configured.
 		 */
@@ -236,7 +236,7 @@ namespace net
 		/**
 		 * Retrieves the configured default remote endpoint, throwing if none is set.
 		 */
-		[[nodiscard]] const boost::asio::ip::udp::endpoint& default_remote() const;
+		[[nodiscard]] const asio::ip::udp::endpoint& default_remote() const;
 		/**
 		 * Starts the asynchronous receive loop with the provided callback.
 		 */
@@ -248,7 +248,7 @@ namespace net
 		/**
 		 * Sends a packet to the specified endpoint.
 		 */
-		void async_send(const Packet& packet, const boost::asio::ip::udp::endpoint& endpoint, SendHandler handler = {});
+		void async_send(const Packet& packet, const asio::ip::udp::endpoint& endpoint, SendHandler handler = {});
 		/**
 		 * Closes the underlying socket and stops the receive loop.
 		 */
@@ -257,9 +257,9 @@ namespace net
 	private:
 		void do_receive();
 
-		boost::asio::ip::udp::socket m_socket;
-		std::optional<boost::asio::ip::udp::endpoint> m_default_remote{};
-		boost::asio::ip::udp::endpoint m_sender{};
+		asio::ip::udp::socket m_socket;
+		std::optional<asio::ip::udp::endpoint> m_default_remote{};
+		asio::ip::udp::endpoint m_sender{};
 		std::array<std::uint8_t, k_max_packet_size> m_buffer{};
 		PacketHandler m_handler{};
 		bool m_running = false;
@@ -269,12 +269,12 @@ namespace net
 	class Session : public std::enable_shared_from_this<Session>
 	{
 	public:
-		using PacketCallback = std::function<void(const Packet&, const boost::asio::ip::udp::endpoint&)>;
+		using PacketCallback = std::function<void(const Packet&, const asio::ip::udp::endpoint&)>;
 
 		/**
 		 * Constructs a session with its own transport instance and reliability bookkeeping.
 		 */
-		Session(boost::asio::io_context& context, const boost::asio::ip::udp::endpoint& remote, ReliabilityConfig config = {}, std::uint16_t localPort = 0);
+		Session(asio::io_context& context, const asio::ip::udp::endpoint& remote, ReliabilityConfig config = {}, std::uint16_t localPort = 0);
 
 		/**
 		 * Starts the session by registering callbacks and enabling retransmission timers.
@@ -287,7 +287,7 @@ namespace net
 		/**
 		 * Sends a packet to the specified endpoint, optionally tracking it for reliability.
 		 */
-		void send(Packet packet, const boost::asio::ip::udp::endpoint& endpoint, bool reliable = false);
+		void send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable = false);
 		/**
 		 * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
 		 */
@@ -316,11 +316,11 @@ namespace net
         /**
          * Sends a single packet, optionally tracking it for reliability.
          */
-		void send_single_packet(Packet packet, const boost::asio::ip::udp::endpoint& endpoint, bool reliable);
+		void send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
         /**
          * Fragments a large packet and sends the fragments reliably or unreliably.
          */
-		void fragment_and_send(Packet packet, const boost::asio::ip::udp::endpoint& endpoint, bool reliable);
+		void fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
         /**
          * Ingests a fragment and attempts to reassemble the full packet.
          */
@@ -331,7 +331,7 @@ namespace net
 		/**
 		 * Handles an incoming packet, updating reliability state and dispatching callbacks.
 		 */
-		void handle_packet(const boost::system::error_code& ec, Packet packet, const boost::asio::ip::udp::endpoint& endpoint);
+		void handle_packet(const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint);
 
 		/**
 		 * Schedules the next retransmission timer tick.
@@ -344,7 +344,7 @@ namespace net
 		ReliableReceiveWindow m_receive_window{};
 		PacketCallback m_reliable_callback{};
 		PacketCallback m_unreliable_callback{};
-		boost::asio::steady_timer m_retransmit_timer;
+		asio::steady_timer m_retransmit_timer;
 		std::vector<std::uint32_t> m_failed_cache{};
 		std::uint16_t m_next_fragment_id = 1;
 		std::unordered_map<std::uint16_t, FragmentBuffer> m_fragment_buffers{};

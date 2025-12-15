@@ -40,6 +40,6 @@ std::optional<ResLogin> parse_res_login(const Packet& packet);
 // will send a RES_LOGIN reply (currently accepts any username) and return true.
 // The caller should invoke this from the reliable packet callback.
 bool handle_server_handshake(const Packet& packet, const std::shared_ptr<Session>& session,
-    const boost::asio::ip::udp::endpoint& endpoint);
+    const asio::ip::udp::endpoint& endpoint);
 
 } // namespace net::handshake
