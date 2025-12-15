@@ -77,9 +77,9 @@ if(lua_ADDED)
         ${lua_SOURCE_DIR}/lutf8lib.c
         ${lua_SOURCE_DIR}/linit.c
     )
-    
+
     target_include_directories(lua PUBLIC ${lua_SOURCE_DIR})
-    
+
     if(UNIX AND NOT APPLE)
         target_link_libraries(lua m dl)
     endif()
@@ -104,6 +104,7 @@ CPMAddPackage(
 	GIT_TAG boost-1.85.0
 )
 
+find_package(Threads REQUIRED)
 find_package(Boost CONFIG REQUIRED COMPONENTS asio system)
 
 add_subdirectory(src)

@@ -1,0 +1,112 @@
+name: Build R-Type
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug, Release]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup C++ environment
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: gcc
+        cmake: true
+        ninja: true
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          build/_deps
+          build/cmake/CPM.cmake
+        key: ${{ runner.os }}-deps-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-deps-
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Create build directory
+      run: mkdir -p build
+
+    - name: Configure CMake
+      run: |
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -G Ninja
+
+    - name: Build project
+      run: |
+        cd build
+        cmake --build . --config ${{ matrix.build_type }}
+
+    - name: Upload Linux artifacts
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: r-type-linux-${{ matrix.build_type }}
+        path: |
+          build/bin/${{ matrix.build_type }}/r-type_client
+          build/bin/${{ matrix.build_type }}/r-type_server
+
+    - name: Upload Windows artifacts
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: r-type-windows-${{ matrix.build_type }}
+        path: |
+          build/bin/${{ matrix.build_type }}/r-type_client.exe
+          build/bin/${{ matrix.build_type }}/r-type_server.exe
+
+  test:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug, Release]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifacts (Linux)
+      if: runner.os == 'Linux'
+      uses: actions/download-artifact@v4
+      with:
+        name: r-type-linux-${{ matrix.build_type }}
+        path: ./artifacts
+
+    - name: Download artifacts (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/download-artifact@v4
+      with:
+        name: r-type-windows-${{ matrix.build_type }}
+        path: ./artifacts
+
+    - name: Make executables executable (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        chmod +x ./artifacts/r-type_client
+        chmod +x ./artifacts/r-type_server
+
+    - name: Test executables exist
+      run: |
+        ls -la ./artifacts/
+
+    # Add more specific tests here as needed
+    # For example, you could run unit tests or basic functionality tests
