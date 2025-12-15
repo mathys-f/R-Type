@@ -14,8 +14,8 @@ struct UITransform {
     float w;
     float h;
 
-    float achorX;
-    float achorY;
+    float anchor_x;
+    float anchor_y;
 
     float rotation;
 };

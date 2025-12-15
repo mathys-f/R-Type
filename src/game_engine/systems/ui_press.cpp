@@ -10,8 +10,13 @@ void sys::ui_press(EngineContext &ctx)
     // Retrieve currently focused entity
     auto entity = ctx.registry.tag_registry.get_entity(ctx.focused_entity);
     if (!entity.has_value()) return;
+
+    // Check bounds before accessing the vector
+    auto entity_idx = entity.value();
+    if (entity_idx >= interacts.size()) return;
+
     // Retreive the UIInteractable component of the currently focused entity
-    auto &interact = interacts[entity.value()];
+    auto &interact = interacts[entity_idx];
     if (!interact.has_value()) return;
 
     ctx.input_event_queue.for_each<evts::MouseButtonPressed>(
@@ -28,7 +33,9 @@ void sys::ui_press(EngineContext &ctx)
         [&](const evts::MouseButtonReleased &evt) {
             if (evt.button != evts::mouse_button_left) return;
 
-            auto &interact = interacts[entity.value()];
+            // Check bounds again before accessing in lambda
+            if (entity_idx >= interacts.size()) return;
+            auto &interact = interacts[entity_idx];
 
             if (!interact.has_value()) return;
             if (interact.value().hovered)

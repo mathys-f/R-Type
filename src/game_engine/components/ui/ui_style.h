@@ -20,7 +20,6 @@ struct UIStyle {
 
     float border_radius;
     float border_thickness;
-    float padding;
 };
 
 } // namespace components

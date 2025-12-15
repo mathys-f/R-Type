@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 4.2)
+
+include(ExternalProject)
 
 project(MyProject
     VERSION 0.1.0
@@ -35,8 +37,24 @@ CPMAddPackage(
 CPMAddPackage(
     NAME lua
     GITHUB_REPOSITORY lua/lua
-    GIT_TAG v5.4.8
+    GIT_TAG v5.4.4
 )
+
+ExternalProject_Add(lua_build
+	PREFIX ${CMAKE_BINARY_DIR}/lua
+	SOURCE_DIR ${lua_SOURCE_DIR}
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND make
+	INSTALL_COMMAND ""
+	BUILD_IN_SOURCE 1
+)
+
+add_library(lua_lib INTERFACE)
+target_include_directories(lua_lib INTERFACE ${lua_SOURCE_DIR})
+add_dependencies(lua_lib lua_build)
+
+
+add_compile_definitions(SOL_ALL_SAFETIES_ON)
 
 CPMAddPackage(
 	NAME sol2

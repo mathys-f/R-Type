@@ -11,12 +11,10 @@ int main()
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
-        // Update engine context
-        engine_ctx.run_systems();
-
         // Rendering
         BeginDrawing();
         ClearBackground(RAYWHITE);
+        engine_ctx.run_systems();
         DrawText("R-Type Client Running...", 190, 200, 20, LIGHTGRAY);
         EndDrawing();
     }
