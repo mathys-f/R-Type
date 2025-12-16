@@ -5,7 +5,8 @@
 
 using namespace engn;
 
-static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &evt);
+static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &e,
+    engn::evts::EventQueue<engn::evts::UIEvent> evts_queue);
 
 void handle_connection_menu_ui_events(engn::EngineContext& engine_ctx)
 {
