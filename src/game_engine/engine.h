@@ -34,6 +34,11 @@ class EngineContext {
     AssetsManager assets_manager;
 
     const glm::vec2 window_size{1080.0f, 720.0f};
+    const size_t scroll_speed = 5.0f;
+    const size_t particles = 3;
+    const size_t stars = 1000;
+    const size_t max_bullets = 100;
+    const size_t max_enemies = 8;
 
     // System registration / execution
     /// Register a system that accepts const views to the requested

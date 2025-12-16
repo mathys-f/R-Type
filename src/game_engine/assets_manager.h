@@ -15,16 +15,21 @@ class AssetsManager {
     AssetsManager() = default;
     ~AssetsManager() = default;
 
-    template<typename TAsset, typename... TArgs>
-    bool load_asset(const std::string& asset_id, TArgs&&... args);
+    // Specific load functions for each asset type
+    bool load_music(const std::string& asset_id, const std::string& file_path);
+    bool load_sound(const std::string& asset_id, const std::string& file_path);
+    bool load_texture(const std::string& asset_id, const std::string& file_path);
 
     void unload_asset(const std::string& asset_id);
 
+    // Generic get function
     template<typename TAsset>
-    std::optional<TAsset&> get_asset(const std::string& asset_id);
+    std::optional<TAsset> get_asset(const std::string& asset_id);
 
  private:
     std::unordered_map<std::string, std::unique_ptr<std::any>> m_assets;
 };
 
 }
+
+#include "assets_manager.tcc"
