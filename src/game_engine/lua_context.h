@@ -13,7 +13,7 @@ class LuaContext {
     LuaContext();
     ~LuaContext() = default;
 
-    sol::state& getLuaState();
+    sol::state& get_lua_state();
 
  private:
     sol::state m_lua_state;

@@ -23,6 +23,10 @@ static auto read_transform(sol::table table) {
 
 void lua::set_ui_transform(EngineContext &ctx, unsigned char scene_id, std::string tag, sol::table t)
 {
+    if (scene_id != ctx.get_current_scene()) {
+        LOG_WARNING("Set_ui_transform: Attempted to edit {} in scene {}, but current scene is {}", tag, static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
+        return;
+    }
     auto entity = ctx.registry.tag_registry.get_entity(tag);
 
     if (!entity.has_value()) {

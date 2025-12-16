@@ -16,8 +16,9 @@ void sys::ui_text_renderer(EngineContext &ctx,
 {
     const ecs::Registry &reg = ctx.registry;
 
-    for (const auto &[transform, text, style] :
-        ecs::zipper(transforms, texts, styles)) {
+    for (const auto &[index, transform, text, style] :
+        ecs::indexed_zipper(transforms, texts, styles)) {
+        if (index == 0) continue;
         Vector2 string_size = MeasureTextEx(GetFontDefault(), text->content.c_str(), text->font_size, 1.0f);
         Vector2 position;
         position.x = transform->x + (transform->w - string_size.x) / 2.0f;

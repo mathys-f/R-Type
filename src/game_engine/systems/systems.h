@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/sparse_array.h"
-#include "../components/components.h"
+#include "components/components.h"
 
 namespace engn {
 
@@ -24,7 +24,6 @@ void ui_text_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UIText> &,
     const ecs::SparseArray<cpnt::UIStyle> &
 );
-void manage_ui_events(EngineContext &ctx);
 
 void bullet_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,

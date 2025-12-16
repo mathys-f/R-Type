@@ -2,7 +2,7 @@
 
 int main()
 {
-    engn::EngineContext engine_ctx(true);
+    engn::EngineContext engine_ctx;
 
     while (true) {
         // Update engine context

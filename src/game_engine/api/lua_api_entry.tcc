@@ -1,7 +1,5 @@
 #pragma once
 
-#include "api/lua_api_entry.h"
-
 namespace engn::lua {
 
 template <typename... TArgs>

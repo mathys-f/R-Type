@@ -18,7 +18,7 @@ namespace engn {
 
 class EngineContext {
  public:
-    EngineContext(bool headless);
+    EngineContext();
     ~EngineContext() = default;
 
     float delta_time = 0.0f;
@@ -40,7 +40,7 @@ class EngineContext {
     const size_t max_bullets = 100;
     const size_t max_enemies = 8;
 
-    void add_scene_loader(std::function<void(EngineContext&)> loader);
+    void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
     void set_scene(unsigned char scene_id);
     unsigned char get_current_scene() const;
 
@@ -61,7 +61,7 @@ class EngineContext {
 
  private:
     unsigned char m_current_scene;
-    std::vector<std::function<void(EngineContext&)>> m_scenes_loaders;
+    std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
 };

@@ -9,8 +9,8 @@ void sys::ui_press(EngineContext &ctx)
     auto &ui_evts_queue = ctx.ui_event_queue;
 
     // Retrieve currently focused entity
-    auto entity = ctx.registry.tag_registry.get_entity(ctx.focused_entity);
-    if (!entity.has_value()) return;
+    auto entity = ctx.focused_entity;
+    if (entity.value() == 0) return;
 
     // Check bounds before accessing the vector
     auto entity_idx = entity.value();

@@ -1,5 +1,5 @@
 #pragma once
-#include "api/lua_api_entry.h"
+#include "lua_api_entry.h"
 #include "../components/components.h"
 
 namespace engn {
@@ -9,7 +9,8 @@ class EngineContext;
 namespace lua {
 
 void expose_components(sol::state &lua);
-void load_lua_scripts(sol::state &lua, const std::string &scripts_dir);
+void load_lua_script_from_file(sol::state &lua, const std::string &file_path);
+void load_lua_scripts_from_folder_recurse(sol::state &lua, const std::string &scripts_dir);
 
 extern const std::vector<std::unique_ptr<LuaApiEntryBase>> k_api_functions;
 

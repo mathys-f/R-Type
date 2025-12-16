@@ -16,6 +16,10 @@
 using namespace engn;
 
 void lua::create_ui_button(EngineContext &ctx, unsigned char scene_id, std::string name) {
+    if (scene_id != ctx.get_current_scene()) {
+        LOG_WARNING("Create_ui_button: Attempted to create button {} in scene {}, but current scene is {}", name, static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
+        return;
+    }
     const ecs::Entity e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.tag_registry.create_and_bind_tag(name, e);
@@ -62,4 +66,5 @@ void lua::create_ui_button(EngineContext &ctx, unsigned char scene_id, std::stri
                                   ecs::TagRegistry::k_invalid_tag_id,
                                   ecs::TagRegistry::k_invalid_tag_id};
     ctx.registry.add_component(e, std::move(navigation));
+
 }

@@ -18,7 +18,7 @@ local titlescreen_style = {
     background_color =          {r = 0,  g = 0,  b = 0,  a = 0},
     background_color_hovered =  {r = 0,  g = 0,  b = 0,  a = 0},
     background_color_pressed =  {r = 0,  g = 0,  b = 0,  a = 0},
-    text_color =                {r = 0, g = 0, b = 0, a = 255},
+    text_color =                {r = 200, g = 200, b = 200, a = 255},
     text_color_hovered =        {r = 200, g = 200, b = 255, a = 255},
     text_color_pressed =        {r = 150, g = 150, b = 200, a = 255},
     border_color =              {r = 0, g = 0, b = 0, a = 0},
