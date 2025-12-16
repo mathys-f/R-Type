@@ -42,6 +42,6 @@ void AssetsManager::unload_asset(const std::string& asset_id)
     if (it != m_assets.end()) {
         m_assets.erase(it);
     } else {
-        LOG_WARNING("Attempted to unload non-existing asset with id '{}'", asset_id);
+        // LOG_WARNING("Attempted to unload non-existing asset with id '{}'", asset_id);
     }
 }

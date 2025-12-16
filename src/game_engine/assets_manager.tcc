@@ -14,7 +14,7 @@ std::optional<TAsset> AssetsManager::get_asset(const std::string& asset_id)
 {
     auto it = m_assets.find(asset_id);
     if (it == m_assets.end()) {
-        LOG_ERROR("Asset with id '{}' not found", asset_id);
+        // LOG_ERROR("Asset with id '{}' not found", asset_id);
         return std::nullopt;
     }
     try {

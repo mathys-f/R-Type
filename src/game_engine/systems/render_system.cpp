@@ -41,7 +41,7 @@ void sys::render_system(EngineContext &ctx,
             }
         }
     }
-    
+
     // Render everything with sprites
     for (auto [idx, pos_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, sprites, velocities)) {
         if (pos_opt && sprite_opt) {

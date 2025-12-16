@@ -40,10 +40,12 @@ int main(void)
     // Create player
     Rectangle shipSourceRect = {166.0f, 0.0f, 33.0f, 18.0f};
 
+    engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+
     auto player = engine_ctx.registry.spawn_entity();
     engine_ctx.registry.add_component(player, cpnt::Transform{(float)k_width/2, (float)k_height/2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
     engine_ctx.registry.add_component(player, cpnt::Player{});
-    engine_ctx.registry.add_component(player, cpnt::Sprite{shipSourceRect, 3.0f, 0, "assets/sprites/r-typesheet1.gif"});
+    engine_ctx.registry.add_component(player, cpnt::Sprite{shipSourceRect, 3.0f, 0, "player_ship"});
     engine_ctx.registry.add_component(player, cpnt::Health{100, 100});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
 
@@ -59,6 +61,7 @@ int main(void)
     }
 
     // Create enemies
+    engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     for (size_t i = 0; i < engine_ctx.max_enemies; i++) {
         auto enemy = engine_ctx.registry.spawn_entity();
 
@@ -73,7 +76,7 @@ int main(void)
 
         // Other components
         engine_ctx.registry.add_component(enemy, cpnt::Enemy{});
-        engine_ctx.registry.add_component(enemy, cpnt::Sprite{{5.0f, 6.0f, 21.0f, 23.0f}, 5.0f, 0, "assets/sprites/r-typesheet5.gif"});
+        engine_ctx.registry.add_component(enemy, cpnt::Sprite{{5.0f, 6.0f, 21.0f, 23.0f}, 5.0f, 0, "enemy_ship"});
         engine_ctx.registry.add_component(enemy, cpnt::Health{3, 3});
 
         // Create a **new MovementPattern instance** for this enemy
