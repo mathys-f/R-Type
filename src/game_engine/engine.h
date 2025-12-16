@@ -40,6 +40,9 @@ class EngineContext {
     const size_t max_bullets = 100;
     const size_t max_enemies = 8;
 
+    std::string server_ip;
+    std::uint16_t server_port;
+
     void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
     void set_scene(unsigned char scene_id);
     unsigned char get_current_scene() const;
