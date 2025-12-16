@@ -8,7 +8,7 @@ using namespace engn;
 static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &e,
     engn::evts::EventQueue<engn::evts::UIEvent> evts_queue);
 
-void handle_connection_menu_ui_events(engn::EngineContext& engine_ctx)
+void handle_game_ui_events(engn::EngineContext& engine_ctx)
 {
     const auto &evts = engine_ctx.ui_event_queue;
 
@@ -23,10 +23,8 @@ static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonCli
     const auto &tags = ctx.registry.tag_registry;
     std::string tag_name = tags.get_tag_name(e.tag);
 
-    if (tag_name == "connect_button") {
-        LOG_INFO("Connect button clicked in connection menu");
-    }
     if (tag_name == "back_button") {
+        LOG_INFO("Back button clicked in connection menu");
         ctx.set_scene(1); // Main menu scene
     }
 }

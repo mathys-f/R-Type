@@ -24,6 +24,9 @@ void ui_text_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UIText> &,
     const ecs::SparseArray<cpnt::UIStyle> &
 );
+void ui_input_field_updater(EngineContext &ctx,
+    const ecs::SparseArray<cpnt::UIInteractable>&);
+
 
 void bullet_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,

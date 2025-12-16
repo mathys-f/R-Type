@@ -18,10 +18,7 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx)
     auto &reg = engine_ctx.registry;
 
     reg.register_component<cpnt::UIButton>();
-    reg.register_component<cpnt::UICheckbox>();
-    reg.register_component<cpnt::UIDropdown>();
     reg.register_component<cpnt::UIFocusable>();
-    reg.register_component<cpnt::UIInputField>();
     reg.register_component<cpnt::UIInteractable>();
     reg.register_component<cpnt::UINavigation>();
     reg.register_component<cpnt::UISlider>();

@@ -121,6 +121,8 @@ const std::unordered_map<std::size_t, evts::KeyboardKeyCode> keyboard_lookup_tab
     {KEY_INSERT, evts::key_insert},
     {KEY_DELETE, evts::key_delete},
 
+    {KEY_PERIOD, evts::key_period},
+
     {KEY_RIGHT, evts::key_right},
     {KEY_LEFT, evts::key_left},
     {KEY_DOWN, evts::key_down},

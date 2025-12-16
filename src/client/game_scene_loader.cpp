@@ -7,6 +7,8 @@
 #include "game_engine/engine.h"
 #include "game_engine/components/components.h"
 #include "game_engine/systems/systems.h"
+#include "game_engine/api/lua.h"
+#include "systems/client_systems.h"
 
 using namespace engn;
 
@@ -67,6 +69,7 @@ void load_game_scene(engn::EngineContext& engine_ctx)
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<>(handle_connection_menu_ui_events);
 
     // Create player
     Rectangle shipSourceRect = {166.0f, 0.0f, 33.0f, 18.0f};
@@ -135,4 +138,7 @@ void load_game_scene(engn::EngineContext& engine_ctx)
 
         engine_ctx.registry.add_component(enemy, std::move(pat));
     }
+
+    // lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(),
+    //     "scripts/lua/ui/game_menu.lua");
 }

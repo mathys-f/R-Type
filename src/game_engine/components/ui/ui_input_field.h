@@ -6,9 +6,10 @@ namespace engn {
 
 namespace cpnt {
 
+// If present, marks a text attached to the same entity as an input field
 struct UIInputField {
-    std::string value;
-    bool editing = false;
+    bool editing = false; // Is the input field currently being edited
+    float timer; // Used to time the cursor blink
 };
 
 } // namespace cpnt
