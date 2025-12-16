@@ -36,7 +36,7 @@ Create_ui_text(1, "titlescreen", {
 Set_ui_style(1, "titlescreen", styles.titlescreen)
 
 Set_ui_transform(1, "titlescreen", {
-    x = 0,
+    x = 125,
     y = 25,
     z = 0,
     w = 750,
@@ -56,7 +56,7 @@ Set_ui_text(1, "play_solo_button", {
 Set_ui_style(1, "play_solo_button", styles.main_menu)
 
 Set_ui_transform(1, "play_solo_button", {
-    x = 300,
+    x = 425,
     y = 250,
     z = 0,
     w = 200,
@@ -77,7 +77,7 @@ Set_ui_text(1, "play_multiplayer_button", {
 Set_ui_style(1, "play_multiplayer_button", styles.main_menu)
 
 Set_ui_transform(1, "play_multiplayer_button", {
-    x = 300,
+    x = 425,
     y = 325,
     z = 0,
     w = 200,
@@ -98,7 +98,7 @@ Set_ui_text(1, "setting_button", {
 Set_ui_style(1, "setting_button", styles.main_menu)
 
 Set_ui_transform(1, "setting_button", {
-    x = 300,
+    x = 425,
     y = 400,
     z = 0,
     w = 200,
@@ -118,7 +118,7 @@ Set_ui_text(1, "exit_button", {
 Set_ui_style(1, "exit_button", styles.main_menu)
 
 Set_ui_transform(1, "exit_button", {
-    x = 300,
+    x = 425,
     y = 475,
     z = 0,
     w = 200,

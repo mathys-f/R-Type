@@ -73,7 +73,8 @@ void EngineContext::run_systems()
     input_event_queue.clear();
     ui_event_queue.clear();
     for (auto& sys : m_systems) {
-        sys(*this);
+        if (sys)
+            sys(*this);
     }
 }
 

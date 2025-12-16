@@ -23,7 +23,6 @@ int main(void)
 
     InitWindow(k_width, k_height, "FTL-Type");
     InitAudioDevice();
-    SetMasterVolume(0.0f);
     SetTargetFPS(60);
 
     // Load assets
