@@ -12,26 +12,37 @@
 #include "events/ui_events.h"
 #include "events/event_queue.h"
 #include "lua_context.h"
+#include "assets_manager.h"
 
 namespace engn {
 
 class EngineContext {
  public:
-    EngineContext(bool headless);
+    EngineContext();
     ~EngineContext() = default;
 
+    float delta_time = 0.0f;
+    bool should_quit = false;
+
     ecs::Registry registry;
+    ecs::Entity focused_entity;
 
     evts::EventQueue<evts::Event> input_event_queue;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
-    ecs::Entity focused_entity;
-
     std::unique_ptr<LuaContext> lua_ctx;
-
-    float delta_time = 0.0f;
+    AssetsManager assets_manager;
 
     const glm::vec2 window_size{1080.0f, 720.0f};
+    const size_t scroll_speed = 5.0f;
+    const size_t particles = 3;
+    const size_t stars = 1000;
+    const size_t max_bullets = 100;
+    const size_t max_enemies = 8;
+
+    void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
+    void set_scene(unsigned char scene_id);
+    unsigned char get_current_scene() const;
 
     // System registration / execution
     /// Register a system that accepts const views to the requested
@@ -49,6 +60,9 @@ class EngineContext {
     void run_systems();
 
  private:
+    unsigned char m_current_scene;
+    std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
+
     std::vector<std::function<void(EngineContext&)>> m_systems;
 };
 

@@ -51,7 +51,7 @@ TagRegistry::TagId TagRegistry::get_tag_id(Entity entity) const {
         [&entity](const auto &p){ return p.second == entity; });
 
     if (it == m_tag_to_entity.end()) {
-        LOG_ERROR("No TagId is linked to the entity n°{}", entity);
+        LOG_ERROR("No TagId is linked to the entity n°{}", entity.value());
         return TagRegistry::k_invalid_tag_id;
     }
     return it->first;

@@ -9,6 +9,9 @@ struct Transform {
     float y;
     float z;
 
+    float origin_x;
+    float origin_y;
+
     float rx;
     float ry;
     float rz;

@@ -1,4 +1,5 @@
 #include "registry.h"
+#include "utils/logger.h"
 
 using namespace ecs;
 

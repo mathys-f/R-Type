@@ -121,6 +121,8 @@ const std::unordered_map<std::size_t, evts::KeyboardKeyCode> keyboard_lookup_tab
     {KEY_INSERT, evts::key_insert},
     {KEY_DELETE, evts::key_delete},
 
+    {KEY_PERIOD, evts::key_period},
+
     {KEY_RIGHT, evts::key_right},
     {KEY_LEFT, evts::key_left},
     {KEY_DOWN, evts::key_down},
@@ -249,15 +251,11 @@ static void fetch_mouse_button_released_events(evts::EventQueue<evts::Event> &in
 static void fetch_mouse_moved_events(evts::EventQueue<evts::Event> &input_events)
 {
    Vector2 mouseDelta = GetMouseDelta();
+   evts::MouseMoved evt;
 
-   if (mouseDelta.x >= 0.1f || mouseDelta.x <= -0.1f ||
-       mouseDelta.y >= 0.1f || mouseDelta.y <= -0.1f) {
-       evts::MouseMoved evt;
-
-       evt.x = GetMouseX();
-       evt.y = GetMouseY();
-       input_events.push(evt);
-   }
+   evt.x = GetMouseX();
+   evt.y = GetMouseY();
+   input_events.push(evt);
 }
 
 static void fetch_mouse_scrolled_events(evts::EventQueue<evts::Event> &input_events)

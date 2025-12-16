@@ -14,8 +14,10 @@ void sys::ui_background_renderer(EngineContext &ctx,
 {
     const ecs::Registry &reg = ctx.registry;
 
-    for (const auto &[transform, style] :
-        ecs::zipper(transforms, styles)) {
+    for (const auto &[index, transform, style] :
+        ecs::indexed_zipper(transforms, styles)) {
+        if (index == 0) continue;
+
         Rectangle rect{
             transform->x,
             transform->y,

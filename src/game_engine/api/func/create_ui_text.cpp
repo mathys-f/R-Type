@@ -21,7 +21,11 @@ static auto read_text(sol::table table) {
     return text;
 }
 
-void lua::create_ui_text(EngineContext &ctx, std::string name, sol::table t) {
+void lua::create_ui_text(EngineContext &ctx, unsigned char scene_id, std::string name, sol::table t) {
+    if (scene_id != ctx.get_current_scene()) {
+        LOG_WARNING("Create_ui_text: Attempted to create Text {} in scene {}, but current scene is {}", name, static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
+        return;
+    }
     const ecs::Entity e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.tag_registry.create_and_bind_tag(name, e);
@@ -32,6 +36,9 @@ void lua::create_ui_text(EngineContext &ctx, std::string name, sol::table t) {
 
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(e, std::move(scene));
 
     cpnt::UIText text = read_text(t);
     ctx.registry.add_component(e, std::move(text));

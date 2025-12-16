@@ -9,12 +9,17 @@
 #include "components/ui/ui_focusable.h"
 #include "components/ui/ui_navigation.h"
 #include "components/ui/ui_style.h"
+#include "components/ui/ui_interactable.h"
 
 #include "utils/logger.h"
 
 using namespace engn;
 
-void lua::create_ui_button(EngineContext &ctx, std::string name) {
+void lua::create_ui_button(EngineContext &ctx, unsigned char scene_id, std::string name) {
+    if (scene_id != ctx.get_current_scene()) {
+        LOG_WARNING("Create_ui_button: Attempted to create button {} in scene {}, but current scene is {}", name, static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
+        return;
+    }
     const ecs::Entity e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.tag_registry.create_and_bind_tag(name, e);
@@ -25,6 +30,12 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
 
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(e, std::move(scene));
+
+    cpnt::UIInteractable interactable{false, false, false};
+    ctx.registry.add_component(e, std::move(interactable));
 
     cpnt::UIFocusable focusable{true};
     ctx.registry.add_component(e, std::move(focusable));
@@ -55,4 +66,5 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
                                   ecs::TagRegistry::k_invalid_tag_id,
                                   ecs::TagRegistry::k_invalid_tag_id};
     ctx.registry.add_component(e, std::move(navigation));
+
 }

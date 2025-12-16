@@ -6,10 +6,11 @@ using namespace engn;
 void sys::ui_press(EngineContext &ctx)
 {
     auto &interacts = ctx.registry.get_components<cpnt::UIInteractable>();
+    auto &ui_evts_queue = ctx.ui_event_queue;
 
     // Retrieve currently focused entity
-    auto entity = ctx.registry.tag_registry.get_entity(ctx.focused_entity);
-    if (!entity.has_value()) return;
+    auto entity = ctx.focused_entity;
+    if (entity.value() == 0) return;
 
     // Check bounds before accessing the vector
     auto entity_idx = entity.value();
@@ -19,28 +20,21 @@ void sys::ui_press(EngineContext &ctx)
     auto &interact = interacts[entity_idx];
     if (!interact.has_value()) return;
 
-    ctx.input_event_queue.for_each<evts::MouseButtonPressed>(
-        [&](const evts::MouseButtonPressed &evt) {
-            if (evt.button != evts::mouse_button_left) return;
-            if (!interact.value().hovered) return;
+    // Check for mouse button press events
+    auto mouse_pressed = ctx.input_event_queue.get_first<evts::MouseButtonPressed>();
+    if (mouse_pressed && mouse_pressed->button == evts::mouse_button_left) {
+        if (!interact.value().hovered) return;
 
-            interact.value().pressed = true;
-            interact.value().released = false;
-        }
-    );
+        interact->pressed = true;
+    }
 
-    ctx.input_event_queue.for_each<evts::MouseButtonReleased>(
-        [&](const evts::MouseButtonReleased &evt) {
-            if (evt.button != evts::mouse_button_left) return;
+    // Check for mouse button release events
+    auto mouse_released = ctx.input_event_queue.get_first<evts::MouseButtonReleased>();
+    if (mouse_released && mouse_released->button == evts::mouse_button_left) {
+        if (!interact.value().pressed) return;
+        if (!interact.value().hovered) return;
 
-            // Check bounds again before accessing in lambda
-            if (entity_idx >= interacts.size()) return;
-            auto &interact = interacts[entity_idx];
-
-            if (!interact.has_value()) return;
-            if (interact.value().hovered)
-                interact.value().released = true;
-            interact.value().pressed = false;
-        }
-    );
+        ui_evts_queue.push(evts::UIButtonClicked{ctx.registry.tag_registry.get_tag_id(ctx.focused_entity)});
+        interact->pressed = false;
+    }
 }

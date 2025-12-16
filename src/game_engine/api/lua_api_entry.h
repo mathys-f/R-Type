@@ -32,4 +32,4 @@ class LuaApiEntry : public LuaApiEntryBase {
 
 } // namespace engn
 
-#include "api/lua_api_entry.tcc"
+#include "lua_api_entry.tcc"
