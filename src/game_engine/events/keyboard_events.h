@@ -52,6 +52,8 @@ enum KeyboardKeyCode {
     key_insert,
     key_delete,
 
+    key_period, // '.'
+
     key_right,
     key_left,
     key_down,

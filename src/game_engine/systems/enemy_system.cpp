@@ -31,7 +31,7 @@ void sys::enemy_system(EngineContext &ctx,
                     if (pos->x > -100) {
                         auto explosion = reg.spawn_entity();
                         reg.add_component(explosion, cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                        reg.add_component(explosion, cpnt::Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, "assets/sprites/r-typesheet44.gif"});
+                        reg.add_component(explosion, cpnt::Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, "explosion"});
                         reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                         reg.add_component(explosion, cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f, 0.08f, 0, 5});
                     }

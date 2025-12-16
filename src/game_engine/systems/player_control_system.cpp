@@ -26,7 +26,7 @@ void sys::player_control_system(EngineContext &ctx,
         if (hp && hp->hp <= 0) {
             auto explosion = reg.spawn_entity();
             reg.add_component(explosion, cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-            reg.add_component(explosion, cpnt::Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, "assets/sprites/r-typesheet44.gif"});
+            reg.add_component(explosion, cpnt::Sprite{{0.0f, 99.0f, 65.0f, 64.0f}, 2.0f, 0, "explosion"});
             reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
             reg.add_component(explosion, cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f, 0.08f, 0, 5});
             to_remove.push_back(reg.entity_from_index(idx));         
@@ -106,7 +106,8 @@ void sys::player_control_system(EngineContext &ctx,
                     reg.add_component(bullet, cpnt::Transform{pos->x + 50, pos->y + 30, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{650.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet{});
-                    // reg.add_component(bullet, Sprite{{249.0f, 105.0f, 16.0f, 8.0f}, 2.0f, 0, shipTexture});
+                    reg.add_component(bullet, cpnt::Hitbox{0.0f, 0.0f, 16.0f, 8.0f});
+                    reg.add_component(bullet, cpnt::Sprite{{249.0f, 105.0f, 16.0f, 8.0f}, 2.0f, 0, "player_ship"});
                     std::optional<Sound> shoot_sound = ctx.assets_manager.get_asset<Sound>("shoot_sound");
                     if (shoot_sound.has_value())
                         PlaySound(shoot_sound.value());

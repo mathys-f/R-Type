@@ -18,8 +18,6 @@ void load_server_connection_scene(engn::EngineContext& engine_ctx)
     auto &reg = engine_ctx.registry;
 
     reg.register_component<cpnt::UIButton>();
-    reg.register_component<cpnt::UICheckbox>();
-    reg.register_component<cpnt::UIDropdown>();
     reg.register_component<cpnt::UIFocusable>();
     reg.register_component<cpnt::UIInputField>();
     reg.register_component<cpnt::UIInteractable>();
@@ -33,6 +31,7 @@ void load_server_connection_scene(engn::EngineContext& engine_ctx)
     // add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
+    engine_ctx.add_system<cpnt::UIInteractable>(sys::ui_input_field_updater);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_connection_menu_ui_events);

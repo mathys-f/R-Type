@@ -110,7 +110,7 @@ void EngineContext::set_scene(unsigned char scene_id)
     LOG_DEBUG("Spawn initial entity {}", static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
-    LOG_INFO("Scene ID {} loaded", static_cast<int>(scene_id));
+    LOG_INFO("Scene {} loaded", static_cast<int>(scene_id));
 }
 
 unsigned char EngineContext::get_current_scene() const
