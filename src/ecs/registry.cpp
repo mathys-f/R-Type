@@ -33,4 +33,3 @@ const std::unordered_map<std::type_index, std::any> &Registry::dump_components()
 {
     return m_components_arrays;
 }
-

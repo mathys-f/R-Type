@@ -10,7 +10,7 @@ target_include_directories(server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../game_engine
 )
 
-target_link_libraries(server PRIVATE ecs networking game_engine, raylib)
+target_link_libraries(server PRIVATE ecs networking game_engine raylib glm lua sol2)
 
 set_target_properties(server PROPERTIES
     OUTPUT_NAME "r-type_server"
