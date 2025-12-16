@@ -17,6 +17,28 @@
 #include "weapon.h"
 #include "sprite.h"
 
+namespace engn::cpnt {
+
+enum ComponentType {
+    Bullet,
+    Controllable,
+    Enemy,
+    Explosion,
+    Health,
+    Hitbox,
+    MovementPattern,
+    Player,
+    Replicated,
+    Stats,
+    Tag,
+    Transform,
+    Velocity,
+    Weapon,
+    Sprite
+};
+
+} // namespace engn::cpnt
+
 // Non headless components
 #include "ui/ui_button.h"
 #include "ui/ui_checkbox.h"
