@@ -16,7 +16,7 @@ static auto read_color(sol::table table) {
     return color;
 }
 
-void lua::set_ui_style(EngineContext &ctx, std::string tag, sol::table t)
+void lua::set_ui_style(EngineContext &ctx, unsigned char scene_id, std::string tag, sol::table t)
 {
     auto entity = ctx.registry.tag_registry.get_entity(tag);
 
@@ -24,6 +24,9 @@ void lua::set_ui_style(EngineContext &ctx, std::string tag, sol::table t)
         LOG_WARNING("Set_ui_style: No entity found with tag '{}'", tag);
         return;
     }
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(entity.value(), std::move(scene));
 
     cpnt::UIStyle style;
 

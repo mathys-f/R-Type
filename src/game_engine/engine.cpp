@@ -80,9 +80,42 @@ void EngineContext::run_systems()
     }
 }
 
-static void expose_cpp_api(sol::state &lua, EngineContext &ctx) {
+static void expose_cpp_api(sol::state &lua, EngineContext &ctx)
+{
     LOG_DEBUG("Exposing C++ API to Lua");
     for (const auto &entry : engn::lua::k_api_functions) {
         entry->expose(lua, ctx);
     }
+}
+
+void EngineContext::add_scene_loader(std::function<void(EngineContext&)> loader)
+{
+    m_scenes_loaders.push_back(loader);
+}
+
+void EngineContext::set_scene(unsigned char scene_id)
+{
+    if (scene_id >= m_scenes_loaders.size()) {
+        LOG_ERROR("Max number of scenes is 256 (0-255)");
+        return;
+    } else if (scene_id == m_current_scene) {
+        LOG_WARNING("Scene ID {} is already the current scene", static_cast<int>(scene_id));
+        return;
+    } else if (m_scenes_loaders[scene_id] == nullptr) {
+        LOG_ERROR("Scene ID {} has no loader function registered", static_cast<int>(scene_id));
+        return;
+    }
+    LOG_INFO("Switching to scene ID {}", static_cast<int>(scene_id));
+    LOG_DEBUG("Clearing registry...");
+    registry.~Registry();
+    new (&registry) ecs::Registry();
+    m_current_scene = scene_id;
+    LOG_DEBUG("Loading scene ID {}...", static_cast<int>(scene_id));
+    m_scenes_loaders[scene_id](*this);
+    LOG_INFO("Scene ID {} loaded", static_cast<int>(scene_id));
+}
+
+unsigned char EngineContext::get_current_scene() const
+{
+    return m_current_scene;
 }

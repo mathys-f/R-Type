@@ -15,7 +15,7 @@
 
 using namespace engn;
 
-void lua::create_ui_button(EngineContext &ctx, std::string name) {
+void lua::create_ui_button(EngineContext &ctx, unsigned char scene_id, std::string name) {
     const ecs::Entity e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.tag_registry.create_and_bind_tag(name, e);
@@ -26,6 +26,9 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
 
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(e, std::move(scene));
 
     cpnt::UIInteractable interactable{false, false, false};
     ctx.registry.add_component(e, std::move(interactable));

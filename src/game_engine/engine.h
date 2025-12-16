@@ -40,6 +40,10 @@ class EngineContext {
     const size_t max_bullets = 100;
     const size_t max_enemies = 8;
 
+    void add_scene_loader(std::function<void(EngineContext&)> loader);
+    void set_scene(unsigned char scene_id);
+    unsigned char get_current_scene() const;
+
     // System registration / execution
     /// Register a system that accepts const views to the requested
     /// component storages. The callable should accept `(Registry&, const
@@ -56,6 +60,9 @@ class EngineContext {
     void run_systems();
 
  private:
+    unsigned char m_current_scene;
+    std::vector<std::function<void(EngineContext&)>> m_scenes_loaders;
+
     std::vector<std::function<void(EngineContext&)>> m_systems;
 };
 

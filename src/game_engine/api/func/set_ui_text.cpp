@@ -15,7 +15,7 @@ static auto read_text(sol::table table) {
     return text;
 }
 
-void lua::set_ui_text(EngineContext &ctx, std::string tag, sol::table t)
+void lua::set_ui_text(EngineContext &ctx, unsigned char scene_id, std::string tag, sol::table t)
 {
     auto entity = ctx.registry.tag_registry.get_entity(tag);
 
@@ -23,6 +23,9 @@ void lua::set_ui_text(EngineContext &ctx, std::string tag, sol::table t)
         LOG_WARNING("Set_ui_text: No entity found with tag '{}'", tag);
         return;
     }
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(entity.value(), std::move(scene));
 
     cpnt::UIText text = read_text(t);
 

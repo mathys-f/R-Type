@@ -28,14 +28,14 @@ local titlescreen_style = {
     border_thickness = 0
 }
 
-Create_ui_text("titlescreen", {
+Create_ui_text(1, "titlescreen", {
     content = "R-Type",
     font_size = 120
 })
 
-Set_ui_style("titlescreen", titlescreen_style)
+Set_ui_style(1, "titlescreen", titlescreen_style)
 
-Set_ui_transform("titlescreen", {
+Set_ui_transform(1, "titlescreen", {
     x = 0,
     y = 25,
     z = 0,
@@ -46,16 +46,16 @@ Set_ui_transform("titlescreen", {
     rotation = 0
 })
 
-Create_ui_button("play_solo_button")
+Create_ui_button(1, "play_solo_button")
 
-Set_ui_text("play_solo_button", {
+Set_ui_text(1, "play_solo_button", {
     content = "Play",
     font_size = 32
 })
 
-Set_ui_style("play_solo_button", main_menu_style)
+Set_ui_style(1, "play_solo_button", main_menu_style)
 
-Set_ui_transform("play_solo_button", {
+Set_ui_transform(1, "play_solo_button", {
     x = 300,
     y = 250,
     z = 0,
@@ -66,17 +66,17 @@ Set_ui_transform("play_solo_button", {
     rotation = 0
 })
 
-Create_ui_button("play_multiplayer_button")
+Create_ui_button(1, "play_multiplayer_button")
 
-Set_ui_text("play_multiplayer_button", {
+Set_ui_text(1, "play_multiplayer_button", {
     content = "Multiplayer",
     font_size = 32
 })
 
 
-Set_ui_style("play_multiplayer_button", main_menu_style)
+Set_ui_style(1, "play_multiplayer_button", main_menu_style)
 
-Set_ui_transform("play_multiplayer_button", {
+Set_ui_transform(1, "play_multiplayer_button", {
     x = 300,
     y = 325,
     z = 0,
@@ -87,17 +87,17 @@ Set_ui_transform("play_multiplayer_button", {
     rotation = 0
 })
 
-Create_ui_button("setting_button")
+Create_ui_button(1, "setting_button")
 
-Set_ui_text("setting_button", {
+Set_ui_text(1, "setting_button", {
     content = "Settings",
     font_size = 32
 })
 
 
-Set_ui_style("setting_button", main_menu_style)
+Set_ui_style(1, "setting_button", main_menu_style)
 
-Set_ui_transform("setting_button", {
+Set_ui_transform(1, "setting_button", {
     x = 300,
     y = 400,
     z = 0,
@@ -108,16 +108,16 @@ Set_ui_transform("setting_button", {
     rotation = 0
 })
 
-Create_ui_button("exit_button")
+Create_ui_button(1, "exit_button")
 
-Set_ui_text("exit_button", {
+Set_ui_text(1, "exit_button", {
     content = "Exit",
     font_size = 32
 })
 
-Set_ui_style("exit_button", main_menu_style)
+Set_ui_style(1, "exit_button", main_menu_style)
 
-Set_ui_transform("exit_button", {
+Set_ui_transform(1, "exit_button", {
     x = 300,
     y = 475,
     z = 0,

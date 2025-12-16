@@ -21,7 +21,7 @@ static auto read_transform(sol::table table) {
     return trans;
 }
 
-void lua::set_ui_transform(EngineContext &ctx, std::string tag, sol::table t)
+void lua::set_ui_transform(EngineContext &ctx, unsigned char scene_id, std::string tag, sol::table t)
 {
     auto entity = ctx.registry.tag_registry.get_entity(tag);
 
@@ -29,6 +29,9 @@ void lua::set_ui_transform(EngineContext &ctx, std::string tag, sol::table t)
         LOG_WARNING("Set_ui_transform: No entity found with tag '{}'", tag);
         return;
     }
+
+    cpnt::Scene scene{scene_id};
+    ctx.registry.add_component(entity.value(), std::move(scene));
 
     cpnt::UITransform transform = read_transform(t);
 

@@ -30,4 +30,5 @@
 #include "ui/ui_text.h"
 #include "ui/ui_transform.h"
 #include "particle.h"
+#include "scene.h"
 #include "star.h"
