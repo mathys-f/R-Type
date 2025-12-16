@@ -8,7 +8,7 @@ namespace engn {
 namespace cpnt {
 
 struct Replicated {
-    std::string tag;
+    u_int32_t tag;
 
     SnapshotMeta snapshot_meta;
 };
