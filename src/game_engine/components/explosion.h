@@ -1,5 +1,7 @@
 #pragma once
 
+#include "snapshot_meta.h"
+
 namespace engn {
 
 namespace cpnt {
@@ -15,6 +17,8 @@ struct Explosion {
     float frameDuration;
     int currentFrame;
     int totalFrames;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace cpnt

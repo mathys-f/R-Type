@@ -78,6 +78,7 @@ function Create_ui_button(scene, name) end
 --- - UIStyle
 --- @param scene integer # Scene id (0-255)
 --- @param name string # Unique name (tag) for the entity.
+--- @param scene integer # Scene id (0-255)
 --- @param UIText UIText
 function Create_ui_text(scene, name, UIText) end
 

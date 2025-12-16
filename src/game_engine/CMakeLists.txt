@@ -12,5 +12,5 @@ target_include_directories(game_engine
 
 target_link_libraries(game_engine
     PUBLIC ecs glm lua sol2
-    PRIVATE lua networking raylib
+    PRIVATE networking raylib
 )

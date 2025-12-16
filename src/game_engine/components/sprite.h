@@ -3,6 +3,7 @@
 #include "raylib.h"
 
 #include "../assets_manager.h"
+#include "components/snapshot_meta.h"
 
 namespace engn {
 
@@ -13,6 +14,8 @@ struct Sprite {
     float scale;
     int frame;
     AssetsManager::Asset texture;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace cpnt

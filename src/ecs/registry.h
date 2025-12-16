@@ -80,6 +80,10 @@ class Registry
     /// @param from Entity from which the component will be removed.
     template <typename Component> void remove_component(EntityType const& from);
 
+    const std::unordered_map<std::type_index, std::any> &dump_components() const noexcept;
+
+    const std::unordered_map<std::type_index, std::any> &dump_entity_components(const Entity &e) const noexcept;
+
     // Tag registry
     TagRegistry tag_registry;
 

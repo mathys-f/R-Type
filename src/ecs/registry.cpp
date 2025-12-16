@@ -28,3 +28,8 @@ void Registry::kill_entity(EntityType const& e)
     }
     m_free_entities.push_back(e);
 }
+
+const std::unordered_map<std::type_index, std::any> &Registry::dump_components() const noexcept
+{
+    return m_components_arrays;
+}

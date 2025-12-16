@@ -27,7 +27,6 @@ void ui_text_renderer(EngineContext &ctx,
 void ui_input_field_updater(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UIInteractable>&);
 
-
 void bullet_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,
     ecs::SparseArray<cpnt::Velocity> const& velocities,
@@ -81,6 +80,14 @@ void render_system(EngineContext &ctx,
 void star_scroll_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,
     ecs::SparseArray<cpnt::Star> const& stars);
+
+void poll_input_events_from_client(EngineContext &ctx);
+void send_snapshot_to_client(EngineContext &ctx,
+    const ecs::SparseArray<cpnt::Replicated> &replicated_components);
+
+void poll_snapshot_from_server(EngineContext &ctx);
+void send_input_events_to_server(EngineContext &ctx);
+
 } // namespace system
 
 } // namespace engine
