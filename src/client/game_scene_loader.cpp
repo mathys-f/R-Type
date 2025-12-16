@@ -71,6 +71,11 @@ void load_game_scene(engn::EngineContext& engine_ctx)
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_connection_menu_ui_events);
 
+    // Load assets
+
+    engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
+    engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
+
     // Create player
     Rectangle shipSourceRect = {166.0f, 0.0f, 33.0f, 18.0f};
 
@@ -82,6 +87,7 @@ void load_game_scene(engn::EngineContext& engine_ctx)
     engine_ctx.registry.add_component(player, cpnt::Sprite{shipSourceRect, 3.0f, 0, "player_ship"});
     engine_ctx.registry.add_component(player, cpnt::Health{100, 100});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+    engine_ctx.registry.add_component(player, cpnt::Hitbox{shipSourceRect.height * 2, shipSourceRect.width * 2, 33.0f, 18.0f});
 
     // Create stars
     for (int i = 0; i < engine_ctx.stars; i++) {
@@ -137,6 +143,7 @@ void load_game_scene(engn::EngineContext& engine_ctx)
         pat.baseY = spawnY;
 
         engine_ctx.registry.add_component(enemy, std::move(pat));
+        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{15.0f, 18.0f, 21.0f, 23.0f});
     }
 
     // lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(),

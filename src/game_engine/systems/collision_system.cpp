@@ -21,8 +21,8 @@ void sys::collision_system(EngineContext &ctx,
          ecs::indexed_zipper(positions, bullets)) {
         if (bullet_pos_opt && bullet_tag_opt) {
             // Check against all enemies
-            for (auto [enemy_idx, enemy_pos_opt, enemy_tag_opt, health_opt, hitbox_opt] : 
-                 ecs::indexed_zipper(positions, enemies, healths, hitboxes)) {
+            for (auto [enemy_idx, enemy_pos_opt, enemy_tag_opt, health_opt, hitbox_opt] :
+                ecs::indexed_zipper(positions, enemies, healths, hitboxes)) {
                 if (enemy_pos_opt && enemy_tag_opt && health_opt && health_opt->hp > 0 && hitbox_opt) {
                     Rectangle enemyRect = {
                         enemy_pos_opt->x + hitbox_opt->offsetX, 
@@ -32,14 +32,15 @@ void sys::collision_system(EngineContext &ctx,
                     };
                     Vector2 bulletPos = {bullet_pos_opt->x, bullet_pos_opt->y};
                     
-                    if (CheckCollisionCircleRec(bulletPos, 5, enemyRect)) {
+                    if (CheckCollisionCircleRec(bulletPos, 20, enemyRect)) {
                         bullets_to_kill.push_back(reg.entity_from_index(bullet_idx));
                         
                         auto explosion = reg.spawn_entity();
                         reg.add_component(explosion, cpnt::Transform{bullet_pos_opt->x, bullet_pos_opt->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                        reg.add_component(explosion, cpnt::Sprite{{114.0f, 18.0f, 17.0f, 16.0f}, 3.0f, 0, "assets/sprites/r-typesheet43.gif"});
+                        reg.add_component(explosion, cpnt::Sprite{{114.0f, 18.0f, 17.0f, 16.0f}, 3.0f, 0, "bulletExplosion"});
                         reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                         reg.add_component(explosion, cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f, 0.08f, 0, 5});
+                        //DrawCircleV(bulletPos, 20, RED); // Visual debug
 
                         auto& health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (health) {
