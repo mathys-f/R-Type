@@ -52,6 +52,10 @@ int main(void)
         BeginDrawing();
         ClearBackground((Color){0, 0, 0, 255});
 
+        if (GetKeyPressed() == KEY_R) {
+            engine_ctx.set_scene(engine_ctx.get_current_scene());
+        }
+
         EndDrawing();
     }
 

@@ -96,19 +96,19 @@ void EngineContext::set_scene(unsigned char scene_id)
         LOG_ERROR("Max number of scenes is 256 (0-255)");
         return;
     } else if (scene_id == m_current_scene) {
-        LOG_WARNING("Scene ID {} is already the current scene", static_cast<int>(scene_id));
-        return;
+        LOG_INFO("Reloading scene {}", static_cast<int>(scene_id));
     } else if (m_scenes_loaders[scene_id] == nullptr) {
-        LOG_ERROR("Scene ID {} has no loader function registered", static_cast<int>(scene_id));
+        LOG_ERROR("Scene {} has no loader function registered", static_cast<int>(scene_id));
         return;
     }
-    LOG_INFO("Switching to scene ID {}", static_cast<int>(scene_id));
+    LOG_INFO("Switching to scene {}", static_cast<int>(scene_id));
     LOG_DEBUG("Clearing registry...");
     registry.~Registry();
     new (&registry) ecs::Registry();
+    m_systems.clear();
     m_current_scene = scene_id;
     LOG_DEBUG("Spawn initial entity {}", static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
-    LOG_DEBUG("Loading scene ID {}...", static_cast<int>(scene_id));
+    LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
     LOG_INFO("Scene ID {} loaded", static_cast<int>(scene_id));
 }
