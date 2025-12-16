@@ -2,7 +2,7 @@
 
 #include "sol/sol.hpp"
 
-#include "components/components.h"
+#include "../components/components.h"
 #include "utils/logger.h"
 #include "utils/color.h"
 

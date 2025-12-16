@@ -1,5 +1,6 @@
 #include "components/components.h"
 #include "engine.h"
+#include "systems/systems.h"
 #include "ecs/zipper.h"
 #include <cmath>
 #include <cstdlib>
@@ -10,7 +11,7 @@ float randf() {
     return (rand() % 1000) / 1000.0f;
 }
 
-void ParticleEmissionSystem(EngineContext &ctx,
+void sys::ParticleEmissionSystem(EngineContext &ctx,
                         ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Velocity> const& velocities,
                         ecs::SparseArray<cpnt::Particle> const& particles,

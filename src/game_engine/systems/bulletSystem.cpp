@@ -1,10 +1,11 @@
 #include "components/components.h"
 #include "engine.h"
+#include "systems/systems.h"
 #include "ecs/zipper.h"
 
 using namespace engn;
 
-void BulletSystem(EngineContext &ctx,
+void sys::BulletSystem(EngineContext &ctx,
                  ecs::SparseArray<cpnt::Transform> const& positions,
                  ecs::SparseArray<cpnt::Velocity> const& velocities,
                  ecs::SparseArray<cpnt::Bullet> const& bullets)

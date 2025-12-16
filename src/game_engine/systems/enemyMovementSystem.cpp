@@ -1,11 +1,12 @@
 #include "components/components.h"
 #include "engine.h"
 #include "ecs/zipper.h"
+#include "systems/systems.h"
 #include <cmath>
 
 using namespace engn;
 
-void EnemyMovementSystem(EngineContext &ctx,
+void sys::EnemyMovementSystem(EngineContext &ctx,
                          ecs::SparseArray<cpnt::Transform> const& positions,
                          ecs::SparseArray<cpnt::MovementPattern> const& patterns,
                          ecs::SparseArray<cpnt::Velocity> const& velocity)

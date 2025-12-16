@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 
-#include "assets_manager.h"
+#include "../assets_manager.h"
 
 namespace engn {
 

@@ -2,10 +2,11 @@
 #include "engine.h"
 #include "ecs/zipper.h"
 #include "raylib.h"
+#include "systems/systems.h"
 
 using namespace engn;
 
-void ExplosionSystem(EngineContext &ctx,
+void sys::ExplosionSystem(EngineContext &ctx,
                      ecs::SparseArray<cpnt::Transform> const& positions,
                      ecs::SparseArray<cpnt::Explosion> const& explosions,
                      ecs::SparseArray<cpnt::Sprite> const& sprites)

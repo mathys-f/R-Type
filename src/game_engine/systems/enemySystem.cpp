@@ -2,10 +2,11 @@
 #include "engine.h"
 #include "ecs/zipper.h"
 #include "raylib.h"
+#include "systems/systems.h"
 
 using namespace engn;
 
-void EnemySystem(EngineContext &ctx,
+void sys::EnemySystem(EngineContext &ctx,
                 ecs::SparseArray<cpnt::Transform> const& positions,
                 ecs::SparseArray<cpnt::Velocity> const& velocities,
                 ecs::SparseArray<cpnt::Enemy> const& enemies,

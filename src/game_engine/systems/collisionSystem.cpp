@@ -1,11 +1,12 @@
 #include "components/components.h"
 #include "engine.h"
 #include "ecs/zipper.h"
+#include "systems/systems.h"
 #include "raylib.h"
 
 using namespace engn;
 
-void CollisionSystem(EngineContext &ctx,
+void sys::CollisionSystem(EngineContext &ctx,
                     ecs::SparseArray<cpnt::Transform> const& positions,
                     ecs::SparseArray<cpnt::Bullet> const& bullets,
                     ecs::SparseArray<cpnt::Enemy> const& enemies,

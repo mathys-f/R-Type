@@ -15,14 +15,8 @@ static void expose_cpp_api(sol::state &lua, EngineContext &ctx);
 
 EngineContext::EngineContext(bool headless)
 {
-    registry.register_component<cpnt::Tag>();
-
     if (!headless) {
         lua_ctx = std::make_unique<LuaContext>();
-        registry.register_component<cpnt::UIInteractable>();
-        registry.register_component<cpnt::UINavigation>();
-        registry.register_component<cpnt::UIStyle>();
-        registry.register_component<cpnt::UITransform>();
 
         add_system<>(sys::fetch_inputs);
         // add_system<>(sys::log_inputs);
@@ -33,7 +27,7 @@ EngineContext::EngineContext(bool headless)
 
         lua::expose_components(lua_ctx->getLuaState());
         expose_cpp_api(lua_ctx->getLuaState(), *this);
-        lua::load_lua_scripts(lua_ctx->getLuaState(), k_scripts_dir);
+        // lua::load_lua_scripts(lua_ctx->getLuaState(), k_scripts_dir);
     }
 }
 

@@ -1,11 +1,12 @@
 #include "components/components.h"
 #include "engine.h"
 #include "ecs/zipper.h"
+#include "systems/systems.h"
 #include "raylib.h"
 
 using namespace engn;
 
-void PlayerControlSystem(EngineContext &ctx,
+void sys::PlayerControlSystem(EngineContext &ctx,
                         ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Player> const& players,
                         ecs::SparseArray<cpnt::Sprite> const& sprites,
