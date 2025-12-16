@@ -1,5 +1,7 @@
 #pragma once
 
+#include "snapshot_meta.h"
+
 namespace engn {
 
 namespace cpnt {
@@ -18,6 +20,8 @@ struct MovementPattern {
     float frequency;
     float timer;
     float baseY;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace cpnt

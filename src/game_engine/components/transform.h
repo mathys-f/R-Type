@@ -1,5 +1,7 @@
 #pragma once
 
+#include "snapshot_meta.h"
+
 namespace engn {
 
 namespace cpnt {
@@ -19,6 +21,8 @@ struct Transform {
     float sx;
     float sy;
     float sz;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace component

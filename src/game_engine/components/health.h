@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstddef>
+#include "snapshot_meta.h"
 
 namespace engn {
 
@@ -11,6 +12,8 @@ struct Health {
     int hp;
     int max_hp;
     int changes;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace component

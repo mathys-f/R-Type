@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include "snapshot_meta.h"
 
 
 namespace engn {
@@ -20,6 +21,8 @@ struct Weapon {
     float vy;
 
     std::string mesh;
+
+    SnapshotMeta snapshot_meta;
 };
 
 } // namespace component
