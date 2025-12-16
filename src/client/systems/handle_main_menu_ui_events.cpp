@@ -7,7 +7,7 @@ using namespace engn;
 
 static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &evt);
 
-void handle_menu_ui_events(engn::EngineContext& engine_ctx)
+void handle_main_menu_ui_events(engn::EngineContext& engine_ctx)
 {
     const auto &evts = engine_ctx.ui_event_queue;
 

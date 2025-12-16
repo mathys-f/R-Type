@@ -32,6 +32,7 @@ int main(void)
     // Add scene loaders
     engine_ctx.add_scene_loader(0, load_game_scene);
     engine_ctx.add_scene_loader(1, load_main_menu_scene);
+    engine_ctx.add_scene_loader(2, load_server_connection_scene);
     engine_ctx.set_scene(1); // Game menu scene
 
     std::optional<Music> battle_music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
@@ -42,15 +43,15 @@ int main(void)
     {
         engine_ctx.delta_time = GetFrameTime();
 
-        // Run all systems
-        engine_ctx.run_systems();
-
         // Update music
         if (battle_music.has_value())
             UpdateMusicStream(battle_music.value());
 
         BeginDrawing();
         ClearBackground((Color){0, 0, 0, 255});
+
+        // Run all systems
+        engine_ctx.run_systems();
 
         if (GetKeyPressed() == KEY_R) {
             engine_ctx.set_scene(engine_ctx.get_current_scene());

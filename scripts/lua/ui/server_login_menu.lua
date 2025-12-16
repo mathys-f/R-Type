@@ -28,101 +28,19 @@ local styles = {
     }
 }
 
-Create_ui_text(1, "titlescreen", {
-    content = "R-Type",
-    font_size = 120
+Create_ui_text(2, "titlescreen", {
+    content = "Connect to server",
+    font_size = 80
 })
 
-Set_ui_style(1, "titlescreen", styles.titlescreen)
+Set_ui_style(2, "titlescreen", styles.titlescreen)
 
-Set_ui_transform(1, "titlescreen", {
+Set_ui_transform(2, "titlescreen", {
     x = 0,
     y = 25,
     z = 0,
     w = 750,
     h = 150,
-    anchor_x = 0,
-    anchor_y = 0,
-    rotation = 0
-})
-
-Create_ui_button(1, "play_solo_button")
-
-Set_ui_text(1, "play_solo_button", {
-    content = "Play",
-    font_size = 32
-})
-
-Set_ui_style(1, "play_solo_button", styles.main_menu)
-
-Set_ui_transform(1, "play_solo_button", {
-    x = 300,
-    y = 250,
-    z = 0,
-    w = 200,
-    h = 50,
-    anchor_x = 0,
-    anchor_y = 0,
-    rotation = 0
-})
-
-Create_ui_button(1, "play_multiplayer_button")
-
-Set_ui_text(1, "play_multiplayer_button", {
-    content = "Multiplayer",
-    font_size = 32
-})
-
-
-Set_ui_style(1, "play_multiplayer_button", styles.main_menu)
-
-Set_ui_transform(1, "play_multiplayer_button", {
-    x = 300,
-    y = 325,
-    z = 0,
-    w = 200,
-    h = 50,
-    anchor_x = 0,
-    anchor_y = 0,
-    rotation = 0
-})
-
-Create_ui_button(1, "setting_button")
-
-Set_ui_text(1, "setting_button", {
-    content = "Settings",
-    font_size = 32
-})
-
-
-Set_ui_style(1, "setting_button", styles.main_menu)
-
-Set_ui_transform(1, "setting_button", {
-    x = 300,
-    y = 400,
-    z = 0,
-    w = 200,
-    h = 50,
-    anchor_x = 0,
-    anchor_y = 0,
-    rotation = 0
-})
-
-Create_ui_button(1, "exit_button")
-
-Set_ui_text(1, "exit_button", {
-    content = "Exit",
-    font_size = 32
-})
-
-Set_ui_style(1, "exit_button", styles.main_menu)
-
-Set_ui_transform(1, "exit_button", {
-    x = 300,
-    y = 475,
-    z = 0,
-    w = 200,
-    h = 50,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
