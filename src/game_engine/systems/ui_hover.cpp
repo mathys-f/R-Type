@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#include "raylib.h"
+
+#include "utils/logger.h"
 #include "engine.h"
 
 using namespace engn;
@@ -11,6 +14,7 @@ void sys::ui_hover(EngineContext &ctx,
 {
     auto &interacts = ctx.registry.get_components<cpnt::UIInteractable>();
     const evts::MouseMoved *mouse_pos = ctx.input_event_queue.get_last<evts::MouseMoved>();
+    bool has_found = false;
 
     if (!mouse_pos) return;
 
@@ -24,8 +28,13 @@ void sys::ui_hover(EngineContext &ctx,
             interacts[i].value().hovered = true;
 
             ctx.focused_entity = ctx.registry.entity_from_index(i);
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            has_found = true;
         } else {
             interacts[i].value().hovered = false;
         }
     }
+
+    if (!has_found)
+        SetMouseCursor(MOUSE_CURSOR_ARROW);
 }

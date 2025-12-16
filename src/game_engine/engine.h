@@ -22,6 +22,7 @@ class EngineContext {
     ~EngineContext() = default;
 
     float delta_time = 0.0f;
+    bool should_quit = false;
 
     ecs::Registry registry;
     ecs::Entity focused_entity;

@@ -24,6 +24,7 @@ void ui_text_renderer(EngineContext &ctx,
     const ecs::SparseArray<cpnt::UIText> &,
     const ecs::SparseArray<cpnt::UIStyle> &
 );
+void manage_ui_events(EngineContext &ctx);
 
 } // namespace systems
 

@@ -9,6 +9,7 @@
 #include "components/ui/ui_focusable.h"
 #include "components/ui/ui_navigation.h"
 #include "components/ui/ui_style.h"
+#include "components/ui/ui_interactable.h"
 
 #include "utils/logger.h"
 
@@ -25,6 +26,9 @@ void lua::create_ui_button(EngineContext &ctx, std::string name) {
 
     cpnt::Tag tag{id};
     ctx.registry.add_component(e, std::move(tag));
+
+    cpnt::UIInteractable interactable{false, false, false};
+    ctx.registry.add_component(e, std::move(interactable));
 
     cpnt::UIFocusable focusable{true};
     ctx.registry.add_component(e, std::move(focusable));
