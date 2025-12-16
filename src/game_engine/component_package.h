@@ -21,7 +21,7 @@
 namespace engn::cpnt {
 
 namespace type {
-    
+
 enum ComponentType {
     Bullet,
     Controllable,
@@ -44,7 +44,7 @@ enum ComponentType {
 
 struct ComponentPackage {
     uint32_t tag;
-    ComponentType type;
+    type::ComponentType type;
     std::any data;
 };
 
