@@ -18,7 +18,7 @@ static float randf() {
 int main(void)
 {
     srand(time(NULL));
-    
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dist(0.1f, 0.8f);
@@ -32,11 +32,11 @@ int main(void)
     InitWindow(k_width, k_height, "FTL-Type");
     InitAudioDevice();
     SetTargetFPS(60);
-    
+
     // Load assets
     engine_ctx.assets_manager.load_music("battle_music", "assets/music/Battle_music.mp3");
     engine_ctx.assets_manager.load_sound("shoot_sound", "assets/music/Blaster2.mp3");
-    
+
     // Create player
     Rectangle shipSourceRect = {166.0f, 0.0f, 33.0f, 18.0f};
 
@@ -46,7 +46,7 @@ int main(void)
     engine_ctx.registry.add_component(player, cpnt::Sprite{shipSourceRect, 3.0f, 0, "assets/sprites/r-typesheet1.gif"});
     engine_ctx.registry.add_component(player, cpnt::Health{100, 100});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-    
+
     // Create stars
     for (int i = 0; i < engine_ctx.stars; i++) {
         auto star = engine_ctx.registry.spawn_entity();
@@ -57,7 +57,7 @@ int main(void)
         });
         engine_ctx.registry.add_component(star, cpnt::Star{randf()});
     }
-    
+
     // Create enemies
     for (size_t i = 0; i < engine_ctx.max_enemies; i++) {
         auto enemy = engine_ctx.registry.spawn_entity();
@@ -109,20 +109,20 @@ int main(void)
     while (!WindowShouldClose() && !engine_ctx.should_quit)
     {
         engine_ctx.delta_time = GetFrameTime();
-        
+
         // Run all systems
         engine_ctx.run_systems();
 
         // Update music
         if (battle_music.has_value())
             UpdateMusicStream(battle_music.value());
-        
+
         BeginDrawing();
         ClearBackground((Color){0, 0, 0, 255});
-        
+
         EndDrawing();
     }
-    
+
     if (battle_music.has_value())
         UnloadMusicStream(battle_music.value());
     std::optional<Sound> shoot_sound = engine_ctx.assets_manager.get_asset<Sound>("shoot_sound");
@@ -130,34 +130,6 @@ int main(void)
         UnloadSound(shoot_sound.value());
     CloseAudioDevice();
     CloseWindow();
-    
+
     return 0;
 }
-
-
-
-
-
-
-
-
-// int main()
-// {
-//     engn::EngineContext engine_ctx(false);
-
-//     // Initialize Raylib
-//     InitWindow(800, 600, "R-Type Client");
-//     SetTargetFPS(60);
-
-//     while (!WindowShouldClose() && !engine_ctx.should_quit) {
-//         // Rendering
-//         BeginDrawing();
-//         ClearBackground(RAYWHITE);
-//         engine_ctx.run_systems();
-//         EndDrawing();
-//     }
-
-//     CloseWindow(); // Close window and OpenGL context
-
-//     return 0;
-// }
