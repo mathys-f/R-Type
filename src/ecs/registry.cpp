@@ -1,4 +1,5 @@
 #include "registry.h"
+#include "utils/logger.h"
 
 using namespace ecs;
 
@@ -28,11 +29,7 @@ void Registry::kill_entity(EntityType const& e)
     m_free_entities.push_back(e);
 }
 
-void Registry::run_systems()
+const std::unordered_map<std::type_index, std::any> &Registry::dump_components() const noexcept
 {
-    for (auto& sys : m_systems)
-    {
-        if (sys)
-            sys(*this);
-    }
+    return m_components_arrays;
 }

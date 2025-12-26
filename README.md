@@ -12,9 +12,19 @@ A multiplayer version of the classic R-Type game made by yours trully, Serveur R
 
 Make sur you have these packages installed:
 
-- `build-essentials`
-- `cmake`
-- `git`
+```
+build-essentials \
+cmake \
+git \
+libx11-dev \
+libxrandr-dev \
+libxinerama-dev \
+libxcursor-dev \
+libxi-dev \
+libgl1-mesa-dev \
+libasound2-dev \
+mesa-common-dev
+```
 
 #### Build
 

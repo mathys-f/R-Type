@@ -1,4 +1,4 @@
 namespace net
 {
-void hello();
-}  // namespace net
+    void hello();
+} // namespace net

@@ -168,7 +168,12 @@ To transform this file into a proper RFC, the following steps are needed:
 1. Install the kramdown-rfc2629 tool (gem install kramdown-rfc2629)
 2. Install the xml2rfc tool (pip install xml2rfc)
 3. Execute kramdown-rfc2629 to convert this markdown into XML:
-   kramdown-rfc2629 docs/network-rfc.md > docs/network-rfc.xml
+   kramdown-rfc2629 docs/network/rfc/network-rfc.md > docs/network/rfc/network-rfc.xml
 4. Validate and generate the final RFC text formats using xml2rfc:
-   xml2rfc docs/network-rfc.xml
+   xml2rfc docs/network/rfc/network-rfc.xml
+5. Optionally, remove the intermediate XML file:
+   rm -f docs/network/rfc/network-rfc.xml
+
+Full command line ->
+    kramdown-rfc2629 docs/network/rfc/network-rfc.md | xml2rfc docs/network/rfc/network-rfc.xml | rm -f docs/network/rfc/network-rfc.xml
 -->
