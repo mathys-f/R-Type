@@ -38,7 +38,7 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
 
     engine_ctx.add_system<>(sys::fetch_inputs);
-    engine_ctx.add_system<>(sys::log_inputs);
+    // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
