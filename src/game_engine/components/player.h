@@ -1,16 +1,13 @@
 #pragma once
 
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Player {
-    // Tag component
-    SnapshotMeta snapshot_meta;
+struct Player : ISyncComponent {
+    // Tag component for players
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

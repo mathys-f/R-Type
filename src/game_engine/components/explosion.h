@@ -1,12 +1,10 @@
 #pragma once
 
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Explosion {
+struct Explosion : ISyncComponent {
     enum class ExplosionType { Small, Large };
 
     ExplosionType type{};
@@ -14,10 +12,9 @@ struct Explosion {
     float frame_duration{};
     int current_frame{};
     int total_frames{};
-
-    SnapshotMeta snapshot_meta;
+    
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

@@ -1,15 +1,13 @@
 #pragma once
 
-#include "snapshot_meta.h"
-
 #include <cstdint>
 #include <string>
 
-namespace engn {
+#include "components/i_sync_component.h"
 
-namespace cpnt {
+namespace engn::cpnt {
 
-struct Weapon {
+struct Weapon : ISyncComponent {
     int cooldown;
 
     int firerate;
@@ -21,10 +19,6 @@ struct Weapon {
     float vy;
 
     std::string mesh;
-
-    SnapshotMeta snapshot_meta;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt
