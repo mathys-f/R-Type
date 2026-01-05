@@ -75,7 +75,12 @@ EngineContext::EngineContext() : server_port(0), m_current_scene(0) {
 void EngineContext::run_systems() {
     input_event_queue.clear();
     ui_event_queue.clear();
+    auto curr_scene_buff = m_current_scene;
     for (auto& sys : m_systems) {
+        if (curr_scene_buff != m_current_scene) {
+            LOG_DEBUG("Scene changed during system execution, stopping further system execution");
+            break;
+        }
         if (sys)
             sys(*this);
     }
