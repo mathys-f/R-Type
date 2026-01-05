@@ -6,7 +6,7 @@ namespace engn {
 
 namespace cpnt {
 
-    struct Bullet {
+struct Bullet {
     // Tag component for bullets
     SnapshotMeta snapshot_meta;
 };

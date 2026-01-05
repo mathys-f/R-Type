@@ -4,7 +4,7 @@ namespace engn {
 
 namespace cpnt {
 
-    struct Star {
+struct Star {
     float z; // depth for parallax
 };
 

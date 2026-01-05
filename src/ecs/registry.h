@@ -11,8 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ecs
-{
+namespace ecs {
 
 /// Registry manages entities, component storage and registered systems.
 ///
@@ -20,26 +19,25 @@ namespace ecs
 ///   arrays (SparseArray).
 /// - Manages entity creation / recycling.
 /// - Allows systems to be registered and executed with bound component views.
-class Registry
-{
+class Registry {
   public:
     using EntityType = Entity;
 
     // Component registration / access
     /// Register storage for a component type if not already present.
-    /// @tparam Component The component type to register.
-    /// @return A reference to the underlying SparseArray for `Component`.
-    template <class Component> SparseArray<Component>& register_component();
+    /// @tparam TComponent The component type to register.
+    /// @return A reference to the underlying SparseArray for `TComponent`.
+    template <class TComponent> SparseArray<TComponent>& register_component();
 
-    /// Get the component storage for `Component` (non-const).
-    /// @tparam Component The component type to access.
-    /// @return Non-const reference to the SparseArray holding `Component`.
-    template <class Component> SparseArray<Component>& get_components();
+    /// Get the component storage for `TComponent` (non-const).
+    /// @tparam TComponent The component type to access.
+    /// @return Non-const reference to the SparseArray holding `TComponent`.
+    template <class TComponent> SparseArray<TComponent>& get_components();
 
-    /// Get the component storage for `Component` (const).
-    /// @tparam Component The component type to access.
-    /// @return Const reference to the SparseArray holding `Component`.
-    template <class Component> SparseArray<Component> const& get_components() const;
+    /// Get the component storage for `TComponent` (const).
+    /// @tparam TComponent The component type to access.
+    /// @return Const reference to the SparseArray holding `TComponent`.
+    template <class TComponent> SparseArray<TComponent> const& get_components() const;
 
     // Entity lifecycle
     /// Create a new entity id, reusing freed ids when possible.
@@ -57,37 +55,43 @@ class Registry
 
     // Component management
     /// Add or replace a component instance for the given entity.
-    /// @tparam Component Component type to add.
+    /// @tparam TComponent Component type to add.
     /// @param to Target entity receiving the component.
     /// @param c The component instance to add (moved or copied).
     /// @return A reference to the inserted component storage slot.
-    template <typename Component>
-    typename SparseArray<Component>::ReferenceType add_component(EntityType const& to,
-                                                                 Component&& c);
+    template <typename TComponent>
+    typename SparseArray<TComponent>::ReferenceType add_component(EntityType const& to, TComponent&& c);
 
     /// Emplace-construct a component for the entity in-place.
-    /// @tparam Component Component type to emplace.
-    /// @tparam Params Constructor parameter pack forwarded to Component.
+    /// @tparam TComponent Component type to emplace.
+    /// @tparam TParams Constructor parameter pack forwarded to TComponent.
     /// @param to Target entity receiving the component.
-    /// @param p Parameters forwarded to Component's constructor.
+    /// @param p Parameters forwarded to TComponent's constructor.
     /// @return A reference to the emplaced component storage slot.
-    template <typename Component, typename... Params>
-    typename SparseArray<Component>::ReferenceType emplace_component(EntityType const& to,
-                                                                     Params&&... p);
+    template <typename TComponent, typename... TParams>
+    typename SparseArray<TComponent>::ReferenceType emplace_component(EntityType const& to, TParams&&... p);
 
-    /// Remove the component of type `Component` from an entity.
-    /// @tparam Component Component type to remove.
+    /// Remove the component of type `TComponent` from an entity.
+    /// @tparam TComponent Component type to remove.
     /// @param from Entity from which the component will be removed.
-    template <typename Component> void remove_component(EntityType const& from);
+    template <typename TComponent> void remove_component(EntityType const& from);
 
-    const std::unordered_map<std::type_index, std::any> &dump_components() const noexcept;
+    const std::unordered_map<std::type_index, std::any>& dump_components() const noexcept;
 
-    const std::unordered_map<std::type_index, std::any> &dump_entity_components(const Entity &e) const noexcept;
+    const std::unordered_map<std::type_index, std::any>& dump_entity_components(const Entity& e) const noexcept;
 
+    /// Get the tag registry (non-const).
+    /// @return Reference to the tag registry.
+    TagRegistry& get_tag_registry() noexcept;
+
+    /// Get the tag registry (const).
+    /// @return Const reference to the tag registry.
+    const TagRegistry& get_tag_registry() const noexcept;
+
+  private:
     // Tag registry
     TagRegistry tag_registry;
 
-  private:
     // one sparse array per component type, stored via type erasure
     std::unordered_map<std::type_index, std::any> m_components_arrays;
 
@@ -102,6 +106,6 @@ class Registry
     std::vector<EntityType> m_free_entities;
 };
 
-}  // namespace ecs
+} // namespace ecs
 
 #include "registry.tcc"

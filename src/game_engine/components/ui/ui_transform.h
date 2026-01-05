@@ -20,6 +20,6 @@ struct UITransform {
     float rotation;
 };
 
-} // namespace components
+} // namespace cpnt
 
-} // namespace engine
+} // namespace engn

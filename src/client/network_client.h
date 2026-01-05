@@ -1,23 +1,30 @@
 #pragma once
 
+#include "ecs/entity.h"
+#include "networking/rtp/networking.h"
+
 #include <asio.hpp>
-#include <thread>
 #include <atomic>
+#include <functional>
 #include <memory>
 #include <string>
-#include <functional>
+#include <thread>
 
-#include "networking/rtp/networking.h"
-#include "ecs/entity.h"
-
-namespace engn { class EngineContext; }
+namespace engn {
+class EngineContext;
+}
 
 class NetworkClient {
-public:
+  public:
     using OnLoginCallback = std::function<void(bool success, uint32_t player_id)>;
 
-    NetworkClient(engn::EngineContext &engine_ctx);
+    NetworkClient(engn::EngineContext& engine_ctx);
     ~NetworkClient();
+
+    NetworkClient(const NetworkClient&) = delete;
+    NetworkClient& operator=(const NetworkClient&) = delete;
+    NetworkClient(NetworkClient&&) = delete;
+    NetworkClient& operator=(NetworkClient&&) = delete;
 
     void connect(const std::string& host, std::uint16_t port, const std::string& username);
     void set_on_login(OnLoginCallback callback);
@@ -25,11 +32,15 @@ public:
     void send_reliable(const net::Packet& packet);
     void send_unreliable(const net::Packet& packet);
     void disconnect();
-    bool is_connected() const { return m_connected.load(); }
-    uint32_t player_id() const { return m_player_id; }
+    bool is_connected() const {
+        return m_connected.load();
+    }
+    uint32_t player_id() const {
+        return m_player_id;
+    }
 
-private:
-    engn::EngineContext &m_engine_ctx;
+  private:
+    engn::EngineContext& m_engine_ctx;
     asio::io_context m_io;
     std::shared_ptr<net::Session> m_session;
     std::thread m_io_thread;

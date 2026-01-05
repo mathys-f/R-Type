@@ -22,6 +22,6 @@ struct UIStyle {
     float border_thickness;
 };
 
-} // namespace components
+} // namespace cpnt
 
-} // namespace engine
+} // namespace engn

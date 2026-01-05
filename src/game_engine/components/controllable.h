@@ -7,7 +7,7 @@ namespace engn {
 namespace cpnt {
 
 struct Controllable {
-    float speed;
+    float speed{};
 
     SnapshotMeta snapshot_meta;
 };

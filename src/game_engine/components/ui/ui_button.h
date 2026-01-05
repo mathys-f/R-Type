@@ -6,8 +6,7 @@ namespace engn {
 
 namespace cpnt {
 
-struct UIButton {
-};
+struct UIButton {};
 
 } // namespace cpnt
 

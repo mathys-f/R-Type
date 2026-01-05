@@ -1,35 +1,24 @@
 #pragma once
 
-#include <variant>
-
+#include "controller_events.h"
 #include "keyboard_events.h"
 #include "mouse_events.h"
-#include "controller_events.h"
+
+#include <variant>
 
 namespace engn {
 
 namespace evts {
 
-using Event = std::variant<
-    KeyPressed,
-    KeyHold,
-    KeyReleased,
+using Event =
+    std::variant<KeyPressed, KeyHold, KeyReleased,
 
-    MouseButtonPressed,
-    MouseButtonHeld,
-    MouseButtonReleased,
-    MouseMoved,
-    MouseScrolled,
+                 MouseButtonPressed, MouseButtonHeld, MouseButtonReleased, MouseMoved, MouseScrolled,
 
-    ControllerButtonPressed,
-    ControllerButtonHeld,
-    ControllerButtonReleased,
-    ControllerLeftJoystickMove,
-    ControllerRightJoystickMove,
-    ControllerLeftTriggerMove,
-    ControllerRightTriggerMove
+                 ControllerButtonPressed, ControllerButtonHeld, ControllerButtonReleased, ControllerLeftJoystickMove,
+                 ControllerRightJoystickMove, ControllerLeftTriggerMove, ControllerRightTriggerMove
 
->;
-} // namespace events
+                 >;
+} // namespace evts
 
-} // namespace engine
+} // namespace engn

@@ -1,13 +1,13 @@
 #include "tag_registry.h"
 
-#include <stdexcept>
-#include <algorithm>
-
 #include "utils/logger.h"
+
+#include <algorithm>
+#include <stdexcept>
 
 using namespace ecs;
 
-TagRegistry::TagId TagRegistry::create_tag(const std::string &name) {
+TagRegistry::TagId TagRegistry::create_tag(const std::string& name) {
     if (m_name_to_id.find(name) != m_name_to_id.end()) {
         LOG_ERROR("Tag name {} already exists", name);
         return TagRegistry::k_invalid_tag_id;
@@ -28,7 +28,7 @@ void TagRegistry::bind_tag(TagId tag_id, Entity entity) {
     m_tag_to_entity[tag_id] = entity;
 }
 
-TagRegistry::TagId TagRegistry::create_and_bind_tag(const std::string &name, Entity entity) {
+TagRegistry::TagId TagRegistry::create_and_bind_tag(const std::string& name, Entity entity) {
     TagId tag_id = create_tag(name);
 
     if (tag_id == TagRegistry::k_invalid_tag_id)
@@ -37,7 +37,7 @@ TagRegistry::TagId TagRegistry::create_and_bind_tag(const std::string &name, Ent
     return tag_id;
 }
 
-TagRegistry::TagId TagRegistry::get_tag_id(const std::string &name) const {
+TagRegistry::TagId TagRegistry::get_tag_id(const std::string& name) const {
     auto it = m_name_to_id.find(name);
     if (it == m_name_to_id.end()) {
         LOG_ERROR("No TagId is linked to the name {}", name);
@@ -48,7 +48,7 @@ TagRegistry::TagId TagRegistry::get_tag_id(const std::string &name) const {
 
 TagRegistry::TagId TagRegistry::get_tag_id(Entity entity) const {
     auto it = std::find_if(m_tag_to_entity.begin(), m_tag_to_entity.end(),
-        [&entity](const auto &p){ return p.second == entity; });
+                           [&entity](const auto& p) { return p.second == entity; });
 
     if (it == m_tag_to_entity.end()) {
         LOG_ERROR("No TagId is linked to the entity n°{}", entity.value());
@@ -75,7 +75,7 @@ std::optional<Entity> TagRegistry::get_entity(TagId tag_id) const {
     return it->second;
 }
 
-std::optional<Entity> TagRegistry::get_entity(const std::string &name) const {
+std::optional<Entity> TagRegistry::get_entity(const std::string& name) const {
     TagId tag_id = get_tag_id(name);
 
     if (tag_id == TagRegistry::k_invalid_tag_id) {

@@ -1,29 +1,33 @@
+#include "game_engine/components/components.h"
+#include "game_engine/engine.h"
+#include "raylib.h"
+#include "scenes_loaders.h"
+
+#include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <cstdio>
-#include <cmath>
 #include <optional>
-
-#include "raylib.h"
-#include "game_engine/engine.h"
-#include "game_engine/components/components.h"
-#include "scenes_loaders.h"
 
 using namespace engn;
 
-int main(void)
-{
+int main(void) {
+    constexpr int k_target_fps = 60;
+    constexpr unsigned char k_alpha_opaque = 255;
+
     srand(time(NULL));
 
     // Create engine context
     EngineContext engine_ctx;
 
-    const int k_width = engine_ctx.window_size.x;
-    const int k_height = engine_ctx.window_size.y;
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+    const int k_width = static_cast<int>(engine_ctx.k_window_size.x);
+    const int k_height = static_cast<int>(engine_ctx.k_window_size.y);
+    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
     InitWindow(k_width, k_height, "FTL-Type");
     InitAudioDevice();
-    SetTargetFPS(60);
+    SetTargetFPS(k_target_fps);
 
     // Load assets
     engine_ctx.assets_manager.load_music("battle_music", "assets/music/Battle_music.mp3");
@@ -40,8 +44,7 @@ int main(void)
     if (battle_music.has_value())
         PlayMusicStream(battle_music.value());
     // Main game loop
-    while (!WindowShouldClose() && !engine_ctx.should_quit)
-    {
+    while (!WindowShouldClose() && !engine_ctx.should_quit) {
         engine_ctx.delta_time = GetFrameTime();
 
         // Update music
@@ -49,7 +52,7 @@ int main(void)
             UpdateMusicStream(battle_music.value());
 
         BeginDrawing();
-        ClearBackground((Color){0, 0, 0, 255});
+        ClearBackground((Color){0, 0, 0, k_alpha_opaque});
 
         // Run all systems
         engine_ctx.run_systems();

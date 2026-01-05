@@ -1,21 +1,19 @@
+#include "game_engine/api/lua.h"
+#include "game_engine/engine.h"
+#include "game_engine/systems/systems.h"
 #include "scenes_loaders.h"
+#include "systems/client_systems.h"
 
 #include <string>
 
 #include "sol/sol.hpp"
 
-#include "game_engine/engine.h"
-#include "game_engine/api/lua.h"
-#include "game_engine/systems/systems.h"
-#include "systems/client_systems.h"
-
 using namespace engn;
 
 const std::string k_script_file = "scripts/lua/ui/server_login_menu.lua";
 
-void load_server_connection_scene(engn::EngineContext& engine_ctx)
-{
-    auto &reg = engine_ctx.registry;
+void load_server_connection_scene(engn::EngineContext& engine_ctx) {
+    auto& reg = engine_ctx.registry;
 
     reg.register_component<cpnt::UIButton>();
     reg.register_component<cpnt::UIFocusable>();

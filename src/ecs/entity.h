@@ -3,16 +3,14 @@
 #include <cstddef>
 #include <format>
 
-namespace ecs
-{
+namespace ecs {
 
 class Registry;
 
 /// Strongly-typed wrapper for entity identifiers used by the ECS.
 /// Provides an explicit IdType alias and safe conversions to the underlying
 /// integral identifier.
-class Entity
-{
+class Entity {
   public:
     /// Underlying integer type used for entity ids.
     using IdType = std::size_t;
@@ -40,11 +38,10 @@ class Entity
     friend class Registry;
 };
 
-}  // namespace ecs
+} // namespace ecs
 
-template <>
-struct std::formatter<ecs::Entity> : std::formatter<size_t> {
-    auto format(const ecs::Entity &entity, auto &ctx) const {
+template <> struct std::formatter<ecs::Entity> : std::formatter<size_t> {
+    auto format(const ecs::Entity& entity, auto& ctx) const {
         return std::formatter<size_t>::format(static_cast<size_t>(entity), ctx);
     }
 };

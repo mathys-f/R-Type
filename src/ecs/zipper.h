@@ -1,27 +1,27 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
-#include <tuple>
 #include <iterator>
+#include <tuple>
 #include <type_traits>
 #include <utility>
-#include <algorithm>
 
 namespace ecs {
 
 namespace containers {
 
 /// Iterator that zips multiple containers together producing tuples of references.
-template <class... Containers>
-class ZipperIterator {
-public:
-    using ValueType = std::tuple<typename std::add_lvalue_reference<decltype(*std::begin(std::declval<Containers&>()))>::type...>;
+template <class... TContainers> class ZipperIterator {
+  public:
+    using ValueType =
+        std::tuple<typename std::add_lvalue_reference<decltype(*std::begin(std::declval<TContainers&>()))>::type...>;
     using Reference = ValueType;
     using Pointer = void;
     using DifferenceType = std::ptrdiff_t;
     using IteratorCategory = std::input_iterator_tag;
 
-    using IteratorTuple = std::tuple<decltype(std::begin(std::declval<Containers&>()))...>;
+    using IteratorTuple = std::tuple<decltype(std::begin(std::declval<TContainers&>()))...>;
 
     ZipperIterator() = default;
 
@@ -36,23 +36,22 @@ public:
 
     std::size_t index() const noexcept;
 
-private:
+  private:
     IteratorTuple m_iters{};
     std::size_t m_max{0};
     std::size_t m_idx{0};
 
-    template <std::size_t... Is> Reference deref(std::index_sequence<Is...>);
-    template <std::size_t... Is> void increment(std::index_sequence<Is...>);
+    template <std::size_t... TIs> Reference deref(std::index_sequence<TIs...>);
+    template <std::size_t... TIs> void increment(std::index_sequence<TIs...>);
 };
 
 /// Zips multiple containers together producing tuples of references.
-template <class... Containers>
-class Zipper {
-public:
-    using Iterator = ZipperIterator<Containers...>;
+template <class... TContainers> class Zipper {
+  public:
+    using Iterator = ZipperIterator<TContainers...>;
     using ConstIterator = Iterator;
 
-    explicit Zipper(Containers&... cs);
+    explicit Zipper(TContainers&... cs);
 
     Iterator begin();
     Iterator end();
@@ -60,67 +59,62 @@ public:
     ConstIterator begin() const;
     ConstIterator end() const;
 
-private:
-    std::tuple<decltype(std::begin(std::declval<Containers&>()))...> m_begin_iters;
+  private:
+    std::tuple<decltype(std::begin(std::declval<TContainers&>()))...> m_begin_iters;
     std::size_t m_max_size{0};
 };
 
 /// Helper to create a Zipper instance from containers.
-template <class... Containers>
-Zipper<Containers...> make_zipper(Containers&... cs);
+template <class... TContainers> Zipper<TContainers...> make_zipper(TContainers&... cs);
 
 /// Like Zipper but provides element index together with tuple of references.
-template <class... Containers>
-class IndexedZipper {
-public:
-    class iterator {
-        using BaseZipperT = Zipper<Containers...>;
+template <class... TContainers> class IndexedZipper {
+  public:
+    class Iterator {
+        using BaseZipperT = Zipper<TContainers...>;
         using BaseIteratorT = typename BaseZipperT::Iterator;
 
-    public:
-        using ValueType = std::tuple<std::size_t, typename std::add_lvalue_reference<decltype(*std::begin(std::declval<Containers&>()))>::type...>;
+      public:
+        using ValueType = std::tuple<std::size_t, typename std::add_lvalue_reference<decltype(*std::begin(
+                                                      std::declval<TContainers&>()))>::type...>;
         using Reference = ValueType;
         using Pointer = void;
         using DifferenceType = std::ptrdiff_t;
         using IteratorCategory = std::input_iterator_tag;
 
-        iterator() = default;
-        explicit iterator(BaseIteratorT it);
+        Iterator() = default;
+        explicit Iterator(BaseIteratorT it);
 
         Reference operator*();
-        iterator& operator++();
-        iterator operator++(int);
+        Iterator& operator++();
+        Iterator operator++(int);
 
-        bool operator==(iterator const& rhs) const;
-        bool operator!=(iterator const& rhs) const;
+        bool operator==(Iterator const& rhs) const;
+        bool operator!=(Iterator const& rhs) const;
 
-    private:
+      private:
         BaseIteratorT m_it{};
-        template <std::size_t... Is> Reference expand(std::index_sequence<Is...>);
+        template <std::size_t... TIs> Reference expand(std::index_sequence<TIs...>);
     };
 
-    explicit IndexedZipper(Containers&... cs);
+    explicit IndexedZipper(TContainers&... cs);
 
-    iterator begin();
-    iterator end();
+    Iterator begin();
+    Iterator end();
 
-private:
-    Zipper<Containers...> m_zip;
+  private:
+    Zipper<TContainers...> m_zip;
 };
 
 /// Helper to create an IndexedZipper instance.
-template <class... Containers>
-IndexedZipper<Containers...> make_indexed_zipper(Containers&... cs);
+template <class... TContainers> IndexedZipper<TContainers...> make_indexed_zipper(TContainers&... cs);
 
-}  // namespace containers
+} // namespace containers
 
 /// Convenience free functions
-template <class... Containers>
-auto zipper(Containers&... cs);
+template <class... TContainers> auto zipper(TContainers&... cs);
 
-template <class... Containers>
-auto indexed_zipper(Containers&... cs);
-
-}  // namespace ecs
+template <class... TContainers> auto indexed_zipper(TContainers&... cs);
+} // namespace ecs
 
 #include "zipper.tcc"

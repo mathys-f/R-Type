@@ -11,7 +11,7 @@ Source: `src/networking/rtp/networking.h`, `src/networking/rtp/*.cpp`, `src/netw
 
 Packet & header
 - `struct PacketHeader`
-	- Fields: `m_magic`, `m_command`, `m_flags`, `m_sequence`, `m_ack`, `m_fragmentId`, `m_fragmentIndex`, `m_fragmentCount`, `m_payloadSize`, `m_checksum`.
+	- Fields: `m_magic`, `m_command`, `m_flags`, `m_sequence`, `m_ack`, `m_fragment_id`, `m_fragment_index`, `m_fragment_count`, `m_payload_size`, `m_checksum`.
 	- `std::array<uint8_t, k_header_size> serialize() const` — produce header bytes (little-endian).
 	- `static PacketHeader deserialize(std::span<const uint8_t, k_header_size>)` — parse header and validate magic/payload size.
 
@@ -21,12 +21,12 @@ Packet & header
 	- `static Packet from_buffer(std::span<const uint8_t>)` — parse full packet from an on-wire `uint8_t` buffer and validate checksum.
 
 Enums & flags
-- `enum class CommandId : uint8_t` — command identifiers (e.g. `k_req_login`, `k_res_login`, `k_client_input`, `k_server_entity_state`, `k_ack`).
-- `enum class PacketFlag : uint8_t` — `k_reliable`, `k_fragment`, `k_ack`, `k_error`.
+- `enum class CommandId : uint8_t` — command identifiers (e.g. `KReqLogin`, `KResLogin`, `KClientInput`, `KServerEntityState`, `KAck`).
+- `enum class PacketFlag : uint8_t` — `KReliable`, `KFragment`, `KAck`, `KError`.
 - Helpers: `has_flag(uint8_t mask, PacketFlag)`, `set_flag(uint8_t mask, PacketFlag)`, `clear_flag(...)` and bitwise operators.
 
 Reliability primitives
-- `struct ReliabilityConfig` — parameters: `maxRetransmissions`, `initialRto`, `maxRto`, `windowSize`.
+- `struct ReliabilityConfig` — parameters: `max_retransmissions`, `initial_rto`, `max_rto`, `window_size`.
 
 - `class ReliableSendQueue`
 	- Constructor: `ReliableSendQueue(ReliabilityConfig config = {})`
@@ -74,7 +74,7 @@ Handshake helpers (namespace `net::handshake`)
 
 Quick usage notes
 - To receive reliable messages: call `session->start(onReliableCallback, onUnreliableCallback)`.
-- To send reliably: set `packet.header.m_flags` to include `k_reliable` or call `session->send(packet, true)`.
+- To send reliably: set `packet.header.m_flags` to include `KReliable` or call `session->send(packet, true)`.
 - For large payloads: `Session` will fragment automatically (fragments are always sent reliably).
 
 Where to look in code

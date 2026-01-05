@@ -4,11 +4,9 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace net
-{
+namespace net {
 // Create a namespace-scope anonymous to keep helper functions private to this C++ file.
-namespace
-{
+namespace {
 constexpr std::uint8_t k_byte_mask = 0xFFU;
 constexpr std::uint8_t k_shift8 = 8U;
 constexpr std::uint8_t k_shift16 = 16U;
@@ -16,6 +14,7 @@ constexpr std::uint8_t k_shift24 = 24U;
 constexpr std::uint16_t k_crc_poly = 0x1021U;
 constexpr std::uint16_t k_crc_init = 0xFFFFU;
 constexpr std::uint16_t k_crc_high_bit = 0x8000U;
+constexpr std::size_t k_bits_per_byte = 8;
 
 constexpr std::size_t k_magic_number_offset = 0;
 constexpr std::size_t k_command_offset = 2;
@@ -29,20 +28,14 @@ constexpr std::size_t k_payload_size_offset = 16;
 constexpr std::size_t k_checksum_offset = 18;
 
 // Computes a CRC-16-CCITT checksum for the provided buffer.
-std::uint16_t crc16_ccitt(std::span<const std::uint8_t> buffer) noexcept
-{
+std::uint16_t crc16_ccitt(std::span<const std::uint8_t> buffer) noexcept {
     std::uint16_t crc = k_crc_init;
-    for (std::uint8_t byte : buffer)
-    {
+    for (std::uint8_t byte : buffer) {
         crc ^= static_cast<std::uint16_t>(byte) << k_shift8;
-        for (int i = 0; i < 8; ++i)
-        {
-            if ((crc & k_crc_high_bit) != 0U)
-            {
+        for (std::size_t i = 0; i < k_bits_per_byte; ++i) {
+            if ((crc & k_crc_high_bit) != 0U) {
                 crc = static_cast<std::uint16_t>((crc << 1U) ^ k_crc_poly);
-            }
-            else
-            {
+            } else {
                 crc = static_cast<std::uint16_t>(crc << 1U);
             }
         }
@@ -51,15 +44,13 @@ std::uint16_t crc16_ccitt(std::span<const std::uint8_t> buffer) noexcept
 }
 
 // Encodes a 16-bit integer into two little-endian bytes at the requested offset.
-void write_u16(std::uint16_t value, std::span<std::uint8_t> target, std::size_t offset) noexcept
-{
+void write_u16(std::uint16_t value, std::span<std::uint8_t> target, std::size_t offset) noexcept {
     target[offset] = static_cast<std::uint8_t>(value & k_byte_mask);
     target[offset + 1] = static_cast<std::uint8_t>((value >> k_shift8) & k_byte_mask);
 }
 
 // Encodes a 32-bit integer into four little-endian bytes at the requested offset.
-void write_u32(std::uint32_t value, std::span<std::uint8_t> target, std::size_t offset) noexcept
-{
+void write_u32(std::uint32_t value, std::span<std::uint8_t> target, std::size_t offset) noexcept {
     target[offset] = static_cast<std::uint8_t>(value & k_byte_mask);
     target[offset + 1] = static_cast<std::uint8_t>((value >> k_shift8) & k_byte_mask);
     target[offset + 2] = static_cast<std::uint8_t>((value >> k_shift16) & k_byte_mask);
@@ -67,24 +58,19 @@ void write_u32(std::uint32_t value, std::span<std::uint8_t> target, std::size_t 
 }
 
 // Decodes a 16-bit integer from two little-endian bytes.
-std::uint16_t read_u16(std::span<const std::uint8_t> source, std::size_t offset) noexcept
-{
-    return static_cast<std::uint16_t>(source[offset]) |
-        static_cast<std::uint16_t>(source[offset + 1] << k_shift8);
+std::uint16_t read_u16(std::span<const std::uint8_t> source, std::size_t offset) noexcept {
+    return static_cast<std::uint16_t>(source[offset]) | static_cast<std::uint16_t>(source[offset + 1] << k_shift8);
 }
 
 // Decodes a 32-bit integer from four little-endian bytes.
-std::uint32_t read_u32(std::span<const std::uint8_t> source, std::size_t offset) noexcept
-{
-    return static_cast<std::uint32_t>(source[offset]) |
-        (static_cast<std::uint32_t>(source[offset + 1]) << k_shift8) |
-        (static_cast<std::uint32_t>(source[offset + 2]) << k_shift16) |
-        (static_cast<std::uint32_t>(source[offset + 3]) << k_shift24);
+std::uint32_t read_u32(std::span<const std::uint8_t> source, std::size_t offset) noexcept {
+    return static_cast<std::uint32_t>(source[offset]) | (static_cast<std::uint32_t>(source[offset + 1]) << k_shift8) |
+           (static_cast<std::uint32_t>(source[offset + 2]) << k_shift16) |
+           (static_cast<std::uint32_t>(source[offset + 3]) << k_shift24);
 }
-}  // namespace
+} // namespace
 
-std::array<std::uint8_t, k_header_size> PacketHeader::serialize() const
-{
+std::array<std::uint8_t, k_header_size> PacketHeader::serialize() const {
     std::array<std::uint8_t, k_header_size> bytes{};
     auto view = std::span<std::uint8_t>(bytes.data(), bytes.size());
     write_u16(m_magic, view, k_magic_number_offset);
@@ -92,16 +78,15 @@ std::array<std::uint8_t, k_header_size> PacketHeader::serialize() const
     bytes[k_flags_offset] = m_flags;
     write_u32(m_sequence, view, k_sequence_offset);
     write_u32(m_ack, view, k_ack_offset);
-    write_u16(m_fragmentId, view, k_fragment_id_offset);
-    bytes[k_fragment_index_offset] = m_fragmentIndex;
-    bytes[k_fragment_count_offset] = m_fragmentCount;
-    write_u16(m_payloadSize, view, k_payload_size_offset);
+    write_u16(m_fragment_id, view, k_fragment_id_offset);
+    bytes[k_fragment_index_offset] = m_fragment_index;
+    bytes[k_fragment_count_offset] = m_fragment_count;
+    write_u16(m_payload_size, view, k_payload_size_offset);
     write_u16(m_checksum, view, k_checksum_offset);
     return bytes;
 }
 
-PacketHeader PacketHeader::deserialize(std::span<const std::uint8_t, k_header_size> buffer)
-{
+PacketHeader PacketHeader::deserialize(std::span<const std::uint8_t, k_header_size> buffer) {
     PacketHeader header{};
     auto view = std::span<const std::uint8_t>(buffer.data(), buffer.size());
     header.m_magic = read_u16(view, k_magic_number_offset);
@@ -109,50 +94,43 @@ PacketHeader PacketHeader::deserialize(std::span<const std::uint8_t, k_header_si
     header.m_flags = buffer[k_flags_offset];
     header.m_sequence = read_u32(view, k_sequence_offset);
     header.m_ack = read_u32(view, k_ack_offset);
-    header.m_fragmentId = read_u16(view, k_fragment_id_offset);
-    header.m_fragmentIndex = buffer[k_fragment_index_offset];
-    header.m_fragmentCount = buffer[k_fragment_count_offset];
-    header.m_payloadSize = read_u16(view, k_payload_size_offset);
+    header.m_fragment_id = read_u16(view, k_fragment_id_offset);
+    header.m_fragment_index = buffer[k_fragment_index_offset];
+    header.m_fragment_count = buffer[k_fragment_count_offset];
+    header.m_payload_size = read_u16(view, k_payload_size_offset);
     header.m_checksum = read_u16(view, k_checksum_offset);
-    if (header.m_magic != k_magic_number)
-    {
+    if (header.m_magic != k_magic_number) {
         throw std::runtime_error("invalid magic number");
     }
-    if (header.m_payloadSize > k_max_payload_size)
-    {
+    if (header.m_payload_size > k_max_payload_size) {
         throw std::runtime_error("payload too large");
     }
 
     return header;
 }
 
-std::vector<std::uint8_t> Packet::to_buffer() const
-{
-    if (payload.size() > k_max_payload_size)
-    {
+std::vector<std::uint8_t> Packet::to_buffer() const {
+    if (payload.size() > k_max_payload_size) {
         throw std::runtime_error("payload exceeds maximum size");
     }
 
     PacketHeader header_copy = header;
-    header_copy.m_payloadSize = static_cast<std::uint16_t>(payload.size());
+    header_copy.m_payload_size = static_cast<std::uint16_t>(payload.size());
     header_copy.m_checksum = 0;
 
     std::vector<std::uint8_t> buffer(k_header_size + payload.size());
     auto view = std::span<std::uint8_t>(buffer.data(), buffer.size());
     const auto k_header_bytes = header_copy.serialize();
     std::ranges::copy(k_header_bytes, buffer.begin());
-    std::ranges::transform(payload, buffer.begin() + k_header_size,
-        [](std::byte b) { return net::byte_to_u8(b); });
+    std::ranges::transform(payload, buffer.begin() + k_header_size, [](std::byte b) { return net::byte_to_u8(b); });
     const auto k_checksum = crc16_ccitt(buffer);
     write_u16(k_checksum, view, k_checksum_offset);
 
     return buffer;
 }
 
-Packet Packet::from_buffer(std::span<const std::uint8_t> buffer)
-{
-    if (buffer.size() < k_header_size)
-    {
+Packet Packet::from_buffer(std::span<const std::uint8_t> buffer) {
+    if (buffer.size() < k_header_size) {
         throw std::runtime_error("buffer too small");
     }
 
@@ -160,9 +138,8 @@ Packet Packet::from_buffer(std::span<const std::uint8_t> buffer)
     std::memcpy(header_bytes.data(), buffer.data(), k_header_size);
     PacketHeader header = PacketHeader::deserialize(header_bytes);
 
-    const std::size_t k_expected_size = k_header_size + header.m_payloadSize;
-    if (buffer.size() != k_expected_size)
-    {
+    const std::size_t k_expected_size = k_header_size + header.m_payload_size;
+    if (buffer.size() != k_expected_size) {
         throw std::runtime_error("payload size mismatch");
     }
 
@@ -171,8 +148,7 @@ Packet Packet::from_buffer(std::span<const std::uint8_t> buffer)
     verification[k_checksum_offset + 1] = 0;
 
     const std::uint16_t k_expected_checksum = crc16_ccitt(verification);
-    if (k_expected_checksum != header.m_checksum)
-    {
+    if (k_expected_checksum != header.m_checksum) {
         throw std::runtime_error("checksum mismatch");
     }
 
@@ -181,9 +157,8 @@ Packet Packet::from_buffer(std::span<const std::uint8_t> buffer)
     const auto k_payload_begin = buffer.begin() + k_header_size;
     const auto k_payload_end = buffer.end();
     packet.payload.resize(std::distance(k_payload_begin, k_payload_end));
-    std::ranges::transform(k_payload_begin, k_payload_end, packet.payload.begin(), [](std::uint8_t b) {
-        return static_cast<std::byte>(b);
-    });
+    std::ranges::transform(k_payload_begin, k_payload_end, packet.payload.begin(),
+                           [](std::uint8_t b) { return static_cast<std::byte>(b); });
     return packet;
 }
-}  // namespace net
+} // namespace net

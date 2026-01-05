@@ -5,20 +5,17 @@
 #include <optional>
 #include <string>
 
-namespace net::handshake
-{
+namespace net::handshake {
 constexpr std::uint32_t k_protocol_version = 1;
 constexpr std::size_t k_max_username_len = 32;
 
-struct ReqLogin
-{
+struct ReqLogin {
     std::string m_username;
     std::uint32_t m_version = k_protocol_version;
     std::uint16_t m_preferred_fragment_size = static_cast<std::uint16_t>(k_max_payload_size);
 };
 
-struct ResLogin
-{
+struct ResLogin {
     bool m_success = false;
     std::uint32_t m_player_id = 0;
     std::uint16_t m_effective_fragment_size = static_cast<std::uint16_t>(k_max_payload_size);
@@ -40,6 +37,6 @@ std::optional<ResLogin> parse_res_login(const Packet& packet);
 // will send a RES_LOGIN reply (currently accepts any username) and return true.
 // The caller should invoke this from the reliable packet callback.
 bool handle_server_handshake(const Packet& packet, const std::shared_ptr<Session>& session,
-    const asio::ip::udp::endpoint& endpoint);
+                             const asio::ip::udp::endpoint& endpoint);
 
 } // namespace net::handshake

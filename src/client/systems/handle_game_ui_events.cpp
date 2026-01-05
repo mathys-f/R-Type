@@ -1,26 +1,22 @@
-#include "systems/client_systems.h"
 #include "game_engine/engine.h"
-
+#include "systems/client_systems.h"
 #include "utils/logger.h"
 
 using namespace engn;
 
-static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &e,
-    engn::evts::EventQueue<engn::evts::UIEvent> evts_queue);
+static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& e,
+                                     engn::evts::EventQueue<engn::evts::UIEvent> evts_queue);
 
-void handle_game_ui_events(engn::EngineContext& engine_ctx)
-{
-    const auto &evts = engine_ctx.ui_event_queue;
+void handle_game_ui_events(engn::EngineContext& engine_ctx) {
+    const auto& evts = engine_ctx.ui_event_queue;
 
-    evts.for_each<evts::UIButtonClicked>([&engine_ctx, &evts](const evts::UIButtonClicked &evt){
-        handle_ui_button_clicked(engine_ctx, evt, evts);
-    });
+    evts.for_each<evts::UIButtonClicked>(
+        [&engine_ctx, &evts](const evts::UIButtonClicked& evt) { handle_ui_button_clicked(engine_ctx, evt, evts); });
 }
 
-static void handle_ui_button_clicked(EngineContext &ctx, const evts::UIButtonClicked &e,
-    engn::evts::EventQueue<engn::evts::UIEvent> evts_queue)
-{
-    const auto &tags = ctx.registry.tag_registry;
+static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& e,
+                                     engn::evts::EventQueue<engn::evts::UIEvent> evts_queue) {
+    const auto& tags = ctx.registry.get_tag_registry();
     std::string tag_name = tags.get_tag_name(e.tag);
 
     if (tag_name == "back_button") {

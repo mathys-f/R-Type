@@ -1,18 +1,21 @@
 #include "engine.h"
 
-#include <filesystem>
-
+#include "api/lua.h"
 #include "components/components.h"
 #include "systems/systems.h"
-#include "api/lua.h"
 #include "utils/logger.h"
+
+#include <filesystem>
 
 using namespace engn;
 
-static void expose_cpp_api(sol::state &lua, EngineContext &ctx);
+namespace {
+constexpr unsigned char k_max_scene_id = 255;
+} // namespace
 
-EngineContext::EngineContext()
-{
+static void expose_cpp_api(sol::state& lua, EngineContext& ctx);
+
+EngineContext::EngineContext() : server_port(0), m_current_scene(0) {
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
     expose_cpp_api(lua_ctx->get_lua_state(), *this);
@@ -32,14 +35,15 @@ EngineContext::EngineContext()
     // registry.register_component<cpnt::Weapon>();
 
     // add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    // add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox>(sys::collision_system);
-    // add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
-    // add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
-    // add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    // add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet>(sys::particle_emission_system);
-    // add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(sys::player_control_system);
-    // add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(sys::render_system);
-    // add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
+    // add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player,
+    // cpnt::Hitbox>(sys::collision_system); add_system<cpnt::Transform, cpnt::MovementPattern,
+    // cpnt::Velocity>(sys::enemy_movement_system); add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy,
+    // cpnt::Health, cpnt::Sprite>(sys::enemy_system); add_system<cpnt::Transform, cpnt::Explosion,
+    // cpnt::Sprite>(sys::explosion_system); add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle,
+    // cpnt::Bullet>(sys::particle_emission_system); add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite,
+    // cpnt::Velocity, cpnt::Health>(sys::player_control_system); add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star,
+    // cpnt::Velocity, cpnt::Particle>(sys::render_system); add_system<cpnt::Transform,
+    // cpnt::Star>(sys::star_scroll_system);
 
     // if (!headless) {
     //     registry.register_component<cpnt::UIButton>();
@@ -68,8 +72,7 @@ EngineContext::EngineContext()
     registry.spawn_entity(); // ensure entity 0 is reserved
 }
 
-void EngineContext::run_systems()
-{
+void EngineContext::run_systems() {
     input_event_queue.clear();
     ui_event_queue.clear();
     for (auto& sys : m_systems) {
@@ -78,22 +81,19 @@ void EngineContext::run_systems()
     }
 }
 
-static void expose_cpp_api(sol::state &lua, EngineContext &ctx)
-{
+static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
     LOG_DEBUG("Exposing C++ API to Lua");
-    for (const auto &entry : engn::lua::k_api_functions) {
+    for (const auto& entry : engn::lua::k_api_functions) {
         entry->expose(lua, ctx);
     }
 }
 
-void EngineContext::add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader)
-{
+void EngineContext::add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader) {
     m_scenes_loaders[scene_id] = loader;
 }
 
-void EngineContext::set_scene(unsigned char scene_id)
-{
-    if (scene_id > 255) {
+void EngineContext::set_scene(unsigned char scene_id) {
+    if (scene_id > k_max_scene_id) {
         LOG_ERROR("Max number of scenes is 256 (0-255)");
         return;
     } else if (scene_id == m_current_scene) {
@@ -108,13 +108,13 @@ void EngineContext::set_scene(unsigned char scene_id)
     new (&registry) ecs::Registry();
     m_systems.clear();
     m_current_scene = scene_id;
-    LOG_DEBUG("Spawn initial entity {}", static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
+    LOG_DEBUG("Spawn initial entity {}",
+              static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
     LOG_INFO("Scene {} loaded", static_cast<int>(scene_id));
 }
 
-unsigned char EngineContext::get_current_scene() const
-{
+unsigned char EngineContext::get_current_scene() const {
     return m_current_scene;
 }

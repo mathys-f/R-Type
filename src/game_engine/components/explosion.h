@@ -7,16 +7,13 @@ namespace engn {
 namespace cpnt {
 
 struct Explosion {
-    enum class ExplosionType {
-        Small,
-        Large
-    };
+    enum class ExplosionType { Small, Large };
 
-    ExplosionType type;
-    float timer;
-    float frameDuration;
-    int currentFrame;
-    int totalFrames;
+    ExplosionType type{};
+    float timer{};
+    float frame_duration{};
+    int current_frame{};
+    int total_frames{};
 
     SnapshotMeta snapshot_meta;
 };

@@ -1,7 +1,6 @@
 #include "assets_manager.h"
 
 #include "raylib.h"
-
 #include "utils/logger.h"
 
 using namespace engn;
@@ -36,8 +35,7 @@ bool AssetsManager::load_texture(const std::string& asset_id, const std::string&
     return true;
 }
 
-void AssetsManager::unload_asset(const std::string& asset_id)
-{
+void AssetsManager::unload_asset(const std::string& asset_id) {
     auto it = m_assets.find(asset_id);
     if (it != m_assets.end()) {
         m_assets.erase(it);

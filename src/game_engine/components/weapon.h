@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
 #include "snapshot_meta.h"
 
+#include <cstdint>
+#include <string>
 
 namespace engn {
 
@@ -25,7 +25,6 @@ struct Weapon {
     SnapshotMeta snapshot_meta;
 };
 
-} // namespace component
+} // namespace cpnt
 
-} // namespace engine
-
+} // namespace engn

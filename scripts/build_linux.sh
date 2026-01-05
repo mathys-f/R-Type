@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Stop on any error
+# Standalone Linux build script - configures and builds the project using CMake
+
 set -e
 
 # Color codes for terminal output
@@ -26,13 +27,6 @@ build_type=${build_type:-Debug}
 if [ "$build_type" != "Release" ] && [ "$build_type" != "Debug" ]; then
     echo -e "${RED}Invalid build type. Choose 'Release' or 'Debug'.${RESET}"
     exit 1
-fi
-
-# Clean src directory for Debug builds
-if [ "$build_type" = "Debug" ]; then
-    echo -e "${BLUE}Cleaning build/src for fresh clang-tidy analysis...${RESET}"
-    rm -rf ./src
-    echo -e "${GREEN}Src directory cleaned.${RESET}"
 fi
 
 # Run CMake to configure and build the project

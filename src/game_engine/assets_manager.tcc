@@ -2,16 +2,14 @@
 
 // Does nothing at compile time, but is needed for IDE to link .tcc to .h properly
 #include "assets_manager.h"
+#include "utils/logger.h"
 
 #include <any>
 #include <optional>
-#include "utils/logger.h"
 
 namespace engn {
 
-template<typename TAsset>
-std::optional<TAsset> AssetsManager::get_asset(const std::string& asset_id)
-{
+template <typename TAsset> std::optional<TAsset> AssetsManager::get_asset(const std::string& asset_id) {
     auto it = m_assets.find(asset_id);
     if (it == m_assets.end()) {
         // LOG_ERROR("Asset with id '{}' not found", asset_id);

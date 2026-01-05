@@ -4,14 +4,14 @@ namespace engn {
 
 namespace evts {
 
-enum MouseButton {
-    mouse_button_unknown = 0,
+enum class MouseButton {
+    MouseButtonUnknown = 0,
 
-    mouse_button_left,
-    mouse_button_right,
-    mouse_button_middle,
-    mouse_button_extra1, // typically the "back" button
-    mouse_button_extra2 // typically the "forward" button
+    MouseButtonLeft,
+    MouseButtonRight,
+    MouseButtonMiddle,
+    MouseButtonExtra1, // typically the "back" button
+    MouseButtonExtra2  // typically the "forward" button
 };
 
 struct MouseButtonPressed {
@@ -36,6 +36,6 @@ struct MouseScrolled {
     float offset_y;
 };
 
-} // namespace events
+} // namespace evts
 
-} // namespace engine
+} // namespace engn

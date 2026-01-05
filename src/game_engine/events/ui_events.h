@@ -1,9 +1,9 @@
 #pragma once
 
+#include "ecs/tag_registry.h"
+
 #include <string>
 #include <variant>
-
-#include "ecs/tag_registry.h"
 
 namespace engn {
 
@@ -28,12 +28,7 @@ struct UIInputSubmit {
     std::string text;
 };
 
-using UIEvent = std::variant<
-    UIButtonClicked,
-    UISliderChanged,
-    UICheckboxToggled,
-    UIInputSubmit
->;
+using UIEvent = std::variant<UIButtonClicked, UISliderChanged, UICheckboxToggled, UIInputSubmit>;
 
 } // namespace evts
 

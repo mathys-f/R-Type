@@ -1,14 +1,13 @@
 #pragma once
-#include <vector>
 #include <variant>
+#include <vector>
 
 namespace engn {
 
 namespace evts {
 
-template<typename TVariant>
-class EventQueue {
-public:
+template <typename TVariant> class EventQueue {
+  public:
     using ContainerT = std::vector<TVariant>;
     using SizeType = typename ContainerT::size_type;
 
@@ -26,29 +25,24 @@ public:
     /**
      * Push an element at the end of the queue
      */
-    template<typename TEventType>
-    void push(TEventType &&event);
+    template <typename TEventType> void push(TEventType&& event);
 
     /**
      * Returns nullptr if not found.
      */
-    template<typename TEventType>
-    const TEventType *get_first() const;
+    template <typename TEventType> const TEventType* get_first() const;
 
     /**
      * Returns nullptr if not found.
      */
-    template<typename TEventType>
-    const TEventType *get_last() const;
+    template <typename TEventType> const TEventType* get_last() const;
 
     /**
      * Each functions must follow this template:
      * `void fn(const TEventType &evt)`
      */
-    template<typename TEventType, typename Func>
-    void for_each(Func &&fn);
-    template<typename TEventType, typename Func>
-    void for_each(Func &&fn) const;
+    template <typename TEventType, typename TFunc> void for_each(TFunc&& fn);
+    template <typename TEventType, typename TFunc> void for_each(TFunc&& fn) const;
 
     void clear();
 
@@ -63,7 +57,7 @@ public:
     ConstIterator end() const noexcept;
     ConstIterator cend() const noexcept;
 
- private:
+  private:
     ContainerT m_data;
 };
 

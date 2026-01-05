@@ -1,14 +1,15 @@
 #pragma once
 
-#include <string>
 #include "snapshot_meta.h"
+
+#include <string>
 
 namespace engn {
 
 namespace cpnt {
 
 struct Replicated {
-    u_int32_t tag;
+    u_int32_t tag{};
 
     SnapshotMeta snapshot_meta;
 };

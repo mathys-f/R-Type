@@ -1,28 +1,28 @@
 #pragma once
 
-#include <any>
+#include "components/bullet.h"
+#include "components/controllable.h"
+#include "components/enemy.h"
+#include "components/explosion.h"
+#include "components/health.h"
+#include "components/hitbox.h"
+#include "components/movement_pattern.h"
+#include "components/player.h"
+#include "components/replicated.h"
+#include "components/sprite.h"
+#include "components/stats.h"
+#include "components/tag.h"
+#include "components/transform.h"
+#include "components/velocity.h"
+#include "components/weapon.h"
 
-#include "bullet.h"
-#include "controllable.h"
-#include "enemy.h"
-#include "explosion.h"
-#include "health.h"
-#include "hitbox.h"
-#include "movement_pattern.h"
-#include "player.h"
-#include "replicated.h"
-#include "stats.h"
-#include "tag.h"
-#include "transform.h"
-#include "velocity.h"
-#include "weapon.h"
-#include "sprite.h"
+#include <any>
 
 namespace engn::cpnt {
 
 namespace type {
 
-enum ComponentType {
+enum class ComponentType {
     Bullet,
     Controllable,
     Enemy,
