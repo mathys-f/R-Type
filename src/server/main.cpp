@@ -1,26 +1,31 @@
-#include <cstdlib>
-#include <ctime>
-#include <cstdio>
+#include "game_engine/components/components.h"
+#include "game_engine/engine.h"
+#include "network_server.h"
+#include "scenes_loaders.h"
+
+#include <chrono>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 #include <optional>
 #include <thread>
-#include <chrono>
-#include <cstring>
-
-#include "game_engine/engine.h"
-#include "game_engine/components/components.h"
-#include "scenes_loaders.h"
-#include "network_server.h"
 
 using namespace engn;
 
-int main(int argc, char** argv)
-{
+namespace {
+constexpr std::uint16_t k_default_port = 8080;
+constexpr int k_server_tick_ms = 16; // ~60 updates per second
+} // namespace
+
+int main(int argc, char** argv) {
     // Parse port from args
-    std::uint16_t port = 8080;
+    std::uint16_t port = k_default_port;
     for (int i = 1; i < argc; i++) {
-        if (std::string(argv[i]) == "-p") {
-            port = static_cast<std::uint16_t>(std::stoi(argv[i + 1]));
+        if (std::string(argv[i]) == "-p") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            port = static_cast<std::uint16_t>(
+                std::stoi(argv[i + 1])); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         }
     }
 
@@ -34,7 +39,7 @@ int main(int argc, char** argv)
     // Main server loop (headless)
     while (true) {
         server.poll();
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        std::this_thread::sleep_for(std::chrono::milliseconds(k_server_tick_ms));
     }
 
     server.stop();

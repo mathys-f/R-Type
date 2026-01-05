@@ -1,15 +1,29 @@
-# .clang-format
+---
+Language: Cpp
 BasedOnStyle: LLVM
+
+# Indentation
 IndentWidth: 4
 TabWidth: 4
-UseTab: Never
-BreakBeforeBraces: Allman
-AllowShortFunctionsOnASingleLine: false
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-ColumnLimit: 100
-SpacesBeforeTrailingComments: 2
+IndentCaseLabels: true
+IndentPPDirectives: BeforeHash
+
+# Line length
+ColumnLimit: 120
+
+# Braces
+AllowShortFunctionsOnASingleLine: Empty
+
+# Alignment
 PointerAlignment: Left
-DerivePointerAlignment: false
+
+# Includes
 SortIncludes: true
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^".*\.h"'
+    Priority: 1
+  - Regex: '^<.*\.h>'
+    Priority: 2
+  - Regex: '^<.*>'
+    Priority: 3

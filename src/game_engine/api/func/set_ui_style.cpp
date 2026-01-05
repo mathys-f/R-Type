@@ -1,28 +1,31 @@
 #include "api/lua.h"
-
-#include "sol/sol.hpp"
-
 #include "engine.h"
 #include "utils/logger.h"
 
+#include "sol/sol.hpp"
+
 using namespace engn;
 
+namespace {
+constexpr int k_alpha_opaque = 255;
+} // namespace
+
 static auto read_color(sol::table table) {
-    utils::Color color;
+    utils::Color color{};
     color.r = table["r"].get_or(0);
     color.g = table["g"].get_or(0);
     color.b = table["b"].get_or(0);
-    color.a = table["a"].get_or(255);
+    color.a = table["a"].get_or(k_alpha_opaque);
     return color;
 }
 
-void lua::set_ui_style(EngineContext &ctx, unsigned char scene_id, std::string tag, sol::table t)
-{
+void lua::set_ui_style(EngineContext& ctx, unsigned char scene_id, std::string tag, sol::table t) {
     if (scene_id != ctx.get_current_scene()) {
-        LOG_WARNING("Set_ui_style: Attempted to edit {} in scene {}, but current scene is {}", tag, static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
+        LOG_WARNING("Set_ui_style: Attempted to edit {} in scene {}, but current scene is {}", tag,
+                    static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
         return;
     }
-    auto entity = ctx.registry.tag_registry.get_entity(tag);
+    auto entity = ctx.registry.get_tag_registry().get_entity(tag);
 
     if (!entity.has_value()) {
         LOG_WARNING("Set_ui_style: No entity found with tag '{}'", tag);
@@ -32,7 +35,7 @@ void lua::set_ui_style(EngineContext &ctx, unsigned char scene_id, std::string t
     cpnt::Scene scene{scene_id};
     ctx.registry.add_component(entity.value(), std::move(scene));
 
-    cpnt::UIStyle style;
+    cpnt::UIStyle style{};
 
     style.background_color = read_color(t["background_color"]);
     style.background_color_hovered = read_color(t["background_color_hovered"]);

@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-include(ExternalProject)
-
-project(MyProject
+project(R-Type
     VERSION 0.1.0
     LANGUAGES CXX C
 )
@@ -115,6 +113,17 @@ if(asio_ADDED)
     target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
     find_package(Threads REQUIRED)
     target_link_libraries(asio INTERFACE Threads::Threads)
+endif()
+
+# Only for Debug builds
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+    if(CLANG_TIDY_EXE)
+        message(STATUS "clang-tidy found: enabling automatic analysis")
+        set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
+    else()
+        message(STATUS "clang-tidy not found: skipping automatic analysis")
+    endif()
 endif()
 
 add_subdirectory(src)

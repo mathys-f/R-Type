@@ -2,16 +2,12 @@
 
 using namespace ecs;
 
-Entity::operator Entity::IdType() const noexcept
-{
+Entity::operator Entity::IdType() const noexcept {
     return m_id;
 }
 
-Entity::IdType Entity::value() const noexcept
-{
+Entity::IdType Entity::value() const noexcept {
     return m_id;
 }
 
-Entity::Entity(IdType v) noexcept : m_id(v)
-{
-}
+Entity::Entity(IdType v) noexcept : m_id(v) {}

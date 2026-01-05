@@ -5,17 +5,15 @@
 #include <utility>
 #include <vector>
 
-namespace ecs
-{
+namespace ecs {
 
 /// SparseArray is a compact optional-storage container for components indexed by
 /// entity ids. It provides random access insertion/erasure while keeping the
 /// storage contiguous as a vector of optional values.
-/// @tparam Component Type stored inside the sparse array.
-template <typename Component> class SparseArray
-{
+/// @tparam TComponent Type stored inside the sparse array.
+template <typename TComponent> class SparseArray {
   public:
-    using ValueType = std::optional<Component>;
+    using ValueType = std::optional<TComponent>;
     using ReferenceType = ValueType&;
     using ConstReferenceType = ValueType const&;
     using ContainerT = std::vector<ValueType>;
@@ -60,22 +58,22 @@ template <typename Component> class SparseArray
 
     /// Insert a copy of `value` at `pos`, resizing storage if necessary.
     /// @param pos Index where to insert.
-    /// @param value Component instance to copy.
+    /// @param value TComponent instance to copy.
     /// @return Reference to the storage slot now containing the component.
-    ReferenceType insert_at(SizeType pos, Component const& value);
+    ReferenceType insert_at(SizeType pos, TComponent const& value);
 
     /// Insert by moving `value` into the storage at `pos`.
     /// @param pos Index where to insert.
-    /// @param value Component instance to move.
+    /// @param value TComponent instance to move.
     /// @return Reference to the storage slot now containing the component.
-    ReferenceType insert_at(SizeType pos, Component&& value);
+    ReferenceType insert_at(SizeType pos, TComponent&& value);
 
     /// Construct a component in-place at `pos` forwarding constructor arguments.
-    /// @tparam Params Constructor parameter pack.
+    /// @tparam TParams Constructor parameter pack.
     /// @param pos Index where to emplace.
     /// @param params Forwarded to component constructor.
     /// @return Reference to the emplaced storage slot.
-    template <class... Params> ReferenceType emplace_at(SizeType pos, Params&&... params);
+    template <class... TParams> ReferenceType emplace_at(SizeType pos, TParams&&... params);
 
     /// Erase the component at `pos` (makes the optional empty).
     /// @param pos Index of the slot to clear.
@@ -90,6 +88,6 @@ template <typename Component> class SparseArray
     ContainerT m_data;
 };
 
-}  // namespace ecs
+} // namespace ecs
 
 #include "sparse_array.tcc"

@@ -4,30 +4,30 @@ namespace engn {
 
 namespace evts {
 
-enum ControllerButton {
-    controller_button_unknown = 0,
+enum class ControllerButton {
+    ControllerButtonUnknown = 0,
 
-    controller_button_south, // A on Xbox, Cross on PlayStation, B on Nintendo
-    controller_button_east,  // B on Xbox, Circle on PlayStation, A on Nintendo
-    controller_button_west,  // X on Xbox, Square on PlayStation, Y on Nintendo
-    controller_button_north, // Y on Xbox, Triangle on PlayStation, X on Nintendo
+    ControllerButtonSouth, // A on Xbox, Cross on PlayStation, B on Nintendo
+    ControllerButtonEast,  // B on Xbox, Circle on PlayStation, A on Nintendo
+    ControllerButtonWest,  // X on Xbox, Square on PlayStation, Y on Nintendo
+    ControllerButtonNorth, // Y on Xbox, Triangle on PlayStation, X on Nintendo
 
-    controller_buttons_left_shoulder,  // LB on Xbox, L1 on PlayStation
-    controller_buttons_right_shoulder, // RB on Xbox, R1 on PlayStation
-    controller_buttons_left_trigger,   // LT on Xbox, L2 on PlayStation
-    controller_buttons_right_trigger,  // RT on Xbox, R2 on PlayStation
+    ControllerButtonLeftShoulder,  // LB on Xbox, L1 on PlayStation
+    ControllerButtonRightShoulder, // RB on Xbox, R1 on PlayStation
+    ControllerButtonLeftTrigger,   // LT on Xbox, L2 on PlayStation
+    ControllerButtonRightTrigger,  // RT on Xbox, R2 on PlayStation
 
-    controller_button_back,  // Back button on Xbox, Screenshot button on PlayStation
-    controller_button_start, // Start button on Xbox, Menu button on PlayStation
-    controller_button_home,  // Xbox button on Xbox, PS button on PlayStation
+    ControllerButtonBack,  // Back button on Xbox, Screenshot button on PlayStation
+    ControllerButtonStart, // Start button on Xbox, Menu button on PlayStation
+    ControllerButtonHome,  // Xbox button on Xbox, PS button on PlayStation
 
-    controller_button_dpad_up,
-    controller_button_dpad_down,
-    controller_button_dpad_left,
-    controller_button_dpad_right,
+    ControllerButtonDpadUp,
+    ControllerButtonDpadDown,
+    ControllerButtonDpadLeft,
+    ControllerButtonDpadRight,
 
-    controller_button_left_stick,  // Pressing down the left stick
-    controller_button_right_stick, // Pressing down the right stick
+    ControllerButtonLeftStick,  // Pressing down the left stick
+    ControllerButtonRightStick, // Pressing down the right stick
 };
 
 struct ControllerButtonPressed {
@@ -62,4 +62,4 @@ struct ControllerRightTriggerMove {
 
 } // namespace evts
 
-} // namespace engine
+} // namespace engn

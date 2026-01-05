@@ -1,55 +1,57 @@
-# .clang-tidy
+---
 Checks: >
-  readability-identifier-naming,
-  modernize-*,
   cppcoreguidelines-*,
-  bugprone-*,
-  performance-*,
-  misc-*
+  readability-identifier-naming
 
 WarningsAsErrors: '*'
 
+HeaderFilterRegex: '^(?!.*\.cache).*/src/.*'
+
 CheckOptions:
-  # Types: PascalCase → CamelCase
   - key: readability-identifier-naming.ClassCase
-    value: 'CamelCase'
+    value: CamelCase
   - key: readability-identifier-naming.StructCase
-    value: 'CamelCase'
+    value: CamelCase
   - key: readability-identifier-naming.EnumCase
-    value: 'CamelCase'
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
   - key: readability-identifier-naming.TypeAliasCase
-    value: 'CamelCase'
-  - key: readability-identifier-naming.TemplateParameterCase
-    value: 'CamelCase'
+    value: CamelCase
 
-  # Functions: snake_case → lower_case
   - key: readability-identifier-naming.FunctionCase
-    value: 'lower_case'
+    value: lower_case
 
-  # Variables: snake_case → lower_case
   - key: readability-identifier-naming.VariableCase
-    value: 'lower_case'
-
-  # Member variables: m_snake_case → lower_case with prefix
+    value: lower_case
   - key: readability-identifier-naming.MemberCase
-    value: 'lower_case'
-  - key: readability-identifier-naming.MemberPrefix
-    value: 'm_'
-
-  # Static members: s_snake_case
-  - key: readability-identifier-naming.StaticMemberPrefix
-    value: 's_'
-
-  # Global variables: g_snake_case
-  - key: readability-identifier-naming.GlobalPrefix
-    value: 'g_'
-
-  # Constants: k_snake_case
+    value: lower_case
+  - key: readability-identifier-naming.StaticVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalCase
+    value: lower_case
   - key: readability-identifier-naming.ConstantCase
-    value: 'lower_case'
-  - key: readability-identifier-naming.ConstantPrefix
-    value: 'k_'
+    value: lower_case
+  - key: readability-identifier-naming.ThreadLocalCase
+    value: lower_case
 
-  # Interfaces: I* (prefix)
+  - key: readability-identifier-naming.MemberVariablePrefix
+    value: m_
+  - key: readability-identifier-naming.StaticVariablePrefix
+    value: s_
+  - key: readability-identifier-naming.GlobalVariablePrefix
+    value: g_
+  - key: readability-identifier-naming.ThreadLocalVariablePrefix
+    value: tl_
+  - key: readability-identifier-naming.ConstantPrefix
+    value: k_
+  - key: readability-identifier-naming.TemplateParameterPrefix
+    value: T
   - key: readability-identifier-naming.InterfacePrefix
-    value: 'I'
+    value: I
+
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case

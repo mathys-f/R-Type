@@ -7,13 +7,13 @@ namespace engn {
 namespace cpnt {
 
 struct Stats {
-    int score;
-    int dmg;
-    int kills;
+    int score{};
+    int dmg{};
+    int kills{};
 
     SnapshotMeta snapshot_meta;
 };
 
-} // namespace component
+} // namespace cpnt
 
-} // namespace engine
+} // namespace engn

@@ -12,23 +12,28 @@ class EngineContext;
 namespace lua {
 
 class LuaApiEntryBase {
- public:
+  public:
     virtual ~LuaApiEntryBase() = default;
+    LuaApiEntryBase() = default;
+    LuaApiEntryBase(const LuaApiEntryBase&) = delete;
+    LuaApiEntryBase& operator=(const LuaApiEntryBase&) = delete;
+    LuaApiEntryBase(LuaApiEntryBase&&) = delete;
+    LuaApiEntryBase& operator=(LuaApiEntryBase&&) = delete;
     virtual void expose(sol::state&, EngineContext&) const = 0;
 };
 
-template <typename... TArgs>
-class LuaApiEntry : public LuaApiEntryBase {
- public:
-    LuaApiEntry(std::string name, std::function<void(EngineContext &, TArgs...)> func);
+template <typename... TArgs> class LuaApiEntry : public LuaApiEntryBase {
+  public:
+    LuaApiEntry(std::string name, std::function<void(EngineContext&, TArgs...)> func);
 
-    void expose(sol::state &lua, EngineContext &ctx) const override;
- private:
+    void expose(sol::state& lua, EngineContext& ctx) const override;
+
+  private:
     std::string m_name;
-    std::function<void(EngineContext &, TArgs...)> m_func;
+    std::function<void(EngineContext&, TArgs...)> m_func;
 };
 
-}  // namespace lua
+} // namespace lua
 
 } // namespace engn
 

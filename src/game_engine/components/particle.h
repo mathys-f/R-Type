@@ -5,8 +5,8 @@ namespace engn {
 namespace cpnt {
 
 struct Particle {
-    float lifetime;
-    float maxLifetime;
+    float lifetime{};
+    float max_lifetime{};
 };
 
 } // namespace cpnt

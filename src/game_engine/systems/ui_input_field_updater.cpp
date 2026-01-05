@@ -1,35 +1,36 @@
+#include "ecs/zipper.h"
+#include "engine.h"
 #include "systems/systems.h"
 
-#include "engine.h"
-#include "ecs/zipper.h"
 #include <cmath>
 
 using namespace engn;
 
-static bool left_mouse_button_pressed(engn::EngineContext& ctx)
-{
+static bool left_mouse_button_pressed(engn::EngineContext& ctx) {
     const evts::MouseButtonPressed* mouse_evt = ctx.input_event_queue.get_last<evts::MouseButtonPressed>();
-    return mouse_evt && mouse_evt->button == evts::mouse_button_left;
+    return mouse_evt && mouse_evt->button == evts::MouseButton::MouseButtonLeft;
 }
 
 // Helper function to convert keycode to character
 static char keycode_to_char(evts::KeyboardKeyCode keycode) {
-    if (keycode >= evts::key_a && keycode <= evts::key_z) {
-        char base_char = 'a' + (keycode - evts::key_a);
+    if (keycode >= evts::KeyboardKeyCode::KeyA && keycode <= evts::KeyboardKeyCode::KeyZ) {
+        char base_char =
+            static_cast<char>('a' + (static_cast<int>(keycode) - static_cast<int>(evts::KeyboardKeyCode::KeyA)));
         return base_char;
     }
-    if (keycode >= evts::key_0 && keycode <= evts::key_9) {
-        return '0' + (keycode - evts::key_0);
+    if (keycode >= evts::KeyboardKeyCode::Key0 && keycode <= evts::KeyboardKeyCode::Key9) {
+        return static_cast<char>('0' + (static_cast<int>(keycode) - static_cast<int>(evts::KeyboardKeyCode::Key0)));
     }
-    if (keycode == evts::key_period) return '.';
-    if (keycode == evts::key_space) return ' ';
+    if (keycode == evts::KeyboardKeyCode::KeyPeriod)
+        return '.';
+    if (keycode == evts::KeyboardKeyCode::KeySpace)
+        return ' ';
 
     return '\0'; // Invalid character
 }
 
 void sys::ui_input_field_updater(engn::EngineContext& ctx,
-    const ecs::SparseArray<cpnt::UIInteractable>& interactables)
-{
+                                 const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     auto& reg = ctx.registry;
     auto& evts = ctx.input_event_queue;
     float delta_time = ctx.delta_time;
@@ -37,9 +38,9 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
     auto& inputs = reg.get_components<cpnt::UIInputField>();
 
     for (size_t i = 0; i < inputs.size(); i++) {
-        auto &input = inputs[i];
-        auto &text = texts[i];
-        const auto &inter = interactables[i];
+        auto& input = inputs[i];
+        auto& text = texts[i];
+        const auto& inter = interactables[i];
 
         if (!input.has_value() || !text.has_value() || !inter.has_value())
             continue;
@@ -53,7 +54,7 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
         // Stop editing when clicked outside or Enter is pressed
         if (input->editing) {
             const evts::KeyPressed* key_evt = evts.get_last<evts::KeyPressed>();
-            if (key_evt && key_evt->keycode == evts::key_enter) {
+            if (key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEnter) {
                 input->editing = false;
                 LOG_DEBUG("Submitted input field with text: {}", text->content);
                 continue;
@@ -76,7 +77,7 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
         const evts::KeyPressed* key_pressed = evts.get_last<evts::KeyPressed>();
         if (key_pressed) {
             LOG_DEBUG("Key pressed: {}", static_cast<int>(key_pressed->keycode));
-            if (key_pressed->keycode == evts::key_backspace) {
+            if (key_pressed->keycode == evts::KeyboardKeyCode::KeyBackspace) {
                 // Remove last character
                 if (!text->content.empty()) {
                     text->content.pop_back();

@@ -7,25 +7,24 @@ namespace engn {
 namespace cpnt {
 
 struct Transform {
-    float x;
-    float y;
-    float z;
+    float x{};
+    float y{};
+    float z{};
 
-    float origin_x;
-    float origin_y;
+    float origin_x{};
+    float origin_y{};
 
-    float rx;
-    float ry;
-    float rz;
+    float rx{};
+    float ry{};
+    float rz{};
 
-    float sx;
-    float sy;
-    float sz;
+    float sx{};
+    float sy{};
+    float sz{};
 
     SnapshotMeta snapshot_meta;
 };
 
-} // namespace component
+} // namespace cpnt
 
-} // namespace engine
-
+} // namespace engn

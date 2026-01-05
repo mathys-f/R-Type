@@ -1,25 +1,21 @@
 #include "network_client.h"
 
-#include <cstdio>
 #include "game_engine/engine.h"
 #include "networking/handshake/handshake.h"
 
+#include <iostream>
+
 using namespace engn;
 
-NetworkClient::NetworkClient(engn::EngineContext &engine_ctx)
-    : m_engine_ctx(engine_ctx)
-{
-}
+NetworkClient::NetworkClient(engn::EngineContext& engine_ctx) : m_engine_ctx(engine_ctx) {}
 
-NetworkClient::~NetworkClient()
-{
+NetworkClient::~NetworkClient() {
     disconnect();
 }
 
-void NetworkClient::connect(const std::string& host, std::uint16_t port, const std::string& username)
-{
+void NetworkClient::connect(const std::string& host, std::uint16_t port, const std::string& username) {
     if (m_running.load()) {
-        std::fprintf(stderr, "Already connected or connecting\n");
+        std::cerr << "Already connected or connecting" << std::endl;
         return;
     }
 
@@ -42,14 +38,14 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
                     m_connected = res->m_success;
 
                     if (res->m_success) {
-                        std::printf("Login successful! Player ID: %u\n", res->m_player_id);
+                        std::cout << "Login successful! Player ID: " << res->m_player_id << std::endl;
 
                         // Set fragment size
                         if (res->m_effective_fragment_size > 0) {
                             session->set_fragment_payload_size(res->m_effective_fragment_size);
                         }
                     } else {
-                        std::fprintf(stderr, "Login failed\n");
+                        std::cerr << "Login failed" << std::endl;
                     }
 
                     // Notify callback
@@ -62,79 +58,74 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
                 // Handle other reliable messages from server
                 // e.g., spawn enemy, player died, level complete
                 if (!m_connected.load()) {
-                    std::fprintf(stderr, "Received packet before login\n");
+                    std::cerr << "Received packet before login" << std::endl;
                     return;
                 }
             },
             // onUnreliable
             [this](const net::Packet& pkt, const asio::ip::udp::endpoint&) {
-                if (!m_connected.load()) return;
-            }
-        );
+                if (!m_connected.load())
+                    return;
+            });
 
         // Start IO thread
         m_running = true;
         m_io_thread = std::thread([this]() {
-            std::printf("Network IO thread started\n");
+            std::cout << "Network IO thread started" << std::endl;
             m_io.run();
-            std::printf("Network IO thread stopped\n");
+            std::cout << "Network IO thread stopped" << std::endl;
         });
 
         // Send login request
         net::handshake::ReqLogin req{
             .m_username = username,
             .m_version = net::handshake::k_protocol_version,
-            .m_preferred_fragment_size = 0  // Use default
+            .m_preferred_fragment_size = 0 // Use default
         };
         m_session->send(net::handshake::make_req_login(req), true);
 
-        std::printf("Connecting to %s:%d as '%s'...\n", host.c_str(), port, username.c_str());
+        std::cout << "Connecting to " << host << ":" << port << " as '" << username << "'..." << std::endl;
 
     } catch (const std::exception& e) {
-        std::fprintf(stderr, "Failed to connect: %s\n", e.what());
+        std::cerr << "Failed to connect: " << e.what() << std::endl;
         disconnect();
         throw;
     }
 }
 
-void NetworkClient::set_on_login(OnLoginCallback callback)
-{
+void NetworkClient::set_on_login(OnLoginCallback callback) {
     m_on_login = callback;
 }
 
-void NetworkClient::poll()
-{
+void NetworkClient::poll() {
     if (m_session) {
         m_session->poll();
     }
 }
 
-void NetworkClient::send_reliable(const net::Packet& packet)
-{
+void NetworkClient::send_reliable(const net::Packet& packet) {
     if (!m_connected.load()) {
-        std::fprintf(stderr, "Cannot send: not connected\n");
+        std::cerr << "Cannot send: not connected" << std::endl;
         return;
     }
     m_session->send(packet, true);
 }
 
-void NetworkClient::send_unreliable(const net::Packet& packet)
-{
+void NetworkClient::send_unreliable(const net::Packet& packet) {
     if (!m_connected.load()) {
-        std::fprintf(stderr, "Cannot send: not connected\n");
+        std::cerr << "Cannot send: not connected" << std::endl;
         return;
     }
     m_session->send(packet, false);
 }
 
-void NetworkClient::disconnect()
-{
+void NetworkClient::disconnect() {
     if (m_running.exchange(false)) {
         m_connected = false;
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();
         }
-        std::printf("Disconnected from server\n");
+        std::cout << "Disconnected from server" << std::endl;
     }
 }

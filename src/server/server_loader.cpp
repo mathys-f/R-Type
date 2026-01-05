@@ -1,20 +1,23 @@
-#include "scenes_loaders.h"
+#include "game_engine/components/components.h"
+#include "game_engine/engine.h"
+#include "game_engine/systems/systems.h"
 #include "network_server.h"
+#include "scenes_loaders.h"
 
 #include <random>
 
-#include "game_engine/engine.h"
-#include "game_engine/components/components.h"
-#include "game_engine/systems/systems.h"
-
 using namespace engn;
 
+namespace {
+constexpr int k_rand_range = 1000;
+constexpr float k_rand_divisor = 1000.0f;
+} // namespace
+
 static float randf() {
-    return (rand() % 1000) / 1000.0f;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
 }
 
-void load_server_scene(engn::EngineContext& engine_ctx)
-{
+void load_server_scene(engn::EngineContext& engine_ctx) {
     auto& registry = engine_ctx.registry;
 
     registry.register_component<cpnt::Transform>();
@@ -35,7 +38,5 @@ void load_server_scene(engn::EngineContext& engine_ctx)
         s_server->start();
     }
 
-    engine_ctx.add_system<>([srv = s_server.get()](engn::EngineContext&) {
-        srv->poll();
-    });
+    engine_ctx.add_system<>([srv = s_server.get()](engn::EngineContext&) { srv->poll(); });
 }
