@@ -31,6 +31,9 @@ bool AssetsManager::load_texture(const std::string& asset_id, const std::string&
         LOG_ERROR("Failed to load Texture asset '{}' from '{}'", asset_id, file_path);
         return false;
     }
+    if (m_assets.find(asset_id) != m_assets.end()) {
+        LOG_WARNING("Overwriting existing asset with id '{}'", asset_id);
+    }
     m_assets[asset_id] = std::make_unique<std::any>(std::move(texture));
     return true;
 }

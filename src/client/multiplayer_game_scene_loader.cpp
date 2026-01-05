@@ -88,16 +88,20 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_connection_menu_ui_events);
 
+    engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
+    engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
+    engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
+    engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+
     static std::unique_ptr<NetworkClient> s_network_client;
 
     s_network_client = std::make_unique<NetworkClient>(engine_ctx);
 
     s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
-            std::cout << "Connected! Creating player entity (ID: " << player_id << ")" << std::endl;
+            LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
 
             Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
-            engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
 
             auto player = registry.spawn_entity();
             registry.add_component(player,
@@ -112,21 +116,19 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             registry.add_component(player, cpnt::Replicated{player_id});
 
         } else {
-            std::cerr << "Login failed! Cannot start game." << std::endl;
+            LOG_ERROR("Login failed! Cannot start game.");
+            return;
         }
     });
 
     const char* player_name = "Player1";
 
-    std::cout << "Connecting to " << engine_ctx.server_ip << ":" << engine_ctx.server_port << "..." << std::endl;
+    LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
     engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
 
-    engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
-    engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
-    engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
-    engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
+    
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();

@@ -20,7 +20,6 @@ void lua::create_ui_input_field(EngineContext& ctx, unsigned char scene_id, std:
     auto& reg = ctx.registry;
     static float s_i = 0;
 
-    LOG_DEBUG("Creating UI Input Field: {}", name);
     ecs::Entity entity = reg.spawn_entity();
 
     auto tag_id = reg.get_tag_registry().create_and_bind_tag(name, entity);

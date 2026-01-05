@@ -81,8 +81,11 @@ void EngineContext::run_systems() {
             LOG_DEBUG("Scene changed during system execution, stopping further system execution");
             break;
         }
-        if (sys)
+        if (sys) {
+            LOG_DEBUG("Executing system...");
             sys(*this);
+            LOG_DEBUG("System executed");
+        }
     }
 }
 
@@ -113,7 +116,7 @@ void EngineContext::set_scene(unsigned char scene_id) {
     new (&registry) ecs::Registry();
     m_systems.clear();
     m_current_scene = scene_id;
-    LOG_DEBUG("Spawn initial entity {}",
+    LOG_DEBUG("Spawning initial entity {}",
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
