@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Implementation Details | R-Type Documentation</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://your-docusaurus-site.example.com/R-Type/networking/implementation-details"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Implementation Details | R-Type Documentation"><meta data-rh="true" name="description" content="This page provides a compact API reference for the networking module. Focused on the public types, functions, and methods you will call from client/server code."><meta data-rh="true" property="og:description" content="This page provides a compact API reference for the networking module. Focused on the public types, functions, and methods you will call from client/server code."><link data-rh="true" rel="icon" href="/R-Type/img/favicon.jpg"><link data-rh="true" rel="canonical" href="https://your-docusaurus-site.example.com/R-Type/networking/implementation-details"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/R-Type/networking/implementation-details" hreflang="en"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/R-Type/networking/implementation-details" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Implementation Details","item":"https://your-docusaurus-site.example.com/R-Type/networking/implementation-details"}]}</script><link rel="stylesheet" href="/R-Type/assets/css/styles.4b065cb5.css">
-<script src="/R-Type/assets/js/runtime~main.ab22a88e.js" defer="defer"></script>
+<script src="/R-Type/assets/js/runtime~main.82303c02.js" defer="defer"></script>
 <script src="/R-Type/assets/js/main.c2780d26.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -19,7 +19,7 @@
 <li class="">
 <p><code>struct PacketHeader</code></p>
 <ul>
-<li class="">Fields: <code>m_magic</code>, <code>m_command</code>, <code>m_flags</code>, <code>m_sequence</code>, <code>m_ack</code>, <code>m_fragmentId</code>, <code>m_fragmentIndex</code>, <code>m_fragmentCount</code>, <code>m_payloadSize</code>, <code>m_checksum</code>.</li>
+<li class="">Fields: <code>m_magic</code>, <code>m_command</code>, <code>m_flags</code>, <code>m_sequence</code>, <code>m_ack</code>, <code>m_fragment_id</code>, <code>m_fragment_index</code>, <code>m_fragment_count</code>, <code>m_payload_size</code>, <code>m_checksum</code>.</li>
 <li class=""><code>std::array&lt;uint8_t, k_header_size&gt; serialize() const</code> — produce header bytes (little-endian).</li>
 <li class=""><code>static PacketHeader deserialize(std::span&lt;const uint8_t, k_header_size&gt;)</code> — parse header and validate magic/payload size.</li>
 </ul>
@@ -35,14 +35,14 @@
 </ul>
 <p>Enums &amp; flags</p>
 <ul>
-<li class=""><code>enum class CommandId : uint8_t</code> — command identifiers (e.g. <code>k_req_login</code>, <code>k_res_login</code>, <code>k_client_input</code>, <code>k_server_entity_state</code>, <code>k_ack</code>).</li>
-<li class=""><code>enum class PacketFlag : uint8_t</code> — <code>k_reliable</code>, <code>k_fragment</code>, <code>k_ack</code>, <code>k_error</code>.</li>
+<li class=""><code>enum class CommandId : uint8_t</code> — command identifiers (e.g. <code>KReqLogin</code>, <code>KResLogin</code>, <code>KClientInput</code>, <code>KServerEntityState</code>, <code>KAck</code>).</li>
+<li class=""><code>enum class PacketFlag : uint8_t</code> — <code>KReliable</code>, <code>KFragment</code>, <code>KAck</code>, <code>KError</code>.</li>
 <li class="">Helpers: <code>has_flag(uint8_t mask, PacketFlag)</code>, <code>set_flag(uint8_t mask, PacketFlag)</code>, <code>clear_flag(...)</code> and bitwise operators.</li>
 </ul>
 <p>Reliability primitives</p>
 <ul>
 <li class="">
-<p><code>struct ReliabilityConfig</code> — parameters: <code>maxRetransmissions</code>, <code>initialRto</code>, <code>maxRto</code>, <code>windowSize</code>.</p>
+<p><code>struct ReliabilityConfig</code> — parameters: <code>max_retransmissions</code>, <code>initial_rto</code>, <code>max_rto</code>, <code>window_size</code>.</p>
 </li>
 <li class="">
 <p><code>class ReliableSendQueue</code></p>
@@ -107,7 +107,7 @@
 <p>Quick usage notes</p>
 <ul>
 <li class="">To receive reliable messages: call <code>session-&gt;start(onReliableCallback, onUnreliableCallback)</code>.</li>
-<li class="">To send reliably: set <code>packet.header.m_flags</code> to include <code>k_reliable</code> or call <code>session-&gt;send(packet, true)</code>.</li>
+<li class="">To send reliably: set <code>packet.header.m_flags</code> to include <code>KReliable</code> or call <code>session-&gt;send(packet, true)</code>.</li>
 <li class="">For large payloads: <code>Session</code> will fragment automatically (fragments are always sent reliably).</li>
 </ul>
 <p>Where to look in code</p>
