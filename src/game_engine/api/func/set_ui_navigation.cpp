@@ -1,5 +1,6 @@
 #include "api/lua.h"
 #include "components/ui/ui_navigation.h"
+#include "components/scene.h"
 #include "engine.h"
 #include "utils/logger.h"
 

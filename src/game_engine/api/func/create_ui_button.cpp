@@ -1,5 +1,6 @@
 #include "api/lua.h"
 #include "components/tag.h"
+#include "components/scene.h"
 #include "components/ui/ui_button.h"
 #include "components/ui/ui_focusable.h"
 #include "components/ui/ui_interactable.h"
@@ -43,7 +44,8 @@ void lua::create_ui_button(EngineContext& ctx, unsigned char scene_id, std::stri
         return;
     }
 
-    cpnt::Tag tag{id};
+    cpnt::Tag tag;
+    tag.id = id;
     ctx.registry.add_component(k_e, std::move(tag));
 
     cpnt::Scene scene{scene_id};
