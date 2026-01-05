@@ -6,7 +6,7 @@ namespace engn::cpnt {
 
 struct Controllable : ISyncComponent {
     float speed{};
-    
+
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
 };

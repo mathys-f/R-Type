@@ -6,14 +6,35 @@ using namespace engn::cpnt;
 engn::SerializedComponent Hitbox::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::hitbox;
-    serialized.size = sizeof(Hitbox);
-    serialized.data.resize(sizeof(Hitbox));
-    std::memcpy(serialized.data.data(), this, sizeof(Hitbox));
+    serialized.size = sizeof(width) + sizeof(height) + sizeof(offset_x) + sizeof(offset_y);
+    serialized.data.resize(serialized.size);
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::size_t offset = 0;
+    std::memcpy(serialized.data.data() + offset, &width, sizeof(width));
+    offset += sizeof(width);
+    std::memcpy(serialized.data.data() + offset, &height, sizeof(height));
+    offset += sizeof(height);
+    std::memcpy(serialized.data.data() + offset, &offset_x, sizeof(offset_x));
+    offset += sizeof(offset_x);
+    std::memcpy(serialized.data.data() + offset, &offset_y, sizeof(offset_y));
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return serialized;
 }
 
 void Hitbox::deserialize(const std::vector<std::byte>& data) {
-    if (data.size() >= sizeof(Hitbox)) {
-        std::memcpy(this, data.data(), sizeof(Hitbox));
+    std::uint16_t size = sizeof(width) + sizeof(height) + sizeof(offset_x) + sizeof(offset_y);
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    if (data.size() >= size) {
+        std::size_t offset = 0;
+        std::memcpy(&width, data.data() + offset, sizeof(width));
+        offset += sizeof(width);
+        std::memcpy(&height, data.data() + offset, sizeof(height));
+        offset += sizeof(height);
+        std::memcpy(&offset_x, data.data() + offset, sizeof(offset_x));
+        offset += sizeof(offset_x);
+        std::memcpy(&offset_y, data.data() + offset, sizeof(offset_y));
     }
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }

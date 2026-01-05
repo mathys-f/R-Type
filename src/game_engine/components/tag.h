@@ -7,7 +7,7 @@ namespace engn::cpnt {
 
 struct Tag : ISyncComponent {
     ecs::TagRegistry::TagId id = ecs::TagRegistry::k_invalid_tag_id;
-    
+
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
 };
