@@ -13,6 +13,10 @@ struct Explosion : ISyncComponent {
     int current_frame{};
     int total_frames{};
 
+    Explosion() = default;
+    Explosion(ExplosionType type, float frame_duration, int total_frames, 
+              float timer = 0.0f, int current_frame = 0);
+
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
 };

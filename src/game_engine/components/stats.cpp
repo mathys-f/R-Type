@@ -3,6 +3,8 @@
 
 using namespace engn::cpnt;
 
+Stats::Stats(int score, int dmg, int kills) : score(score), dmg(dmg), kills(kills) {}
+
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::stats;

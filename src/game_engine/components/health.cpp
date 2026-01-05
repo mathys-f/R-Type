@@ -3,6 +3,9 @@
 
 using namespace engn::cpnt;
 
+Health::Health(int hp, int max_hp, int changes)
+    : hp(hp), max_hp(max_hp), changes(changes) {}
+
 engn::SerializedComponent Health::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::health;

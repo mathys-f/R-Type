@@ -3,6 +3,11 @@
 
 using namespace engn::cpnt;
 
+Explosion::Explosion(ExplosionType type, float frame_duration, int total_frames,
+                    float timer, int current_frame)
+    : type(type), timer(timer), frame_duration(frame_duration),
+      current_frame(current_frame), total_frames(total_frames) {}
+
 engn::SerializedComponent Explosion::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::explosion;

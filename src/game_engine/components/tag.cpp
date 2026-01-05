@@ -3,6 +3,8 @@
 
 using namespace engn::cpnt;
 
+Tag::Tag(ecs::TagRegistry::TagId id) : id(id) {}
+
 engn::SerializedComponent Tag::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::tag;

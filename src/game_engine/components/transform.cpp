@@ -3,6 +3,13 @@
 
 using namespace engn::cpnt;
 
+Transform::Transform(float x, float y, float z,
+                    float origin_x, float origin_y,
+                    float rx, float ry, float rz,
+                    float sx, float sy, float sz)
+    : x(x), y(y), z(z), origin_x(origin_x), origin_y(origin_y),
+      rx(rx), ry(ry), rz(rz), sx(sx), sy(sy), sz(sz) {}
+
 engn::SerializedComponent Transform::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::transform;

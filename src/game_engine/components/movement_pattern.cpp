@@ -3,6 +3,11 @@
 
 using namespace engn::cpnt;
 
+MovementPattern::MovementPattern(PatternType type, float speed, float amplitude,
+                               float frequency, float timer, float base_y)
+    : type(type), speed(speed), amplitude(amplitude),
+      frequency(frequency), timer(timer), base_y(base_y) {}
+
 engn::SerializedComponent MovementPattern::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::movement_pattern;

@@ -11,7 +11,10 @@ struct Replicated : ISyncComponent {
     u_int32_t tag;
 
     size_t last_update_tick = 0;
-    
+
+    Replicated() = default;
+    Replicated(u_int32_t tag, size_t last_update_tick = 0);
+
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
 };

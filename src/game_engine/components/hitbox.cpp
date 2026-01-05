@@ -3,6 +3,9 @@
 
 using namespace engn::cpnt;
 
+Hitbox::Hitbox(float width, float height, float offset_x, float offset_y)
+    : width(width), height(height), offset_x(offset_x), offset_y(offset_y) {}
+
 engn::SerializedComponent Hitbox::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::hitbox;

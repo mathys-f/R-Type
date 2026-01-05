@@ -3,6 +3,9 @@
 
 using namespace engn::cpnt;
 
+Velocity::Velocity(float vx, float vy, float vz, float vrx, float vry, float vrz)
+    : vx(vx), vy(vy), vz(vz), vrx(vrx), vry(vry), vrz(vrz) {}
+
 engn::SerializedComponent Velocity::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::velocity;
