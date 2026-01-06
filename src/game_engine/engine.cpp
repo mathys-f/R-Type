@@ -87,6 +87,7 @@ void EngineContext::run_systems() {
             LOG_DEBUG("System executed");
         }
     }
+    m_current_tick++:
 }
 
 static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
@@ -125,4 +126,8 @@ void EngineContext::set_scene(unsigned char scene_id) {
 
 unsigned char EngineContext::get_current_scene() const {
     return m_current_scene;
+}
+
+std::size_t engn::EngineContext::get_current_tick() const {
+    return m_current_tick;
 }
