@@ -15,6 +15,8 @@
 #include "lua_context.h"
 #include "snapshots.h"
 
+#define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
+
 namespace engn {
 
 class EngineContext {
@@ -39,8 +41,6 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    std::unordered_map<size_t, std::vector<WorldSnapshot>> world_snapshots_history;
-
     const glm::vec2 k_window_size{1080.0f, 720.0f};
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
@@ -57,6 +57,9 @@ class EngineContext {
     unsigned char get_current_scene() const;
 
     std::size_t get_current_tick() const;
+
+    const WorldSnapshot &get_latest_snapshot(std::size_t player_id) const;
+    void record_snapshot(WorldSnapshot&& snapshot);
 
     // System registration / execution
     /// Register a system that accepts const views to the requested
@@ -80,6 +83,8 @@ class EngineContext {
     std::vector<std::function<void(EngineContext&)>> m_systems;
 
     std::size_t m_current_tick = 0;
+
+    std::unordered_map<size_t, std::vector<WorldSnapshot>> m_snapshots_history;
 };
 
 } // namespace engn
