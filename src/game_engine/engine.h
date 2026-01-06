@@ -1,18 +1,19 @@
 #pragma once
 
-#include "assets_manager.h"
-#include "ecs/registry.h"
-#include "events/event_queue.h"
-#include "events/events.h"
-#include "events/ui_events.h"
-#include "lua_context.h"
-
 #include <functional>
 #include <memory>
 #include <vector>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
+
+#include "assets_manager.h"
+#include "ecs/registry.h"
+#include "events/event_queue.h"
+#include "events/events.h"
+#include "events/ui_events.h"
+#include "lua_context.h"
+#include "snapshots.h"
 
 namespace engn {
 
@@ -38,6 +39,8 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
+    std::unordered_map<size_t, std::vector<WorldSnapshot>> world_snapshots_history;
+
     const glm::vec2 k_window_size{1080.0f, 720.0f};
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
@@ -52,6 +55,8 @@ class EngineContext {
     void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
     void set_scene(unsigned char scene_id);
     unsigned char get_current_scene() const;
+
+    std::size_t get_current_tick() const;
 
     // System registration / execution
     /// Register a system that accepts const views to the requested
@@ -73,6 +78,8 @@ class EngineContext {
     std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
+
+    std::size_t m_current_tick = 0;
 };
 
 } // namespace engn
