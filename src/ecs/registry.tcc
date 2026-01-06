@@ -19,6 +19,20 @@ template <class TComponent> SparseArray<TComponent>& Registry::register_componen
             arr.erase(static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(e)));
         });
 
+        // Add extraction function for get_entity_components
+        m_extract_functions.emplace_back([k_key](const Registry& reg, EntityType const& e) -> std::optional<std::any> {
+            try {
+                const auto& arr = reg.get_components<TComponent>();
+                auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(e));
+                if (idx >= arr.size() || !arr[idx].has_value()) {
+                    return std::nullopt;
+                }
+                return std::make_any<TComponent>(arr[idx].value());
+            } catch (...) {
+                return std::nullopt;
+            }
+        });
+
         return std::any_cast<SparseArray<TComponent>&>(new_it->second);
     }
 
@@ -81,6 +95,14 @@ template <typename TComponent> void Registry::remove_component(EntityType const&
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(from));
     arr.erase(idx);
+}
+
+template <typename TComponent> inline bool Registry::has_component(EntityType const& entity) const {
+    const auto& arr = get_components<TComponent>();
+    auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(entity));
+    if (idx >= arr.size())
+        return false;
+    return arr[idx].has_value();
 }
 
 } // namespace ecs
