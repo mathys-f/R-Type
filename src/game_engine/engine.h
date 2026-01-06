@@ -58,8 +58,8 @@ class EngineContext {
 
     std::size_t get_current_tick() const;
 
-    const WorldSnapshot &get_latest_snapshot(std::size_t player_id) const;
-    void record_snapshot(WorldSnapshot&& snapshot);
+    const SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
+    void record_snapshot(SnapshotRecord &snapshot);
 
     // System registration / execution
     /// Register a system that accepts const views to the requested
@@ -84,7 +84,7 @@ class EngineContext {
 
     std::size_t m_current_tick = 0;
 
-    std::unordered_map<size_t, std::vector<WorldSnapshot>> m_snapshots_history;
+    std::unordered_map<size_t, std::vector<SnapshotRecord>> m_snapshots_history;
 };
 
 } // namespace engn

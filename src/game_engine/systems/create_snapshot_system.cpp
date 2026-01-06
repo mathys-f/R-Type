@@ -28,5 +28,11 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
 
         snapshot.entities.push_back(std::move(entity_snapshot));
     }
-    engine_ctx.record_snapshot(std::move(snapshot));
+
+    SnapshotRecord record;
+
+    record.snapshot = std::move(snapshot);
+    record.last_update_tick = static_cast<std::uint32_t>(engine_ctx.get_current_tick());
+    record.aknowledged = false;
+    engine_ctx.record_snapshot(record);
 }

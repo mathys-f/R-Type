@@ -37,9 +37,16 @@ struct EntitySnapshot {
     std::vector<SerializedComponent> components;
 };
 
+// This structure is what is sent over the network
 struct WorldSnapshot {
-    std::uint32_t last_update_tick;
     std::vector<EntitySnapshot> entities;
+};
+
+// This wrapper adds metadata to the WorldSnapshot
+struct SnapshotRecord {
+    WorldSnapshot snapshot;
+    bool aknowledged = false;
+    std::uint32_t last_update_tick;
 };
 
 } // namspace engn
