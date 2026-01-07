@@ -89,7 +89,7 @@ const SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t playe
     for (std::size_t tick = m_current_tick; tick > 0; tick--) {
         const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
 
-        if (record.aknowledged)
+        if (record.acknowledged)
             return record;
     }
     return s_empty_record;
