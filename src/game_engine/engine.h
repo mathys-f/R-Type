@@ -1,5 +1,13 @@
 #pragma once
 
+#include "assets_manager.h"
+#include "controls.h"
+#include "ecs/registry.h"
+#include "events/event_queue.h"
+#include "events/events.h"
+#include "events/ui_events.h"
+#include "lua_context.h"
+
 #include <functional>
 #include <memory>
 #include <vector>
@@ -47,6 +55,10 @@ class EngineContext {
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
     const size_t k_max_enemies = 8;
+
+    ControlScheme controls = make_default_controls();
+    ControlAction pending_rebind = ControlAction::None;
+    unsigned char settings_return_scene = 1;
 
     std::string server_ip;
     std::uint16_t server_port;

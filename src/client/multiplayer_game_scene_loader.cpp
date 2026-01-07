@@ -87,6 +87,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_connection_menu_ui_events);
+    engine_ctx.add_system<>(handle_game_pause_inputs);
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
