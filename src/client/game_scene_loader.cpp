@@ -78,7 +78,6 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
-    engine_ctx.add_system<>(handle_connection_menu_ui_events);
     engine_ctx.add_system<>(handle_game_pause_inputs);
 
     // Load assets

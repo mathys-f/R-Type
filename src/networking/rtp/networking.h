@@ -34,6 +34,16 @@ enum class CommandId : std::uint8_t {
     KResLogin = 0x02,
     KReqJoinRoom = 0x03,
     KResRoomState = 0x04,
+    // Lobby commands
+    KReqLobbyList = 0x05,
+    KResLobbyList = 0x06,
+    KReqCreateLobby = 0x07,
+    KResCreateLobby = 0x08,
+    KReqJoinLobby = 0x09,
+    KResJoinLobby = 0x0A,
+    KReqLeaveLobby = 0x0B,
+    KLobbyStateUpdate = 0x0C,
+    // Game commands
     KClientInput = 0x10,
     KServerEntityState = 0x11,
     KServerPlayerDeath = 0x20,
