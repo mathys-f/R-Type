@@ -30,11 +30,8 @@ void EngineContext::run_systems() {
             LOG_DEBUG("Scene changed during system execution, stopping further system execution");
             break;
         }
-        if (sys) {
-            LOG_DEBUG("Executing system...");
+        if (sys)
             sys(*this);
-            LOG_DEBUG("System executed");
-        }
     }
     m_current_tick++;
 }
