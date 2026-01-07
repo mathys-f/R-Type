@@ -9,4 +9,4 @@ class EngineContext;
 
 void handle_main_menu_ui_events(engn::EngineContext& ctx);
 void handle_connection_menu_ui_events(engn::EngineContext& ctx);
-void handle_connection_menu_ui_events(engn::EngineContext& engine_ctx);
+void handle_lobby_ui_events(engn::EngineContext& ctx);
