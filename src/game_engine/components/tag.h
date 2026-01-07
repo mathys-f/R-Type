@@ -1,18 +1,18 @@
 #pragma once
 
 #include "ecs/tag_registry.h"
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Tag {
+struct Tag : ISyncComponent {
     ecs::TagRegistry::TagId id = ecs::TagRegistry::k_invalid_tag_id;
 
-    SnapshotMeta snapshot_meta;
+    Tag() = default;
+    Tag(ecs::TagRegistry::TagId id);
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

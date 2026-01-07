@@ -1,12 +1,10 @@
 #pragma once
 
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Transform {
+struct Transform : ISyncComponent {
     float x{};
     float y{};
     float z{};
@@ -22,9 +20,14 @@ struct Transform {
     float sy{};
     float sz{};
 
-    SnapshotMeta snapshot_meta;
+    Transform() = default;
+    Transform(float x, float y, float z = 0.0f, 
+              float origin_x = 0.0f, float origin_y = 0.0f,
+              float rx = 0.0f, float ry = 0.0f, float rz = 0.0f,
+              float sx = 1.0f, float sy = 1.0f, float sz = 1.0f);
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

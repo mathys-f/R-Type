@@ -1,5 +1,4 @@
 #pragma once
-#include "../components/components.h"
 #include "lua_api_entry.h"
 
 namespace engn {

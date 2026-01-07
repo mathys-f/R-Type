@@ -1,13 +1,9 @@
 #pragma once
 
-namespace engn {
-
-namespace cpnt {
+namespace engn::cpnt {
 
 struct Star {
     float z; // depth for parallax
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

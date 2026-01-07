@@ -19,57 +19,6 @@ EngineContext::EngineContext() : server_port(0), m_current_scene(0) {
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
     expose_cpp_api(lua_ctx->get_lua_state(), *this);
-
-    // registry.register_component<cpnt::Bullet>();
-    // registry.register_component<cpnt::Enemy>();
-    // registry.register_component<cpnt::Explosion>();
-    // registry.register_component<cpnt::Health>();
-    // registry.register_component<cpnt::Hitbox>();
-    // registry.register_component<cpnt::MovementPattern>();
-    // registry.register_component<cpnt::Player>();
-    // registry.register_component<cpnt::Replicated>();
-    // registry.register_component<cpnt::Sprite>();
-    // registry.register_component<cpnt::Stats>();
-    // registry.register_component<cpnt::Tag>();
-    // registry.register_component<cpnt::Transform>();
-    // registry.register_component<cpnt::Weapon>();
-
-    // add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    // add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player,
-    // cpnt::Hitbox>(sys::collision_system); add_system<cpnt::Transform, cpnt::MovementPattern,
-    // cpnt::Velocity>(sys::enemy_movement_system); add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy,
-    // cpnt::Health, cpnt::Sprite>(sys::enemy_system); add_system<cpnt::Transform, cpnt::Explosion,
-    // cpnt::Sprite>(sys::explosion_system); add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle,
-    // cpnt::Bullet>(sys::particle_emission_system); add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite,
-    // cpnt::Velocity, cpnt::Health>(sys::player_control_system); add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star,
-    // cpnt::Velocity, cpnt::Particle>(sys::render_system); add_system<cpnt::Transform,
-    // cpnt::Star>(sys::star_scroll_system);
-
-    // if (!headless) {
-    //     registry.register_component<cpnt::UIButton>();
-    //     registry.register_component<cpnt::UICheckbox>();
-    //     registry.register_component<cpnt::UIDropdown>();
-    //     registry.register_component<cpnt::UIFocusable>();
-    //     registry.register_component<cpnt::UIInputField>();
-    //     registry.register_component<cpnt::UIInteractable>();
-    //     registry.register_component<cpnt::UINavigation>();
-    //     registry.register_component<cpnt::UISlider>();
-    //     registry.register_component<cpnt::UIStyle>();
-    //     registry.register_component<cpnt::UIText>();
-    //     registry.register_component<cpnt::UITransform>();
-
-    //     registry.register_component<cpnt::Star>();
-    //     registry.register_component<cpnt::Sprite>();
-    //     add_system<>(sys::fetch_inputs);
-    //     // add_system<>(sys::log_inputs);
-    //     add_system<cpnt::UITransform>(sys::ui_hover);
-    //     add_system<>(sys::ui_press);
-    //     add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    //     add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
-    //     add_system<>(sys::manage_ui_events);
-    // }
-
-    registry.spawn_entity(); // ensure entity 0 is reserved
 }
 
 void EngineContext::run_systems() {
@@ -84,6 +33,7 @@ void EngineContext::run_systems() {
         if (sys)
             sys(*this);
     }
+    m_current_tick++;
 }
 
 static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
@@ -113,7 +63,7 @@ void EngineContext::set_scene(unsigned char scene_id) {
     new (&registry) ecs::Registry();
     m_systems.clear();
     m_current_scene = scene_id;
-    LOG_DEBUG("Spawn initial entity {}",
+    LOG_DEBUG("Spawning initial entity {}",
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
@@ -122,4 +72,30 @@ void EngineContext::set_scene(unsigned char scene_id) {
 
 unsigned char EngineContext::get_current_scene() const {
     return m_current_scene;
+}
+
+std::size_t engn::EngineContext::get_current_tick() const {
+    return m_current_tick;
+}
+
+const SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) const {
+    static SnapshotRecord s_empty_record; // Need to be static to return reference
+
+    if (m_snapshots_history.find(player_id) == m_snapshots_history.end())
+       return s_empty_record;
+
+    const auto &history = m_snapshots_history.at(player_id);
+
+    for (std::size_t tick = m_current_tick; tick > 0; tick--) {
+        const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
+
+        if (record.aknowledged)
+            return record;
+    }
+    return s_empty_record;
+}
+
+void engn::EngineContext::record_snapshot(SnapshotRecord &record) {
+    for (auto &history : m_snapshots_history)
+        std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }

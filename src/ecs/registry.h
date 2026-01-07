@@ -76,9 +76,18 @@ class Registry {
     /// @param from Entity from which the component will be removed.
     template <typename TComponent> void remove_component(EntityType const& from);
 
-    const std::unordered_map<std::type_index, std::any>& dump_components() const noexcept;
+    /// Check if an entity has a component of type `TComponent`.
+    /// @tparam TComponent Component type to check.
+    /// @param entity The entity to check.
+    /// @return `true` if the entity has the component, `false` otherwise.
+    template <typename TComponent> bool has_component(EntityType const& entity) const;
 
-    const std::unordered_map<std::type_index, std::any>& dump_entity_components(const Entity& e) const noexcept;
+    /// Dump all components stored in the registry for a given entity.
+    /// @tparam Entity The entity whose components to retrieve.
+    /// @param entity The entity whose components to retrieve.
+    /// @return A const reference to a map of component type_index to storage any which contains all components.
+    const std::unordered_map<std::type_index, std::any>& get_entity_components(Entity entity) const noexcept;
+
 
     /// Get the tag registry (non-const).
     /// @return Reference to the tag registry.
@@ -97,6 +106,9 @@ class Registry {
 
     // erase callbacks (one per component type)
     std::vector<std::function<void(Registry&, EntityType const&)>> m_erase_functions;
+
+    // component extraction callbacks (one per component type)
+    std::vector<std::function<std::optional<std::any>(const Registry&, EntityType const&)>> m_extract_functions;
 
     // registered systems
     std::vector<std::function<void(Registry&)>> m_systems;

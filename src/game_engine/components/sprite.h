@@ -1,22 +1,15 @@
 #pragma once
 
 #include "../assets_manager.h"
-#include "components/snapshot_meta.h"
 #include "raylib.h"
 
-namespace engn {
-
-namespace cpnt {
+namespace engn::cpnt {
 
 struct Sprite {
     Rectangle source_rect;
     float scale;
     int frame;
     AssetsManager::Asset texture;
-
-    SnapshotMeta snapshot_meta;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

@@ -12,8 +12,23 @@
 #include <ctime>
 #include <optional>
 #include <thread>
+#include <csignal>
 
 using namespace engn;
+
+bool g_running = true; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+
+void signal_handler(int signal) {
+    if (signal == SIGINT) {
+        g_running = false;
+        LOG_INFO("Received SIGINT");
+    }
+}
+
+void setup_signal_handling() {
+    std::signal(SIGINT, signal_handler);
+}
 
 namespace {
 constexpr std::uint16_t k_default_port = 8080;
@@ -31,6 +46,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    setup_signal_handling();
     // Create engine context
     EngineContext engine_ctx;
 
@@ -45,7 +61,8 @@ int main(int argc, char** argv) {
     constexpr int k_cleanup_interval = 60; // Cleanup every 60 ticks (~1 second)
     int tick_count = 0;
 
-    while (true) {
+    // Main server loop (headless)
+    while (g_running) {
         server.poll();
 
         // Periodically cleanup empty lobbies
@@ -56,6 +73,8 @@ int main(int argc, char** argv) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(k_server_tick_ms));
     }
+
+    LOG_INFO("Shutting down server...");
 
     server.stop();
     return 0;

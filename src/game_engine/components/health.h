@@ -1,22 +1,22 @@
 #pragma once
 
-#include "snapshot_meta.h"
-
 #include <array>
 #include <cstddef>
 
-namespace engn {
+#include "components/i_sync_component.h"
 
-namespace cpnt {
+namespace engn::cpnt {
 
-struct Health {
+struct Health : ISyncComponent {
     int hp{};
     int max_hp{};
     int changes{};
 
-    SnapshotMeta snapshot_meta;
+    Health() = default;
+    Health(int hp, int max_hp, int changes = 0);
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

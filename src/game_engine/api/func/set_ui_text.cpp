@@ -1,4 +1,5 @@
 #include "api/lua.h"
+#include "components/scene.h"
 #include "components/ui/ui_text.h"
 #include "engine.h"
 #include "utils/logger.h"

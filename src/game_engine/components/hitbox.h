@@ -1,20 +1,20 @@
 #pragma once
 
-#include "snapshot_meta.h"
-
 #include <cstdint>
 
-namespace engn {
+#include "components/i_sync_component.h"
 
-namespace cpnt {
+namespace engn::cpnt {
 
-struct Hitbox {
+struct Hitbox : ISyncComponent {
     float width{}, height{};
     float offset_x{}, offset_y{};
 
-    SnapshotMeta snapshot_meta;
+    Hitbox() = default;
+    Hitbox(float width, float height, float offset_x = 0.0f, float offset_y = 0.0f);
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

@@ -15,6 +15,16 @@
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
 
+#include "assets_manager.h"
+#include "ecs/registry.h"
+#include "events/event_queue.h"
+#include "events/events.h"
+#include "events/ui_events.h"
+#include "lua_context.h"
+#include "snapshots.h"
+
+#define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
+
 namespace engn {
 
 class EngineContext {
@@ -58,6 +68,11 @@ class EngineContext {
     void set_scene(unsigned char scene_id);
     unsigned char get_current_scene() const;
 
+    std::size_t get_current_tick() const;
+
+    const SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
+    void record_snapshot(SnapshotRecord &snapshot);
+
     // System registration / execution
     /// Register a system that accepts const views to the requested
     /// component storages. The callable should accept `(Registry&, const
@@ -78,6 +93,10 @@ class EngineContext {
     std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
+
+    std::size_t m_current_tick = 0;
+
+    std::unordered_map<size_t, std::vector<SnapshotRecord>> m_snapshots_history;
 };
 
 } // namespace engn
