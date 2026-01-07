@@ -14,6 +14,9 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
         if (index == 0)
             continue;
 
+        if (!transform.has_value() || !style.has_value())
+            continue;
+
         Rectangle rect{transform->x, transform->y, transform->w, transform->h};
         Color rect_color{style->background_color.r, style->background_color.g, style->background_color.b,
                          style->background_color.a};
