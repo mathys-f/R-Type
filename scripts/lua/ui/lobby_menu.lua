@@ -42,14 +42,14 @@ local styles = {
 }
 
 -- Title
-Create_ui_text(4, "titlescreen", {
+Create_ui_text(2, "titlescreen", {
     content = "Multiplayer Lobbies",
     font_size = 80
 })
 
-Set_ui_style(4, "titlescreen", styles.title)
+Set_ui_style(2, "titlescreen", styles.title)
 
-Set_ui_transform(4, "titlescreen", {
+Set_ui_transform(2, "titlescreen", {
     x = 100,
     y = 20,
     z = 0,
@@ -61,14 +61,14 @@ Set_ui_transform(4, "titlescreen", {
 })
 
 -- Server connection input (IP)
-Create_ui_text(4, "server_label", {
+Create_ui_text(2, "server_label", {
     content = "Server IP:",
     font_size = 24
 })
 
-Set_ui_style(4, "server_label", styles.title)
+Set_ui_style(2, "server_label", styles.title)
 
-Set_ui_transform(4, "server_label", {
+Set_ui_transform(2, "server_label", {
     x = 50,
     y = 130,
     z = 0,
@@ -79,16 +79,16 @@ Set_ui_transform(4, "server_label", {
     rotation = 0
 })
 
-Create_ui_input_field(4, "lobby_server_ip", "127.0.0.1")
+Create_ui_input_field(2, "lobby_server_ip", "127.0.0.1")
 
-Set_ui_style(4, "lobby_server_ip", styles.main_menu)
+Set_ui_style(2, "lobby_server_ip", styles.main_menu)
 
-Set_ui_text(4, "lobby_server_ip", {
+Set_ui_text(2, "lobby_server_ip", {
     content = "127.0.0.1",
     font_size = 24
 })
 
-Set_ui_transform(4, "lobby_server_ip", {
+Set_ui_transform(2, "lobby_server_ip", {
     x = 200,
     y = 130,
     z = 0,
@@ -100,14 +100,14 @@ Set_ui_transform(4, "lobby_server_ip", {
 })
 
 -- Port input
-Create_ui_text(4, "port_label", {
+Create_ui_text(2, "port_label", {
     content = "Port:",
     font_size = 24
 })
 
-Set_ui_style(4, "port_label", styles.title)
+Set_ui_style(2, "port_label", styles.title)
 
-Set_ui_transform(4, "port_label", {
+Set_ui_transform(2, "port_label", {
     x = 470,
     y = 130,
     z = 0,
@@ -118,16 +118,16 @@ Set_ui_transform(4, "port_label", {
     rotation = 0
 })
 
-Create_ui_input_field(4, "lobby_server_port", "8080")
+Create_ui_input_field(2, "lobby_server_port", "8080")
 
-Set_ui_style(4, "lobby_server_port", styles.main_menu)
+Set_ui_style(2, "lobby_server_port", styles.main_menu)
 
-Set_ui_text(4, "lobby_server_port", {
+Set_ui_text(2, "lobby_server_port", {
     content = "8080",
     font_size = 24
 })
 
-Set_ui_transform(4, "lobby_server_port", {
+Set_ui_transform(2, "lobby_server_port", {
     x = 550,
     y = 130,
     z = 0,
@@ -139,16 +139,16 @@ Set_ui_transform(4, "lobby_server_port", {
 })
 
 -- Connect button
-Create_ui_button(4, "connect_to_server_button")
+Create_ui_button(2, "connect_to_server_button")
 
-Set_ui_text(4, "connect_to_server_button", {
+Set_ui_text(2, "connect_to_server_button", {
     content = "Connect",
     font_size = 24
 })
 
-Set_ui_style(4, "connect_to_server_button", styles.main_menu)
+Set_ui_style(2, "connect_to_server_button", styles.main_menu)
 
-Set_ui_transform(4, "connect_to_server_button", {
+Set_ui_transform(2, "connect_to_server_button", {
     x = 720,
     y = 130,
     z = 0,
@@ -160,16 +160,16 @@ Set_ui_transform(4, "connect_to_server_button", {
 })
 
 -- Refresh lobbies button
-Create_ui_button(4, "refresh_lobbies_button")
+Create_ui_button(2, "refresh_lobbies_button")
 
-Set_ui_text(4, "refresh_lobbies_button", {
+Set_ui_text(2, "refresh_lobbies_button", {
     content = "Refresh",
     font_size = 28
 })
 
-Set_ui_style(4, "refresh_lobbies_button", styles.main_menu)
+Set_ui_style(2, "refresh_lobbies_button", styles.main_menu)
 
-Set_ui_transform(4, "refresh_lobbies_button", {
+Set_ui_transform(2, "refresh_lobbies_button", {
     x = 900,
     y = 130,
     z = 0,
@@ -181,14 +181,14 @@ Set_ui_transform(4, "refresh_lobbies_button", {
 })
 
 -- Create lobby section
-Create_ui_text(4, "create_lobby_label", {
+Create_ui_text(2, "create_lobby_label", {
     content = "Create New Lobby:",
     font_size = 28
 })
 
-Set_ui_style(4, "create_lobby_label", styles.title)
+Set_ui_style(2, "create_lobby_label", styles.title)
 
-Set_ui_transform(4, "create_lobby_label", {
+Set_ui_transform(2, "create_lobby_label", {
     x = 50,
     y = 190,
     z = 0,
@@ -200,16 +200,16 @@ Set_ui_transform(4, "create_lobby_label", {
 })
 
 -- Lobby name input
-Create_ui_input_field(4, "lobby_name_input", "My Lobby")
+Create_ui_input_field(2, "lobby_name_input", "My Lobby")
 
-Set_ui_style(4, "lobby_name_input", styles.main_menu)
+Set_ui_style(2, "lobby_name_input", styles.main_menu)
 
-Set_ui_text(4, "lobby_name_input", {
+Set_ui_text(2, "lobby_name_input", {
     content = "My Lobby",
     font_size = 24
 })
 
-Set_ui_transform(4, "lobby_name_input", {
+Set_ui_transform(2, "lobby_name_input", {
     x = 50,
     y = 240,
     z = 0,
@@ -221,16 +221,16 @@ Set_ui_transform(4, "lobby_name_input", {
 })
 
 -- Create lobby button
-Create_ui_button(4, "create_lobby_button")
+Create_ui_button(2, "create_lobby_button")
 
-Set_ui_text(4, "create_lobby_button", {
+Set_ui_text(2, "create_lobby_button", {
     content = "Create Lobby",
     font_size = 28
 })
 
-Set_ui_style(4, "create_lobby_button", styles.main_menu)
+Set_ui_style(2, "create_lobby_button", styles.main_menu)
 
-Set_ui_transform(4, "create_lobby_button", {
+Set_ui_transform(2, "create_lobby_button", {
     x = 370,
     y = 240,
     z = 0,
@@ -242,14 +242,14 @@ Set_ui_transform(4, "create_lobby_button", {
 })
 
 -- Available lobbies section
-Create_ui_text(4, "available_lobbies_label", {
+Create_ui_text(2, "available_lobbies_label", {
     content = "Available Lobbies:",
     font_size = 28
 })
 
-Set_ui_style(4, "available_lobbies_label", styles.title)
+Set_ui_style(2, "available_lobbies_label", styles.title)
 
-Set_ui_transform(4, "available_lobbies_label", {
+Set_ui_transform(2, "available_lobbies_label", {
     x = 50,
     y = 300,
     z = 0,
@@ -261,12 +261,12 @@ Set_ui_transform(4, "available_lobbies_label", {
 })
 
 -- Lobby list background panel
-Create_ui_text(4, "lobby_list_bg", {
+Create_ui_text(2, "lobby_list_bg", {
     content = "",
     font_size = 1
 })
 
-Set_ui_style(4, "lobby_list_bg", {
+Set_ui_style(2, "lobby_list_bg", {
     background_color =          {r = 25,  g = 25,  b = 25,  a = 255},
     background_color_hovered =  {r = 25,  g = 25,  b = 25,  a = 255},
     background_color_pressed =  {r = 25,  g = 25,  b = 25,  a = 255},
@@ -280,7 +280,7 @@ Set_ui_style(4, "lobby_list_bg", {
     border_thickness = 3
 })
 
-Set_ui_transform(4, "lobby_list_bg", {
+Set_ui_transform(2, "lobby_list_bg", {
     x = 50,
     y = 350,
     z = 0,
@@ -292,14 +292,14 @@ Set_ui_transform(4, "lobby_list_bg", {
 })
 
 -- Status text (for showing connection/error messages)
-Create_ui_text(4, "status_text", {
+Create_ui_text(2, "status_text", {
     content = "Connect to a server to list lobbies",
     font_size = 20
 })
 
-Set_ui_style(4, "status_text", styles.title)
+Set_ui_style(2, "status_text", styles.title)
 
-Set_ui_transform(4, "status_text", {
+Set_ui_transform(2, "status_text", {
     x = 50,
     y = 640,
     z = 0,
@@ -311,16 +311,16 @@ Set_ui_transform(4, "status_text", {
 })
 
 -- Back button
-Create_ui_button(4, "back_button")
+Create_ui_button(2, "back_button")
 
-Set_ui_text(4, "back_button", {
+Set_ui_text(2, "back_button", {
     content = "Back",
     font_size = 28
 })
 
-Set_ui_style(4, "back_button", styles.main_menu)
+Set_ui_style(2, "back_button", styles.main_menu)
 
-Set_ui_transform(4, "back_button", {
+Set_ui_transform(2, "back_button", {
     x = 850,
     y = 650,
     z = 0,
