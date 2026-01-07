@@ -14,6 +14,7 @@ using namespace engn;
 int main(void) {
     constexpr int k_target_fps = 60;
     constexpr unsigned char k_alpha_opaque = 255;
+    constexpr unsigned char k_settings_audio_scene_id = 5;
 
     srand(time(NULL));
 
@@ -40,6 +41,7 @@ int main(void) {
     engine_ctx.add_scene_loader(2, load_server_connection_scene);
     engine_ctx.add_scene_loader(3, load_multiplayer_game_scene);
     engine_ctx.add_scene_loader(4, load_settings_menu_scene);
+    engine_ctx.add_scene_loader(k_settings_audio_scene_id, load_settings_audio_scene);
     engine_ctx.set_scene(1); // Game menu scene
 
     std::optional<Music> battle_music = engine_ctx.assets_manager.get_asset<Music>("battle_music");

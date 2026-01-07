@@ -7,7 +7,7 @@
 
 using namespace engn;
 
-static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt);
+static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt);
 static void sync_settings_texts(EngineContext& ctx);
 static void update_prompt_text(EngineContext& ctx);
 static void update_rebind_buttons(EngineContext& ctx);
@@ -15,8 +15,13 @@ static void update_rebind_buttons(EngineContext& ctx);
 void handle_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
     const auto& evts = engine_ctx.ui_event_queue;
 
-    evts.for_each<evts::UIButtonClicked>(
-        [&engine_ctx](const evts::UIButtonClicked& evt) { handle_ui_button_clicked(engine_ctx, evt); });
+    bool switched_scene = false;
+    evts.for_each<evts::UIButtonClicked>([&engine_ctx, &switched_scene](const evts::UIButtonClicked& evt) {
+        if (handle_ui_button_clicked(engine_ctx, evt))
+            switched_scene = true;
+    });
+    if (switched_scene)
+        return;
 
     const evts::KeyPressed* key_evt = engine_ctx.input_event_queue.get_last<evts::KeyPressed>();
     if (key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape) {
@@ -57,17 +62,29 @@ void handle_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
     update_rebind_buttons(engine_ctx);
 }
 
-static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt) {
+static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt) {
     const auto& tags = ctx.registry.get_tag_registry();
     std::string tag_name = tags.get_tag_name(evt.tag);
+    constexpr unsigned char k_settings_audio_scene_id = 5;
+    constexpr unsigned char k_settings_controls_scene_id = 4;
 
     if (tag_name == "back_button") {
         ctx.set_scene(ctx.settings_return_scene);
+        return true;
     } else if (tag_name == "exit_button") {
         ctx.should_quit = true;
+        return true;
     } else if (tag_name == "main_menu_button") {
         ctx.settings_return_scene = 1;
         ctx.set_scene(1);
+        return true;
+    } else if (tag_name == "nav_controls_button") {
+        ctx.set_scene(k_settings_controls_scene_id);
+        return true;
+    } else if (tag_name == "nav_audio_button") {
+        ctx.pending_rebind = ControlAction::None;
+        ctx.set_scene(k_settings_audio_scene_id);
+        return true;
     } else if (tag_name == "rebind_move_up") {
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::MoveUp) ? ControlAction::None
                                                                            : ControlAction::MoveUp;
@@ -84,6 +101,7 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::Shoot) ? ControlAction::None
                                                                           : ControlAction::Shoot;
     }
+    return false;
 }
 
 static const char* keycode_to_label(evts::KeyboardKeyCode keycode) {
