@@ -16,6 +16,7 @@ class EngineContext;
 
 class NetworkClient {
   public:
+    using OnPacketCallback = std::function<void(const net::Packet&)>;
     using OnLoginCallback = std::function<void(bool success, uint32_t player_id)>;
 
     NetworkClient(engn::EngineContext& engine_ctx);
@@ -28,6 +29,8 @@ class NetworkClient {
 
     void connect(const std::string& host, std::uint16_t port, const std::string& username);
     void set_on_login(OnLoginCallback callback);
+    void set_on_reliable(OnPacketCallback callback);
+    void set_on_unreliable(OnPacketCallback callback);
     void poll();
     void send_reliable(const net::Packet& packet);
     void send_unreliable(const net::Packet& packet);
@@ -48,4 +51,6 @@ class NetworkClient {
     std::atomic<bool> m_connected{false};
     uint32_t m_player_id{0};
     OnLoginCallback m_on_login;
+    OnPacketCallback m_on_reliable;
+    OnPacketCallback m_on_unreliable;
 };

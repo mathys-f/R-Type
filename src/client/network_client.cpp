@@ -13,6 +13,14 @@ NetworkClient::~NetworkClient() {
     disconnect();
 }
 
+void NetworkClient::set_on_reliable(OnPacketCallback callback) {
+    m_on_reliable = std::move(callback);
+}
+
+void NetworkClient::set_on_unreliable(OnPacketCallback callback) {
+    m_on_unreliable = std::move(callback);
+}
+
 void NetworkClient::connect(const std::string& host, std::uint16_t port, const std::string& username) {
     if (m_running.load()) {
         std::cerr << "Already connected or connecting" << std::endl;
@@ -56,16 +64,23 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
                 }
 
                 // Handle other reliable messages from server
-                // e.g., spawn enemy, player died, level complete
                 if (!m_connected.load()) {
                     std::cerr << "Received packet before login" << std::endl;
                     return;
+                }
+
+                if (m_on_reliable) {
+                    m_on_reliable(pkt);
                 }
             },
             // onUnreliable
             [this](const net::Packet& pkt, const asio::ip::udp::endpoint&) {
                 if (!m_connected.load())
                     return;
+
+                if (m_on_unreliable) {
+                    m_on_unreliable(pkt);
+                }
             });
 
         // Start IO thread
