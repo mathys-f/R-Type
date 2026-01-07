@@ -38,11 +38,12 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
 
     engine_ctx.add_system<>(sys::fetch_inputs);
-    engine_ctx.add_system<>(sys::log_inputs);
+    // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<>(handle_main_menu_ui_events);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);
