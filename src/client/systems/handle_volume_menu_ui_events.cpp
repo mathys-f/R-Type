@@ -68,9 +68,9 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "nav_audio_button") {
         ctx.set_scene(k_settings_audio_scene_id);
         return true;
-    } else if (tag_name == "master_volume_down_button") {
+    } else if (tag_name == "general_volume_down_button") {
         adjust_volume(ctx, -k_volume_step);
-    } else if (tag_name == "master_volume_up_button") {
+    } else if (tag_name == "general_volume_up_button") {
         adjust_volume(ctx, k_volume_step);
     } else if (tag_name == "music_volume_down_button") {
         set_music_volume(ctx, -k_volume_step);
@@ -80,7 +80,7 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         set_sfx_volume(ctx, -k_volume_step);
     } else if (tag_name == "sfx_volume_up_button") {
         set_sfx_volume(ctx, k_volume_step);
-    } else if (tag_name == "master_mute_button") {
+    } else if (tag_name == "general_mute_button") {
         toggle_master_mute(ctx);
     } else if (tag_name == "music_mute_button") {
         toggle_music_mute(ctx);
@@ -127,10 +127,10 @@ static void update_volume_text(EngineContext& ctx) {
     if (ctx.last_sfx_volume > k_volume_max)
         ctx.last_sfx_volume = k_volume_max;
 
-    set_text_if_exists(ctx, "master_volume_value", std::to_string(ctx.master_volume) + "%");
+    set_text_if_exists(ctx, "general_volume_value", std::to_string(ctx.master_volume) + "%");
     set_text_if_exists(ctx, "music_volume_value", std::to_string(ctx.music_volume) + "%");
     set_text_if_exists(ctx, "sfx_volume_value", std::to_string(ctx.sfx_volume) + "%");
-    set_text_if_exists(ctx, "master_mute_button", ctx.master_muted ? "Unmute" : "Mute");
+    set_text_if_exists(ctx, "general_mute_button", ctx.master_muted ? "Unmute" : "Mute");
     set_text_if_exists(ctx, "music_mute_button", ctx.music_muted ? "Unmute" : "Mute");
     set_text_if_exists(ctx, "sfx_mute_button", ctx.sfx_muted ? "Unmute" : "Mute");
     apply_audio_levels(ctx);
