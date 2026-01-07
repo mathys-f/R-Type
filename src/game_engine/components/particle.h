@@ -1,14 +1,10 @@
 #pragma once
 
-namespace engn {
-
-namespace cpnt {
+namespace engn::cpnt {
 
 struct Particle {
     float lifetime{};
     float max_lifetime{};
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

@@ -1,5 +1,6 @@
 #include "api/lua.h"
 #include "components/tag.h"
+#include "components/scene.h"
 #include "components/ui/ui_style.h"
 #include "components/ui/ui_text.h"
 #include "components/ui/ui_transform.h"
@@ -50,7 +51,8 @@ void lua::create_ui_text(EngineContext& ctx, unsigned char scene_id, std::string
         return;
     }
 
-    cpnt::Tag tag{id};
+    cpnt::Tag tag;
+    tag.id = id;
     ctx.registry.add_component(k_e, std::move(tag));
 
     cpnt::Scene scene{scene_id};

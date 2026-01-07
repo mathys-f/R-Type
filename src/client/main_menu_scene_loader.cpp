@@ -38,7 +38,7 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
 
     engine_ctx.add_system<>(sys::fetch_inputs);
-    engine_ctx.add_system<>(sys::log_inputs);
+    // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
@@ -48,10 +48,9 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     cpnt::Particle>(sys::render_system);
     engine_ctx.add_system<>(handle_main_menu_ui_events);
     
-    
     const int k_width = static_cast<int>(engine_ctx.k_window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height = static_cast<int>(engine_ctx.k_window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
-    
+
     for (int i = 0; i < engine_ctx.k_stars; i++) {
        auto star = engine_ctx.registry.spawn_entity();
        engine_ctx.registry.add_component(star, engn::cpnt::Transform{

@@ -1,19 +1,19 @@
 #pragma once
 
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Stats {
+struct Stats : ISyncComponent {
     int score{};
     int dmg{};
     int kills{};
 
-    SnapshotMeta snapshot_meta;
+    Stats() = default;
+    Stats(int score, int dmg, int kills = 0);
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

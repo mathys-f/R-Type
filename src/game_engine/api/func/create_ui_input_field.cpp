@@ -1,5 +1,11 @@
 #include "api/lua.h"
-#include "components/components.h"
+#include "components/tag.h"
+#include "components/ui/ui_input_field.h"
+#include "components/ui/ui_interactable.h"
+#include "components/ui/ui_focusable.h"
+#include "components/ui/ui_style.h"
+#include "components/ui/ui_text.h"
+#include "components/ui/ui_transform.h"
 #include "engine.h"
 #include "utils/logger.h"
 
@@ -14,11 +20,12 @@ void lua::create_ui_input_field(EngineContext& ctx, unsigned char scene_id, std:
     auto& reg = ctx.registry;
     static float s_i = 0;
 
-    LOG_DEBUG("Creating UI Input Field: {}", name);
     ecs::Entity entity = reg.spawn_entity();
 
     auto tag_id = reg.get_tag_registry().create_and_bind_tag(name, entity);
-    reg.add_component<cpnt::Tag>(entity, cpnt::Tag{tag_id});
+    cpnt::Tag tag;
+    tag.id = tag_id;
+    reg.add_component<cpnt::Tag>(entity, std::move(tag));
 
     reg.add_component<cpnt::UITransform>(entity, cpnt::UITransform{.x = 0.0f,
                                                                    .y = 0.0f,

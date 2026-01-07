@@ -3,6 +3,7 @@
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
 #include "networking/handshake/handshake.h"
+#include "utils/logger.h"
 
 #include <iostream>
 
@@ -21,7 +22,7 @@ void NetworkServer::start() {
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
-                std::cout << "Client connected from " << from.address().to_string() << ":" << from.port() << "\n";
+                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());
                 return;
             }
             // Handle other reliable packets here
@@ -32,11 +33,11 @@ void NetworkServer::start() {
         });
     m_running = true;
     m_io_thread = std::thread([this]() {
-        std::cout << "Network IO thread started\n";
+        LOG_DEBUG("Network IO thread started\n");
         m_io.run();
-        std::cout << "Network IO thread stopped\n";
+        LOG_DEBUG("Network IO thread stopped\n");
     });
-    std::cout << "Server started on port " << m_port << "\n";
+    LOG_INFO("Server started on port {}", m_port);
 }
 
 void NetworkServer::poll() {
