@@ -8,12 +8,12 @@ namespace engn::cpnt {
 
 // Component that marks an entity as replicated over the network.
 struct Replicated : ISyncComponent {
-    u_int32_t tag;
+    std::uint32_t tag;
 
     size_t last_update_tick = 0;
 
     Replicated() = default;
-    Replicated(u_int32_t tag, size_t last_update_tick = 0);
+    Replicated(std::uint32_t tag, size_t last_update_tick = 0);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
