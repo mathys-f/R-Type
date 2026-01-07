@@ -5,7 +5,7 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  build:
+  build-linux:
     strategy:
       matrix:
         build_type: [Debug, Release]
@@ -34,7 +34,7 @@ jobs:
         restore-keys: |
           linux-cpm-
 
-    - name: Cache CMake build
+    - name: Cache CMake build (Linux)
       uses: actions/cache@v4
       with:
         path: |
@@ -82,8 +82,73 @@ jobs:
           build/bin/${{ matrix.build_type }}/r-type_client
           build/bin/${{ matrix.build_type }}/r-type_server
 
-  test:
-    needs: build
+  build-windows:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2 with MinGW-w64
+      uses: msys2/setup-msys2@v2
+      with:
+        update: false
+        install: >-
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-make
+          mingw-w64-x86_64-ninja
+
+    - name: Cache CPM dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          build/_deps
+          ~/.cache/CPM
+        key: windows-cpm-${{ hashFiles('CMakeLists.txt', 'src/**/CMakeLists.txt') }}
+        restore-keys: |
+          windows-cpm-
+
+    - name: Cache CMake build (Windows)
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+        key: windows-build-${{ matrix.build_type }}-${{ hashFiles('CMakeLists.txt', 'src/**/*') }}
+        restore-keys: |
+          windows-build-${{ matrix.build_type }}-
+          windows-build-
+
+    - name: Configure CMake (MinGW Makefiles)
+      shell: msys2 {0}
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCPM_SOURCE_CACHE=$HOME/.cache/CPM \
+          -DCMAKE_VERBOSE_MAKEFILE=OFF
+
+    - name: Build project
+      shell: msys2 {0}
+      run: |
+        cd build
+        cmake --build . --parallel 2
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: r-type-windows-${{ matrix.build_type }}
+        path: |
+          build/bin/${{ matrix.build_type }}/r-type_client.exe
+          build/bin/${{ matrix.build_type }}/r-type_server.exe
+
+  test-linux:
+    needs: build-linux
     strategy:
       matrix:
         build_type: [Debug, Release]
@@ -109,5 +174,35 @@ jobs:
       run: |
         ls -la ./artifacts/
 
-    # Add more specific tests here as needed
-    # For example, you could run unit tests or basic functionality tests
+  test-windows:
+    needs: build-windows
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: r-type-windows-${{ matrix.build_type }}
+        path: ./artifacts
+
+    - name: Test executables exist
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path ./artifacts
+
+    - name: Smoke test server -- help
+      shell: pwsh
+      run: |
+        Start-Process -FilePath ./artifacts/r-type_server.exe -ArgumentList '--help' -NoNewWindow -PassThru | Wait-Process
+    
+    - name: Smoke test client -- help
+      shell: pwsh
+      run: |
+        Start-Process -FilePath ./artifacts/r-type_client.exe -ArgumentList '--help' -NoNewWindow -PassThru | Wait-Process
