@@ -28,8 +28,8 @@ void Registry::kill_entity(EntityType const& e) {
 const std::unordered_map<std::type_index, std::any>&
 ecs::Registry::get_entity_components(Entity entity) const noexcept {
     // Use a thread-local static map to store the result and return by reference
-    thread_local std::unordered_map<std::type_index, std::any> entity_components;
-    entity_components.clear();
+    thread_local std::unordered_map<std::type_index, std::any> s_entity_components;
+    s_entity_components.clear();
 
     // Iterate through all registered component types and extract components for this entity
     auto type_it = m_components_arrays.begin();
@@ -37,12 +37,12 @@ ecs::Registry::get_entity_components(Entity entity) const noexcept {
         if (m_extract_functions[i]) {
             auto component = m_extract_functions[i](*this, entity);
             if (component.has_value()) {
-                entity_components[type_it->first] = std::move(component.value());
+                s_entity_components[type_it->first] = std::move(component.value());
             }
         }
     }
 
-    return entity_components;
+    return s_entity_components;
 }
 
 TagRegistry& Registry::get_tag_registry() noexcept {

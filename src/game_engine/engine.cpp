@@ -82,15 +82,20 @@ std::size_t engn::EngineContext::get_current_tick() const {
 }
 
 const SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) const {
-    static SnapshotRecord empty_record; // Need to be static to return reference
-    bool found = false;
+    static SnapshotRecord s_empty_record; // Need to be static to return reference
 
     if (m_snapshots_history.find(player_id) == m_snapshots_history.end())
-       return empty_record;
-    while (!found) {
-        const auto &history = m_snapshots_history.at(player_id);
-        
+       return s_empty_record;
+
+    const auto &history = m_snapshots_history.at(player_id);
+
+    for (std::size_t tick = m_current_tick; tick > 0; tick--) {
+        const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
+
+        if (record.aknowledged)
+            return record;
     }
+    return s_empty_record;
 }
 
 void engn::EngineContext::record_snapshot(SnapshotRecord &record) {

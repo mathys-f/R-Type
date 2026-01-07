@@ -28,6 +28,7 @@ extern const std::unordered_map<ComponentType, std::type_index> k_component_type
 
 struct SerializedComponent {
     ComponentType type;
+    std::uint32_t size;
     // Cannot use std::any here because it does not translate to a contiguous byte array.
     std::vector<std::byte> data;
 };
