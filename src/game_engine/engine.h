@@ -62,6 +62,9 @@ class EngineContext {
     int master_volume = 100;
     int music_volume = 100;
     int sfx_volume = 100;
+    int last_master_volume = 100;
+    int last_music_volume = 100;
+    int last_sfx_volume = 100;
     bool master_muted = false;
     bool music_muted = false;
     bool sfx_muted = false;

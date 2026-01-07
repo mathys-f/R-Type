@@ -106,14 +106,26 @@ static void update_volume_text(EngineContext& ctx) {
         ctx.master_volume = k_volume_min;
     if (ctx.master_volume > k_volume_max)
         ctx.master_volume = k_volume_max;
+    if (ctx.last_master_volume < k_volume_min)
+        ctx.last_master_volume = k_volume_min;
+    if (ctx.last_master_volume > k_volume_max)
+        ctx.last_master_volume = k_volume_max;
     if (ctx.music_volume < k_volume_min)
         ctx.music_volume = k_volume_min;
     if (ctx.music_volume > k_volume_max)
         ctx.music_volume = k_volume_max;
+    if (ctx.last_music_volume < k_volume_min)
+        ctx.last_music_volume = k_volume_min;
+    if (ctx.last_music_volume > k_volume_max)
+        ctx.last_music_volume = k_volume_max;
     if (ctx.sfx_volume < k_volume_min)
         ctx.sfx_volume = k_volume_min;
     if (ctx.sfx_volume > k_volume_max)
         ctx.sfx_volume = k_volume_max;
+    if (ctx.last_sfx_volume < k_volume_min)
+        ctx.last_sfx_volume = k_volume_min;
+    if (ctx.last_sfx_volume > k_volume_max)
+        ctx.last_sfx_volume = k_volume_max;
 
     set_text_if_exists(ctx, "master_volume_value", std::to_string(ctx.master_volume) + "%");
     set_text_if_exists(ctx, "music_volume_value", std::to_string(ctx.music_volume) + "%");
@@ -125,40 +137,60 @@ static void update_volume_text(EngineContext& ctx) {
 }
 
 static void adjust_volume(EngineContext& ctx, int delta) {
-    ctx.master_volume += delta;
-    if (ctx.master_volume < k_volume_min)
-        ctx.master_volume = k_volume_min;
-    if (ctx.master_volume > k_volume_max)
-        ctx.master_volume = k_volume_max;
+    if (ctx.master_muted) {
+        ctx.last_master_volume += delta;
+        if (ctx.last_master_volume < k_volume_min)
+            ctx.last_master_volume = k_volume_min;
+        if (ctx.last_master_volume > k_volume_max)
+            ctx.last_master_volume = k_volume_max;
+    } else {
+        ctx.master_volume += delta;
+        if (ctx.master_volume < k_volume_min)
+            ctx.master_volume = k_volume_min;
+        if (ctx.master_volume > k_volume_max)
+            ctx.master_volume = k_volume_max;
+    }
     update_volume_text(ctx);
 }
 
 static void set_music_volume(EngineContext& ctx, int delta) {
-    ctx.music_volume += delta;
-    if (ctx.music_volume < k_volume_min)
-        ctx.music_volume = k_volume_min;
-    if (ctx.music_volume > k_volume_max)
-        ctx.music_volume = k_volume_max;
+    if (ctx.music_muted) {
+        ctx.last_music_volume += delta;
+        if (ctx.last_music_volume < k_volume_min)
+            ctx.last_music_volume = k_volume_min;
+        if (ctx.last_music_volume > k_volume_max)
+            ctx.last_music_volume = k_volume_max;
+    } else {
+        ctx.music_volume += delta;
+        if (ctx.music_volume < k_volume_min)
+            ctx.music_volume = k_volume_min;
+        if (ctx.music_volume > k_volume_max)
+            ctx.music_volume = k_volume_max;
+    }
     update_volume_text(ctx);
 }
 
 static void set_sfx_volume(EngineContext& ctx, int delta) {
-    ctx.sfx_volume += delta;
-    if (ctx.sfx_volume < k_volume_min)
-        ctx.sfx_volume = k_volume_min;
-    if (ctx.sfx_volume > k_volume_max)
-        ctx.sfx_volume = k_volume_max;
+    if (ctx.sfx_muted) {
+        ctx.last_sfx_volume += delta;
+        if (ctx.last_sfx_volume < k_volume_min)
+            ctx.last_sfx_volume = k_volume_min;
+        if (ctx.last_sfx_volume > k_volume_max)
+            ctx.last_sfx_volume = k_volume_max;
+    } else {
+        ctx.sfx_volume += delta;
+        if (ctx.sfx_volume < k_volume_min)
+            ctx.sfx_volume = k_volume_min;
+        if (ctx.sfx_volume > k_volume_max)
+            ctx.sfx_volume = k_volume_max;
+    }
     update_volume_text(ctx);
 }
 
 static void apply_audio_levels(EngineContext& ctx) {
-    const float k_master = ctx.master_muted ? 0.0f
-                                        : static_cast<float>(ctx.master_volume) / static_cast<float>(k_volume_max);
-    const float k_music = ctx.music_muted ? 0.0f
-                                          : k_master * static_cast<float>(ctx.music_volume) /
-                                                static_cast<float>(k_volume_max);
-    const float k_sfx =
-        ctx.sfx_muted ? 0.0f : k_master * static_cast<float>(ctx.sfx_volume) / static_cast<float>(k_volume_max);
+    const float k_master = static_cast<float>(ctx.master_volume) / static_cast<float>(k_volume_max);
+    const float k_music = k_master * static_cast<float>(ctx.music_volume) / static_cast<float>(k_volume_max);
+    const float k_sfx = k_master * static_cast<float>(ctx.sfx_volume) / static_cast<float>(k_volume_max);
 
     SetMasterVolume(k_master);
 
@@ -174,16 +206,37 @@ static void apply_audio_levels(EngineContext& ctx) {
 }
 
 static void toggle_master_mute(EngineContext& ctx) {
-    ctx.master_muted = !ctx.master_muted;
+    if (!ctx.master_muted) {
+        ctx.last_master_volume = ctx.master_volume;
+        ctx.master_volume = k_volume_min;
+        ctx.master_muted = true;
+    } else {
+        ctx.master_volume = ctx.last_master_volume;
+        ctx.master_muted = false;
+    }
     update_volume_text(ctx);
 }
 
 static void toggle_music_mute(EngineContext& ctx) {
-    ctx.music_muted = !ctx.music_muted;
+    if (!ctx.music_muted) {
+        ctx.last_music_volume = ctx.music_volume;
+        ctx.music_volume = k_volume_min;
+        ctx.music_muted = true;
+    } else {
+        ctx.music_volume = ctx.last_music_volume;
+        ctx.music_muted = false;
+    }
     update_volume_text(ctx);
 }
 
 static void toggle_sfx_mute(EngineContext& ctx) {
-    ctx.sfx_muted = !ctx.sfx_muted;
+    if (!ctx.sfx_muted) {
+        ctx.last_sfx_volume = ctx.sfx_volume;
+        ctx.sfx_volume = k_volume_min;
+        ctx.sfx_muted = true;
+    } else {
+        ctx.sfx_volume = ctx.last_sfx_volume;
+        ctx.sfx_muted = false;
+    }
     update_volume_text(ctx);
 }
