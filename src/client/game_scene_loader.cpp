@@ -46,7 +46,6 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::Transform>();
-    registry.register_component<cpnt::Weapon>();
     registry.register_component<cpnt::Star>();
     registry.register_component<cpnt::Sprite>();
     registry.register_component<cpnt::UIButton>();

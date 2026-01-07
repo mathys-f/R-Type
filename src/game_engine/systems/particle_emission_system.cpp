@@ -32,17 +32,19 @@ void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tr
     const auto k_particles = static_cast<int>(ctx.k_particles);
     auto& reg = ctx.registry;
 
-    for (auto [idx, pos_opt, vel_opt, bullets_opt] : ecs::indexed_zipper(positions, velocities, bullets)) {
+    for (auto [idx, pos_opt, bullets_opt] : ecs::indexed_zipper(positions, bullets)) {
 
-        if (pos_opt && vel_opt && bullets_opt) {
+        if (pos_opt && bullets_opt) {
+            auto pos = pos_opt.value();
+
             for (int i = 0; i < k_particles; i++) {
                 auto particle = reg.spawn_entity();
                 float angle = randf() * k_two_pi;
                 float r = randf() * k_particle_radius;
                 float offset_x = std::cos(angle) * r;
                 float offset_y = std::sin(angle) * r;
-                float pos_x = pos_opt->x + offset_x + k_particle_offset_x;
-                float pos_y = pos_opt->y + offset_y + k_particle_offset_y;
+                float pos_x = pos.x + offset_x + k_particle_offset_x;
+                float pos_y = pos.y + offset_y + k_particle_offset_y;
                 reg.add_component(particle, cpnt::Transform{pos_x, pos_y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                 float speed = randf() * k_particle_speed_multiplier + k_particle_speed_base;
                 reg.add_component(

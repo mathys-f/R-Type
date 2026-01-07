@@ -39,8 +39,10 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         ctx.server_ip = server_ip;
         ctx.server_port = server_port;
         ctx.set_scene(3); // Multiplayer game scene
+        return;
     }
     if (tag_name == "back_button") {
         ctx.set_scene(1); // Main menu scene
+        return;
     }
 }

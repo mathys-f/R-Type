@@ -1,6 +1,8 @@
 #include "api/lua.h"
 #include "engine.h"
 #include "utils/logger.h"
+#include "components/ui/ui_style.h"
+#include "components/scene.h"
 
 #include "sol/sol.hpp"
 

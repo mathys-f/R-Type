@@ -1,16 +1,16 @@
 #pragma once
 
-#include "snapshot_meta.h"
+#include "components/i_sync_component.h"
 
-namespace engn {
+namespace engn::cpnt {
 
-namespace cpnt {
-
-struct Bullet {
+struct Bullet : ISyncComponent {
     // Tag component for bullets
-    SnapshotMeta snapshot_meta;
+
+    Bullet() = default;
+
+    engn::SerializedComponent serialize() const override;
+    void deserialize(const std::vector<std::byte>& data) override;
 };
 
-} // namespace cpnt
-
-} // namespace engn
+} // namespace engn::cpnt

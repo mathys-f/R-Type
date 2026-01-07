@@ -4,7 +4,6 @@
 #include "bullet.h"
 #include "controllable.h"
 #include "enemy.h"
-#include "explosion.h"
 #include "health.h"
 #include "hitbox.h"
 #include "movement_pattern.h"
@@ -15,12 +14,12 @@
 #include "tag.h"
 #include "transform.h"
 #include "velocity.h"
-#include "weapon.h"
 
 // Non headless components
 #include "particle.h"
 #include "scene.h"
 #include "star.h"
+#include "explosion.h"
 #include "ui/ui_button.h"
 #include "ui/ui_checkbox.h"
 #include "ui/ui_dropdown.h"
