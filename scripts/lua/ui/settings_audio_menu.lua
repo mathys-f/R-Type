@@ -153,14 +153,14 @@ Set_ui_transform(5, "audio_title", {
     rotation = 0
 })
 
-Create_ui_text(5, "master_volume_label", {
-    content = "Master Volume",
+Create_ui_text(5, "general_volume_label", {
+    content = "General Volume",
     font_size = 28
 })
 
-Set_ui_style(5, "master_volume_label", styles.title)
+Set_ui_style(5, "general_volume_label", styles.title)
 
-Set_ui_transform(5, "master_volume_label", {
+Set_ui_transform(5, "general_volume_label", {
     x = 260,
     y = 240,
     z = 0,
@@ -171,14 +171,14 @@ Set_ui_transform(5, "master_volume_label", {
     rotation = 0
 })
 
-Create_ui_text(5, "master_volume_value", {
+Create_ui_text(5, "general_volume_value", {
     content = "100%",
     font_size = 28
 })
 
-Set_ui_style(5, "master_volume_value", styles.title)
+Set_ui_style(5, "general_volume_value", styles.title)
 
-Set_ui_transform(5, "master_volume_value", {
+Set_ui_transform(5, "general_volume_value", {
     x = 600,
     y = 240,
     z = 0,
@@ -189,16 +189,16 @@ Set_ui_transform(5, "master_volume_value", {
     rotation = 0
 })
 
-Create_ui_button(5, "master_volume_down_button")
+Create_ui_button(5, "general_volume_down_button")
 
-Set_ui_style(5, "master_volume_down_button", styles.main_menu)
+Set_ui_style(5, "general_volume_down_button", styles.main_menu)
 
-Set_ui_text(5, "master_volume_down_button", {
+Set_ui_text(5, "general_volume_down_button", {
     content = "-",
     font_size = 24
 })
 
-Set_ui_transform(5, "master_volume_down_button", {
+Set_ui_transform(5, "general_volume_down_button", {
     x = 760,
     y = 235,
     z = 0,
@@ -209,16 +209,16 @@ Set_ui_transform(5, "master_volume_down_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "master_volume_up_button")
+Create_ui_button(5, "general_volume_up_button")
 
-Set_ui_style(5, "master_volume_up_button", styles.main_menu)
+Set_ui_style(5, "general_volume_up_button", styles.main_menu)
 
-Set_ui_text(5, "master_volume_up_button", {
+Set_ui_text(5, "general_volume_up_button", {
     content = "+",
     font_size = 24
 })
 
-Set_ui_transform(5, "master_volume_up_button", {
+Set_ui_transform(5, "general_volume_up_button", {
     x = 830,
     y = 235,
     z = 0,
@@ -229,16 +229,16 @@ Set_ui_transform(5, "master_volume_up_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "master_mute_button")
+Create_ui_button(5, "general_mute_button")
 
-Set_ui_style(5, "master_mute_button", styles.main_menu)
+Set_ui_style(5, "general_mute_button", styles.main_menu)
 
-Set_ui_text(5, "master_mute_button", {
+Set_ui_text(5, "general_mute_button", {
     content = "Mute",
     font_size = 18
 })
 
-Set_ui_transform(5, "master_mute_button", {
+Set_ui_transform(5, "general_mute_button", {
     x = 900,
     y = 235,
     z = 0,
