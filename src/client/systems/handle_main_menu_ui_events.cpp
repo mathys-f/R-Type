@@ -20,7 +20,7 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     if (tag_name == "play_solo_button") {
         ctx.set_scene(0);
     } else if (tag_name == "play_multiplayer_button") {
-        ctx.set_scene(4); // Navigate to lobby scene
+        ctx.set_scene(2); // Navigate to lobby scene
     } else if (tag_name == "setting_button") {
         ctx.settings_return_scene = 1;
         ctx.set_scene(4);
