@@ -111,6 +111,17 @@ if(asio_ADDED)
     add_library(asio INTERFACE)
     target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
     target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+    
+    # Windows-specific settings
+    if(WIN32)
+        target_compile_definitions(asio INTERFACE 
+            _WIN32_WINNT=0x0601  # Windows 7 or later
+            NOGDI                 # Prevents Windows GDI conflicts with raylib
+            NOUSER                # Prevents Windows USER conflicts with raylib
+        )
+        target_link_libraries(asio INTERFACE ws2_32)
+    endif()
+    
     find_package(Threads REQUIRED)
     target_link_libraries(asio INTERFACE Threads::Threads)
 endif()

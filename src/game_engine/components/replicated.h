@@ -9,7 +9,7 @@ namespace engn {
 namespace cpnt {
 
 struct Replicated {
-    u_int32_t tag{};
+    uint32_t tag{};
 
     SnapshotMeta snapshot_meta;
 };

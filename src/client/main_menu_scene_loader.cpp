@@ -43,7 +43,6 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
-    engine_ctx.add_system<>(handle_main_menu_ui_events);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);

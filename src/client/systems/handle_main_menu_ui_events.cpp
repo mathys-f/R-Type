@@ -22,7 +22,8 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "play_multiplayer_button") {
         ctx.set_scene(4); // Navigate to lobby scene
     } else if (tag_name == "setting_button") {
-        ctx.set_scene(3);
+        ctx.settings_return_scene = 1;
+        ctx.set_scene(4);
     } else if (tag_name == "exit_button") {
         ctx.should_quit = true;
     }
