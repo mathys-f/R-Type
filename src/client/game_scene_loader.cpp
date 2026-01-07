@@ -4,7 +4,6 @@
 #include "game_engine/systems/systems.h"
 #include "raylib.h"
 #include "scenes_loaders.h"
-#include "systems/client_systems.h"
 
 #include <random>
 
@@ -79,7 +78,6 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
-    engine_ctx.add_system<>(handle_connection_menu_ui_events);
 
     // Load assets
 
