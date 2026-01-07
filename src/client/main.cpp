@@ -38,6 +38,7 @@ int main(void) {
     engine_ctx.add_scene_loader(1, load_main_menu_scene);
     engine_ctx.add_scene_loader(2, load_server_connection_scene);
     engine_ctx.add_scene_loader(3, load_multiplayer_game_scene);
+    engine_ctx.add_scene_loader(4, load_lobby_scene);
     engine_ctx.set_scene(1); // Game menu scene
 
     std::optional<Music> battle_music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
