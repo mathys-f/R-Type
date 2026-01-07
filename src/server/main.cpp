@@ -48,8 +48,9 @@ int main(int argc, char** argv) {
     // Create engine context
     EngineContext engine_ctx;
 
-    engine_ctx.add_scene_loader(0, load_server_scene);
-    engine_ctx.set_scene(0); // Server scene
+    // Don't use this scene yer, not ready
+    // engine_ctx.add_scene_loader(0, load_server_scene);
+    // engine_ctx.set_scene(0); // Server scene
 
     // Start network server
     NetworkServer server(engine_ctx, port);
