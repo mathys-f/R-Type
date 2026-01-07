@@ -1,9 +1,9 @@
 #include "game_engine/api/lua.h"
 #include "game_engine/engine.h"
 #include "game_engine/systems/systems.h"
+#include "raylib.h"
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
-#include "raylib.h"
 
 #include <string>
 
@@ -57,15 +57,14 @@ void load_server_connection_scene(engn::EngineContext& engine_ctx) {
 
     // Create stars
     const int k_width = static_cast<int>(engine_ctx.k_window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
-    const int k_height = static_cast<int>(engine_ctx.k_window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const int k_height =
+        static_cast<int>(engine_ctx.k_window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
-       auto star = engine_ctx.registry.spawn_entity();
-       engine_ctx.registry.add_component(star, engn::cpnt::Transform{
-           (float)GetRandomValue(0, k_width),
-           (float)GetRandomValue(0, k_height),
-           0, 0, 0, 0, 1, 1, 1
-       });
-       engine_ctx.registry.add_component(star, cpnt::Star{randf()});
+        auto star = engine_ctx.registry.spawn_entity();
+        engine_ctx.registry.add_component(star, engn::cpnt::Transform{(float)GetRandomValue(0, k_width),
+                                                                      (float)GetRandomValue(0, k_height), 0, 0, 0, 0, 1,
+                                                                      1, 1});
+        engine_ctx.registry.add_component(star, cpnt::Star{randf()});
     }
 }
