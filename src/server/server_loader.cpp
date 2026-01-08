@@ -65,7 +65,7 @@ void load_server_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_pattern_speed_variance = 3.0f;
     constexpr int k_pattern_amplitude_max = 10;
 
-    for (size_t i = 0; i < engine_ctx.k_max_enemies; i++) {
+    for (size_t i = 0; i < engine_ctx.k_max_charger; i++) {
         auto enemy = engine_ctx.registry.spawn_entity();
 
         float spawn_y = (float)GetRandomValue(k_spawn_margin, k_height - k_spawn_margin);

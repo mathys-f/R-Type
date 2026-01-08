@@ -54,7 +54,8 @@ class EngineContext {
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
-    const size_t k_max_enemies = 8;
+    const size_t k_max_charger = 0;
+    const size_t k_max_shooter = 2;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;

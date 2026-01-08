@@ -12,6 +12,7 @@ enum ComponentType : std::uint8_t {
     bullet,
     controllable,
     enemy,
+    shooter,
     health,
     hitbox,
     player,
