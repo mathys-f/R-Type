@@ -79,6 +79,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
+    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter>(sys::shooter_movement_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter>(sys::shooter_system);
 
     // Load assets
 

@@ -58,8 +58,8 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                 DrawTexturePro(texture.value(), sprite_opt->source_rect,
                                (Rectangle){pos_opt->x, pos_opt->y, width, height},
                                (Vector2){pos_opt->origin_x, pos_opt->origin_y}, vel_opt ? vel_opt->vz : 0.0f, WHITE);
-                DrawRectanglePro((Rectangle){pos_opt->x, pos_opt->y, width, height},
-                                 (Vector2){pos_opt->origin_x, pos_opt->origin_y}, 0.0f, RED);
+                //DrawRectanglePro((Rectangle){pos_opt->x, pos_opt->y, width, height},
+                //                 (Vector2){pos_opt->origin_x, pos_opt->origin_y}, 0.0f, RED);
                 printf("Rendered entity %zu at position (%.2f, %.2f)\n", idx, pos_opt->x, pos_opt->y);
             }
         }
