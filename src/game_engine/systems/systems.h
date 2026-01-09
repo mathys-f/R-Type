@@ -39,7 +39,8 @@ void enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& p
 void shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::MovementPattern> const& patterns,
                            ecs::SparseArray<cpnt::Velocity> const& velocity,
-                           ecs::SparseArray<cpnt::Shooter> const& shooters);
+                           ecs::SparseArray<cpnt::Shooter> const& shooters,
+                           ecs::SparseArray<cpnt::Player> const& player);
 
 void shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                   ecs::SparseArray<cpnt::Velocity> const& velocities,

@@ -79,7 +79,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
-    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter>(sys::shooter_movement_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter>(sys::shooter_system);
 
     // Load assets
@@ -187,10 +187,10 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
 
     // Create shooters
 
-    constexpr float k_shooter_sprite_x = 0.0f;
-    constexpr float k_shooter_sprite_y = 0.0f;
-    constexpr float k_shooter_sprite_width = 30.0f;
-    constexpr float k_shooter_sprite_height = 26.0f;
+    constexpr float k_shooter_sprite_x = 87.0f;
+    constexpr float k_shooter_sprite_y = 67.0f;
+    constexpr float k_shooter_sprite_width = 22.0f;
+    constexpr float k_shooter_sprite_height = 18.0f;
     constexpr float k_shooter_scale = 5.0f;
     constexpr float k_shooter_base_speed = 3.0f;
     constexpr float k_shooter_speed_variance = 5.0f;
@@ -207,7 +207,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Position
-        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 0, 0, 0, 1, 1, 1});
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55, 45, 0, 1, 1, 1});
 
         // Velocity
         engine_ctx.registry.add_component(
