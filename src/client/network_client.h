@@ -51,6 +51,7 @@ class NetworkClient {
     std::atomic<bool> m_running{false};
     std::atomic<bool> m_connected{false};
     uint32_t m_player_id{0};
+    asio::ip::udp::endpoint m_server_endpoint{};
     OnLoginCallback m_on_login;
     OnPacketCallback m_on_reliable;
     OnPacketCallback m_on_unreliable;

@@ -23,25 +23,20 @@ std::uint32_t ReliableSendQueue::next_sequence() {
     return k_current;
 }
 
-void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now) {
-    m_queue.push_back(Pending{.m_packet = packet, .m_last_sent = now, .m_attempts = 1, .m_rto = m_config.initial_rto});
+void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint) {
+    m_queue.push_back(Pending{.m_packet = packet, .m_last_sent = now, .m_attempts = 1, .m_rto = m_config.initial_rto, .m_endpoint = endpoint});
 }
 
-void ReliableSendQueue::acknowledge(std::uint32_t ackId) {
+void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::endpoint& endpoint) {
     if (ackId == 0) {
         return;
     }
-
-    if (is_seq_newer(ackId, m_highest_acked_sequence)) {
-        m_highest_acked_sequence = ackId;
-    }
-
-    while (!m_queue.empty()) {
-        Pending& front = m_queue.front();
-        if (is_seq_later_than_or_equal(front.m_packet.header.m_sequence, ackId)) {
-            m_queue.pop_front();
+    for (auto it = m_queue.begin(); it != m_queue.end();) {
+        Pending& pending = *it;
+        if (pending.m_endpoint == endpoint && !is_seq_newer(pending.m_packet.header.m_sequence, ackId)) {
+            it = m_queue.erase(it);
         } else {
-            break;
+            ++it;
         }
     }
 }
@@ -94,7 +89,7 @@ std::vector<std::uint32_t> ReliableSendQueue::take_failures() {
     return failures;
 }
 
-bool ReliableSendQueue::is_acknowledged(std::uint32_t sequence) const {
+bool ReliableSendQueue::is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const {
     if (sequence == 0) {
         return false;
     }
@@ -103,10 +98,12 @@ bool ReliableSendQueue::is_acknowledged(std::uint32_t sequence) const {
         return false;
     }
 
-    if (is_seq_later_than_or_equal(sequence, m_highest_acked_sequence)) {
-         return true;
+    for (const Pending& pending : m_queue) {
+        if (pending.m_packet.header.m_sequence == sequence && pending.m_endpoint == endpoint) {
+            return false; // Still in queue, not acknowledged
+        }
     }
-    return false;
+    return true;
 }
 
 

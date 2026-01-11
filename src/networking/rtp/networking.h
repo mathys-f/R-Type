@@ -156,11 +156,11 @@ class ReliableSendQueue {
     /**
      * Tracks a reliable packet that has just been transmitted.
      */
-    void track(const Packet& packet, std::chrono::steady_clock::time_point now);
+    void track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint);
     /**
-     * Removes packets covered by the latest acknowledgement identifier.
+     * Removes packets covered by the latest acknowledgement identifier from a specific endpoint.
      */
-    void acknowledge(std::uint32_t ackId);
+    void acknowledge(std::uint32_t ackId, const asio::ip::udp::endpoint& endpoint);
     /**
      * Returns packets that have exceeded their retransmission timeout.
      */
@@ -175,7 +175,7 @@ class ReliableSendQueue {
      */
     std::vector<std::uint32_t> take_failures();
 
-    [[nodiscard]] bool is_acknowledged(std::uint32_t sequence) const;
+    [[nodiscard]] bool is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const;
 
   private:
     struct Pending {
@@ -183,6 +183,7 @@ class ReliableSendQueue {
         std::chrono::steady_clock::time_point m_last_sent;
         std::size_t m_attempts = 0;
         std::chrono::milliseconds m_rto{};
+        asio::ip::udp::endpoint m_endpoint{};
     };
 
     std::deque<Pending> m_queue{};
@@ -285,9 +286,9 @@ class Session : public std::enable_shared_from_this<Session> {
      */
     std::uint32_t send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable = false);
     /**
-     * Checks if a specific message ID (sequence number) has been acknowledged.
+     * Checks if a specific message ID (sequence number) has been acknowledged by a specific endpoint.
      */
-    [[nodiscard]] bool is_message_acknowledged(std::uint32_t id) const;
+    [[nodiscard]] bool is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
     /**
      * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
      */

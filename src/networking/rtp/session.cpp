@@ -51,8 +51,8 @@ std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoi
     return seq_num;
 }
 
-bool Session::is_message_acknowledged(std::uint32_t id) const {
-    return m_send_queue.is_acknowledged(id);
+bool Session::is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const {
+    return m_send_queue.is_acknowledged(id, endpoint);
 }
 
 void Session::poll() {
@@ -79,7 +79,7 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
         return;
     }
 
-    m_send_queue.acknowledge(packet.header.m_ack);
+    m_send_queue.acknowledge(packet.header.m_ack, endpoint);
 
     if (packet.payload.size() > m_fragment_payload_size) {
         return;
@@ -145,7 +145,7 @@ std::uint32_t Session::send_single_packet(Packet packet, const asio::ip::udp::en
         packet.header.m_flags = set_flag(packet.header.m_flags, PacketFlag::KReliable);
         packet.header.m_sequence = m_send_queue.next_sequence();
         packet.header.m_ack = m_receive_window.ack();
-        m_send_queue.track(packet, now);
+        m_send_queue.track(packet, now, endpoint);
         sequence = packet.header.m_sequence;
     } else {
         packet.header.m_flags = clear_flag(packet.header.m_flags, PacketFlag::KReliable);
