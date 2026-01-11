@@ -32,6 +32,10 @@ void ReliableSendQueue::acknowledge(std::uint32_t ackId) {
         return;
     }
 
+    if (is_seq_newer(ackId, m_highest_acked_sequence)) {
+        m_highest_acked_sequence = ackId;
+    }
+
     while (!m_queue.empty()) {
         Pending& front = m_queue.front();
         if (is_seq_later_than_or_equal(front.m_packet.header.m_sequence, ackId)) {
@@ -89,6 +93,22 @@ std::vector<std::uint32_t> ReliableSendQueue::take_failures() {
     m_failed.clear();
     return failures;
 }
+
+bool ReliableSendQueue::is_acknowledged(std::uint32_t sequence) const {
+    if (sequence == 0) {
+        return false;
+    }
+
+    if (!is_seq_newer(m_next_sequence, sequence)) {
+        return false;
+    }
+
+    if (is_seq_later_than_or_equal(sequence, m_highest_acked_sequence)) {
+         return true;
+    }
+    return false;
+}
+
 
 void ReliableReceiveWindow::observe(std::uint32_t sequence) {
     if (sequence == 0) {

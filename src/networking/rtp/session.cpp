@@ -24,7 +24,7 @@ void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
     schedule_retransmission();
 }
 
-void Session::send(Packet packet, bool reliable) {
+std::uint32_t Session::send(Packet packet, bool reliable) {
     if (!m_transport) {
         throw std::logic_error("transport is not initialized");
     }
@@ -32,21 +32,27 @@ void Session::send(Packet packet, bool reliable) {
         throw std::logic_error("no default remote endpoint configured");
     }
     const auto k_endpoint = m_transport->default_remote();
-    send(std::move(packet), k_endpoint, reliable);
+    return send(std::move(packet), k_endpoint, reliable);
 }
 
-void Session::send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
+std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
     if (!m_started) {
         throw std::logic_error("session not started");
     }
 
+    std::uint32_t seq_num = 0;
     if (packet.payload.size() > m_fragment_payload_size) {
-        fragment_and_send(std::move(packet), endpoint, reliable);
+        seq_num = fragment_and_send(std::move(packet), endpoint, reliable);
     } else {
-        send_single_packet(std::move(packet), endpoint, reliable);
+        seq_num = send_single_packet(std::move(packet), endpoint, reliable);
     }
 
     schedule_retransmission();
+    return seq_num;
+}
+
+bool Session::is_message_acknowledged(std::uint32_t id) const {
+    return m_send_queue.is_acknowledged(id);
 }
 
 void Session::poll() {
@@ -131,14 +137,16 @@ std::size_t Session::fragment_payload_size() const noexcept {
     return m_fragment_payload_size;
 }
 
-void Session::send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
+std::uint32_t Session::send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
     auto now = std::chrono::steady_clock::now();
+    std::uint32_t sequence = 0;
 
     if (reliable || has_flag(packet.header.m_flags, PacketFlag::KReliable)) {
         packet.header.m_flags = set_flag(packet.header.m_flags, PacketFlag::KReliable);
         packet.header.m_sequence = m_send_queue.next_sequence();
         packet.header.m_ack = m_receive_window.ack();
         m_send_queue.track(packet, now);
+        sequence = packet.header.m_sequence;
     } else {
         packet.header.m_flags = clear_flag(packet.header.m_flags, PacketFlag::KReliable);
         packet.header.m_sequence = 0;
@@ -147,9 +155,10 @@ void Session::send_single_packet(Packet packet, const asio::ip::udp::endpoint& e
 
     m_transport->async_send(packet, endpoint);
     m_failed_cache.clear();
+    return sequence;
 }
 
-void Session::fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
+std::uint32_t Session::fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
     reliable = true; // RFC: fragmented messages must be reliable
 
     const std::size_t k_total_size = packet.payload.size();
@@ -163,6 +172,7 @@ void Session::fragment_and_send(Packet packet, const asio::ip::udp::endpoint& en
 
     const std::uint16_t k_fragment_id = m_next_fragment_id++;
     std::size_t offset = 0;
+    std::uint32_t last_seq = 0;
     for (std::size_t i = 0; i < k_fragment_count; ++i) {
         const std::size_t k_chunk_size = std::min(k_fragment_size, k_total_size - offset);
 
@@ -175,9 +185,10 @@ void Session::fragment_and_send(Packet packet, const asio::ip::udp::endpoint& en
         fragment.payload.assign(packet.payload.begin() + static_cast<std::ptrdiff_t>(offset),
                                 packet.payload.begin() + static_cast<std::ptrdiff_t>(offset + k_chunk_size));
 
-        send_single_packet(std::move(fragment), endpoint, reliable);
+        last_seq = send_single_packet(std::move(fragment), endpoint, reliable);
         offset += k_chunk_size;
     }
+    return last_seq;
 }
 
 std::optional<Packet> Session::ingest_fragment(Packet packet) {

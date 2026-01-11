@@ -118,12 +118,12 @@ void NetworkClient::poll() {
     }
 }
 
-void NetworkClient::send_reliable(const net::Packet& packet) {
+std::uint32_t NetworkClient::send_reliable(const net::Packet& packet) {
     if (!m_connected.load()) {
         std::cerr << "Cannot send: not connected" << std::endl;
-        return;
+        return 0;
     }
-    m_session->send(packet, true);
+    return m_session->send(packet, true);
 }
 
 void NetworkClient::send_unreliable(const net::Packet& packet) {
@@ -132,6 +132,13 @@ void NetworkClient::send_unreliable(const net::Packet& packet) {
         return;
     }
     m_session->send(packet, false);
+}
+
+bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {
+    if (!m_connected.load() || !m_session) {
+        return false;
+    }
+    return m_session->is_message_acknowledged(id);
 }
 
 void NetworkClient::disconnect() {
