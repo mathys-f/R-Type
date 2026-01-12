@@ -23,6 +23,9 @@ void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UII
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet> const& bullets);
 
+void bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                   ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter);
+
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                       ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
@@ -54,7 +57,8 @@ void explosion_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> cons
 void particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                               ecs::SparseArray<cpnt::Velocity> const& velocities,
                               ecs::SparseArray<cpnt::Particle> const& particles,
-                              ecs::SparseArray<cpnt::Bullet> const& bullets);
+                              ecs::SparseArray<cpnt::Bullet> const& bullets,
+                              ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter);
 
 void player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::Player> const& players, ecs::SparseArray<cpnt::Sprite> const& sprites,

@@ -21,7 +21,8 @@ enum ComponentType : std::uint8_t {
     stats,
     tag,
     transform,
-    velocity
+    velocity,
+    bullet_shooter
 };
 
 extern const std::unordered_map<std::type_index, ComponentType> k_type_index_to_component_type_map;

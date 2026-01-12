@@ -8,8 +8,6 @@ using namespace engn;
 
 namespace {
 constexpr float k_particle_radius = 3.0f;
-constexpr int k_particle_color_g = 165;
-constexpr int k_particle_color_b = 255;
 constexpr int k_alpha_max = 255;
 } // namespace
 
@@ -32,7 +30,7 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
             float alpha = 1.0f - (particle_opt->lifetime / particle_opt->max_lifetime);
             DrawCircleV(
                 (Vector2){pos_opt->x, pos_opt->y}, k_particle_radius * alpha,
-                (Color){0, k_particle_color_g, k_particle_color_b, static_cast<unsigned char>(alpha * k_alpha_max)});
+                (Color){particle_opt->red, particle_opt->green, particle_opt->blue, static_cast<unsigned char>(alpha * k_alpha_max)});
 
             // Update lifetime
             auto& particles_arr = reg.get_components<cpnt::Particle>();
@@ -58,7 +56,6 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                 DrawTexturePro(texture.value(), sprite_opt->source_rect,
                                (Rectangle){pos_opt->x, pos_opt->y, width, height},
                                (Vector2){pos_opt->origin_x, pos_opt->origin_y}, vel_opt ? vel_opt->vz : 0.0f, WHITE);
-                printf("Rendered entity %zu at position (%.2f, %.2f)\n", idx, pos_opt->x, pos_opt->y);
             }
         }
     }

@@ -35,6 +35,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     std::uniform_real_distribution<float> dist(k_dist_min, k_dist_max);
 
     registry.register_component<cpnt::Bullet>();
+    registry.register_component<cpnt::Bullet_shooter>();
     registry.register_component<cpnt::Enemy>();
     registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
@@ -66,12 +67,14 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet_shooter>(sys::bullet_shooter_system);
+
     engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox>(
         sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet>(sys::particle_emission_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::Bullet_shooter>(sys::particle_emission_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
         sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
@@ -200,6 +203,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_shooter_hitbox_height = 18.0f;
 
     engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+    engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
 
     for (size_t i = 0; i < engine_ctx.k_max_shooter; i++) {
         auto shooter = engine_ctx.registry.spawn_entity();
