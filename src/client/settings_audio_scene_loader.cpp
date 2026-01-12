@@ -15,6 +15,7 @@ const std::string k_script_file = "scripts/lua/ui/settings_audio_menu.lua";
 void load_settings_audio_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
 
+    engine_ctx.input_context = InputContext::Menu;
     engine_ctx.pending_rebind = ControlAction::None;
 
     reg.register_component<cpnt::UIButton>();

@@ -34,6 +34,8 @@ const std::vector<std::string> k_controllers = {"Xbox", "DualShock", "DualSense"
 void sys::fetch_inputs(EngineContext& ctx) {
     auto& input_events = ctx.input_event_queue;
     int gamepad_id = -1;
+    int fallback_gamepad_id = -1;
+    std::string fallback_gamepad_name;
 
     for (int i = 0; i < k_max_gamepad_id; i++) {
         if (!IsGamepadAvailable(i))
@@ -46,11 +48,27 @@ void sys::fetch_inputs(EngineContext& ctx) {
             continue;
 
         std::string n(name);
+        if (fallback_gamepad_id == -1) {
+            fallback_gamepad_id = i;
+            fallback_gamepad_name = n;
+        }
         for (const auto& cname : k_controllers) {
             if (n.find(cname) != std::string::npos) {
                 gamepad_id = i;
                 break;
             }
+        }
+    }
+    if (gamepad_id == -1 && fallback_gamepad_id != -1) {
+        LOG_WARNING("Unknown gamepad '{}', falling back to first available device", fallback_gamepad_name);
+        gamepad_id = fallback_gamepad_id;
+    }
+    if (gamepad_id != -1) {
+        const char* name = GetGamepadName(gamepad_id);
+        if (name) {
+            LOG_INFO("Gamepad detected: '{}' (id {})", name, gamepad_id);
+        } else {
+            LOG_INFO("Gamepad detected with id {}", gamepad_id);
         }
     }
 

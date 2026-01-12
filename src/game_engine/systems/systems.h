@@ -11,6 +11,7 @@ namespace sys {
 
 void fetch_inputs(EngineContext& ctx);
 void log_inputs(EngineContext& ctx);
+void resolve_player_input(EngineContext& ctx);
 
 void ui_hover(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>&);
 void ui_press(EngineContext& ctx);

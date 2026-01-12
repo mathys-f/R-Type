@@ -13,6 +13,7 @@ constexpr int k_volume_max = 100;
 constexpr int k_volume_step = 5;
 constexpr unsigned char k_settings_controls_scene_id = 4;
 constexpr unsigned char k_settings_audio_scene_id = 5;
+constexpr unsigned char k_settings_gamepad_scene_id = 6;
 } // namespace
 
 static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt);
@@ -38,7 +39,13 @@ void handle_volume_menu_ui_events(engn::EngineContext& engine_ctx) {
         return;
 
     const evts::KeyPressed* key_evt = engine_ctx.input_event_queue.get_last<evts::KeyPressed>();
-    if (key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape) {
+    const evts::ControllerButtonPressed* pad_evt =
+        engine_ctx.input_event_queue.get_last<evts::ControllerButtonPressed>();
+    const bool k_escape_pressed = key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape;
+    const bool k_pause_pressed =
+        pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
+                    pad_evt->button == evts::ControllerButton::ControllerButtonBack);
+    if (k_escape_pressed || k_pause_pressed) {
         if (engine_ctx.settings_return_scene != 1) {
             engine_ctx.set_scene(engine_ctx.settings_return_scene);
             return;
@@ -64,6 +71,9 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         return true;
     } else if (tag_name == "nav_controls_button") {
         ctx.set_scene(k_settings_controls_scene_id);
+        return true;
+    } else if (tag_name == "nav_gamepad_button") {
+        ctx.set_scene(k_settings_gamepad_scene_id);
         return true;
     } else if (tag_name == "nav_audio_button") {
         ctx.set_scene(k_settings_audio_scene_id);
