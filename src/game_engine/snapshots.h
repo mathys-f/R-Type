@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <typeindex>
+#include <cstddef>
 
 namespace engn {
 
@@ -28,19 +29,28 @@ extern const std::unordered_map<ComponentType, std::type_index> k_component_type
 
 struct SerializedComponent {
     ComponentType type;
-    std::uint32_t size;
     // Cannot use std::any here because it does not translate to a contiguous byte array.
     std::vector<std::byte> data;
+
+    std::byte *serialize() const;
+    static SerializedComponent deserialize(std::byte const* data_ptr);
+    std::uint32_t get_serialized_size() const;
 };
 
 struct EntitySnapshot {
     std::uint32_t entity_id;
     std::vector<SerializedComponent> components;
+
+    std::byte *serialize() const;
+    static EntitySnapshot deserialize(std::byte const* data_ptr);
+    std::uint32_t get_serialized_size() const;
 };
 
-// This structure is what is sent over the network
 struct WorldSnapshot {
     std::vector<EntitySnapshot> entities;
+
+    std::byte *serialize() const;
+    static WorldSnapshot deserialize(std::byte const* data_ptr);
 };
 
 // This wrapper adds metadata to the WorldSnapshot
