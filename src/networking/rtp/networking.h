@@ -156,11 +156,11 @@ class ReliableSendQueue {
     /**
      * Tracks a reliable packet that has just been transmitted.
      */
-    void track(const Packet& packet, std::chrono::steady_clock::time_point now);
+    void track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint);
     /**
-     * Removes packets covered by the latest acknowledgement identifier.
+     * Removes packets covered by the latest acknowledgement identifier from a specific endpoint.
      */
-    void acknowledge(std::uint32_t ackId);
+    void acknowledge(std::uint32_t ackId, const asio::ip::udp::endpoint& endpoint);
     /**
      * Returns packets that have exceeded their retransmission timeout.
      */
@@ -175,17 +175,21 @@ class ReliableSendQueue {
      */
     std::vector<std::uint32_t> take_failures();
 
+    [[nodiscard]] bool is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const;
+
   private:
     struct Pending {
         Packet m_packet;
         std::chrono::steady_clock::time_point m_last_sent;
         std::size_t m_attempts = 0;
         std::chrono::milliseconds m_rto{};
+        asio::ip::udp::endpoint m_endpoint{};
     };
 
     std::deque<Pending> m_queue{};
     ReliabilityConfig m_config{};
     std::uint32_t m_next_sequence = 1;
+    std::uint32_t m_highest_acked_sequence = 0;
     std::vector<std::uint32_t> m_failed{};
 };
 
@@ -273,12 +277,18 @@ class Session : public std::enable_shared_from_this<Session> {
     void start(PacketCallback onReliable, PacketCallback onUnreliable);
     /**
      * Sends a packet to the default remote endpoint.
+     * Returns the sequence number of the packet if sent reliably, or 0 otherwise.
      */
-    void send(Packet packet, bool reliable = false);
+    std::uint32_t send(Packet packet, bool reliable = false);
     /**
      * Sends a packet to the specified endpoint, optionally tracking it for reliability.
+     * Returns the sequence number of the packet if sent reliably, or 0 otherwise.
      */
-    void send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable = false);
+    std::uint32_t send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable = false);
+    /**
+     * Checks if a specific message ID (sequence number) has been acknowledged by a specific endpoint.
+     */
+    [[nodiscard]] bool is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
     /**
      * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
      */
@@ -306,11 +316,11 @@ class Session : public std::enable_shared_from_this<Session> {
     /**
      * Sends a single packet, optionally tracking it for reliability.
      */
-    void send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
+    std::uint32_t send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
     /**
      * Fragments a large packet and sends the fragments reliably or unreliably.
      */
-    void fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
+    std::uint32_t fragment_and_send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable);
     /**
      * Ingests a fragment and attempts to reassemble the full packet.
      */

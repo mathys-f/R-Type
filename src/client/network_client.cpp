@@ -32,6 +32,7 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
         asio::ip::udp::resolver resolver(m_io);
         auto endpoints = resolver.resolve(asio::ip::udp::v4(), host, std::to_string(port));
         asio::ip::udp::endpoint server_endpoint = *endpoints.begin();
+        m_server_endpoint = server_endpoint;
 
         // Create session pointing to server
         m_session = std::make_shared<net::Session>(m_io, server_endpoint);
@@ -118,12 +119,12 @@ void NetworkClient::poll() {
     }
 }
 
-void NetworkClient::send_reliable(const net::Packet& packet) {
+std::uint32_t NetworkClient::send_reliable(const net::Packet& packet) {
     if (!m_connected.load()) {
         std::cerr << "Cannot send: not connected" << std::endl;
-        return;
+        return 0;
     }
-    m_session->send(packet, true);
+    return m_session->send(packet, true);
 }
 
 void NetworkClient::send_unreliable(const net::Packet& packet) {
@@ -132,6 +133,13 @@ void NetworkClient::send_unreliable(const net::Packet& packet) {
         return;
     }
     m_session->send(packet, false);
+}
+
+bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {
+    if (!m_connected.load() || !m_session) {
+        return false;
+    }
+    return m_session->is_message_acknowledged(id, m_server_endpoint);
 }
 
 void NetworkClient::disconnect() {
