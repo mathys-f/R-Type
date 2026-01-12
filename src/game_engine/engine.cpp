@@ -16,6 +16,9 @@ constexpr unsigned char k_max_scene_id = 255;
 static void expose_cpp_api(sol::state& lua, EngineContext& ctx);
 
 EngineContext::EngineContext() : server_port(0), m_current_scene(0) {
+    m_snapshots_history.reserve(4); // Reserve for 4 players
+    for (auto &snapshot: m_snapshots_history)
+        snapshot.second.reserve(SNAPSHOT_HISTORY_SIZE); // Make sure enough space for snapshots hystory
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
     expose_cpp_api(lua_ctx->get_lua_state(), *this);
