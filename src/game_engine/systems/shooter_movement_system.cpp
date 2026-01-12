@@ -30,7 +30,7 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
     }
 
     for (auto [idx, pos_opt, pat_opt, shot_opt] : ecs::indexed_zipper(positions, patterns, shooters)) {
-        if (!pos_opt || !pat_opt)
+        if (!pos_opt || !pat_opt || !shot_opt)
             continue;
 
         auto& pos = reg.get_components<cpnt::Transform>()[idx].value();
