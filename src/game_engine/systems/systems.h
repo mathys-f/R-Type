@@ -45,7 +45,7 @@ void shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transfor
 void shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                   ecs::SparseArray<cpnt::Velocity> const& velocities,
                   ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Sprite> const& sprites,
-                  ecs::SparseArray<cpnt::Shooter> const& shooters);
+                  ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Player> const& player);
 
 void explosion_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Explosion> const& explosions,

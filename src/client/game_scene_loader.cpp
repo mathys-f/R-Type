@@ -36,6 +36,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
 
     registry.register_component<cpnt::Bullet>();
     registry.register_component<cpnt::Enemy>();
+    registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
     registry.register_component<cpnt::Health>();
     registry.register_component<cpnt::Hitbox>();
@@ -80,7 +81,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter>(sys::shooter_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
 
     // Load assets
 
@@ -214,7 +215,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
             shooter, cpnt::Velocity{-(k_shooter_base_speed + randf() * k_shooter_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
 
         // Other components
-        engine_ctx.registry.add_component(shooter, cpnt::Shooter{});
+        engine_ctx.registry.add_component(shooter, cpnt::Shooter{0});
         engine_ctx.registry.add_component(
             shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y, k_shooter_sprite_width, k_shooter_sprite_height},
                                 k_shooter_scale,

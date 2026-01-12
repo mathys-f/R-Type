@@ -22,13 +22,24 @@ constexpr float k_sprite_down_anim = 38.0f;
 constexpr float k_sprite_neutral = 71.0f;
 constexpr float k_sprite_up_anim = 104.0f;
 constexpr float k_sprite_up_right = 137.0f;
+
+// Bullet
+constexpr float k_bullet_offset_x = 50.0f;
+constexpr float k_bullet_offset_y = 30.0f;
+constexpr float k_bullet_speed = 650.0f;
+constexpr float k_bullet_width = 16.0f;
+constexpr float k_bullet_height = 8.0f;
+constexpr float k_bullet_sprite_x = 249.0f;
+constexpr float k_bullet_sprite_y = 105.0f;
+constexpr float k_bullet_scale = 2.0f;
 } // namespace
 
 void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                        ecs::SparseArray<cpnt::Velocity> const& velocities,
                        ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Sprite> const& sprites,
-                       ecs::SparseArray<cpnt::Shooter> const& shooters) {
+                       ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Player> const& player) {
     auto& reg = ctx.registry;
+    float dt = ctx.delta_time;
 
     for (auto [idx, pos_opt, vel_opt, shot_opt, health_opt] :
          ecs::indexed_zipper(positions, velocities, shooters, healths)) {
@@ -37,6 +48,7 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
             auto& health = reg.get_components<cpnt::Health>()[idx];
             auto& sprite = reg.get_components<cpnt::Sprite>()[idx];
             auto& vel = reg.get_components<cpnt::Velocity>()[idx];
+            auto& shot = reg.get_components<cpnt::Shooter>()[idx];
 
             if (pos && vel_opt) {
                 pos->x += vel_opt->vx;
@@ -69,40 +81,41 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                         health->hp = health->max_hp;
                     }
                 }
+            }
 
-                //// Animate enemies
-//
-                //if (vel_opt->vy > 0) {
-                //    if (sprite->frame <= k_animation_frame_limit && sprite->source_rect.x != k_sprite_up_right) {
-                //        sprite->frame++;
-                //        sprite->source_rect.x = k_sprite_up_anim;
-                //    } else {
-                //        sprite->source_rect.x = k_sprite_up_right;
-                //        sprite->frame = 0;
-                //    }
-                //} else if (vel_opt->vy < 0) {
-                //    if (sprite->frame <= k_animation_frame_limit && sprite->source_rect.x != k_sprite_down_left) {
-                //        sprite->frame++;
-                //        sprite->source_rect.x = k_sprite_down_anim;
-                //    } else {
-                //        sprite->source_rect.x = k_sprite_down_left;
-                //        sprite->frame = 0;
-                //    }
-                //} else {
-                //    if (sprite->frame <= k_animation_frame_limit &&
-                //        (sprite->source_rect.x == k_sprite_down_left || sprite->source_rect.x == k_sprite_down_anim)) {
-                //        sprite->frame++;
-                //        sprite->source_rect.x = k_sprite_down_anim;
-                //    } else if (sprite->frame <= k_animation_frame_limit &&
-                //               (sprite->source_rect.x == k_sprite_up_right ||
-                //                sprite->source_rect.x == k_sprite_up_anim)) {
-                //        sprite->frame++;
-                //        sprite->source_rect.x = k_sprite_up_anim;
-                //    } else {
-                //        sprite->source_rect.x = k_sprite_neutral;
-                //        sprite->frame = 0;
-                //    }
-                //}
+            // Shoot projectiles at player
+            shot->timer += dt;
+            if (shot->timer >= 1.0f) {
+                float dx = 0.0f;
+                float dy = 0.0f;
+                for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, player)) {
+                    if (!ppos_opt || !pplay_opt)
+                        continue;
+                    auto& ppos = reg.get_components<cpnt::Transform>()[pidx];
+                    dx = ppos->x - pos->x;
+                    dy = ppos->y - pos->y;
+                    break; // Assuming only one player
+                }
+                float length = sqrt(dx * dx + dy * dy);
+                float dirX = dx / length;
+                float dirY = dy / length;
+                float speed = 400.0f;
+                float vx = dirX * speed;
+                float vy = dirY * speed;
+                auto bullet = reg.spawn_entity();
+                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                reg.add_component(bullet, cpnt::Velocity{vx, vy, vel->vz + 180.0f, 0.0f, 0.0f, 0.0f});
+                reg.add_component(bullet, cpnt::Bullet{});
+                reg.add_component(bullet, cpnt::Hitbox{0.0f, 0.0f, 16.0f, 8.0f});
+                reg.add_component(
+                    bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
+                                 k_bullet_scale,
+                                 0,
+                                 "player_ship"});
+                std::optional<Sound> shoot_sound = ctx.assets_manager.get_asset<Sound>("shoot_sound");
+                if (shoot_sound.has_value())
+                            PlaySound(shoot_sound.value());
+                shot->timer = 0.0f;
             }
         }
     }

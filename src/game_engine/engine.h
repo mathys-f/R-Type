@@ -49,13 +49,13 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    const glm::vec2 k_window_size{1080.0f, 720.0f};
+    const glm::vec2 k_window_size{1920.0f, 1000.0f};
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
-    const size_t k_max_charger = 5;
-    const size_t k_max_shooter = 3;
+    const size_t k_max_charger = 0;
+    const size_t k_max_shooter = 10;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;

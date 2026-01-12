@@ -44,6 +44,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     registry.register_component<cpnt::Bullet>();
     registry.register_component<cpnt::Enemy>();
+    registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
     registry.register_component<cpnt::Health>();
     registry.register_component<cpnt::Hitbox>();
@@ -87,6 +88,8 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
+    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
@@ -99,7 +102,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
-            LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
+            //LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
 
             Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
 
@@ -116,14 +119,14 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             registry.add_component(player, cpnt::Replicated{player_id});
 
         } else {
-            LOG_ERROR("Login failed! Cannot start game.");
+            //LOG_ERROR("Login failed! Cannot start game.");
             return;
         }
     });
 
     const char* player_name = "Player1";
 
-    LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
+    //LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
     engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
@@ -135,5 +138,137 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         registry.add_component(star, engn::cpnt::Transform{(float)GetRandomValue(0, k_width),
                                                            (float)GetRandomValue(0, k_height), 0, 0, 0, 0, 1, 1, 1});
         registry.add_component(star, cpnt::Star{randf()});
+    }
+    
+    // Create enemies
+    constexpr int k_spawn_margin = 100;
+    constexpr float k_enemy_sprite_x = 5.0f;
+    constexpr float k_enemy_sprite_y = 6.0f;
+    constexpr float k_enemy_sprite_width = 21.0f;
+    constexpr float k_enemy_sprite_height = 23.0f;
+    constexpr float k_enemy_scale = 5.0f;
+    constexpr float k_enemy_base_speed = 3.0f;
+    constexpr float k_enemy_speed_variance = 5.0f;
+    constexpr int k_enemy_health = 3;
+    constexpr float k_enemy_hitbox_width = 15.0f;
+    constexpr float k_enemy_hitbox_height = 18.0f;
+    constexpr float k_pattern_base_speed = 201.0f;
+    constexpr float k_pattern_speed_variance = 3.0f;
+    constexpr int k_pattern_amplitude_max = 10;
+
+    engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
+    for (size_t i = 0; i < engine_ctx.k_max_charger; i++) {
+        auto enemy = engine_ctx.registry.spawn_entity();
+
+        float spawn_y = (float)GetRandomValue(k_spawn_margin, k_height - k_spawn_margin);
+        float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
+
+        // Position
+        engine_ctx.registry.add_component(enemy, engn::cpnt::Transform{spawn_x, spawn_y, 0, 0, 0, 0, 1, 1, 1});
+
+        // Velocity
+        engine_ctx.registry.add_component(
+            enemy, cpnt::Velocity{-(k_enemy_base_speed + randf() * k_enemy_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+
+        // Other components
+        engine_ctx.registry.add_component(enemy, cpnt::Enemy{});
+        engine_ctx.registry.add_component(
+            enemy, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y, k_enemy_sprite_width, k_enemy_sprite_height},
+                                k_enemy_scale,
+                                0,
+                                "enemy_ship"});
+        engine_ctx.registry.add_component(enemy, cpnt::Health{k_enemy_health, k_enemy_health});
+
+        // Create a **new MovementPattern instance** for this enemy
+        cpnt::MovementPattern pat;
+        pat.speed = k_pattern_base_speed + randf() * k_pattern_speed_variance;
+        pat.amplitude = (float)GetRandomValue(1, k_pattern_amplitude_max);
+        pat.frequency = dist(gen);
+        pat.timer = 1.f;
+        int pattern_nbr = GetRandomValue(0, 3);
+        switch (pattern_nbr) {
+            case 0:
+                pat.type = cpnt::MovementPattern::PatternType::ZigZag;
+                break;
+            case 1:
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
+                break;
+            case 2:
+                pat.type = cpnt::MovementPattern::PatternType::Sine;
+                break;
+            case 3:
+                pat.type = cpnt::MovementPattern::PatternType::Dive;
+                break;
+        }
+        pat.base_y = spawn_y;
+
+        engine_ctx.registry.add_component(enemy, std::move(pat));
+        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width, k_enemy_hitbox_height,
+                                                              k_enemy_sprite_width, k_enemy_sprite_height});
+    }
+
+    // Create shooters
+
+    constexpr float k_shooter_sprite_x = 87.0f;
+    constexpr float k_shooter_sprite_y = 67.0f;
+    constexpr float k_shooter_sprite_width = 22.0f;
+    constexpr float k_shooter_sprite_height = 18.0f;
+    constexpr float k_shooter_scale = 5.0f;
+    constexpr float k_shooter_base_speed = 3.0f;
+    constexpr float k_shooter_speed_variance = 5.0f;
+    constexpr int k_shooter_health = 3;
+    constexpr float k_shooter_hitbox_width = 15.0f;
+    constexpr float k_shooter_hitbox_height = 18.0f;
+
+    engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+
+    for (size_t i = 0; i < engine_ctx.k_max_shooter; i++) {
+        auto shooter = engine_ctx.registry.spawn_entity();
+
+        float spawn_y = (float)GetRandomValue(k_spawn_margin, k_height - k_spawn_margin);
+        float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
+
+        // Position
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55, 45, 0, 1, 1, 1});
+
+        // Velocity
+        engine_ctx.registry.add_component(
+            shooter, cpnt::Velocity{-(k_shooter_base_speed + randf() * k_shooter_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+
+        // Other components
+        engine_ctx.registry.add_component(shooter, cpnt::Shooter{0});
+        engine_ctx.registry.add_component(
+            shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y, k_shooter_sprite_width, k_shooter_sprite_height},
+                                k_shooter_scale,
+                                0,
+                                "shooter_sprite"});
+        engine_ctx.registry.add_component(shooter, cpnt::Health{k_shooter_health, k_shooter_health});
+
+        // Create a **new MovementPattern instance** for this shooter
+        cpnt::MovementPattern pat;
+        pat.speed = k_pattern_base_speed + randf() * k_pattern_speed_variance;
+        pat.amplitude = (float)GetRandomValue(1, k_pattern_amplitude_max);
+        pat.frequency = dist(gen);
+        pat.timer = 1.f;
+        int pattern_nbr = GetRandomValue(0, 3);
+        switch (pattern_nbr) {
+            case 0:
+                pat.type = cpnt::MovementPattern::PatternType::ZigZag;
+                break;
+            case 1:
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
+                break;
+            case 2:
+                pat.type = cpnt::MovementPattern::PatternType::Sine;
+                break;
+            case 3:
+                pat.type = cpnt::MovementPattern::PatternType::Dive;
+                break;
+        }
+        pat.base_y = spawn_y;
+
+        engine_ctx.registry.add_component(shooter, std::move(pat));
+        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width, k_shooter_hitbox_height,
+                                                              k_shooter_sprite_width, k_shooter_sprite_height});
     }
 }
