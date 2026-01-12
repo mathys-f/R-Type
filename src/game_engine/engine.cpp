@@ -46,6 +46,23 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
     }
 }
 
+void engn::EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    m_clients.push_back(client_endpoint);
+}
+
+void engn::EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::vector<asio::ip::udp::endpoint>::iterator it = std::find(m_clients.begin(), m_clients.end(), client_endpoint);
+    if (it != m_clients.end())
+        m_clients.erase(it);
+}
+
+std::vector<asio::ip::udp::endpoint> engn::EngineContext::get_clients() {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    return m_clients;
+}
+
 void EngineContext::add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader) {
     m_scenes_loaders[scene_id] = loader;
 }

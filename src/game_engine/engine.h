@@ -11,9 +11,12 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
+
+#include "networking/rtp/networking.h"
 
 #include "assets_manager.h"
 #include "ecs/registry.h"
@@ -55,6 +58,12 @@ class EngineContext {
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
     const size_t k_max_enemies = 8;
+
+    std::unique_ptr<net::Session> network_session;
+
+    void add_client(asio::ip::udp::endpoint client_endpoint);
+    void remove_client(asio::ip::udp::endpoint client_endpoint);
+    std::vector<asio::ip::udp::endpoint> get_clients();
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
@@ -106,6 +115,9 @@ class EngineContext {
     std::size_t m_current_tick = 0;
 
     std::unordered_map<size_t, std::vector<SnapshotRecord>> m_snapshots_history;
+
+    std::mutex m_clients_mutex;
+    std::vector<asio::ip::udp::endpoint> m_clients;
 };
 
 } // namespace engn
