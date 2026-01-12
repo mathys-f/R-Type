@@ -39,10 +39,8 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
             auto& vel = reg.get_components<cpnt::Velocity>()[idx];
 
             if (pos && vel_opt) {
-                //pos->x += vel_opt->vx;
-                //pos->y += vel_opt->vy;
-                pos->x = 520;
-                pos->y = 300;
+                pos->x += vel_opt->vx;
+                pos->y += vel_opt->vy;
                 // Respawn if off screen or dead
                 if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
                     if (pos->x > k_offscreen_left) {
