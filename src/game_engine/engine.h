@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <unordered_map>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
@@ -63,7 +64,10 @@ class EngineContext {
 
     void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
-    std::vector<asio::ip::udp::endpoint> get_clients();
+    std::unordered_map<std::size_t, asio::ip::udp::endpoint> get_clients();
+
+    void record_snapshot(SnapshotRecord &snapshot);
+    const SnapshotRecord& get_latest_snapshot(std::size_t player_id) const;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
@@ -88,9 +92,6 @@ class EngineContext {
 
     std::size_t get_current_tick() const;
 
-    const SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
-    void record_snapshot(SnapshotRecord &snapshot);
-
     // System registration / execution
     /// Register a system that accepts const views to the requested
     /// component storages. The callable should accept `(Registry&, const
@@ -114,10 +115,10 @@ class EngineContext {
 
     std::size_t m_current_tick = 0;
 
-    std::unordered_map<size_t, std::vector<SnapshotRecord>> m_snapshots_history;
+    std::unordered_map<std::size_t, std::vector<SnapshotRecord>> m_snapshots_history;
 
     std::mutex m_clients_mutex;
-    std::vector<asio::ip::udp::endpoint> m_clients;
+    std::unordered_map<std::size_t, asio::ip::udp::endpoint> m_clients;
 };
 
 } // namespace engn

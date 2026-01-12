@@ -58,7 +58,7 @@ void engn::EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint)
         m_clients.erase(it);
 }
 
-std::vector<asio::ip::udp::endpoint> engn::EngineContext::get_clients() {
+std::unordered_map<std::size_t, asio::ip::udp::endpoint> engn::EngineContext::get_clients() {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     return m_clients;
 }
