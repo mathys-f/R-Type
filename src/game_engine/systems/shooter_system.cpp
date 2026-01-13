@@ -58,7 +58,7 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                     if (pos->x > k_offscreen_left) {
                         auto explosion = reg.spawn_entity();
                         reg.add_component(explosion,
-                                          cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                                          cpnt::Transform{pos->x, pos->y, 0.0f, 55.f, 45.f, 0.0f, 1.0f, 1.0f, 1.0f});
                         reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
                                                                    k_large_explosion_h},
                                                                   k_large_explosion_scale,
@@ -85,7 +85,7 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
 
             // Shoot projectiles at player
             shot->timer += dt;
-            if (shot->timer >= 1.0f) {
+            if (shot->timer >= 1.0f && pos_opt->x < ctx.k_window_size.x) {
                 float dx = 0.0f;
                 float dy = 0.0f;
                 for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, player)) {
@@ -103,10 +103,10 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                 float vx = dirX * speed;
                 float vy = dirY * speed;
                 auto bullet = reg.spawn_entity();
-                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, 16.f/2, 8.0f/2, 0.0f, 1.0f, 1.0f, 1.0f});
                 reg.add_component(bullet, cpnt::Velocity{vx, vy, vel->vz + 180.0f, 0.0f, 0.0f, 0.0f});
                 reg.add_component(bullet, cpnt::Bullet_shooter{});
-                reg.add_component(bullet, cpnt::Hitbox{10.0f, 10.0f, 16.0f, 8.0f});
+                reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});
                 reg.add_component(
                     bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                  k_bullet_scale,

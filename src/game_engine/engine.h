@@ -54,21 +54,21 @@ class EngineContext {
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
-    const size_t k_max_charger = 0;
-    const size_t k_max_shooter = 5;
+    const size_t k_max_charger = 5;
+    const size_t k_max_shooter = 2;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
     unsigned char settings_return_scene = 1;
-    int master_volume = 100;
-    int music_volume = 100;
-    int sfx_volume = 100;
-    int last_master_volume = 100;
-    int last_music_volume = 100;
-    int last_sfx_volume = 100;
-    bool master_muted = false;
-    bool music_muted = false;
-    bool sfx_muted = false;
+    int master_volume = 0;
+    int music_volume = 0;
+    int sfx_volume = 0;
+    int last_master_volume = 0;
+    int last_music_volume = 0;
+    int last_sfx_volume = 0;
+    bool master_muted = true;
+    bool music_muted = true;
+    bool sfx_muted = true;
 
     std::string server_ip;
     std::uint16_t server_port;

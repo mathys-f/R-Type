@@ -26,7 +26,6 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
         if (!posplay_opt || !play_opt)
             continue;
         auto& posplay = reg.get_components<cpnt::Transform>()[idx].value();
-        printf("Player position x: %f, y: %f\n", posplay.x, posplay.y);
     }
 
     for (auto [idx, pos_opt, pat_opt, shot_opt] : ecs::indexed_zipper(positions, patterns, shooters)) {

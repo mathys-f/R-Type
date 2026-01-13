@@ -29,7 +29,8 @@ void bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                       ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
-                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes);
+                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
+                      ecs::SparseArray<cpnt::Shooter> const& shooters);
 
 void enemy_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::MovementPattern> const& patterns,

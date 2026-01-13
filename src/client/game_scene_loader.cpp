@@ -69,7 +69,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet_shooter>(sys::bullet_shooter_system);
 
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::Bullet_shooter, cpnt::Shooter>(
         sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
@@ -111,7 +111,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.registry.add_component(player, cpnt::Health{k_player_health, k_player_health});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     engine_ctx.registry.add_component(
-        player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 1.2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});
+        player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});
 
     // Create stars
     for (int i = 0; i < engine_ctx.k_stars; i++) {
@@ -212,7 +212,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Position
-        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55, 45, 0, 1, 1, 1});
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1, 1});
 
         // Velocity
         engine_ctx.registry.add_component(
@@ -236,23 +236,23 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         int pattern_nbr = GetRandomValue(0, 3);
         switch (pattern_nbr) {
             case 0:
-                pat.type = cpnt::MovementPattern::PatternType::ZigZag;
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
                 break;
             case 1:
                 pat.type = cpnt::MovementPattern::PatternType::Straight;
                 break;
             case 2:
-                pat.type = cpnt::MovementPattern::PatternType::Sine;
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
                 break;
             case 3:
-                pat.type = cpnt::MovementPattern::PatternType::Dive;
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
                 break;
         }
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(shooter, std::move(pat));
-        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * k_shooter_scale, k_shooter_hitbox_height * k_shooter_scale,
-                                                              k_shooter_sprite_width * 2, k_shooter_sprite_height / 2});
+        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2), k_shooter_hitbox_height * (k_shooter_scale + 2),
+                                                              -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
     }
 
     // lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(),
