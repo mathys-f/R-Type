@@ -1,7 +1,5 @@
 add_executable(server)
 
-find_package(Boost 1.84 REQUIRED COMPONENTS date_time)
-
 file(GLOB_RECURSE SERVER_SOURCES "*.cpp")
 
 target_sources(server PRIVATE ${SERVER_SOURCES})

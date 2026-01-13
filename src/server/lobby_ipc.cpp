@@ -1,8 +1,8 @@
 #include "lobby_ipc.h"
 #include "utils/logger.h"
 
-#include <boost/interprocess/ipc/message_queue.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include "boost/interprocess/ipc/message_queue.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace ipc {
 
@@ -48,8 +48,7 @@ bool LobbyIPC::try_receive_from_lobby(IPCMessage& msg, unsigned int timeout_ms) 
         if (timeout_ms == 0) {
             return m_lobby_to_main_queue->try_receive(&msg, k_message_size, recvd_size, priority);
         } else {
-            boost::posix_time::ptime timeout =
-                boost::posix_time::microsec_clock::universal_time() +
+            auto timeout = boost::posix_time::microsec_clock::universal_time() +
                 boost::posix_time::milliseconds(timeout_ms);
 
             return m_lobby_to_main_queue->timed_receive(&msg, k_message_size, recvd_size, priority, timeout);
@@ -82,8 +81,7 @@ bool LobbyIPC::try_receive_from_main(IPCMessage& msg, unsigned int timeout_ms) {
         if (timeout_ms == 0) {
             return m_main_to_lobby_queue->try_receive(&msg, k_message_size, recvd_size, priority);
         } else {
-            boost::posix_time::ptime timeout =
-                boost::posix_time::microsec_clock::universal_time() +
+            auto timeout = boost::posix_time::microsec_clock::universal_time() +
                 boost::posix_time::milliseconds(timeout_ms);
 
             return m_main_to_lobby_queue->timed_receive(&msg, k_message_size, recvd_size, priority, timeout);
