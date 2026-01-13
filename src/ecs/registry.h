@@ -19,9 +19,16 @@ namespace ecs {
 ///   arrays (SparseArray).
 /// - Manages entity creation / recycling.
 /// - Allows systems to be registered and executed with bound component views.
+/// - Keeps metadata about creation, destruction & modification of entities and components.
 class Registry {
   public:
     using EntityType = Entity;
+    using Version = std::uint32_t;
+
+    struct ComponentMetadata {
+        bool dirty = false;
+        Version version = 0;
+    };
 
     // Component registration / access
     /// Register storage for a component type if not already present.
@@ -97,6 +104,29 @@ class Registry {
     /// @return Const reference to the tag registry.
     const TagRegistry& get_tag_registry() const noexcept;
 
+    /// Set current version (Used to track changes).
+    /// @param v The new version to set.
+    void set_current_version(Version v) noexcept;
+
+    /// Mark an entitie's component has dirty
+    /// This must be called each time you modify a component you need to track (eg. for networking).
+    /// @param e The entity whose component is dirty.
+    /// @tparam TComponent The component type to mark as dirty.
+    template <typename TComponent>
+    void mark_dirty(EntityType const& e);
+
+    const std::unordered_map<EntityType, Version>& get_entity_creation_tombstones() const noexcept;
+    const std::unordered_map<EntityType, Version>& get_entity_destruction_tombstones() const noexcept;
+    const std::unordered_map<EntityType,
+        std::unordered_map<std::type_index, Version>>&
+        get_component_destruction_tombstones() const noexcept;
+    const std::unordered_map<std::pair<EntityType, std::type_index>, ComponentMetadata>&
+        get_component_metadata() const noexcept;
+
+    void remove_entity_creation_tombstone(EntityType const& e);
+    void remove_entity_destruction_tombstone(EntityType const& e);
+    void remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti);
+
   private:
     // Tag registry
     TagRegistry tag_registry;
@@ -116,6 +146,21 @@ class Registry {
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
+
+    // Current version counter
+    Version m_current_version = 0;
+
+    // Tumbstones to track created entities
+    std::unordered_map<EntityType, Version> m_entity_creation_tumbstones;
+    // Tumbstones to track destroyed entities
+    std::unordered_map<EntityType, Version> m_entity_destruction_tumbstones;
+    // Tumbstones to track destroyed components per entity
+    std::unordered_map<EntityType,
+        std::unordered_map<std::type_index, Version>>
+        m_component_destruction_tombstones;
+
+    // Metadats about entity's components
+    std::unordered_map<std::pair<EntityType, std::type_index>, ComponentMetadata> m_component_metadata;
 };
 
 } // namespace ecs

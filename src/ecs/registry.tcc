@@ -4,6 +4,13 @@
 
 namespace ecs {
 
+/// Set current version (Used to track changes).
+/// @param v The new version to set.
+template <typename TComponent> inline void Registry::mark_dirty(EntityType const& e) {
+    m_component_metadata[{e, std::type_index(typeid(TComponent))}].dirty = true;
+    m_component_metadata[{e, std::type_index(typeid(TComponent))}].version = m_current_version;
+}
+
 /// Ensure storage exists for `Component` and return a reference to it.
 /// @tparam TComponent The component type to register/access.
 /// @return Reference to the corresponding `SparseArray<TComponent>`.
@@ -73,6 +80,10 @@ typename SparseArray<TComponent>::ReferenceType Registry::add_component(EntityTy
     register_component<TComponent>();
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(to));
+
+    m_component_metadata[{to, std::type_index(typeid(TComponent))}].dirty = true;
+    m_component_metadata[{to, std::type_index(typeid(TComponent))}].version = m_current_version;
+
     return arr.insert_at(idx, std::forward<TComponent>(c));
 }
 
@@ -85,6 +96,10 @@ typename SparseArray<TComponent>::ReferenceType Registry::emplace_component(Enti
     register_component<TComponent>();
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(to));
+
+    m_component_metadata[{to, std::type_index(typeid(TComponent))}].dirty = true;
+    m_component_metadata[{to, std::type_index(typeid(TComponent))}].version = m_current_version;
+
     return arr.emplace_at(idx, std::forward<TParams>(p)...);
 }
 
@@ -94,6 +109,9 @@ typename SparseArray<TComponent>::ReferenceType Registry::emplace_component(Enti
 template <typename TComponent> void Registry::remove_component(EntityType const& from) {
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(from));
+
+    m_component_destruction_tombstones[from][std::type_index(typeid(TComponent))] = m_current_version;
+
     arr.erase(idx);
 }
 

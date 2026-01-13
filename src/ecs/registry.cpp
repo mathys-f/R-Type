@@ -4,12 +4,51 @@
 
 using namespace ecs;
 
+void ecs::Registry::set_current_version(Version v) noexcept {
+    m_current_version = v;
+}
+
+const std::unordered_map<Registry::EntityType, Registry::Version>& ecs::Registry::get_entity_creation_tombstones() const noexcept {
+    return m_entity_creation_tumbstones;
+}
+
+const std::unordered_map<Registry::EntityType, Registry::Version>& ecs::Registry::get_entity_destruction_tombstones() const noexcept {
+    return m_entity_destruction_tumbstones;
+}
+
+const std::unordered_map<Registry::EntityType, std::unordered_map<std::type_index, Registry::Version>>&
+ecs::Registry::get_component_destruction_tombstones() const noexcept {
+    return m_component_destruction_tombstones;
+}
+
+const std::unordered_map<std::pair<Registry::EntityType, std::type_index>, Registry::ComponentMetadata>&
+ecs::Registry::get_component_metadata() const noexcept {
+    m_component_metadata;
+}
+
+void ecs::Registry::remove_entity_creation_tombstone(EntityType const& e) {
+    if (m_entity_creation_tumbstones.find(e) != m_entity_creation_tumbstones.end())
+        m_entity_creation_tumbstones.erase(e);
+}
+
+void ecs::Registry::remove_entity_destruction_tombstone(EntityType const& e) {
+    if (m_entity_destruction_tumbstones.find(e) != m_entity_destruction_tumbstones.end())
+        m_entity_destruction_tumbstones.erase(e);
+}
+
+void ecs::Registry::remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti) {
+    if (m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end()
+        && m_component_destruction_tombstones.find(e)->second.find(ti) != m_component_destruction_tombstones.find(e)->second.end())
+        m_component_destruction_tombstones.find(e)->second.erase(ti);
+}
+
 Registry::EntityType Registry::spawn_entity() {
     if (!m_free_entities.empty()) {
         EntityType e = m_free_entities.back();
         m_free_entities.pop_back();
         return e;
     }
+    m_entity_creation_tumbstones[EntityType{m_next_entity}] = m_current_version;
     return EntityType{m_next_entity++};
 }
 
@@ -22,6 +61,7 @@ void Registry::kill_entity(EntityType const& e) {
         if (fn)
             fn(*this, e);
     }
+    m_entity_destruction_tumbstones[e] = m_current_version;
     m_free_entities.push_back(e);
 }
 
@@ -52,3 +92,4 @@ TagRegistry& Registry::get_tag_registry() noexcept {
 const TagRegistry& Registry::get_tag_registry() const noexcept {
     return tag_registry;
 }
+
