@@ -31,11 +31,10 @@ static void fetch_controller_trigger_events(evts::EventQueue<evts::Event>&, int)
 
 const std::vector<std::string> k_controllers = {"Xbox", "DualShock", "DualSense"};
 
-static int s_previous_gamepad_id = -1;
-
 void sys::fetch_inputs(EngineContext& ctx) {
     auto& input_events = ctx.input_event_queue;
     int gamepad_id = -1;
+    static int s_previous_gamepad_id = -1;
 
     for (int i = 0; i < k_max_gamepad_id; i++) {
         if (!IsGamepadAvailable(i))
