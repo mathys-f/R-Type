@@ -32,8 +32,9 @@ class NetworkClient {
     void set_on_reliable(OnPacketCallback callback);
     void set_on_unreliable(OnPacketCallback callback);
     void poll();
-    void send_reliable(const net::Packet& packet);
+    std::uint32_t send_reliable(const net::Packet& packet);
     void send_unreliable(const net::Packet& packet);
+    bool is_message_acknowledged(std::uint32_t id) const;
     void disconnect();
     bool is_connected() const {
         return m_connected.load();
@@ -50,6 +51,7 @@ class NetworkClient {
     std::atomic<bool> m_running{false};
     std::atomic<bool> m_connected{false};
     uint32_t m_player_id{0};
+    asio::ip::udp::endpoint m_server_endpoint{};
     OnLoginCallback m_on_login;
     OnPacketCallback m_on_reliable;
     OnPacketCallback m_on_unreliable;

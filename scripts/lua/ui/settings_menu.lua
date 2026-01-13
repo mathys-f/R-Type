@@ -25,8 +25,97 @@ local styles = {
         border_color_pressed =      {r = 0, g = 0, b = 0, a = 0},
         border_radius = 0,
         border_thickness = 0
+    },
+    nav_panel = {
+        background_color =          {r = 20,  g = 20,  b = 20,  a = 255},
+        background_color_hovered =  {r = 20,  g = 20,  b = 20,  a = 255},
+        background_color_pressed =  {r = 20,  g = 20,  b = 20,  a = 255},
+        text_color =                {r = 200, g = 200, b = 200, a = 255},
+        text_color_hovered =        {r = 200, g = 200, b = 200, a = 255},
+        text_color_pressed =        {r = 200, g = 200, b = 200, a = 255},
+        border_color =              {r = 60, g = 60, b = 60, a = 255},
+        border_color_hovered =      {r = 60, g = 60, b = 60, a = 255},
+        border_color_pressed =      {r = 60, g = 60, b = 60, a = 255},
+        border_radius = 0,
+        border_thickness = 2
     }
 }
+
+Create_ui_text(4, "nav_panel", {
+    content = "",
+    font_size = 1
+})
+
+Set_ui_style(4, "nav_panel", styles.nav_panel)
+
+Set_ui_transform(4, "nav_panel", {
+    x = 0,
+    y = 0,
+    z = 0,
+    w = 220,
+    h = 720,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_text(4, "nav_title", {
+    content = "Settings",
+    font_size = 28
+})
+
+Set_ui_style(4, "nav_title", styles.title)
+
+Set_ui_transform(4, "nav_title", {
+    x = 25,
+    y = 25,
+    z = 0,
+    w = 170,
+    h = 40,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button(4, "nav_controls_button")
+
+Set_ui_style(4, "nav_controls_button", styles.main_menu)
+
+Set_ui_text(4, "nav_controls_button", {
+    content = "Controls",
+    font_size = 20
+})
+
+Set_ui_transform(4, "nav_controls_button", {
+    x = 20,
+    y = 90,
+    z = 0,
+    w = 180,
+    h = 45,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button(4, "nav_audio_button")
+
+Set_ui_style(4, "nav_audio_button", styles.main_menu)
+
+Set_ui_text(4, "nav_audio_button", {
+    content = "Audio",
+    font_size = 20
+})
+
+Set_ui_transform(4, "nav_audio_button", {
+    x = 20,
+    y = 155,
+    z = 0,
+    w = 180,
+    h = 45,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
 
 Create_ui_text(4, "settings_title", {
     content = "Settings",
@@ -36,10 +125,10 @@ Create_ui_text(4, "settings_title", {
 Set_ui_style(4, "settings_title", styles.title)
 
 Set_ui_transform(4, "settings_title", {
-    x = 60,
+    x = 260,
     y = 10,
     z = 0,
-    w = 700,
+    w = 760,
     h = 120,
     anchor_x = 0,
     anchor_y = 0,
@@ -54,7 +143,7 @@ Create_ui_text(4, "controls_title", {
 Set_ui_style(4, "controls_title", styles.title)
 
 Set_ui_transform(4, "controls_title", {
-    x = 80,
+    x = 260,
     y = 160,
     z = 0,
     w = 600,
@@ -72,10 +161,10 @@ Create_ui_text(4, "mapping_move_up", {
 Set_ui_style(4, "mapping_move_up", styles.title)
 
 Set_ui_transform(4, "mapping_move_up", {
-    x = 100,
+    x = 260,
     y = 230,
     z = 0,
-    w = 520,
+    w = 460,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -92,10 +181,10 @@ Set_ui_text(4, "rebind_move_up", {
 })
 
 Set_ui_transform(4, "rebind_move_up", {
-    x = 700,
+    x = 760,
     y = 225,
     z = 0,
-    w = 180,
+    w = 200,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -110,10 +199,10 @@ Create_ui_text(4, "mapping_move_down", {
 Set_ui_style(4, "mapping_move_down", styles.title)
 
 Set_ui_transform(4, "mapping_move_down", {
-    x = 100,
+    x = 260,
     y = 290,
     z = 0,
-    w = 520,
+    w = 460,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -130,10 +219,10 @@ Set_ui_text(4, "rebind_move_down", {
 })
 
 Set_ui_transform(4, "rebind_move_down", {
-    x = 700,
+    x = 760,
     y = 285,
     z = 0,
-    w = 180,
+    w = 200,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -148,10 +237,10 @@ Create_ui_text(4, "mapping_move_left", {
 Set_ui_style(4, "mapping_move_left", styles.title)
 
 Set_ui_transform(4, "mapping_move_left", {
-    x = 100,
+    x = 260,
     y = 350,
     z = 0,
-    w = 520,
+    w = 460,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -168,10 +257,10 @@ Set_ui_text(4, "rebind_move_left", {
 })
 
 Set_ui_transform(4, "rebind_move_left", {
-    x = 700,
+    x = 760,
     y = 345,
     z = 0,
-    w = 180,
+    w = 200,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -186,10 +275,10 @@ Create_ui_text(4, "mapping_move_right", {
 Set_ui_style(4, "mapping_move_right", styles.title)
 
 Set_ui_transform(4, "mapping_move_right", {
-    x = 100,
+    x = 260,
     y = 410,
     z = 0,
-    w = 520,
+    w = 460,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -206,10 +295,10 @@ Set_ui_text(4, "rebind_move_right", {
 })
 
 Set_ui_transform(4, "rebind_move_right", {
-    x = 700,
+    x = 760,
     y = 405,
     z = 0,
-    w = 180,
+    w = 200,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -224,10 +313,10 @@ Create_ui_text(4, "mapping_shoot", {
 Set_ui_style(4, "mapping_shoot", styles.title)
 
 Set_ui_transform(4, "mapping_shoot", {
-    x = 100,
+    x = 260,
     y = 470,
     z = 0,
-    w = 520,
+    w = 460,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -244,10 +333,10 @@ Set_ui_text(4, "rebind_shoot", {
 })
 
 Set_ui_transform(4, "rebind_shoot", {
-    x = 700,
+    x = 760,
     y = 465,
     z = 0,
-    w = 180,
+    w = 200,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -262,10 +351,10 @@ Create_ui_text(4, "rebind_prompt", {
 Set_ui_style(4, "rebind_prompt", styles.title)
 
 Set_ui_transform(4, "rebind_prompt", {
-    x = 100,
+    x = 260,
     y = 540,
     z = 0,
-    w = 780,
+    w = 760,
     h = 40,
     anchor_x = 0,
     anchor_y = 0,
@@ -282,7 +371,7 @@ Set_ui_text(4, "back_button", {
 })
 
 Set_ui_transform(4, "back_button", {
-    x = 25,
+    x = 260,
     y = 650,
     z = 0,
     w = 100,
@@ -302,7 +391,7 @@ Set_ui_text(4, "exit_button", {
 })
 
 Set_ui_transform(4, "exit_button", {
-    x = 155,
+    x = 390,
     y = 650,
     z = 0,
     w = 100,
@@ -322,7 +411,7 @@ Set_ui_text(4, "main_menu_button", {
 })
 
 Set_ui_transform(4, "main_menu_button", {
-    x = 285,
+    x = 520,
     y = 650,
     z = 0,
     w = 120,

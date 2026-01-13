@@ -48,8 +48,8 @@ struct WorldSnapshot {
 // This wrapper adds metadata to the WorldSnapshot
 struct SnapshotRecord {
     WorldSnapshot snapshot;
-    bool aknowledged = false;
+    bool acknowledged = false;
     std::uint32_t last_update_tick;
 };
 
-} // namspace engn
+} // namespace engn
