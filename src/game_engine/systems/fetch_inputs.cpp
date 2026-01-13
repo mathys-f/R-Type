@@ -9,7 +9,7 @@
 using namespace engn;
 
 namespace {
-constexpr int k_max_gamepad_id = 25;
+constexpr int k_max_gamepad_id = 4;
 constexpr float k_input_threshold = 0.1f;
 } // namespace
 
@@ -31,11 +31,11 @@ static void fetch_controller_trigger_events(evts::EventQueue<evts::Event>&, int)
 
 const std::vector<std::string> k_controllers = {"Xbox", "DualShock", "DualSense"};
 
+static int s_previous_gamepad_id = -1;
+
 void sys::fetch_inputs(EngineContext& ctx) {
     auto& input_events = ctx.input_event_queue;
     int gamepad_id = -1;
-    int fallback_gamepad_id = -1;
-    std::string fallback_gamepad_name;
 
     for (int i = 0; i < k_max_gamepad_id; i++) {
         if (!IsGamepadAvailable(i))
@@ -48,10 +48,6 @@ void sys::fetch_inputs(EngineContext& ctx) {
             continue;
 
         std::string n(name);
-        if (fallback_gamepad_id == -1) {
-            fallback_gamepad_id = i;
-            fallback_gamepad_name = n;
-        }
         for (const auto& cname : k_controllers) {
             if (n.find(cname) != std::string::npos) {
                 gamepad_id = i;
@@ -59,17 +55,20 @@ void sys::fetch_inputs(EngineContext& ctx) {
             }
         }
     }
-    if (gamepad_id == -1 && fallback_gamepad_id != -1) {
-        LOG_WARNING("Unknown gamepad '{}', falling back to first available device", fallback_gamepad_name);
-        gamepad_id = fallback_gamepad_id;
-    }
-    if (gamepad_id != -1) {
-        const char* name = GetGamepadName(gamepad_id);
-        if (name) {
-            LOG_INFO("Gamepad detected: '{}' (id {})", name, gamepad_id);
-        } else {
-            LOG_INFO("Gamepad detected with id {}", gamepad_id);
+    
+    // Log only when gamepad state changes
+    if (gamepad_id != s_previous_gamepad_id) {
+        if (gamepad_id != -1) {
+            const char* name = GetGamepadName(gamepad_id);
+            if (name) {
+                LOG_INFO("Gamepad detected: '{}' (id {})", name, gamepad_id);
+            } else {
+                LOG_INFO("Gamepad detected with id {}", gamepad_id);
+            }
+        } else if (s_previous_gamepad_id != -1) {
+            LOG_INFO("Gamepad disconnected (id {})", s_previous_gamepad_id);
         }
+        s_previous_gamepad_id = gamepad_id;
     }
 
     input_events.clear();
