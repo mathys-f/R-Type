@@ -126,6 +126,15 @@ if(asio_ADDED)
     target_link_libraries(asio INTERFACE Threads::Threads)
 endif()
 
+CPMAddPackage(
+    NAME Boost
+    VERSION 1.84.0
+    URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
+    OPTIONS
+        "BOOST_ENABLE_CMAKE ON"
+        "BOOST_INCLUDE_LIBRARIES interprocess\\;system\\;filesystem"
+)
+
 # Only for Debug builds
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     find_program(CLANG_TIDY_EXE NAMES clang-tidy)

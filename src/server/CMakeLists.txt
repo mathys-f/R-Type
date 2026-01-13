@@ -8,6 +8,7 @@ target_include_directories(server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../game_engine
+    ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(server PRIVATE ecs networking game_engine raylib glm lua sol2)
