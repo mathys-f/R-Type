@@ -9,7 +9,7 @@
 using namespace engn;
 
 namespace {
-constexpr int k_max_gamepad_id = 25;
+constexpr int k_max_gamepad_id = 4;
 constexpr float k_input_threshold = 0.1f;
 } // namespace
 
@@ -34,6 +34,7 @@ const std::vector<std::string> k_controllers = {"Xbox", "DualShock", "DualSense"
 void sys::fetch_inputs(EngineContext& ctx) {
     auto& input_events = ctx.input_event_queue;
     int gamepad_id = -1;
+    static int s_previous_gamepad_id = -1;
 
     for (int i = 0; i < k_max_gamepad_id; i++) {
         if (!IsGamepadAvailable(i))
@@ -52,6 +53,20 @@ void sys::fetch_inputs(EngineContext& ctx) {
                 break;
             }
         }
+    }
+
+    if (gamepad_id != s_previous_gamepad_id) {
+        if (gamepad_id != -1) {
+            const char* name = GetGamepadName(gamepad_id);
+            if (name) {
+                LOG_INFO("Gamepad detected: '{}' (id {})", name, gamepad_id);
+            } else {
+                LOG_INFO("Gamepad detected with id {}", gamepad_id);
+            }
+        } else if (s_previous_gamepad_id != -1) {
+            LOG_INFO("Gamepad disconnected (id {})", s_previous_gamepad_id);
+        }
+        s_previous_gamepad_id = gamepad_id;
     }
 
     input_events.clear();

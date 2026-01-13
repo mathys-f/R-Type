@@ -11,5 +11,6 @@ void handle_main_menu_ui_events(engn::EngineContext& ctx);
 void handle_lobby_ui_events(engn::EngineContext& ctx);
 void handle_connection_menu_ui_events(engn::EngineContext& ctx);
 void handle_settings_menu_ui_events(engn::EngineContext& ctx);
+void handle_gamepad_menu_ui_events(engn::EngineContext& ctx);
 void handle_game_pause_inputs(engn::EngineContext& ctx);
 void handle_volume_menu_ui_events(engn::EngineContext& ctx);

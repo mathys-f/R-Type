@@ -82,7 +82,7 @@ Create_ui_button(5, "nav_controls_button")
 Set_ui_style(5, "nav_controls_button", styles.main_menu)
 
 Set_ui_text(5, "nav_controls_button", {
-    content = "Controls",
+    content = "Keyboard",
     font_size = 20
 })
 
@@ -107,6 +107,26 @@ Set_ui_text(5, "nav_audio_button", {
 })
 
 Set_ui_transform(5, "nav_audio_button", {
+    x = 20,
+    y = 220,
+    z = 0,
+    w = 180,
+    h = 45,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button(5, "nav_gamepad_button")
+
+Set_ui_style(5, "nav_gamepad_button", styles.main_menu)
+
+Set_ui_text(5, "nav_gamepad_button", {
+    content = "Controller",
+    font_size = 20
+})
+
+Set_ui_transform(5, "nav_gamepad_button", {
     x = 20,
     y = 155,
     z = 0,
