@@ -2,7 +2,8 @@
 #include "utils/logger.h"
 
 #include "boost/interprocess/ipc/message_queue.hpp"
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
+#include <thread>
 
 namespace ipc {
 
@@ -48,10 +49,18 @@ bool LobbyIPC::try_receive_from_lobby(IPCMessage& msg, unsigned int timeout_ms) 
         if (timeout_ms == 0) {
             return m_lobby_to_main_queue->try_receive(&msg, k_message_size, recvd_size, priority);
         } else {
-            auto timeout = boost::posix_time::microsec_clock::universal_time() +
-                boost::posix_time::milliseconds(timeout_ms);
-
-            return m_lobby_to_main_queue->timed_receive(&msg, k_message_size, recvd_size, priority, timeout);
+            auto start = std::chrono::steady_clock::now();
+            while (true) {
+                if (m_lobby_to_main_queue->try_receive(&msg, k_message_size, recvd_size, priority)) {
+                    return true;
+                }
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - start).count();
+                if (elapsed >= timeout_ms) {
+                    return false;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
         }
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Error receiving from lobby {}: {}", m_lobby_id, e.what());
@@ -81,10 +90,18 @@ bool LobbyIPC::try_receive_from_main(IPCMessage& msg, unsigned int timeout_ms) {
         if (timeout_ms == 0) {
             return m_main_to_lobby_queue->try_receive(&msg, k_message_size, recvd_size, priority);
         } else {
-            auto timeout = boost::posix_time::microsec_clock::universal_time() +
-                boost::posix_time::milliseconds(timeout_ms);
-
-            return m_main_to_lobby_queue->timed_receive(&msg, k_message_size, recvd_size, priority, timeout);
+            auto start = std::chrono::steady_clock::now();
+            while (true) {
+                if (m_main_to_lobby_queue->try_receive(&msg, k_message_size, recvd_size, priority)) {
+                    return true;
+                }
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - start).count();
+                if (elapsed >= timeout_ms) {
+                    return false;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
         }
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Error receiving from main server: {}", e.what());
