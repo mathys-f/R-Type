@@ -13,7 +13,6 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
     const ecs::Registry &registry)
 {
     WorldDelta delta_snapshot;
-    ecs::Registry::Version current_version = registry.get_current_version();
 
     // New entities
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
@@ -32,15 +31,28 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         ecs::Entity entity = identifier.first;
         std::type_index type_idx = identifier.second;
 
-        // These tests should never fail, but just in case...
-        if (std::find(current.entities.begin(), current.entities.end(), entity.value()) == current.entities.end()) {
+        // Find the entity in the snapshot
+        auto entity_it = std::find_if(current.entities.begin(), current.entities.end(),
+            [entity](const EntitySnapshot& snapshot) {
+                return snapshot.entity_id == entity.value();
+            }
+        );
+
+        // Ensure the entity exists in the snapshot
+        if ( entity_it == current.entities.end()) {
             LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
             continue;
         }
-        if (std::find(current.entities[entity.value()].components.begin(),
-                      current.entities[entity.value()].components.end(),
-                      k_type_index_to_component_type_map.at(type_idx)) ==
-            current.entities[entity.value()].components.end()) {
+
+        // Find the component in the entity
+        auto comp_it = std::find_if(entity_it->components.begin(), entity_it->components.end(),
+            [type_idx](const SerializedComponent& comp) {
+                return comp.type == k_type_index_to_component_type_map.at(type_idx);
+            }
+        );
+
+        // Ensure the component exists in the entity
+        if (comp_it == entity_it->components.end()) {
             LOG_ERROR("Component of type {} for entity {} not found in current snapshot while computing delta",
                 static_cast<std::uint8_t>(k_type_index_to_component_type_map.at(type_idx)),
                 entity.value());
@@ -50,8 +62,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         DeltaEntry entry;
         entry.operation = DeltaOperation::component_add_or_update;
         entry.entity_id = static_cast<std::uint32_t>(entity.value());
-        entry.component = current.entities[entity.value()].components
-            .at(k_type_index_to_component_type_map.at(type_idx));
+        entry.component = *comp_it;
         delta_snapshot.entries.push_back(entry);
     }
 
@@ -63,7 +74,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
             DeltaEntry entry;
             entry.operation = DeltaOperation::component_remove;
             entry.entity_id = static_cast<std::uint32_t>(id.value());
-            entry.component.type = k_type_index_to_component_type_map.at(component);
+            entry.component_type = k_type_index_to_component_type_map.at(component);
             delta_snapshot.entries.push_back(entry);
         }
     }
@@ -80,6 +91,9 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
 
     return delta_snapshot;
 }
+
+
+
 
 void sys::send_snapshot_to_client(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)

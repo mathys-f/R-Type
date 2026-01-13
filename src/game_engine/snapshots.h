@@ -70,7 +70,7 @@ struct DeltaEntry {
 };
 
 struct WorldDelta {
-    std::uint32_t base_snapshot_tick;
+    std::uint32_t base_snapshot_tick = 0;  // Initialize with default value
     std::vector<DeltaEntry> entries;
 
     std::byte* serialize() const;
