@@ -111,7 +111,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.registry.add_component(player, cpnt::Health{k_player_health, k_player_health});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     engine_ctx.registry.add_component(
-        player, cpnt::Hitbox{ship_source_rect.height * 2, ship_source_rect.width * 2, k_ship_width, k_ship_height});
+        player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 1.2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});
 
     // Create stars
     for (int i = 0; i < engine_ctx.k_stars; i++) {
@@ -185,7 +185,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(enemy, std::move(pat));
-        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width, k_enemy_hitbox_height,
+        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale, k_enemy_hitbox_height * k_enemy_scale,
                                                               k_enemy_sprite_width, k_enemy_sprite_height});
     }
 
@@ -251,8 +251,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(shooter, std::move(pat));
-        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width, k_shooter_hitbox_height,
-                                                              k_shooter_sprite_width, k_shooter_sprite_height});
+        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * k_shooter_scale, k_shooter_hitbox_height * k_shooter_scale,
+                                                              k_shooter_sprite_width * 2, k_shooter_sprite_height / 2});
     }
 
     // lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(),

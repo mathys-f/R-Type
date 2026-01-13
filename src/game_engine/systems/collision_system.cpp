@@ -25,6 +25,15 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
     std::vector<ecs::Entity> bullets_to_kill;
     auto& reg = ctx.registry;
 
+    // Debug - show hitboxes
+    for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
+        if (pos_opt && hitbox_opt) {
+            Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
+                              hitbox_opt->width, hitbox_opt->height};
+            DrawRectangleLinesEx(rect, 2.0f, GREEN);
+        }
+    }
+
     // Get bullet entities
     for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets)) {
         if (bullet_pos_opt && bullet_tag_opt) {

@@ -106,7 +106,7 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                 reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                 reg.add_component(bullet, cpnt::Velocity{vx, vy, vel->vz + 180.0f, 0.0f, 0.0f, 0.0f});
                 reg.add_component(bullet, cpnt::Bullet_shooter{});
-                reg.add_component(bullet, cpnt::Hitbox{0.0f, 0.0f, 16.0f, 8.0f});
+                reg.add_component(bullet, cpnt::Hitbox{10.0f, 10.0f, 16.0f, 8.0f});
                 reg.add_component(
                     bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                  k_bullet_scale,
