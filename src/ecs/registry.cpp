@@ -8,6 +8,10 @@ void ecs::Registry::set_current_version(Version v) noexcept {
     m_current_version = v;
 }
 
+ecs::Registry::Version ecs::Registry::get_current_version() const noexcept {
+    return m_current_version;
+}
+
 const std::unordered_map<Registry::EntityType, Registry::Version>& ecs::Registry::get_entity_creation_tombstones() const noexcept {
     return m_entity_creation_tumbstones;
 }

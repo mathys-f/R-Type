@@ -118,6 +118,10 @@ class Registry {
     /// @param v The new version to set.
     void set_current_version(Version v) noexcept;
 
+    /// Get current version (Used to track changes).
+    /// @return The current version.
+    Version get_current_version() const noexcept;
+
     /// Mark an entitie's component has dirty
     /// This must be called each time you modify a component you need to track (eg. for networking).
     /// @param e The entity whose component is dirty.
