@@ -69,8 +69,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet_shooter>(sys::bullet_shooter_system);
 
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::Bullet_shooter, cpnt::Shooter>(
-        sys::collision_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::Bullet_shooter, cpnt::Shooter, cpnt::Stats>(sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
@@ -85,6 +84,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(handle_game_pause_inputs);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
+    engine_ctx.add_system<cpnt::Stats>(sys::stat_system);
 
     // Load assets
 
@@ -112,6 +112,12 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     engine_ctx.registry.add_component(
         player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});
+
+    // Create Stats
+
+    auto stats = engine_ctx.registry.spawn_entity();
+
+    engine_ctx.registry.add_component(stats, cpnt::Stats{0, 0, 0, 0});
 
     // Create stars
     for (int i = 0; i < engine_ctx.k_stars; i++) {

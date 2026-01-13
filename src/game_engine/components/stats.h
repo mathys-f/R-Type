@@ -9,9 +9,10 @@ struct Stats : ISyncComponent {
     int dmg{};
     int kills{};
     int level{};
+    int point_to_next_level{};
 
     Stats() = default;
-    Stats(int score = 0, int dmg = 0, int kills = 0, int level = 0);
+    Stats(int score = 0, int dmg = 0, int kills = 0, int level = 1, int point_to_next_level = 2500);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;

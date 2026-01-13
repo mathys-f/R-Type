@@ -30,7 +30,7 @@ void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> cons
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                       ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
                       ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
-                      ecs::SparseArray<cpnt::Shooter> const& shooters);
+                      ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats);
 
 void enemy_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::MovementPattern> const& patterns,
@@ -73,6 +73,8 @@ void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& 
 
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);
+
+void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats);
 
 void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
 

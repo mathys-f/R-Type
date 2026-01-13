@@ -69,7 +69,7 @@ void EngineContext::set_scene(unsigned char scene_id) {
     m_scenes_loaders[scene_id](*this);
     printf("Scene %d loaded.\n", static_cast<int>(scene_id));
     printf("Previous scene id: %d\n", current_scene_id);
-    if ((current_scene_id == 0 && scene_id == 1) || 
+    if ((scene_id == 1) || 
         (current_scene_id == 1 && scene_id == 0)) {
         printf("Changing music for scene %d, previous scene %d\n", static_cast<int>(scene_id), current_scene_id);
         change_music = true;

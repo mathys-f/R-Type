@@ -23,9 +23,12 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                            ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                            ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
                            ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
-                           ecs::SparseArray<cpnt::Shooter> const& shooters) {
+                           ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats) {
     std::vector<ecs::Entity> bullets_to_kill;
     auto& reg = ctx.registry;
+
+    int points_gained = 0;
+    int enemies_killed = 0;
 
     // Debug - show hitboxes
     for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
@@ -68,6 +71,11 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                         auto& health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (health) {
                             health->hp--;
+                            if (health->hp <= 0) {
+                                points_gained += 100;
+                                enemies_killed += 1;
+                                health->hp = 0;
+                            }
                         }
                         break;
                     }
@@ -177,7 +185,11 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_shooter = reg.get_components<cpnt::Health>()[shooter_idx];
                         if (health_shooter) {
-                            health_shooter->hp -= 1; // Reduce shooter health
+                            health_shooter->hp -= 1;
+                            if (health_shooter->hp <= 0) {
+                                points_gained += 150;
+                                enemies_killed += 1;
+                            }
                         }
                         break;
                     }
@@ -218,5 +230,14 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
     for (auto e : bullets_to_kill) {
         reg.kill_entity(e);
+    }
+
+    // Update stats
+    for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
+        if (stats_opt) {
+            auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
+            stat->score += points_gained;
+            stat->kills += enemies_killed;
+        }
     }
 }
