@@ -60,15 +60,18 @@ class EngineContext {
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
     unsigned char settings_return_scene = 1;
-    int master_volume = 0;
-    int music_volume = 0;
-    int sfx_volume = 0;
-    int last_master_volume = 0;
-    int last_music_volume = 0;
-    int last_sfx_volume = 0;
-    bool master_muted = true;
-    bool music_muted = true;
-    bool sfx_muted = true;
+    int master_volume = 100;
+    int music_volume = 100;
+    int sfx_volume = 100;
+    int last_master_volume = 100;
+    int last_music_volume = 100;
+    int last_sfx_volume = 100;
+    bool master_muted = false;
+    bool music_muted = false;
+    bool sfx_muted = false;
+
+    int current_scene_id = 1;
+    bool change_music = false;
 
     std::string server_ip;
     std::uint16_t server_port;
