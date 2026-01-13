@@ -9,5 +9,5 @@ using namespace engn;
 void sys::send_snapshot_to_client(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
-    std::vector<asio::ip::udp::endpoint> clients = ctx.m_cli;
+    const auto &clients = ctx.get_clients();
 }

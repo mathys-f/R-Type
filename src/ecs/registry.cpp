@@ -23,7 +23,7 @@ ecs::Registry::get_component_destruction_tombstones() const noexcept {
 
 const std::unordered_map<std::pair<Registry::EntityType, std::type_index>, Registry::Version>&
 ecs::Registry::get_component_metadata() const noexcept {
-    m_component_metadata;
+    return m_component_metadata;
 }
 
 void ecs::Registry::remove_entity_creation_tombstone(EntityType const& e) {

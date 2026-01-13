@@ -9,8 +9,8 @@ Replicated::Replicated(std::uint32_t tag, size_t last_update_tick)
 engn::SerializedComponent Replicated::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::replicated;
-    serialized.size = sizeof(tag) + sizeof(last_update_tick);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(tag) + sizeof(last_update_tick);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

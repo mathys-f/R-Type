@@ -8,8 +8,8 @@ Stats::Stats(int score, int dmg, int kills) : score(score), dmg(dmg), kills(kill
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::stats;
-    serialized.size = sizeof(score) + sizeof(dmg) + sizeof(kills);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(score) + sizeof(dmg) + sizeof(kills);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

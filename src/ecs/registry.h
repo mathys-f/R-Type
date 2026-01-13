@@ -11,6 +11,17 @@
 #include <unordered_map>
 #include <vector>
 
+// Hash specialization for std::pair<ecs::Entity, std::type_index>
+template <>
+struct std::hash<std::pair<ecs::Entity, std::type_index>> {
+    std::size_t operator()(const std::pair<ecs::Entity, std::type_index>& pair) const noexcept {
+        std::size_t h1 = std::hash<ecs::Entity>{}(pair.first);
+        std::size_t h2 = std::hash<std::type_index>{}(pair.second);
+        // Combine hashes using a simple method
+        return h1 ^ (h2 << 1);
+    }
+};
+
 namespace ecs {
 
 /// Registry manages entities, component storage and registered systems.

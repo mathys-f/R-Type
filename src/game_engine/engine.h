@@ -64,7 +64,7 @@ class EngineContext {
 
     void add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
-    const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &get_clients() const;
+    const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &get_clients();
 
     void record_snapshot(SnapshotRecord &snapshot);
     const SnapshotRecord& get_latest_snapshot() const;
