@@ -132,7 +132,7 @@ CPMAddPackage(
     URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
     OPTIONS
         "BOOST_ENABLE_CMAKE ON"
-        "BOOST_INCLUDE_LIBRARIES interprocess\;system\;filesystem\;date_time"
+        "BOOST_INCLUDE_LIBRARIES interprocess;system;filesystem;date_time"
 )
 
 # Only for Debug builds
