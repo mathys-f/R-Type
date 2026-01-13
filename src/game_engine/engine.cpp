@@ -46,16 +46,19 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
     }
 }
 
-void engn::EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
+void engn::EngineContext::add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    m_clients.push_back(client_endpoint);
+    m_clients[client_id] = client_endpoint;
 }
 
 void engn::EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    std::vector<asio::ip::udp::endpoint>::iterator it = std::find(m_clients.begin(), m_clients.end(), client_endpoint);
-    if (it != m_clients.end())
-        m_clients.erase(it);
+    for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
+        if (it->second == client_endpoint) {
+            m_clients.erase(it);
+            break;
+        }
+    }
 }
 
 std::unordered_map<std::size_t, asio::ip::udp::endpoint> engn::EngineContext::get_clients() {
@@ -98,7 +101,21 @@ std::size_t engn::EngineContext::get_current_tick() const {
     return m_current_tick;
 }
 
-const SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) const {
+const SnapshotRecord& engn::EngineContext::get_latest_snapshot() const {
+    static SnapshotRecord s_empty_record; // Need to be static to return reference
+
+    if (m_snapshots_history.empty())
+       return s_empty_record;
+
+    const auto &history = m_snapshots_history.begin()->second;
+
+    const SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    if (!record.snapshot.entities.empty())
+        return record;
+    return s_empty_record;
+}
+
+const SnapshotRecord& engn::EngineContext::get_latest_acknowledged_snapshot(std::size_t player_id) const {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
     if (m_snapshots_history.find(player_id) == m_snapshots_history.end())

@@ -62,12 +62,13 @@ class EngineContext {
 
     std::unique_ptr<net::Session> network_session;
 
-    void add_client(asio::ip::udp::endpoint client_endpoint);
+    void add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
     std::unordered_map<std::size_t, asio::ip::udp::endpoint> get_clients();
 
     void record_snapshot(SnapshotRecord &snapshot);
-    const SnapshotRecord& get_latest_snapshot(std::size_t player_id) const;
+    const SnapshotRecord& get_latest_snapshot() const;
+    const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
