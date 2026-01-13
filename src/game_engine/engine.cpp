@@ -37,6 +37,7 @@ void EngineContext::run_systems() {
             sys(*this);
     }
     m_current_tick++;
+    registry.set_current_version(m_current_tick);
 }
 
 static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
