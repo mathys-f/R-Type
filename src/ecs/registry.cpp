@@ -21,7 +21,7 @@ ecs::Registry::get_component_destruction_tombstones() const noexcept {
     return m_component_destruction_tombstones;
 }
 
-const std::unordered_map<std::pair<Registry::EntityType, std::type_index>, Registry::ComponentMetadata>&
+const std::unordered_map<std::pair<Registry::EntityType, std::type_index>, Registry::Version>&
 ecs::Registry::get_component_metadata() const noexcept {
     m_component_metadata;
 }
@@ -32,14 +32,33 @@ void ecs::Registry::remove_entity_creation_tombstone(EntityType const& e) {
 }
 
 void ecs::Registry::remove_entity_destruction_tombstone(EntityType const& e) {
-    if (m_entity_destruction_tumbstones.find(e) != m_entity_destruction_tumbstones.end())
+    if (m_entity_destruction_tumbstones.find(e) != m_entity_destruction_tumbstones.end()) {
         m_entity_destruction_tumbstones.erase(e);
+        remove_entity_components_metadata(e);
+    }
 }
 
 void ecs::Registry::remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti) {
     if (m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end()
-        && m_component_destruction_tombstones.find(e)->second.find(ti) != m_component_destruction_tombstones.find(e)->second.end())
+        && m_component_destruction_tombstones.find(e)->second.find(ti) != m_component_destruction_tombstones.find(e)->second.end()) {
         m_component_destruction_tombstones.find(e)->second.erase(ti);
+        remove_component_metadata(e, ti);
+    }
+}
+
+void ecs::Registry::remove_component_metadata(EntityType const& e, std::type_index const& ti) {
+    if (m_component_metadata.find({e, ti}) != m_component_metadata.end())
+        m_component_metadata.erase({e, ti});
+}
+
+void ecs::Registry::remove_entity_components_metadata(EntityType const& e) {
+    for (auto it = m_component_metadata.begin(); it != m_component_metadata.end(); ) {
+        if (it->first.first == e) {
+            it = m_component_metadata.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 Registry::EntityType Registry::spawn_entity() {

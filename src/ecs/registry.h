@@ -26,7 +26,6 @@ class Registry {
     using Version = std::uint32_t;
 
     struct ComponentMetadata {
-        bool dirty = false;
         Version version = 0;
     };
 
@@ -120,11 +119,16 @@ class Registry {
     const std::unordered_map<EntityType,
         std::unordered_map<std::type_index, Version>>&
         get_component_destruction_tombstones() const noexcept;
-    const std::unordered_map<std::pair<EntityType, std::type_index>, ComponentMetadata>&
+    const std::unordered_map<std::pair<EntityType, std::type_index>, Version>&
         get_component_metadata() const noexcept;
 
+    /// Must be called when the tombstone is no longer needed to save up RAM
     void remove_entity_creation_tombstone(EntityType const& e);
+    /// Must be called when the tombstone is no longer needed to save up RAM
+    /// Also delete the entity's component's metadatas entry
     void remove_entity_destruction_tombstone(EntityType const& e);
+    /// Must be called when the tombstone is no longer needed to save up RAM
+    /// Also delete the component's metadatas entry
     void remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti);
 
   private:
@@ -159,8 +163,13 @@ class Registry {
         std::unordered_map<std::type_index, Version>>
         m_component_destruction_tombstones;
 
-    // Metadats about entity's components
-    std::unordered_map<std::pair<EntityType, std::type_index>, ComponentMetadata> m_component_metadata;
+    // Last version in which an entity's component has changed/been created
+    std::unordered_map<std::pair<EntityType, std::type_index>, Version> m_component_metadata;
+
+    /// Remove an entity's component metadatas entry
+    void remove_component_metadata(EntityType const& e, std::type_index const& ti);
+    /// Remove all of an entity's components metadatas entries
+    void remove_entity_components_metadata(EntityType const& e);
 };
 
 } // namespace ecs
