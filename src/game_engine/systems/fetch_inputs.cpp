@@ -55,8 +55,7 @@ void sys::fetch_inputs(EngineContext& ctx) {
             }
         }
     }
-    
-    // Log only when gamepad state changes
+
     if (gamepad_id != s_previous_gamepad_id) {
         if (gamepad_id != -1) {
             const char* name = GetGamepadName(gamepad_id);
