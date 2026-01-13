@@ -14,6 +14,11 @@
     #include <signal.h>
 #endif
 
+namespace {
+    constexpr int k_shutdown_wait_ms = 100;
+    constexpr int k_heartbeat_interval_ticks = 60;
+}
+
 // GameLobby implementation
 GameLobby::GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players,
                      std::uint16_t port)
@@ -65,7 +70,7 @@ void GameLobby::stop() {
         msg.lobby_id = m_lobby_id;
         m_ipc->send_to_lobby(msg);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(k_shutdown_wait_ms));
 
         if (is_process_alive()) {
             LOG_WARNING("Lobby {} process didn't exit gracefully, terminating", m_lobby_id);
@@ -74,7 +79,7 @@ void GameLobby::stop() {
 #else
             kill(m_process_handle, SIGTERM);
 #endif
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(k_shutdown_wait_ms));
 
             if (is_process_alive()) {
                 LOG_WARNING("Lobby {} process didn't respond, force killing", m_lobby_id);
@@ -91,7 +96,7 @@ void GameLobby::stop() {
         CloseHandle(m_process_handle);
         m_process_handle = NULL;
 #else
-        int status;
+        int status = 0;
         waitpid(m_process_handle, &status, 0);
         m_process_handle = -1;
 #endif
@@ -181,7 +186,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 }
             }
 
-            if (++heartbeat_counter >= 60) {
+            if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
                 heartbeat.lobby_id = lobby_id;
