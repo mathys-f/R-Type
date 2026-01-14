@@ -232,7 +232,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Position
-        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55, 45, 0, 1, 1, 1});
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55, 45, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
 
         // Velocity
         engine_ctx.registry.add_component(
