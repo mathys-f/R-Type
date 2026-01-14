@@ -18,7 +18,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(arc4random_uniform(k_rand_range)) / k_rand_divisor;
 }
 
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
@@ -130,7 +130,10 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
-    engine_ctx.add_system<>([](engn::EngineContext& ctx) { if (s_network_client) s_network_client->poll(); });
+    engine_ctx.add_system<>([](engn::EngineContext& ctx) {
+        if (s_network_client)
+            s_network_client->poll();
+    });
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();

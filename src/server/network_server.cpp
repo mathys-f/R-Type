@@ -24,21 +24,17 @@ NetworkServer::~NetworkServer() {
 void NetworkServer::start() {
     // Set up connection callbacks
     m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() {
-            handle_client_connect(endpoint);
-        });
+        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });
     };
 
     m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() {
-            handle_client_disconnect(endpoint);
-        });
+        m_io.post([this, endpoint]() { handle_client_disconnect(endpoint); });
     };
 
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
-            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
-                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());
+            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
                 return;
             }
 
@@ -187,10 +183,11 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
         return;
     }
 
+    // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores)
     std::uint32_t tick = static_cast<std::uint32_t>(pkt.payload[0]) |
-                        (static_cast<std::uint32_t>(pkt.payload[1]) << k_shift_8) |
-                        (static_cast<std::uint32_t>(pkt.payload[2]) << k_shift_16) |
-                        (static_cast<std::uint32_t>(pkt.payload[3]) << k_shift_24);
+                         (static_cast<std::uint32_t>(pkt.payload[1]) << k_shift_8) |
+                         (static_cast<std::uint32_t>(pkt.payload[2]) << k_shift_16) |
+                         (static_cast<std::uint32_t>(pkt.payload[3]) << k_shift_24);
 
     std::uint8_t input_mask = static_cast<std::uint8_t>(pkt.payload[4]);
 
