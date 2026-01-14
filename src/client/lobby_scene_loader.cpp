@@ -24,6 +24,8 @@ const std::string k_script_file = "scripts/lua/ui/lobby_menu.lua";
 
 void load_lobby_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
+    reset_lobby_ui_state();
+    engine_ctx.input_context = InputContext::Menu;
 
     reg.register_component<cpnt::UIButton>();
     reg.register_component<cpnt::UIFocusable>();
@@ -43,10 +45,11 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
 
     engine_ctx.add_system<>(sys::fetch_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
+    engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UIInteractable>(sys::ui_input_field_updater);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);

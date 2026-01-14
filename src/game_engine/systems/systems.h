@@ -11,13 +11,17 @@ namespace sys {
 
 void fetch_inputs(EngineContext& ctx);
 void log_inputs(EngineContext& ctx);
+void resolve_player_input(EngineContext& ctx);
 
 void ui_hover(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>&);
+void ui_navigation(EngineContext& ctx, const ecs::SparseArray<cpnt::UIInteractable>&,
+                   const ecs::SparseArray<cpnt::UIFocusable>&, const ecs::SparseArray<cpnt::UINavigation>&);
 void ui_press(EngineContext& ctx);
 void ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>&,
-                            const ecs::SparseArray<cpnt::UIStyle>&);
+                            const ecs::SparseArray<cpnt::UIStyle>&, const ecs::SparseArray<cpnt::UIInteractable>&);
 void ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>&,
-                      const ecs::SparseArray<cpnt::UIText>&, const ecs::SparseArray<cpnt::UIStyle>&);
+                      const ecs::SparseArray<cpnt::UIText>&, const ecs::SparseArray<cpnt::UIStyle>&,
+                      const ecs::SparseArray<cpnt::UIInteractable>&);
 void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UIInteractable>&);
 
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
