@@ -10,8 +10,8 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
                                  const ecs::SparseArray<cpnt::UIStyle>& styles,
                                  const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
-    const float k_width = ctx.k_window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
-    const float k_height = ctx.k_window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (const auto& [index, transform, style, interactable] : ecs::indexed_zipper(transforms, styles, interactables)) {
         if (index == 0)

@@ -21,8 +21,8 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
                            const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
     const auto& input_fields = ctx.registry.get_components<cpnt::UIInputField>();
-    const float k_width = ctx.k_window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
-    const float k_height = ctx.k_window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (const auto& [index, transform, text, style, interactable] :
          ecs::indexed_zipper(transforms, texts, styles, interactables)) {

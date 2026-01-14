@@ -9,7 +9,67 @@
 #include <ctime>
 #include <optional>
 
+#ifdef PLATFORM_DESKTOP
+    #include <GLFW/glfw3.h>
+#endif
+
 using namespace engn;
+
+// Handles user resize of the window to maintain 16:10 aspect ratio
+static void update_window_size(EngineContext& engine_ctx) {
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+    static int s_last_width = GetScreenWidth();
+    static int s_last_height = GetScreenHeight();
+
+    const int k_current_width = GetScreenWidth();
+    const int k_current_height = GetScreenHeight();
+
+    // Check if window was resized
+    if (k_current_width != s_last_width || k_current_height != s_last_height) {
+        // Force 16:10 aspect ratio using platform-specific window resizing
+        const float k_target_aspect_ratio = 16.0f / 10.0f;
+        const float k_current_aspect_ratio = static_cast<float>(k_current_width) / static_cast<float>(k_current_height);
+
+        // Only resize if aspect ratio differs significantly
+        if (std::fabs(k_current_aspect_ratio - k_target_aspect_ratio) > 0.01f) {
+            int new_width = 0;
+            int new_height = 0;
+
+            if (k_current_aspect_ratio > k_target_aspect_ratio) {
+                // Window is too wide, adjust width to match height
+                new_height = k_current_height;
+                new_width = static_cast<int>(static_cast<float>(k_current_height) * k_target_aspect_ratio);
+            } else {
+                // Window is too tall, adjust height to match width
+                new_width = k_current_width;
+                new_height = static_cast<int>(static_cast<float>(k_current_width) / k_target_aspect_ratio);
+            }
+
+            // Use GLFW to resize the actual window (Raylib uses GLFW internally)
+            #ifdef PLATFORM_DESKTOP
+                GLFWwindow* window = static_cast<GLFWwindow*>(GetWindowHandle());
+                if (window) {
+                    glfwSetWindowSize(window, new_width, new_height);
+                }
+            #endif
+
+            // Update stored dimensions
+            s_last_width = new_width;
+            s_last_height = new_height;
+        } else {
+            // Update stored dimensions even if no resize needed
+            s_last_width = k_current_width;
+            s_last_height = k_current_height;
+        }
+    }
+
+    engine_ctx.window_size.x = static_cast<float>(GetScreenWidth());
+    engine_ctx.window_size.y = static_cast<float>(GetScreenHeight());
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+}
 
 int main(void) {
     constexpr int k_target_fps = 60;
@@ -23,10 +83,11 @@ int main(void) {
     EngineContext engine_ctx;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x);
-    const int k_height = static_cast<int>(engine_ctx.k_window_size.y);
+    const int k_width = static_cast<int>(engine_ctx.window_size.x);
+    const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(k_width, k_height, "FTL-Type");
     SetExitKey(KEY_NULL);
     InitAudioDevice();
@@ -68,6 +129,7 @@ int main(void) {
         }
 
         EndDrawing();
+        update_window_size(engine_ctx);
     }
 
     if (battle_music.has_value())

@@ -59,10 +59,10 @@ void sys::enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> con
 
                     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
                     pos->x =
-                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.k_window_size.x),
-                                                          static_cast<int>(ctx.k_window_size.x * k_spawn_multiplier)));
+                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
+                                                          static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
                     pos->y = static_cast<float>(
-                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.k_window_size.y) - k_spawn_margin));
+                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
                     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
                     if (health) {
                         health->hp = health->max_hp;

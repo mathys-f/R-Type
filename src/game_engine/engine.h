@@ -49,7 +49,7 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    const glm::vec2 k_window_size{1080.0f, 720.0f};
+    glm::vec2 window_size{1080.0f, 720.0f};
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;

@@ -11,8 +11,8 @@ void sys::ui_hover(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>
     auto& interacts = ctx.registry.get_components<cpnt::UIInteractable>();
     const evts::MouseMoved* mouse_pos = ctx.input_event_queue.get_last<evts::MouseMoved>();
     bool has_found = false;
-    const float k_width = ctx.k_window_size.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-    const float k_height = ctx.k_window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_width = ctx.window_size.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     if (!mouse_pos)
         return;
