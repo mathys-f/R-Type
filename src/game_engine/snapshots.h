@@ -51,6 +51,7 @@ struct WorldSnapshot {
 struct SnapshotRecord {
     WorldSnapshot snapshot;
     bool acknowledged = false;
+    std::uint32_t msg_id;
     std::uint32_t last_update_tick;
 };
 

@@ -102,15 +102,15 @@ std::size_t engn::EngineContext::get_current_tick() const {
     return m_current_tick;
 }
 
-const SnapshotRecord& engn::EngineContext::get_latest_snapshot() const {
+SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) const {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
     if (m_snapshots_history.empty())
        return s_empty_record;
 
-    const auto &history = m_snapshots_history.begin()->second;
+    auto &history = m_snapshots_history.at(player_id);
 
-    const SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
     if (!record.snapshot.entities.empty())
         return record;
     return s_empty_record;

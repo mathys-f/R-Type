@@ -99,10 +99,10 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
     const auto &clients = ctx.get_clients();
-    const auto &latest_snapshot = ctx.get_latest_snapshot();
 
     for (const auto &[id, endpoint] : clients) {
         const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(id);
+        auto &latest_snapshot = ctx.get_latest_snapshot(id);
 
         auto delta_snapshot_opt = compute_delta(ack_snapshot.snapshot, latest_snapshot.last_update_tick, ctx.registry);
         if (!delta_snapshot_opt.has_value()) continue;
@@ -110,6 +110,11 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
         WorldDelta world_delta = delta_snapshot_opt.value();
         std::unique_ptr<std::byte> data(world_delta.serialize());
         net::Packet packet;
-        // TODO: create the packet and send it
+        packet.header.m_command = static_cast<std::uint8_t>(net::CommandId::KServerEntityState);
+        packet.header.m_payload_size = static_cast<std::uint16_t>(world_delta.get_serialized_size());
+        packet.payload = std::vector<std::byte>(data.get(), data.get() + world_delta.get_serialized_size());
+        data.release(); // Prevent freing the data since it's now owned by the packet payload
+        std::uint32_t packet_id = ctx.network_session->send(packet, endpoint, true);
+        latest_snapshot.msg_id = packet_id;
     }
 }

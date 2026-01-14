@@ -67,7 +67,7 @@ class EngineContext {
     const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &get_clients();
 
     void record_snapshot(SnapshotRecord &snapshot);
-    const SnapshotRecord& get_latest_snapshot() const;
+    SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
     const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
 
     ControlScheme controls = make_default_controls();
