@@ -6,10 +6,18 @@
 
 #include <cstdint>
 
-static NetworkClient* s_client = nullptr;
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+static NetworkClient* g_s_client = nullptr;
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+
+constexpr std::uint8_t INPUT_MASK_UP = 0x01;
+constexpr std::uint8_t INPUT_MASK_DOWN = 0x02;
+constexpr std::uint8_t INPUT_MASK_LEFT = 0x04;
+constexpr std::uint8_t INPUT_MASK_RIGHT = 0x08;
+constexpr std::uint8_t INPUT_MASK_SHOOT = 0x10;
 
 void set_network_client(void* client_ptr) {
-    s_client = static_cast<NetworkClient*>(client_ptr);
+    g_s_client = static_cast<NetworkClient*>(client_ptr);
 }
 
 void send_input_system(engn::EngineContext& ctx) {
@@ -36,13 +44,13 @@ void send_input_system(engn::EngineContext& ctx) {
     if (check_key_in_queue(c.shoot.primary) || check_key_in_queue(c.shoot.secondary)) shoot = true;
 
     std::uint8_t mask = 0;
-    mask |= static_cast<std::uint8_t>(up ? 0x01 : 0x00);
-    mask |= static_cast<std::uint8_t>(down ? 0x02 : 0x00);
-    mask |= static_cast<std::uint8_t>(left ? 0x04 : 0x00);
-    mask |= static_cast<std::uint8_t>(right ? 0x08 : 0x00);
-    mask |= static_cast<std::uint8_t>(shoot ? 0x10 : 0x00);
+    mask |= static_cast<std::uint8_t>(up ? INPUT_MASK_UP : 0x00);
+    mask |= static_cast<std::uint8_t>(down ? INPUT_MASK_DOWN : 0x00);
+    mask |= static_cast<std::uint8_t>(left ? INPUT_MASK_LEFT : 0x00);
+    mask |= static_cast<std::uint8_t>(right ? INPUT_MASK_RIGHT : 0x00);
+    mask |= static_cast<std::uint8_t>(shoot ? INPUT_MASK_SHOOT : 0x00);
 
-    if (s_client && s_client->is_connected()) {
-        s_client->send_input_mask(mask, static_cast<std::uint32_t>(ctx.get_current_tick()));
+    if (g_s_client && g_s_client->is_connected()) {
+        g_s_client->send_input_mask(mask, static_cast<std::uint32_t>(ctx.get_current_tick()));
     }
 }
