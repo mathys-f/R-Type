@@ -331,7 +331,10 @@ Set_ui_transform(2, "back_button", {
     rotation = 0
 })
 
-Set_ui_navigation(2, "connect_to_server_button", { up = "back_button", down = "refresh_lobbies_button" })
-Set_ui_navigation(2, "refresh_lobbies_button", { up = "connect_to_server_button", down = "create_lobby_button" })
-Set_ui_navigation(2, "create_lobby_button", { up = "refresh_lobbies_button", down = "back_button" })
-Set_ui_navigation(2, "back_button", { up = "create_lobby_button", down = "connect_to_server_button" })
+Set_ui_navigation(2, "lobby_server_ip", { right = "lobby_server_port", down = "lobby_name_input" })
+Set_ui_navigation(2, "lobby_server_port", { left = "lobby_server_ip", right = "connect_to_server_button", down = "lobby_name_input" })
+Set_ui_navigation(2, "connect_to_server_button", { left = "lobby_server_port", right = "refresh_lobbies_button", down = "create_lobby_button" })
+Set_ui_navigation(2, "refresh_lobbies_button", { left = "connect_to_server_button", down = "create_lobby_button" })
+Set_ui_navigation(2, "lobby_name_input", { up = "lobby_server_ip", right = "create_lobby_button", down = "back_button" })
+Set_ui_navigation(2, "create_lobby_button", { up = "refresh_lobbies_button", left = "lobby_name_input", down = "back_button" })
+Set_ui_navigation(2, "back_button", { up = "create_lobby_button", down = "lobby_server_ip" })

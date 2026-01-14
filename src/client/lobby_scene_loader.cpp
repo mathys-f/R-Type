@@ -24,6 +24,7 @@ const std::string k_script_file = "scripts/lua/ui/lobby_menu.lua";
 
 void load_lobby_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
+    reset_lobby_ui_state();
     engine_ctx.input_context = InputContext::Menu;
 
     reg.register_component<cpnt::UIButton>();

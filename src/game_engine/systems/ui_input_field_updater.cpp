@@ -45,11 +45,9 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
         if (!input.has_value() || !text.has_value() || !inter.has_value())
             continue;
 
-        // Start editing when clicked
-        if (inter->pressed && !input->editing) {
-            input->editing = true;
-            input->timer = 0.0f;
-            input->cursor_index = text->content.size();
+        // Focus input when clicked (editing starts with Enter)
+        if (inter->pressed) {
+            ctx.focused_entity = reg.entity_from_index(i);
         }
 
         // Stop editing when clicked outside or Enter is pressed
@@ -66,6 +64,16 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
                 input->editing = false;
                 LOG_DEBUG("Stopped editing input field");
                 continue;
+            }
+        }
+
+        if (!input->editing) {
+            const evts::KeyPressed* key_evt = evts.get_last<evts::KeyPressed>();
+            if (key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEnter &&
+                ctx.focused_entity == reg.entity_from_index(i)) {
+                input->editing = true;
+                input->timer = 0.0f;
+                input->cursor_index = text->content.size();
             }
         }
 
