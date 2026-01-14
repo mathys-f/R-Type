@@ -50,12 +50,24 @@ class EngineContext {
     AssetsManager assets_manager;
 
     const glm::vec2 k_window_size{1920.0f, 1080.0f};
+    
+    // Variable to add to sliders
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
     const size_t k_max_charger = 5;
     const size_t k_max_shooter = 2;
+    float k_shooter_base_speed = 3.0f;
+    float k_shooter_speed_variance = 5.0f;
+    int k_shooter_health = 3;
+    int k_spawn_margin = 100;
+    float k_enemy_base_speed = 3.0f;
+    float k_enemy_speed_variance = 5.0f;
+    int k_enemy_health = 3;
+    float k_pattern_speed_variance = 3.0f;
+    int k_pattern_amplitude_max = 10;
+    ///
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;
