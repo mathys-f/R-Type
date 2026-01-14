@@ -241,5 +241,5 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
             stat->kills += enemies_killed;
         }
     }
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 }
