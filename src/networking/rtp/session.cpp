@@ -66,7 +66,14 @@ void Session::poll() {
         packet.header.m_ack = m_receive_window.ack();
         m_transport->async_send(packet);
     }
-    m_failed_cache = m_send_queue.take_failures();
+    auto failures = m_send_queue.take_failures();
+    
+    // Invoke disconnect callback for clients with failed sequences
+    // Note: We'd need to track which endpoint each failed sequence belongs to
+    // For now, this is a simplified version - you may need to enhance
+    // ReliableSendQueue to return endpoint info with failures
+    
+    m_failed_cache = std::move(failures);
     schedule_retransmission();
 }
 
@@ -77,6 +84,14 @@ const std::vector<std::uint32_t>& Session::failed_sequences() const noexcept {
 void Session::handle_packet(const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
     if (ec) {
         return;
+    }
+
+    // Track new client connections
+    if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
+        m_connected_endpoints.insert(endpoint);
+        if (on_client_connect) {
+            on_client_connect(endpoint);
+        }
     }
 
     m_send_queue.acknowledge(packet.header.m_ack, endpoint);

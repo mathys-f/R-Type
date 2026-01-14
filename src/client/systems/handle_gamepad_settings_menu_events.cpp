@@ -36,6 +36,7 @@ void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
         if (engine_ctx.settings_return_scene != "") {
             engine_ctx.pending_gamepad_rebind = GamepadControlAction::None;
             engine_ctx.confirm_gamepad_reset = false;
+            engine_ctx.skip_next_gamepad_rebind_input = false;
             engine_ctx.set_scene(engine_ctx.settings_return_scene);
             return;
         }
@@ -43,6 +44,14 @@ void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
 
     if (engine_ctx.pending_gamepad_rebind != GamepadControlAction::None) {
         if (pad_evt) {
+            if (engine_ctx.skip_next_gamepad_rebind_input) {
+                engine_ctx.skip_next_gamepad_rebind_input = false;
+                return;
+            }
+            if (pad_evt->button == evts::ControllerButton::ControllerButtonSouth) {
+                engine_ctx.pending_gamepad_rebind = GamepadControlAction::None;
+                return;
+            }
             switch (engine_ctx.pending_gamepad_rebind) {
                 case GamepadControlAction::MoveUp:
                     engine_ctx.gamepad_controls.move_up.primary = pad_evt->button;
@@ -107,6 +116,7 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         return true;
     } else if (tag_name == "reset_gamepad_button") {
         ctx.pending_gamepad_rebind = GamepadControlAction::None;
+        ctx.skip_next_gamepad_rebind_input = false;
         if (!ctx.confirm_gamepad_reset) {
             ctx.confirm_gamepad_reset = true;
         } else {
@@ -115,26 +125,31 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         }
     } else if (tag_name == "rebind_gamepad_move_up") {
         ctx.confirm_gamepad_reset = false;
+        ctx.skip_next_gamepad_rebind_input = true;
         ctx.pending_gamepad_rebind = (ctx.pending_gamepad_rebind == GamepadControlAction::MoveUp)
                                          ? GamepadControlAction::None
                                          : GamepadControlAction::MoveUp;
     } else if (tag_name == "rebind_gamepad_move_down") {
         ctx.confirm_gamepad_reset = false;
+        ctx.skip_next_gamepad_rebind_input = true;
         ctx.pending_gamepad_rebind = (ctx.pending_gamepad_rebind == GamepadControlAction::MoveDown)
                                          ? GamepadControlAction::None
                                          : GamepadControlAction::MoveDown;
     } else if (tag_name == "rebind_gamepad_move_left") {
         ctx.confirm_gamepad_reset = false;
+        ctx.skip_next_gamepad_rebind_input = true;
         ctx.pending_gamepad_rebind = (ctx.pending_gamepad_rebind == GamepadControlAction::MoveLeft)
                                          ? GamepadControlAction::None
                                          : GamepadControlAction::MoveLeft;
     } else if (tag_name == "rebind_gamepad_move_right") {
         ctx.confirm_gamepad_reset = false;
+        ctx.skip_next_gamepad_rebind_input = true;
         ctx.pending_gamepad_rebind = (ctx.pending_gamepad_rebind == GamepadControlAction::MoveRight)
                                          ? GamepadControlAction::None
                                          : GamepadControlAction::MoveRight;
     } else if (tag_name == "rebind_gamepad_shoot") {
         ctx.confirm_gamepad_reset = false;
+        ctx.skip_next_gamepad_rebind_input = true;
         ctx.pending_gamepad_rebind = (ctx.pending_gamepad_rebind == GamepadControlAction::Shoot)
                                          ? GamepadControlAction::None
                                          : GamepadControlAction::Shoot;
