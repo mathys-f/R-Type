@@ -65,7 +65,7 @@ class EngineContext {
     bool confirm_keyboard_reset = false;
     bool confirm_gamepad_reset = false;
     bool confirm_enter_rebind = false;
-    unsigned char settings_return_scene = 1;
+    std::string settings_return_scene = "";
     int master_volume = 100;
     int music_volume = 100;
     int sfx_volume = 100;
@@ -80,9 +80,9 @@ class EngineContext {
     std::uint16_t server_port;
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
-    void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
-    void set_scene(unsigned char scene_id);
-    unsigned char get_current_scene() const;
+    void add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader);
+    void set_scene(const std::string &scene_name);
+    const std::string &get_current_scene() const;
 
     std::size_t get_current_tick() const;
 
@@ -105,8 +105,8 @@ class EngineContext {
     void run_systems();
 
   private:
-    unsigned char m_current_scene;
-    std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
+    std::string m_current_scene;
+    std::unordered_map<std::string, std::function<void(EngineContext&)>> m_scenes_loaders;
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
 

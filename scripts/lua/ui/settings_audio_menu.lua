@@ -41,14 +41,14 @@ local styles = {
     }
 }
 
-Create_ui_text(5, "nav_panel", {
+Create_ui_text("nav_panel", {
     content = "",
     font_size = 1
 })
 
-Set_ui_style(5, "nav_panel", styles.nav_panel)
+Set_ui_style("nav_panel", styles.nav_panel)
 
-Set_ui_transform(5, "nav_panel", {
+Set_ui_transform("nav_panel", {
     x = 0,
     y = 0,
     z = 0,
@@ -59,14 +59,14 @@ Set_ui_transform(5, "nav_panel", {
     rotation = 0
 })
 
-Create_ui_text(5, "nav_title", {
+Create_ui_text("nav_title", {
     content = "Settings",
     font_size = 28
 })
 
-Set_ui_style(5, "nav_title", styles.title)
+Set_ui_style("nav_title", styles.title)
 
-Set_ui_transform(5, "nav_title", {
+Set_ui_transform("nav_title", {
     x = 2.31,
     y = 3.47,
     z = 0,
@@ -77,16 +77,16 @@ Set_ui_transform(5, "nav_title", {
     rotation = 0
 })
 
-Create_ui_button(5, "nav_controls_button")
+Create_ui_button("nav_controls_button")
 
-Set_ui_style(5, "nav_controls_button", styles.main_menu)
+Set_ui_style("nav_controls_button", styles.main_menu)
 
-Set_ui_text(5, "nav_controls_button", {
+Set_ui_text("nav_controls_button", {
     content = "Keyboard",
     font_size = 20
 })
 
-Set_ui_transform(5, "nav_controls_button", {
+Set_ui_transform("nav_controls_button", {
     x = 1.85,
     y = 12.5,
     z = 0,
@@ -97,16 +97,16 @@ Set_ui_transform(5, "nav_controls_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "nav_audio_button")
+Create_ui_button("nav_audio_button")
 
-Set_ui_style(5, "nav_audio_button", styles.main_menu)
+Set_ui_style("nav_audio_button", styles.main_menu)
 
-Set_ui_text(5, "nav_audio_button", {
+Set_ui_text("nav_audio_button", {
     content = "Audio",
     font_size = 20
 })
 
-Set_ui_transform(5, "nav_audio_button", {
+Set_ui_transform("nav_audio_button", {
     x = 1.85,
     y = 30.56,
     z = 0,
@@ -117,16 +117,16 @@ Set_ui_transform(5, "nav_audio_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "nav_gamepad_button")
+Create_ui_button("nav_gamepad_button")
 
-Set_ui_style(5, "nav_gamepad_button", styles.main_menu)
+Set_ui_style("nav_gamepad_button", styles.main_menu)
 
-Set_ui_text(5, "nav_gamepad_button", {
+Set_ui_text("nav_gamepad_button", {
     content = "Controller",
     font_size = 20
 })
 
-Set_ui_transform(5, "nav_gamepad_button", {
+Set_ui_transform("nav_gamepad_button", {
     x = 1.85,
     y = 21.53,
     z = 0,
@@ -137,14 +137,14 @@ Set_ui_transform(5, "nav_gamepad_button", {
     rotation = 0
 })
 
-Create_ui_text(5, "settings_title", {
+Create_ui_text("settings_title", {
     content = "Settings",
     font_size = 80
 })
 
-Set_ui_style(5, "settings_title", styles.title)
+Set_ui_style("settings_title", styles.title)
 
-Set_ui_transform(5, "settings_title", {
+Set_ui_transform("settings_title", {
     x = 24.07,
     y = 1.39,
     z = 0,
@@ -155,14 +155,14 @@ Set_ui_transform(5, "settings_title", {
     rotation = 0
 })
 
-Create_ui_text(5, "audio_title", {
+Create_ui_text("audio_title", {
     content = "Audio",
     font_size = 36
 })
 
-Set_ui_style(5, "audio_title", styles.title)
+Set_ui_style("audio_title", styles.title)
 
-Set_ui_transform(5, "audio_title", {
+Set_ui_transform("audio_title", {
     x = 24.07,
     y = 22.22,
     z = 0,
@@ -173,14 +173,14 @@ Set_ui_transform(5, "audio_title", {
     rotation = 0
 })
 
-Create_ui_text(5, "general_volume_label", {
+Create_ui_text("general_volume_label", {
     content = "General Volume",
     font_size = 28
 })
 
-Set_ui_style(5, "general_volume_label", styles.title)
+Set_ui_style("general_volume_label", styles.title)
 
-Set_ui_transform(5, "general_volume_label", {
+Set_ui_transform("general_volume_label", {
     x = 24.07,
     y = 33.33,
     z = 0,
@@ -191,14 +191,14 @@ Set_ui_transform(5, "general_volume_label", {
     rotation = 0
 })
 
-Create_ui_text(5, "general_volume_value", {
+Create_ui_text("general_volume_value", {
     content = "100%",
     font_size = 28
 })
 
-Set_ui_style(5, "general_volume_value", styles.title)
+Set_ui_style("general_volume_value", styles.title)
 
-Set_ui_transform(5, "general_volume_value", {
+Set_ui_transform("general_volume_value", {
     x = 55.56,
     y = 33.33,
     z = 0,
@@ -209,16 +209,16 @@ Set_ui_transform(5, "general_volume_value", {
     rotation = 0
 })
 
-Create_ui_button(5, "general_volume_down_button")
+Create_ui_button("general_volume_down_button")
 
-Set_ui_style(5, "general_volume_down_button", styles.main_menu)
+Set_ui_style("general_volume_down_button", styles.main_menu)
 
-Set_ui_text(5, "general_volume_down_button", {
+Set_ui_text("general_volume_down_button", {
     content = "-",
     font_size = 24
 })
 
-Set_ui_transform(5, "general_volume_down_button", {
+Set_ui_transform("general_volume_down_button", {
     x = 70.37,
     y = 32.64,
     z = 0,
@@ -229,16 +229,16 @@ Set_ui_transform(5, "general_volume_down_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "general_volume_up_button")
+Create_ui_button("general_volume_up_button")
 
-Set_ui_style(5, "general_volume_up_button", styles.main_menu)
+Set_ui_style("general_volume_up_button", styles.main_menu)
 
-Set_ui_text(5, "general_volume_up_button", {
+Set_ui_text("general_volume_up_button", {
     content = "+",
     font_size = 24
 })
 
-Set_ui_transform(5, "general_volume_up_button", {
+Set_ui_transform("general_volume_up_button", {
     x = 76.85,
     y = 32.64,
     z = 0,
@@ -249,16 +249,16 @@ Set_ui_transform(5, "general_volume_up_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "general_mute_button")
+Create_ui_button("general_mute_button")
 
-Set_ui_style(5, "general_mute_button", styles.main_menu)
+Set_ui_style("general_mute_button", styles.main_menu)
 
-Set_ui_text(5, "general_mute_button", {
+Set_ui_text("general_mute_button", {
     content = "Mute",
     font_size = 18
 })
 
-Set_ui_transform(5, "general_mute_button", {
+Set_ui_transform("general_mute_button", {
     x = 83.33,
     y = 32.64,
     z = 0,
@@ -269,16 +269,16 @@ Set_ui_transform(5, "general_mute_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "back_button")
+Create_ui_button("back_button")
 
-Set_ui_style(5, "back_button", styles.main_menu)
+Set_ui_style("back_button", styles.main_menu)
 
-Set_ui_text(5, "back_button", {
+Set_ui_text("back_button", {
     content = "Back",
     font_size = 20
 })
 
-Set_ui_transform(5, "back_button", {
+Set_ui_transform("back_button", {
     x = 24.07,
     y = 90.28,
     z = 0,
@@ -289,16 +289,16 @@ Set_ui_transform(5, "back_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "exit_button")
+Create_ui_button("exit_button")
 
-Set_ui_style(5, "exit_button", styles.main_menu)
+Set_ui_style("exit_button", styles.main_menu)
 
-Set_ui_text(5, "exit_button", {
+Set_ui_text("exit_button", {
     content = "Exit",
     font_size = 20
 })
 
-Set_ui_transform(5, "exit_button", {
+Set_ui_transform("exit_button", {
     x = 36.11,
     y = 90.28,
     z = 0,
@@ -309,16 +309,16 @@ Set_ui_transform(5, "exit_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "main_menu_button")
+Create_ui_button("main_menu_button")
 
-Set_ui_style(5, "main_menu_button", styles.main_menu)
+Set_ui_style("main_menu_button", styles.main_menu)
 
-Set_ui_text(5, "main_menu_button", {
+Set_ui_text("main_menu_button", {
     content = "Menu",
     font_size = 20
 })
 
-Set_ui_transform(5, "main_menu_button", {
+Set_ui_transform("main_menu_button", {
     x = 48.15,
     y = 90.28,
     z = 0,
@@ -328,14 +328,14 @@ Set_ui_transform(5, "main_menu_button", {
     anchor_y = 0,
     rotation = 0
 })
-Create_ui_text(5, "music_volume_label", {
+Create_ui_text("music_volume_label", {
     content = "Music Volume",
     font_size = 28
 })
 
-Set_ui_style(5, "music_volume_label", styles.title)
+Set_ui_style("music_volume_label", styles.title)
 
-Set_ui_transform(5, "music_volume_label", {
+Set_ui_transform("music_volume_label", {
     x = 24.07,
     y = 42.36,
     z = 0,
@@ -346,14 +346,14 @@ Set_ui_transform(5, "music_volume_label", {
     rotation = 0
 })
 
-Create_ui_text(5, "music_volume_value", {
+Create_ui_text("music_volume_value", {
     content = "100%",
     font_size = 28
 })
 
-Set_ui_style(5, "music_volume_value", styles.title)
+Set_ui_style("music_volume_value", styles.title)
 
-Set_ui_transform(5, "music_volume_value", {
+Set_ui_transform("music_volume_value", {
     x = 55.56,
     y = 42.36,
     z = 0,
@@ -364,16 +364,16 @@ Set_ui_transform(5, "music_volume_value", {
     rotation = 0
 })
 
-Create_ui_button(5, "music_volume_down_button")
+Create_ui_button("music_volume_down_button")
 
-Set_ui_style(5, "music_volume_down_button", styles.main_menu)
+Set_ui_style("music_volume_down_button", styles.main_menu)
 
-Set_ui_text(5, "music_volume_down_button", {
+Set_ui_text("music_volume_down_button", {
     content = "-",
     font_size = 24
 })
 
-Set_ui_transform(5, "music_volume_down_button", {
+Set_ui_transform("music_volume_down_button", {
     x = 70.37,
     y = 41.67,
     z = 0,
@@ -384,16 +384,16 @@ Set_ui_transform(5, "music_volume_down_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "music_volume_up_button")
+Create_ui_button("music_volume_up_button")
 
-Set_ui_style(5, "music_volume_up_button", styles.main_menu)
+Set_ui_style("music_volume_up_button", styles.main_menu)
 
-Set_ui_text(5, "music_volume_up_button", {
+Set_ui_text("music_volume_up_button", {
     content = "+",
     font_size = 24
 })
 
-Set_ui_transform(5, "music_volume_up_button", {
+Set_ui_transform("music_volume_up_button", {
     x = 76.85,
     y = 41.67,
     z = 0,
@@ -404,16 +404,16 @@ Set_ui_transform(5, "music_volume_up_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "music_mute_button")
+Create_ui_button("music_mute_button")
 
-Set_ui_style(5, "music_mute_button", styles.main_menu)
+Set_ui_style("music_mute_button", styles.main_menu)
 
-Set_ui_text(5, "music_mute_button", {
+Set_ui_text("music_mute_button", {
     content = "Mute",
     font_size = 18
 })
 
-Set_ui_transform(5, "music_mute_button", {
+Set_ui_transform("music_mute_button", {
     x = 83.33,
     y = 41.67,
     z = 0,
@@ -424,14 +424,14 @@ Set_ui_transform(5, "music_mute_button", {
     rotation = 0
 })
 
-Create_ui_text(5, "sfx_volume_label", {
+Create_ui_text("sfx_volume_label", {
     content = "SFX Volume",
     font_size = 28
 })
 
-Set_ui_style(5, "sfx_volume_label", styles.title)
+Set_ui_style("sfx_volume_label", styles.title)
 
-Set_ui_transform(5, "sfx_volume_label", {
+Set_ui_transform("sfx_volume_label", {
     x = 24.07,
     y = 51.39,
     z = 0,
@@ -442,14 +442,14 @@ Set_ui_transform(5, "sfx_volume_label", {
     rotation = 0
 })
 
-Create_ui_text(5, "sfx_volume_value", {
+Create_ui_text("sfx_volume_value", {
     content = "100%",
     font_size = 28
 })
 
-Set_ui_style(5, "sfx_volume_value", styles.title)
+Set_ui_style("sfx_volume_value", styles.title)
 
-Set_ui_transform(5, "sfx_volume_value", {
+Set_ui_transform("sfx_volume_value", {
     x = 55.56,
     y = 51.39,
     z = 0,
@@ -460,16 +460,16 @@ Set_ui_transform(5, "sfx_volume_value", {
     rotation = 0
 })
 
-Create_ui_button(5, "sfx_volume_down_button")
+Create_ui_button("sfx_volume_down_button")
 
-Set_ui_style(5, "sfx_volume_down_button", styles.main_menu)
+Set_ui_style("sfx_volume_down_button", styles.main_menu)
 
-Set_ui_text(5, "sfx_volume_down_button", {
+Set_ui_text("sfx_volume_down_button", {
     content = "-",
     font_size = 24
 })
 
-Set_ui_transform(5, "sfx_volume_down_button", {
+Set_ui_transform("sfx_volume_down_button", {
     x = 70.37,
     y = 50.69,
     z = 0,
@@ -480,16 +480,16 @@ Set_ui_transform(5, "sfx_volume_down_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "sfx_volume_up_button")
+Create_ui_button("sfx_volume_up_button")
 
-Set_ui_style(5, "sfx_volume_up_button", styles.main_menu)
+Set_ui_style("sfx_volume_up_button", styles.main_menu)
 
-Set_ui_text(5, "sfx_volume_up_button", {
+Set_ui_text("sfx_volume_up_button", {
     content = "+",
     font_size = 24
 })
 
-Set_ui_transform(5, "sfx_volume_up_button", {
+Set_ui_transform("sfx_volume_up_button", {
     x = 76.85,
     y = 50.69,
     z = 0,
@@ -500,16 +500,16 @@ Set_ui_transform(5, "sfx_volume_up_button", {
     rotation = 0
 })
 
-Create_ui_button(5, "sfx_mute_button")
+Create_ui_button("sfx_mute_button")
 
-Set_ui_style(5, "sfx_mute_button", styles.main_menu)
+Set_ui_style("sfx_mute_button", styles.main_menu)
 
-Set_ui_text(5, "sfx_mute_button", {
+Set_ui_text("sfx_mute_button", {
     content = "Mute",
     font_size = 18
 })
 
-Set_ui_transform(5, "sfx_mute_button", {
+Set_ui_transform("sfx_mute_button", {
     x = 83.33,
     y = 50.69,
     z = 0,
@@ -520,21 +520,21 @@ Set_ui_transform(5, "sfx_mute_button", {
     rotation = 0
 })
 
-Set_ui_navigation(5, "nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "general_volume_down_button" })
-Set_ui_navigation(5, "nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "general_volume_down_button" })
-Set_ui_navigation(5, "nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "general_volume_down_button" })
+Set_ui_navigation("nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "general_volume_down_button" })
+Set_ui_navigation("nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "general_volume_down_button" })
+Set_ui_navigation("nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "general_volume_down_button" })
 
-Set_ui_navigation(5, "general_volume_down_button", { up = "nav_audio_button", down = "music_volume_down_button", left = "nav_audio_button", right = "general_volume_up_button" })
-Set_ui_navigation(5, "general_volume_up_button", { up = "nav_audio_button", down = "music_volume_up_button", left = "general_volume_down_button", right = "general_mute_button" })
-Set_ui_navigation(5, "general_mute_button", { up = "nav_audio_button", down = "music_mute_button", left = "general_volume_up_button", right = "general_volume_down_button" })
+Set_ui_navigation("general_volume_down_button", { up = "nav_audio_button", down = "music_volume_down_button", left = "nav_audio_button", right = "general_volume_up_button" })
+Set_ui_navigation("general_volume_up_button", { up = "nav_audio_button", down = "music_volume_up_button", left = "general_volume_down_button", right = "general_mute_button" })
+Set_ui_navigation("general_mute_button", { up = "nav_audio_button", down = "music_mute_button", left = "general_volume_up_button", right = "general_volume_down_button" })
 
-Set_ui_navigation(5, "music_volume_down_button", { up = "general_volume_down_button", down = "sfx_volume_down_button", left = "nav_audio_button", right = "music_volume_up_button" })
-Set_ui_navigation(5, "music_volume_up_button", { up = "general_volume_up_button", down = "sfx_volume_up_button", left = "music_volume_down_button", right = "music_mute_button" })
-Set_ui_navigation(5, "music_mute_button", { up = "general_mute_button", down = "sfx_mute_button", left = "music_volume_up_button", right = "music_volume_down_button" })
+Set_ui_navigation("music_volume_down_button", { up = "general_volume_down_button", down = "sfx_volume_down_button", left = "nav_audio_button", right = "music_volume_up_button" })
+Set_ui_navigation("music_volume_up_button", { up = "general_volume_up_button", down = "sfx_volume_up_button", left = "music_volume_down_button", right = "music_mute_button" })
+Set_ui_navigation("music_mute_button", { up = "general_mute_button", down = "sfx_mute_button", left = "music_volume_up_button", right = "music_volume_down_button" })
 
-Set_ui_navigation(5, "sfx_volume_down_button", { up = "music_volume_down_button", down = "main_menu_button", left = "nav_audio_button", right = "sfx_volume_up_button" })
-Set_ui_navigation(5, "sfx_volume_up_button", { up = "music_volume_up_button", down = "main_menu_button", left = "sfx_volume_down_button", right = "sfx_mute_button" })
-Set_ui_navigation(5, "sfx_mute_button", { up = "music_mute_button", down = "main_menu_button", left = "sfx_volume_up_button", right = "sfx_volume_down_button" })
-Set_ui_navigation(5, "back_button", { up = "sfx_volume_down_button", left = "nav_audio_button", right = "exit_button" })
-Set_ui_navigation(5, "exit_button", { up = "sfx_volume_down_button", left = "back_button", right = "main_menu_button" })
-Set_ui_navigation(5, "main_menu_button", { up = "sfx_volume_down_button", left = "exit_button", right = "back_button" })
+Set_ui_navigation("sfx_volume_down_button", { up = "music_volume_down_button", down = "main_menu_button", left = "nav_audio_button", right = "sfx_volume_up_button" })
+Set_ui_navigation("sfx_volume_up_button", { up = "music_volume_up_button", down = "main_menu_button", left = "sfx_volume_down_button", right = "sfx_mute_button" })
+Set_ui_navigation("sfx_mute_button", { up = "music_mute_button", down = "main_menu_button", left = "sfx_volume_up_button", right = "sfx_volume_down_button" })
+Set_ui_navigation("back_button", { up = "sfx_volume_down_button", left = "nav_audio_button", right = "exit_button" })
+Set_ui_navigation("exit_button", { up = "sfx_volume_down_button", left = "back_button", right = "main_menu_button" })
+Set_ui_navigation("main_menu_button", { up = "sfx_volume_down_button", left = "exit_button", right = "back_button" })

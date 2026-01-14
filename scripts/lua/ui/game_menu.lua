@@ -15,16 +15,16 @@ local styles = {
     }
 }
 
-Create_ui_button(0, "back_button")
+Create_ui_button("back_button")
 
-Set_ui_style(0, "back_button", styles.main_menu)
+Set_ui_style("back_button", styles.main_menu)
 
-Set_ui_text(0, "back_button", {
+Set_ui_text("back_button", {
     content = "Back",
     font_size = 20
 })
 
-Set_ui_transform(0, "back_button", {
+Set_ui_transform("back_button", {
     x = 2.31,
     y = 90.28,
     z = 0,

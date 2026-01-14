@@ -41,14 +41,14 @@ local styles = {
     }
 }
 
-Create_ui_text(4, "nav_panel", {
+Create_ui_text("nav_panel", {
     content = "",
     font_size = 1
 })
 
-Set_ui_style(4, "nav_panel", styles.nav_panel)
+Set_ui_style("nav_panel", styles.nav_panel)
 
-Set_ui_transform(4, "nav_panel", {
+Set_ui_transform("nav_panel", {
     x = 0,
     y = 0,
     z = 0,
@@ -59,14 +59,14 @@ Set_ui_transform(4, "nav_panel", {
     rotation = 0
 })
 
-Create_ui_text(4, "nav_title", {
+Create_ui_text("nav_title", {
     content = "Settings",
     font_size = 28
 })
 
-Set_ui_style(4, "nav_title", styles.title)
+Set_ui_style("nav_title", styles.title)
 
-Set_ui_transform(4, "nav_title", {
+Set_ui_transform("nav_title", {
     x = 2.31,
     y = 3.47,
     z = 0,
@@ -77,16 +77,16 @@ Set_ui_transform(4, "nav_title", {
     rotation = 0
 })
 
-Create_ui_button(4, "nav_controls_button")
+Create_ui_button("nav_controls_button")
 
-Set_ui_style(4, "nav_controls_button", styles.main_menu)
+Set_ui_style("nav_controls_button", styles.main_menu)
 
-Set_ui_text(4, "nav_controls_button", {
+Set_ui_text("nav_controls_button", {
     content = "Keyboard",
     font_size = 20
 })
 
-Set_ui_transform(4, "nav_controls_button", {
+Set_ui_transform("nav_controls_button", {
     x = 1.85,
     y = 12.5,
     z = 0,
@@ -97,16 +97,16 @@ Set_ui_transform(4, "nav_controls_button", {
     rotation = 0
 })
 
-Create_ui_button(4, "nav_audio_button")
+Create_ui_button("nav_audio_button")
 
-Set_ui_style(4, "nav_audio_button", styles.main_menu)
+Set_ui_style("nav_audio_button", styles.main_menu)
 
-Set_ui_text(4, "nav_audio_button", {
+Set_ui_text("nav_audio_button", {
     content = "Audio",
     font_size = 20
 })
 
-Set_ui_transform(4, "nav_audio_button", {
+Set_ui_transform("nav_audio_button", {
     x = 1.85,
     y = 30.56,
     z = 0,
@@ -117,16 +117,16 @@ Set_ui_transform(4, "nav_audio_button", {
     rotation = 0
 })
 
-Create_ui_button(4, "nav_gamepad_button")
+Create_ui_button("nav_gamepad_button")
 
-Set_ui_style(4, "nav_gamepad_button", styles.main_menu)
+Set_ui_style("nav_gamepad_button", styles.main_menu)
 
-Set_ui_text(4, "nav_gamepad_button", {
+Set_ui_text("nav_gamepad_button", {
     content = "Controller",
     font_size = 20
 })
 
-Set_ui_transform(4, "nav_gamepad_button", {
+Set_ui_transform("nav_gamepad_button", {
     x = 1.85,
     y = 21.53,
     z = 0,
@@ -137,14 +137,14 @@ Set_ui_transform(4, "nav_gamepad_button", {
     rotation = 0
 })
 
-Create_ui_text(4, "settings_title", {
+Create_ui_text("settings_title", {
     content = "Settings",
     font_size = 80
 })
 
-Set_ui_style(4, "settings_title", styles.title)
+Set_ui_style("settings_title", styles.title)
 
-Set_ui_transform(4, "settings_title", {
+Set_ui_transform("settings_title", {
     x = 24.07,
     y = 1.39,
     z = 0,
@@ -155,14 +155,14 @@ Set_ui_transform(4, "settings_title", {
     rotation = 0
 })
 
-Create_ui_text(4, "controls_title", {
+Create_ui_text("controls_title", {
     content = "Controls",
     font_size = 36
 })
 
-Set_ui_style(4, "controls_title", styles.title)
+Set_ui_style("controls_title", styles.title)
 
-Set_ui_transform(4, "controls_title", {
+Set_ui_transform("controls_title", {
     x = 24.07,
     y = 22.22,
     z = 0,
@@ -173,14 +173,14 @@ Set_ui_transform(4, "controls_title", {
     rotation = 0
 })
 
-Create_ui_text(4, "mapping_move_up", {
+Create_ui_text("mapping_move_up", {
     content = "Move Up: W / Up",
     font_size = 28
 })
 
-Set_ui_style(4, "mapping_move_up", styles.title)
+Set_ui_style("mapping_move_up", styles.title)
 
-Set_ui_transform(4, "mapping_move_up", {
+Set_ui_transform("mapping_move_up", {
     x = 24.07,
     y = 31.94,
     z = 0,
@@ -191,16 +191,16 @@ Set_ui_transform(4, "mapping_move_up", {
     rotation = 0
 })
 
-Create_ui_button(4, "rebind_move_up")
+Create_ui_button("rebind_move_up")
 
-Set_ui_style(4, "rebind_move_up", styles.main_menu)
+Set_ui_style("rebind_move_up", styles.main_menu)
 
-Set_ui_text(4, "rebind_move_up", {
+Set_ui_text("rebind_move_up", {
     content = "Rebind",
     font_size = 20
 })
 
-Set_ui_transform(4, "rebind_move_up", {
+Set_ui_transform("rebind_move_up", {
     x = 70.37,
     y = 31.25,
     z = 0,
@@ -211,14 +211,14 @@ Set_ui_transform(4, "rebind_move_up", {
     rotation = 0
 })
 
-Create_ui_text(4, "mapping_move_down", {
+Create_ui_text("mapping_move_down", {
     content = "Move Down: S / Down",
     font_size = 28
 })
 
-Set_ui_style(4, "mapping_move_down", styles.title)
+Set_ui_style("mapping_move_down", styles.title)
 
-Set_ui_transform(4, "mapping_move_down", {
+Set_ui_transform("mapping_move_down", {
     x = 24.07,
     y = 40.28,
     z = 0,
@@ -229,16 +229,16 @@ Set_ui_transform(4, "mapping_move_down", {
     rotation = 0
 })
 
-Create_ui_button(4, "rebind_move_down")
+Create_ui_button("rebind_move_down")
 
-Set_ui_style(4, "rebind_move_down", styles.main_menu)
+Set_ui_style("rebind_move_down", styles.main_menu)
 
-Set_ui_text(4, "rebind_move_down", {
+Set_ui_text("rebind_move_down", {
     content = "Rebind",
     font_size = 20
 })
 
-Set_ui_transform(4, "rebind_move_down", {
+Set_ui_transform("rebind_move_down", {
     x = 70.37,
     y = 39.58,
     z = 0,
@@ -249,14 +249,14 @@ Set_ui_transform(4, "rebind_move_down", {
     rotation = 0
 })
 
-Create_ui_text(4, "mapping_move_left", {
+Create_ui_text("mapping_move_left", {
     content = "Move Left: A / Left",
     font_size = 28
 })
 
-Set_ui_style(4, "mapping_move_left", styles.title)
+Set_ui_style("mapping_move_left", styles.title)
 
-Set_ui_transform(4, "mapping_move_left", {
+Set_ui_transform("mapping_move_left", {
     x = 24.07,
     y = 48.61,
     z = 0,
@@ -267,16 +267,16 @@ Set_ui_transform(4, "mapping_move_left", {
     rotation = 0
 })
 
-Create_ui_button(4, "rebind_move_left")
+Create_ui_button("rebind_move_left")
 
-Set_ui_style(4, "rebind_move_left", styles.main_menu)
+Set_ui_style("rebind_move_left", styles.main_menu)
 
-Set_ui_text(4, "rebind_move_left", {
+Set_ui_text("rebind_move_left", {
     content = "Rebind",
     font_size = 20
 })
 
-Set_ui_transform(4, "rebind_move_left", {
+Set_ui_transform("rebind_move_left", {
     x = 70.37,
     y = 47.92,
     z = 0,
@@ -287,14 +287,14 @@ Set_ui_transform(4, "rebind_move_left", {
     rotation = 0
 })
 
-Create_ui_text(4, "mapping_move_right", {
+Create_ui_text("mapping_move_right", {
     content = "Move Right: D / Right",
     font_size = 28
 })
 
-Set_ui_style(4, "mapping_move_right", styles.title)
+Set_ui_style("mapping_move_right", styles.title)
 
-Set_ui_transform(4, "mapping_move_right", {
+Set_ui_transform("mapping_move_right", {
     x = 24.07,
     y = 56.94,
     z = 0,
@@ -305,16 +305,16 @@ Set_ui_transform(4, "mapping_move_right", {
     rotation = 0
 })
 
-Create_ui_button(4, "rebind_move_right")
+Create_ui_button("rebind_move_right")
 
-Set_ui_style(4, "rebind_move_right", styles.main_menu)
+Set_ui_style("rebind_move_right", styles.main_menu)
 
-Set_ui_text(4, "rebind_move_right", {
+Set_ui_text("rebind_move_right", {
     content = "Rebind",
     font_size = 20
 })
 
-Set_ui_transform(4, "rebind_move_right", {
+Set_ui_transform("rebind_move_right", {
     x = 70.37,
     y = 56.25,
     z = 0,
@@ -325,14 +325,14 @@ Set_ui_transform(4, "rebind_move_right", {
     rotation = 0
 })
 
-Create_ui_text(4, "mapping_shoot", {
+Create_ui_text("mapping_shoot", {
     content = "Shoot: Space",
     font_size = 28
 })
 
-Set_ui_style(4, "mapping_shoot", styles.title)
+Set_ui_style("mapping_shoot", styles.title)
 
-Set_ui_transform(4, "mapping_shoot", {
+Set_ui_transform("mapping_shoot", {
     x = 24.07,
     y = 65.28,
     z = 0,
@@ -343,16 +343,16 @@ Set_ui_transform(4, "mapping_shoot", {
     rotation = 0
 })
 
-Create_ui_button(4, "rebind_shoot")
+Create_ui_button("rebind_shoot")
 
-Set_ui_style(4, "rebind_shoot", styles.main_menu)
+Set_ui_style("rebind_shoot", styles.main_menu)
 
-Set_ui_text(4, "rebind_shoot", {
+Set_ui_text("rebind_shoot", {
     content = "Rebind",
     font_size = 20
 })
 
-Set_ui_transform(4, "rebind_shoot", {
+Set_ui_transform("rebind_shoot", {
     x = 70.37,
     y = 64.58,
     z = 0,
@@ -363,14 +363,14 @@ Set_ui_transform(4, "rebind_shoot", {
     rotation = 0
 })
 
-Create_ui_text(4, "rebind_prompt", {
+Create_ui_text("rebind_prompt", {
     content = "Click Rebind to change controls",
     font_size = 24
 })
 
-Set_ui_style(4, "rebind_prompt", styles.title)
+Set_ui_style("rebind_prompt", styles.title)
 
-Set_ui_transform(4, "rebind_prompt", {
+Set_ui_transform("rebind_prompt", {
     x = 24.07,
     y = 75,
     z = 0,
@@ -381,16 +381,16 @@ Set_ui_transform(4, "rebind_prompt", {
     rotation = 0
 })
 
-Create_ui_button(4, "reset_controls_button")
+Create_ui_button("reset_controls_button")
 
-Set_ui_style(4, "reset_controls_button", styles.main_menu)
+Set_ui_style("reset_controls_button", styles.main_menu)
 
-Set_ui_text(4, "reset_controls_button", {
+Set_ui_text("reset_controls_button", {
     content = "Reset",
     font_size = 20
 })
 
-Set_ui_transform(4, "reset_controls_button", {
+Set_ui_transform("reset_controls_button", {
     x = 83.33,
     y = 90.28,
     z = 0,
@@ -401,16 +401,16 @@ Set_ui_transform(4, "reset_controls_button", {
     rotation = 0
 })
 
-Create_ui_button(4, "back_button")
+Create_ui_button("back_button")
 
-Set_ui_style(4, "back_button", styles.main_menu)
+Set_ui_style("back_button", styles.main_menu)
 
-Set_ui_text(4, "back_button", {
+Set_ui_text("back_button", {
     content = "Back",
     font_size = 20
 })
 
-Set_ui_transform(4, "back_button", {
+Set_ui_transform("back_button", {
     x = 24.07,
     y = 90.28,
     z = 0,
@@ -421,16 +421,16 @@ Set_ui_transform(4, "back_button", {
     rotation = 0
 })
 
-Create_ui_button(4, "exit_button")
+Create_ui_button("exit_button")
 
-Set_ui_style(4, "exit_button", styles.main_menu)
+Set_ui_style("exit_button", styles.main_menu)
 
-Set_ui_text(4, "exit_button", {
+Set_ui_text("exit_button", {
     content = "Exit",
     font_size = 20
 })
 
-Set_ui_transform(4, "exit_button", {
+Set_ui_transform("exit_button", {
     x = 36.11,
     y = 90.28,
     z = 0,
@@ -441,16 +441,16 @@ Set_ui_transform(4, "exit_button", {
     rotation = 0
 })
 
-Create_ui_button(4, "main_menu_button")
+Create_ui_button("main_menu_button")
 
-Set_ui_style(4, "main_menu_button", styles.main_menu)
+Set_ui_style("main_menu_button", styles.main_menu)
 
-Set_ui_text(4, "main_menu_button", {
+Set_ui_text("main_menu_button", {
     content = "Menu",
     font_size = 20
 })
 
-Set_ui_transform(4, "main_menu_button", {
+Set_ui_transform("main_menu_button", {
     x = 48.15,
     y = 90.28,
     z = 0,
@@ -461,17 +461,17 @@ Set_ui_transform(4, "main_menu_button", {
     rotation = 0
 })
 
-Set_ui_navigation(4, "nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "rebind_move_up" })
-Set_ui_navigation(4, "nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "rebind_move_up" })
-Set_ui_navigation(4, "nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "rebind_move_up" })
+Set_ui_navigation("nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "rebind_move_up" })
+Set_ui_navigation("nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "rebind_move_up" })
+Set_ui_navigation("nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "rebind_move_up" })
 
-Set_ui_navigation(4, "rebind_move_up", { up = "nav_controls_button", down = "rebind_move_down", left = "nav_controls_button" })
-Set_ui_navigation(4, "rebind_move_down", { up = "rebind_move_up", down = "rebind_move_left", left = "nav_controls_button" })
-Set_ui_navigation(4, "rebind_move_left", { up = "rebind_move_down", down = "rebind_move_right", left = "nav_controls_button" })
-Set_ui_navigation(4, "rebind_move_right", { up = "rebind_move_left", down = "rebind_shoot", left = "nav_controls_button" })
-Set_ui_navigation(4, "rebind_shoot", { up = "rebind_move_right", down = "main_menu_button", left = "nav_controls_button" })
-Set_ui_navigation(4, "reset_controls_button", { up = "rebind_shoot", down = "rebind_move_up", left = "main_menu_button", right = "back_button" })
+Set_ui_navigation("rebind_move_up", { up = "nav_controls_button", down = "rebind_move_down", left = "nav_controls_button" })
+Set_ui_navigation("rebind_move_down", { up = "rebind_move_up", down = "rebind_move_left", left = "nav_controls_button" })
+Set_ui_navigation("rebind_move_left", { up = "rebind_move_down", down = "rebind_move_right", left = "nav_controls_button" })
+Set_ui_navigation("rebind_move_right", { up = "rebind_move_left", down = "rebind_shoot", left = "nav_controls_button" })
+Set_ui_navigation("rebind_shoot", { up = "rebind_move_right", down = "main_menu_button", left = "nav_controls_button" })
+Set_ui_navigation("reset_controls_button", { up = "rebind_shoot", down = "rebind_move_up", left = "main_menu_button", right = "back_button" })
 
-Set_ui_navigation(4, "back_button", { up = "rebind_shoot", left = "nav_controls_button", right = "exit_button", down = "rebind_move_up" })
-Set_ui_navigation(4, "exit_button", { up = "rebind_shoot", left = "back_button", right = "main_menu_button", down = "rebind_move_up" })
-Set_ui_navigation(4, "main_menu_button", { up = "rebind_shoot", left = "exit_button", right = "reset_controls_button", down = "rebind_move_up" })
+Set_ui_navigation("back_button", { up = "rebind_shoot", left = "nav_controls_button", right = "exit_button", down = "rebind_move_up" })
+Set_ui_navigation("exit_button", { up = "rebind_shoot", left = "back_button", right = "main_menu_button", down = "rebind_move_up" })
+Set_ui_navigation("main_menu_button", { up = "rebind_shoot", left = "exit_button", right = "reset_controls_button", down = "rebind_move_up" })

@@ -15,7 +15,7 @@ constexpr unsigned char k_max_scene_id = 255;
 
 static void expose_cpp_api(sol::state& lua, EngineContext& ctx);
 
-EngineContext::EngineContext() : server_port(0), m_current_scene(0) {
+EngineContext::EngineContext() : server_port(0), m_current_scene("") {
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
     expose_cpp_api(lua_ctx->get_lua_state(), *this);
@@ -43,34 +43,31 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
     }
 }
 
-void EngineContext::add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader) {
-    m_scenes_loaders[scene_id] = loader;
+void EngineContext::add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader) {
+    m_scenes_loaders[scene_name] = loader;
 }
 
-void EngineContext::set_scene(unsigned char scene_id) {
-    if (scene_id > k_max_scene_id) {
-        LOG_ERROR("Max number of scenes is 256 (0-255)");
-        return;
-    } else if (scene_id == m_current_scene) {
-        LOG_INFO("Reloading scene {}", static_cast<int>(scene_id));
-    } else if (m_scenes_loaders[scene_id] == nullptr) {
-        LOG_ERROR("Scene {} has no loader function registered", static_cast<int>(scene_id));
+void EngineContext::set_scene(const std::string &scene_name) {
+    if (scene_name == m_current_scene) {
+        LOG_INFO("Reloading scene {}", scene_name);
+    } else if (m_scenes_loaders[scene_name] == nullptr) {
+        LOG_ERROR("Scene {} has no loader function registered", scene_name);
         return;
     }
-    LOG_INFO("Switching to scene {}", static_cast<int>(scene_id));
+    LOG_INFO("Switching to scene {}", scene_name);
     LOG_DEBUG("Clearing registry...");
     registry.~Registry();
     new (&registry) ecs::Registry();
     m_systems.clear();
-    m_current_scene = scene_id;
+    m_current_scene = scene_name;
     LOG_DEBUG("Spawning initial entity {}",
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
-    LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
-    m_scenes_loaders[scene_id](*this);
-    LOG_INFO("Scene {} loaded", static_cast<int>(scene_id));
+    LOG_DEBUG("Loading scene {}...", scene_name);
+    m_scenes_loaders[scene_name](*this);
+    LOG_INFO("Scene {} loaded", scene_name);
 }
 
-unsigned char EngineContext::get_current_scene() const {
+const std::string &EngineContext::get_current_scene() const {
     return m_current_scene;
 }
 

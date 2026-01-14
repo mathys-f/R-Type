@@ -74,8 +74,6 @@ static void update_window_size(EngineContext& engine_ctx) {
 int main(void) {
     constexpr int k_target_fps = 60;
     constexpr unsigned char k_alpha_opaque = 255;
-    constexpr unsigned char k_settings_audio_scene_id = 5;
-    constexpr unsigned char k_settings_gamepad_scene_id = 6;
 
     srand(time(NULL));
 
@@ -98,14 +96,14 @@ int main(void) {
     engine_ctx.assets_manager.load_sound("shoot_sound", "assets/music/Blaster2.mp3");
 
     // Add scene loaders
-    engine_ctx.add_scene_loader(0, load_game_scene);
-    engine_ctx.add_scene_loader(1, load_main_menu_scene);
-    engine_ctx.add_scene_loader(2, load_lobby_scene);
-    engine_ctx.add_scene_loader(3, load_multiplayer_game_scene);
-    engine_ctx.add_scene_loader(4, load_settings_menu_scene);
-    engine_ctx.add_scene_loader(k_settings_audio_scene_id, load_settings_audio_scene);
-    engine_ctx.add_scene_loader(k_settings_gamepad_scene_id, load_settings_gamepad_menu_scene);
-    engine_ctx.set_scene(1); // Game menu scene
+    engine_ctx.add_scene_loader("singleplayer_game", load_game_scene);
+    engine_ctx.add_scene_loader("multiplayer_game", load_multiplayer_game_scene);
+    engine_ctx.add_scene_loader("main_menu", load_main_menu_scene);
+    engine_ctx.add_scene_loader("lobby", load_lobby_scene);
+    engine_ctx.add_scene_loader("audio_settings", load_audio_settings_scene);
+    engine_ctx.add_scene_loader("keyboard_settings", load_keyboard_settings_menu_scene);
+    engine_ctx.add_scene_loader("gamepad_settings", load_gamepad_settings_menu_scene);
+    engine_ctx.set_scene("main_menu"); // Game menu scene
 
     std::optional<Music> battle_music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
     if (battle_music.has_value())

@@ -17,7 +17,6 @@
 
 // Non headless components
 #include "particle.h"
-#include "scene.h"
 #include "star.h"
 #include "explosion.h"
 #include "ui/ui_button.h"
