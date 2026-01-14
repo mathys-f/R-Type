@@ -58,11 +58,17 @@ void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& 
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);
 
-void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
-void update_snapshots_system(EngineContext& ctx);
+// In order to use the networking feature of the engine, these three systems must be called in this order:
+// 1. poll_input_events_from_client
+// 2. create_snapshot_system
+// 3. update_snapshots_system
+// 4. send_snapshot_to_client
 
 void poll_input_events_from_client(EngineContext& ctx);
+void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void update_snapshots_system(EngineContext& ctx);
 void send_snapshot_to_client(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+
 
 void poll_snapshot_from_server(EngineContext& ctx);
 void send_input_events_to_server(EngineContext& ctx);
