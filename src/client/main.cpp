@@ -109,13 +109,13 @@ int main(void) {
         engine_ctx.delta_time = GetFrameTime();
 
         // Handle music change
-        std::optional<unsigned int> scene_id = engine_ctx.get_current_scene();
-        if (scene_id == 0 && engine_ctx.change_music) {
+        const std::string &scene_name = engine_ctx.get_current_scene();
+        if (scene_name == "" && engine_ctx.change_music) {
             engine_ctx.change_music = false;
             StopMusicStream(music.value());
             music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
             PlayMusicStream(music.value());
-        } else if (scene_id == 1 && engine_ctx.change_music) {
+        } else if (scene_name == "main_menu" && engine_ctx.change_music) {
             engine_ctx.change_music = false;
             StopMusicStream(music.value());
             music = engine_ctx.assets_manager.get_asset<Music>("menu_music");
