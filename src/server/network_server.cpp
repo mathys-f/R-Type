@@ -88,7 +88,7 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
     if (auto req = net::lobby::parse_req_create_lobby(pkt)) {
         net::lobby::ResCreateLobby res;
         try {
-            std::uint32_t lobby_id = m_lobby_manager->create_lobby(req->m_lobby_name, req->m_max_players, m_engine_ctx);
+            std::uint32_t lobby_id = m_lobby_manager->create_lobby(req->m_lobby_name, req->m_max_players);
             auto lobby = m_lobby_manager->get_lobby(lobby_id);
 
             if (lobby) {
