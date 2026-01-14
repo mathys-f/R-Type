@@ -137,6 +137,11 @@ void NetworkClient::send_unreliable(const net::Packet& packet) {
 }
 
 void NetworkClient::send_input_mask(std::uint8_t mask, std::uint32_t tick) {
+    constexpr std::size_t k_input_packet_size = 5;
+    constexpr std::uint8_t k_shift_8 = 8;
+    constexpr std::uint8_t k_shift_16 = 16;
+    constexpr std::uint8_t k_shift_24 = 24;
+    constexpr auto k_max_input_mask = 0xFF;
     if (!m_connected.load()) {
         return;
     }
@@ -144,11 +149,11 @@ void NetworkClient::send_input_mask(std::uint8_t mask, std::uint32_t tick) {
     net::Packet pkt;
     pkt.header.m_command = static_cast<std::uint8_t>(net::CommandId::KClientInput);
 
-    pkt.payload.resize(5);
-    pkt.payload[0] = std::byte(static_cast<unsigned char>(tick & 0xFF));
-    pkt.payload[1] = std::byte(static_cast<unsigned char>((tick >> 8) & 0xFF));
-    pkt.payload[2] = std::byte(static_cast<unsigned char>((tick >> 16) & 0xFF));
-    pkt.payload[3] = std::byte(static_cast<unsigned char>((tick >> 24) & 0xFF));
+    pkt.payload.resize(k_input_packet_size);
+    pkt.payload[0] = std::byte(static_cast<unsigned char>(tick & k_max_input_mask));
+    pkt.payload[1] = std::byte(static_cast<unsigned char>((tick >> k_shift_8) & k_max_input_mask));
+    pkt.payload[2] = std::byte(static_cast<unsigned char>((tick >> k_shift_16) & k_max_input_mask));
+    pkt.payload[3] = std::byte(static_cast<unsigned char>((tick >> k_shift_24) & k_max_input_mask));
     pkt.payload[4] = std::byte(static_cast<unsigned char>(mask));
 
     m_session->send(pkt, false);
