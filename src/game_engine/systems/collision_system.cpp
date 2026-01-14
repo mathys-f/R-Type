@@ -31,6 +31,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
     int enemies_killed = 0;
 
     // Debug - show hitboxes
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
     for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
         if (pos_opt && hitbox_opt) {
             Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
@@ -240,4 +241,5 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
             stat->kills += enemies_killed;
         }
     }
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
 }
