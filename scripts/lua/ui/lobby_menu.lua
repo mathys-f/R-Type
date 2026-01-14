@@ -50,11 +50,11 @@ Create_ui_text(2, "titlescreen", {
 Set_ui_style(2, "titlescreen", styles.title)
 
 Set_ui_transform(2, "titlescreen", {
-    x = 100,
-    y = 20,
+    x = 9.26,
+    y = 2.78,
     z = 0,
-    w = 880,
-    h = 100,
+    w = 81.48,
+    h = 13.89,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -69,11 +69,11 @@ Create_ui_text(2, "server_label", {
 Set_ui_style(2, "server_label", styles.title)
 
 Set_ui_transform(2, "server_label", {
-    x = 50,
-    y = 130,
+    x = 4.63,
+    y = 18.06,
     z = 0,
-    w = 150,
-    h = 40,
+    w = 13.89,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -89,11 +89,11 @@ Set_ui_text(2, "lobby_server_ip", {
 })
 
 Set_ui_transform(2, "lobby_server_ip", {
-    x = 200,
-    y = 130,
+    x = 18.52,
+    y = 18.06,
     z = 0,
-    w = 250,
-    h = 40,
+    w = 23.15,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -108,11 +108,11 @@ Create_ui_text(2, "port_label", {
 Set_ui_style(2, "port_label", styles.title)
 
 Set_ui_transform(2, "port_label", {
-    x = 470,
-    y = 130,
+    x = 43.52,
+    y = 18.06,
     z = 0,
-    w = 80,
-    h = 40,
+    w = 7.41,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -128,11 +128,11 @@ Set_ui_text(2, "lobby_server_port", {
 })
 
 Set_ui_transform(2, "lobby_server_port", {
-    x = 550,
-    y = 130,
+    x = 50.93,
+    y = 18.06,
     z = 0,
-    w = 150,
-    h = 40,
+    w = 13.89,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -149,11 +149,11 @@ Set_ui_text(2, "connect_to_server_button", {
 Set_ui_style(2, "connect_to_server_button", styles.main_menu)
 
 Set_ui_transform(2, "connect_to_server_button", {
-    x = 720,
-    y = 130,
+    x = 66.67,
+    y = 18.06,
     z = 0,
-    w = 150,
-    h = 40,
+    w = 13.89,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -170,11 +170,11 @@ Set_ui_text(2, "refresh_lobbies_button", {
 Set_ui_style(2, "refresh_lobbies_button", styles.main_menu)
 
 Set_ui_transform(2, "refresh_lobbies_button", {
-    x = 900,
-    y = 130,
+    x = 83.33,
+    y = 18.06,
     z = 0,
-    w = 150,
-    h = 40,
+    w = 13.89,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -189,11 +189,11 @@ Create_ui_text(2, "create_lobby_label", {
 Set_ui_style(2, "create_lobby_label", styles.title)
 
 Set_ui_transform(2, "create_lobby_label", {
-    x = 50,
-    y = 190,
+    x = 4.63,
+    y = 26.39,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -210,11 +210,11 @@ Set_ui_text(2, "lobby_name_input", {
 })
 
 Set_ui_transform(2, "lobby_name_input", {
-    x = 50,
-    y = 240,
+    x = 4.63,
+    y = 33.33,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -231,11 +231,11 @@ Set_ui_text(2, "create_lobby_button", {
 Set_ui_style(2, "create_lobby_button", styles.main_menu)
 
 Set_ui_transform(2, "create_lobby_button", {
-    x = 370,
-    y = 240,
+    x = 34.26,
+    y = 33.33,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -250,11 +250,11 @@ Create_ui_text(2, "available_lobbies_label", {
 Set_ui_style(2, "available_lobbies_label", styles.title)
 
 Set_ui_transform(2, "available_lobbies_label", {
-    x = 50,
-    y = 300,
+    x = 4.63,
+    y = 41.67,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -281,11 +281,11 @@ Set_ui_style(2, "lobby_list_bg", {
 })
 
 Set_ui_transform(2, "lobby_list_bg", {
-    x = 50,
-    y = 350,
+    x = 4.63,
+    y = 48.61,
     z = 0,
-    w = 980,
-    h = 280,
+    w = 90.74,
+    h = 38.89,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -300,11 +300,11 @@ Create_ui_text(2, "status_text", {
 Set_ui_style(2, "status_text", styles.title)
 
 Set_ui_transform(2, "status_text", {
-    x = 50,
-    y = 640,
+    x = 4.63,
+    y = 88.89,
     z = 0,
-    w = 700,
-    h = 30,
+    w = 64.81,
+    h = 4.17,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -321,11 +321,11 @@ Set_ui_text(2, "back_button", {
 Set_ui_style(2, "back_button", styles.main_menu)
 
 Set_ui_transform(2, "back_button", {
-    x = 850,
-    y = 650,
+    x = 78.7,
+    y = 90.28,
     z = 0,
-    w = 180,
-    h = 50,
+    w = 16.67,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0

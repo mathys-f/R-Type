@@ -11,13 +11,13 @@
 --------------------------------------------------------------------------------
 
 ---@class UITransform
----@field x number # Horizontal position
----@field y number # Vertical position
+---@field x number # Horizontal position (0.0-100.0%) of screen width
+---@field y number # Vertical position (0.0-100.0%) of screen width
 ---@field z number # Layer index
----@field w number # Width
----@field h number # Height
----@field anchor_x number # Horizontal anchor point (0.0 - 1.0)
----@field anchor_y number # Vertical anchor point (0.0 - 1.0)
+---@field w number # Width (0.0-100.0%) of screen width
+---@field h number # Height (0.0-100.0%) of screen width
+---@field anchor_x number # Horizontal rotation anchor point (0.0 - 100.0%) of Width
+---@field anchor_y number # Vertical rotation anchor point (0.0 - 100.0%) of Width
 ---@field rotation number # Rotation in degrees
 
 ---@class UIStyle
@@ -78,7 +78,6 @@ function Create_ui_button(scene, name) end
 --- - UIStyle
 --- @param scene integer # Scene id (0-255)
 --- @param name string # Unique name (tag) for the entity.
---- @param scene integer # Scene id (0-255)
 --- @param UIText UIText
 function Create_ui_text(scene, name, UIText) end
 

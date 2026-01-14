@@ -52,8 +52,8 @@ Set_ui_transform(5, "nav_panel", {
     x = 0,
     y = 0,
     z = 0,
-    w = 220,
-    h = 720,
+    w = 20.37,
+    h = 100,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -67,11 +67,11 @@ Create_ui_text(5, "nav_title", {
 Set_ui_style(5, "nav_title", styles.title)
 
 Set_ui_transform(5, "nav_title", {
-    x = 25,
-    y = 25,
+    x = 2.31,
+    y = 3.47,
     z = 0,
-    w = 170,
-    h = 40,
+    w = 15.74,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -87,11 +87,11 @@ Set_ui_text(5, "nav_controls_button", {
 })
 
 Set_ui_transform(5, "nav_controls_button", {
-    x = 20,
-    y = 90,
+    x = 1.85,
+    y = 12.5,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -107,11 +107,11 @@ Set_ui_text(5, "nav_audio_button", {
 })
 
 Set_ui_transform(5, "nav_audio_button", {
-    x = 20,
-    y = 220,
+    x = 1.85,
+    y = 30.56,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -127,11 +127,11 @@ Set_ui_text(5, "nav_gamepad_button", {
 })
 
 Set_ui_transform(5, "nav_gamepad_button", {
-    x = 20,
-    y = 155,
+    x = 1.85,
+    y = 21.53,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -145,11 +145,11 @@ Create_ui_text(5, "settings_title", {
 Set_ui_style(5, "settings_title", styles.title)
 
 Set_ui_transform(5, "settings_title", {
-    x = 260,
-    y = 10,
+    x = 24.07,
+    y = 1.39,
     z = 0,
-    w = 760,
-    h = 120,
+    w = 70.37,
+    h = 16.67,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -163,11 +163,11 @@ Create_ui_text(5, "audio_title", {
 Set_ui_style(5, "audio_title", styles.title)
 
 Set_ui_transform(5, "audio_title", {
-    x = 260,
-    y = 160,
+    x = 24.07,
+    y = 22.22,
     z = 0,
-    w = 600,
-    h = 50,
+    w = 55.56,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -181,11 +181,11 @@ Create_ui_text(5, "general_volume_label", {
 Set_ui_style(5, "general_volume_label", styles.title)
 
 Set_ui_transform(5, "general_volume_label", {
-    x = 260,
-    y = 240,
+    x = 24.07,
+    y = 33.33,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -199,11 +199,11 @@ Create_ui_text(5, "general_volume_value", {
 Set_ui_style(5, "general_volume_value", styles.title)
 
 Set_ui_transform(5, "general_volume_value", {
-    x = 600,
-    y = 240,
+    x = 55.56,
+    y = 33.33,
     z = 0,
-    w = 120,
-    h = 40,
+    w = 11.11,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -219,11 +219,11 @@ Set_ui_text(5, "general_volume_down_button", {
 })
 
 Set_ui_transform(5, "general_volume_down_button", {
-    x = 760,
-    y = 235,
+    x = 70.37,
+    y = 32.64,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -239,11 +239,11 @@ Set_ui_text(5, "general_volume_up_button", {
 })
 
 Set_ui_transform(5, "general_volume_up_button", {
-    x = 830,
-    y = 235,
+    x = 76.85,
+    y = 32.64,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -259,11 +259,11 @@ Set_ui_text(5, "general_mute_button", {
 })
 
 Set_ui_transform(5, "general_mute_button", {
-    x = 900,
-    y = 235,
+    x = 83.33,
+    y = 32.64,
     z = 0,
-    w = 100,
-    h = 45,
+    w = 9.26,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -279,11 +279,11 @@ Set_ui_text(5, "back_button", {
 })
 
 Set_ui_transform(5, "back_button", {
-    x = 260,
-    y = 650,
+    x = 24.07,
+    y = 90.28,
     z = 0,
-    w = 100,
-    h = 50,
+    w = 9.26,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -299,11 +299,11 @@ Set_ui_text(5, "exit_button", {
 })
 
 Set_ui_transform(5, "exit_button", {
-    x = 390,
-    y = 650,
+    x = 36.11,
+    y = 90.28,
     z = 0,
-    w = 100,
-    h = 50,
+    w = 9.26,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -319,11 +319,11 @@ Set_ui_text(5, "main_menu_button", {
 })
 
 Set_ui_transform(5, "main_menu_button", {
-    x = 520,
-    y = 650,
+    x = 48.15,
+    y = 90.28,
     z = 0,
-    w = 120,
-    h = 50,
+    w = 11.11,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -336,11 +336,11 @@ Create_ui_text(5, "music_volume_label", {
 Set_ui_style(5, "music_volume_label", styles.title)
 
 Set_ui_transform(5, "music_volume_label", {
-    x = 260,
-    y = 305,
+    x = 24.07,
+    y = 42.36,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -354,11 +354,11 @@ Create_ui_text(5, "music_volume_value", {
 Set_ui_style(5, "music_volume_value", styles.title)
 
 Set_ui_transform(5, "music_volume_value", {
-    x = 600,
-    y = 305,
+    x = 55.56,
+    y = 42.36,
     z = 0,
-    w = 120,
-    h = 40,
+    w = 11.11,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -374,11 +374,11 @@ Set_ui_text(5, "music_volume_down_button", {
 })
 
 Set_ui_transform(5, "music_volume_down_button", {
-    x = 760,
-    y = 300,
+    x = 70.37,
+    y = 41.67,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -394,11 +394,11 @@ Set_ui_text(5, "music_volume_up_button", {
 })
 
 Set_ui_transform(5, "music_volume_up_button", {
-    x = 830,
-    y = 300,
+    x = 76.85,
+    y = 41.67,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -414,11 +414,11 @@ Set_ui_text(5, "music_mute_button", {
 })
 
 Set_ui_transform(5, "music_mute_button", {
-    x = 900,
-    y = 300,
+    x = 83.33,
+    y = 41.67,
     z = 0,
-    w = 100,
-    h = 45,
+    w = 9.26,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -432,11 +432,11 @@ Create_ui_text(5, "sfx_volume_label", {
 Set_ui_style(5, "sfx_volume_label", styles.title)
 
 Set_ui_transform(5, "sfx_volume_label", {
-    x = 260,
-    y = 370,
+    x = 24.07,
+    y = 51.39,
     z = 0,
-    w = 300,
-    h = 40,
+    w = 27.78,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -450,11 +450,11 @@ Create_ui_text(5, "sfx_volume_value", {
 Set_ui_style(5, "sfx_volume_value", styles.title)
 
 Set_ui_transform(5, "sfx_volume_value", {
-    x = 600,
-    y = 370,
+    x = 55.56,
+    y = 51.39,
     z = 0,
-    w = 120,
-    h = 40,
+    w = 11.11,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -470,11 +470,11 @@ Set_ui_text(5, "sfx_volume_down_button", {
 })
 
 Set_ui_transform(5, "sfx_volume_down_button", {
-    x = 760,
-    y = 365,
+    x = 70.37,
+    y = 50.69,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -490,11 +490,11 @@ Set_ui_text(5, "sfx_volume_up_button", {
 })
 
 Set_ui_transform(5, "sfx_volume_up_button", {
-    x = 830,
-    y = 365,
+    x = 76.85,
+    y = 50.69,
     z = 0,
-    w = 60,
-    h = 45,
+    w = 5.56,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -510,11 +510,11 @@ Set_ui_text(5, "sfx_mute_button", {
 })
 
 Set_ui_transform(5, "sfx_mute_button", {
-    x = 900,
-    y = 365,
+    x = 83.33,
+    y = 50.69,
     z = 0,
-    w = 100,
-    h = 45,
+    w = 9.26,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0

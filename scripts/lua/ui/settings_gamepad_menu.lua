@@ -52,8 +52,8 @@ Set_ui_transform(6, "nav_panel", {
     x = 0,
     y = 0,
     z = 0,
-    w = 220,
-    h = 720,
+    w = 20.37,
+    h = 100,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -67,11 +67,11 @@ Create_ui_text(6, "nav_title", {
 Set_ui_style(6, "nav_title", styles.title)
 
 Set_ui_transform(6, "nav_title", {
-    x = 25,
-    y = 25,
+    x = 2.31,
+    y = 3.47,
     z = 0,
-    w = 170,
-    h = 40,
+    w = 15.74,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -87,11 +87,11 @@ Set_ui_text(6, "nav_controls_button", {
 })
 
 Set_ui_transform(6, "nav_controls_button", {
-    x = 20,
-    y = 90,
+    x = 1.85,
+    y = 12.5,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -107,11 +107,11 @@ Set_ui_text(6, "nav_gamepad_button", {
 })
 
 Set_ui_transform(6, "nav_gamepad_button", {
-    x = 20,
-    y = 155,
+    x = 1.85,
+    y = 21.53,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -127,11 +127,11 @@ Set_ui_text(6, "nav_audio_button", {
 })
 
 Set_ui_transform(6, "nav_audio_button", {
-    x = 20,
-    y = 220,
+    x = 1.85,
+    y = 30.56,
     z = 0,
-    w = 180,
-    h = 45,
+    w = 16.67,
+    h = 6.25,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -145,11 +145,11 @@ Create_ui_text(6, "settings_title", {
 Set_ui_style(6, "settings_title", styles.title)
 
 Set_ui_transform(6, "settings_title", {
-    x = 260,
-    y = 10,
+    x = 24.07,
+    y = 1.39,
     z = 0,
-    w = 760,
-    h = 120,
+    w = 70.37,
+    h = 16.67,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -163,11 +163,11 @@ Create_ui_text(6, "gamepad_controls_title", {
 Set_ui_style(6, "gamepad_controls_title", styles.title)
 
 Set_ui_transform(6, "gamepad_controls_title", {
-    x = 260,
-    y = 160,
+    x = 24.07,
+    y = 22.22,
     z = 0,
-    w = 600,
-    h = 50,
+    w = 55.56,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -181,11 +181,11 @@ Create_ui_text(6, "gamepad_controls_note", {
 Set_ui_style(6, "gamepad_controls_note", styles.title)
 
 Set_ui_transform(6, "gamepad_controls_note", {
-    x = 260,
-    y = 200,
+    x = 24.07,
+    y = 27.78,
     z = 0,
-    w = 760,
-    h = 30,
+    w = 70.37,
+    h = 4.17,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -199,11 +199,11 @@ Create_ui_text(6, "gamepad_mapping_move_up", {
 Set_ui_style(6, "gamepad_mapping_move_up", styles.title)
 
 Set_ui_transform(6, "gamepad_mapping_move_up", {
-    x = 260,
-    y = 250,
+    x = 24.07,
+    y = 34.72,
     z = 0,
-    w = 460,
-    h = 40,
+    w = 42.59,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -219,11 +219,11 @@ Set_ui_text(6, "rebind_gamepad_move_up", {
 })
 
 Set_ui_transform(6, "rebind_gamepad_move_up", {
-    x = 760,
-    y = 245,
+    x = 70.37,
+    y = 34.03,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -237,11 +237,11 @@ Create_ui_text(6, "gamepad_mapping_move_down", {
 Set_ui_style(6, "gamepad_mapping_move_down", styles.title)
 
 Set_ui_transform(6, "gamepad_mapping_move_down", {
-    x = 260,
-    y = 310,
+    x = 24.07,
+    y = 43.06,
     z = 0,
-    w = 460,
-    h = 40,
+    w = 42.59,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -257,11 +257,11 @@ Set_ui_text(6, "rebind_gamepad_move_down", {
 })
 
 Set_ui_transform(6, "rebind_gamepad_move_down", {
-    x = 760,
-    y = 305,
+    x = 70.37,
+    y = 42.36,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -275,11 +275,11 @@ Create_ui_text(6, "gamepad_mapping_move_left", {
 Set_ui_style(6, "gamepad_mapping_move_left", styles.title)
 
 Set_ui_transform(6, "gamepad_mapping_move_left", {
-    x = 260,
-    y = 370,
+    x = 24.07,
+    y = 51.39,
     z = 0,
-    w = 460,
-    h = 40,
+    w = 42.59,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -295,11 +295,11 @@ Set_ui_text(6, "rebind_gamepad_move_left", {
 })
 
 Set_ui_transform(6, "rebind_gamepad_move_left", {
-    x = 760,
-    y = 365,
+    x = 70.37,
+    y = 50.69,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -313,11 +313,11 @@ Create_ui_text(6, "gamepad_mapping_move_right", {
 Set_ui_style(6, "gamepad_mapping_move_right", styles.title)
 
 Set_ui_transform(6, "gamepad_mapping_move_right", {
-    x = 260,
-    y = 430,
+    x = 24.07,
+    y = 59.72,
     z = 0,
-    w = 460,
-    h = 40,
+    w = 42.59,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -333,11 +333,11 @@ Set_ui_text(6, "rebind_gamepad_move_right", {
 })
 
 Set_ui_transform(6, "rebind_gamepad_move_right", {
-    x = 760,
-    y = 425,
+    x = 70.37,
+    y = 59.03,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -351,11 +351,11 @@ Create_ui_text(6, "gamepad_mapping_shoot", {
 Set_ui_style(6, "gamepad_mapping_shoot", styles.title)
 
 Set_ui_transform(6, "gamepad_mapping_shoot", {
-    x = 260,
-    y = 490,
+    x = 24.07,
+    y = 68.06,
     z = 0,
-    w = 460,
-    h = 40,
+    w = 42.59,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -371,11 +371,11 @@ Set_ui_text(6, "rebind_gamepad_shoot", {
 })
 
 Set_ui_transform(6, "rebind_gamepad_shoot", {
-    x = 760,
-    y = 485,
+    x = 70.37,
+    y = 67.36,
     z = 0,
-    w = 200,
-    h = 40,
+    w = 18.52,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -389,11 +389,11 @@ Create_ui_text(6, "gamepad_rebind_prompt", {
 Set_ui_style(6, "gamepad_rebind_prompt", styles.title)
 
 Set_ui_transform(6, "gamepad_rebind_prompt", {
-    x = 260,
-    y = 560,
+    x = 24.07,
+    y = 77.78,
     z = 0,
-    w = 760,
-    h = 40,
+    w = 70.37,
+    h = 5.56,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -409,11 +409,11 @@ Set_ui_text(6, "reset_gamepad_button", {
 })
 
 Set_ui_transform(6, "reset_gamepad_button", {
-    x = 900,
-    y = 650,
+    x = 83.33,
+    y = 90.28,
     z = 0,
-    w = 120,
-    h = 50,
+    w = 11.11,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -429,11 +429,11 @@ Set_ui_text(6, "back_button", {
 })
 
 Set_ui_transform(6, "back_button", {
-    x = 260,
-    y = 650,
+    x = 24.07,
+    y = 90.28,
     z = 0,
-    w = 100,
-    h = 50,
+    w = 9.26,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -449,11 +449,11 @@ Set_ui_text(6, "exit_button", {
 })
 
 Set_ui_transform(6, "exit_button", {
-    x = 390,
-    y = 650,
+    x = 36.11,
+    y = 90.28,
     z = 0,
-    w = 100,
-    h = 50,
+    w = 9.26,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -469,11 +469,11 @@ Set_ui_text(6, "main_menu_button", {
 })
 
 Set_ui_transform(6, "main_menu_button", {
-    x = 520,
-    y = 650,
+    x = 48.15,
+    y = 90.28,
     z = 0,
-    w = 120,
-    h = 50,
+    w = 11.11,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0

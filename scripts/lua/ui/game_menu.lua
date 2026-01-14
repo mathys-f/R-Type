@@ -25,11 +25,11 @@ Set_ui_text(0, "back_button", {
 })
 
 Set_ui_transform(0, "back_button", {
-    x = 25,
-    y = 650,
+    x = 2.31,
+    y = 90.28,
     z = 0,
-    w = 100,
-    h = 50,
+    w = 9.26,
+    h = 6.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
