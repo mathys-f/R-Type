@@ -14,7 +14,6 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
             auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
 
             if (stat->score >= stat->point_to_next_level) {
-                printf("Level up! New level: %d\n", stat->level + 1);
                 stat->level += 1;
                 stat->point_to_next_level += 2500;
             }
