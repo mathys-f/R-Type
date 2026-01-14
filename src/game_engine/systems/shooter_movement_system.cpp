@@ -51,7 +51,7 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
             delta_y = ppos.y - pos.y;
             break; // Assuming only one player
         }
-        float angle_to_player = std::atan2(delta_y, delta_x) * (180.0f / k_pi);
-        vel.vz = angle_to_player + 180;
+        float angle_to_player = std::atan2(delta_y, delta_x) * (180.0f / k_pi); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        vel.vz = angle_to_player + 180; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
     }
 }
