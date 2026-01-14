@@ -33,8 +33,8 @@ void NetworkServer::start() {
 
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
-            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
-                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {  // NOLINT
+                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());  // NOLINT
                 return;
             }
 
