@@ -54,7 +54,7 @@ class EngineContext {
     // Variable to add to sliders
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
-    const size_t k_stars = 1000;
+    size_t k_stars = 2500;
     const size_t k_max_bullets = 100;
     const size_t k_max_charger = 5;
     const size_t k_max_shooter = 2;

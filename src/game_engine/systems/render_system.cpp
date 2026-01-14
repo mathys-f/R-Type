@@ -14,13 +14,44 @@ constexpr int k_alpha_max = 255;
 void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Star> const& stars,
                         ecs::SparseArray<cpnt::Velocity> const& velocities,
-                        ecs::SparseArray<cpnt::Particle> const& particles) {
+                        ecs::SparseArray<cpnt::Particle> const& particles, ecs::SparseArray<cpnt::Stats> const& stats) {
 
     auto& reg = ctx.registry;
+    Color stars_color = WHITE;
+
+
+    // Get Stats
+    for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
+        if (stats_opt) {
+            auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
+            // Change star color based on level
+            switch (stat->level % 5) {
+                case 0:
+                    stars_color = WHITE;
+                    break;
+                case 1:
+                    stars_color = LIME;
+                    break;
+                case 2:
+                    stars_color = SKYBLUE;
+                    break;
+                case 3:
+                    stars_color = PINK;
+                    break;
+                case 4:
+                    stars_color = GOLD;
+                    break;
+                default:
+                    stars_color = WHITE;
+                    break;
+            }
+        }
+    }
+
     // Render stars
     for (auto [idx, pos_opt, star_opt] : ecs::indexed_zipper(positions, stars)) {
         if (pos_opt && star_opt) {
-            DrawPixel(static_cast<int>(pos_opt->x), static_cast<int>(pos_opt->y), WHITE);
+            DrawPixel(static_cast<int>(pos_opt->x), static_cast<int>(pos_opt->y), stars_color);
         }
     }
 

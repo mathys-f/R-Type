@@ -15,7 +15,7 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
 
             if (stat->score >= stat->point_to_next_level) {
                 stat->level += 1;
-                stat->point_to_next_level += 2500; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                stat->point_to_next_level += 1000; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             }
             // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)

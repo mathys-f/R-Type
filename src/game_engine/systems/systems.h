@@ -73,7 +73,7 @@ void player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Star> const& stars,
                    ecs::SparseArray<cpnt::Velocity> const& velocities,
-                   ecs::SparseArray<cpnt::Particle> const& particles);
+                   ecs::SparseArray<cpnt::Particle> const& particles, ecs::SparseArray<cpnt::Stats> const& stats);
 
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);

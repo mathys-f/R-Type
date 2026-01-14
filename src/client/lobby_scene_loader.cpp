@@ -42,6 +42,7 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
     reg.register_component<cpnt::Sprite>();
     reg.register_component<cpnt::Velocity>();
     reg.register_component<cpnt::Particle>();
+    reg.register_component<cpnt::Stats>();
 
     engine_ctx.add_system<>(sys::fetch_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
@@ -51,7 +52,7 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats>(
         sys::render_system);
     engine_ctx.add_system<>(handle_lobby_ui_events);
 
