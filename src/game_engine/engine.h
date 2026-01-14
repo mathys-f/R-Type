@@ -49,12 +49,25 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    const glm::vec2 k_window_size{1080.0f, 720.0f};
+    const glm::vec2 k_window_size{1920.0f, 1080.0f};
+    
+    // Variable to add to sliders
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
-    const size_t k_max_enemies = 8;
+    const size_t k_max_charger = 5;
+    const size_t k_max_shooter = 2;
+    float k_shooter_base_speed = 3.0f;
+    float k_shooter_speed_variance = 5.0f;
+    int k_shooter_health = 3;
+    int k_spawn_margin = 100;
+    float k_enemy_base_speed = 3.0f;
+    float k_enemy_speed_variance = 5.0f;
+    int k_enemy_health = 3;
+    float k_pattern_speed_variance = 3.0f;
+    int k_pattern_amplitude_max = 10;
+    ///
 
     InputContext input_context = InputContext::Gameplay;
     InputState input_state;
@@ -76,6 +89,9 @@ class EngineContext {
     bool master_muted = false;
     bool music_muted = false;
     bool sfx_muted = false;
+
+    int current_scene_id = 1;
+    bool change_music = false;
 
     std::string server_ip;
     std::uint16_t server_port;

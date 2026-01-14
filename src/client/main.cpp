@@ -34,6 +34,7 @@ int main(void) {
 
     // Load assets
     engine_ctx.assets_manager.load_music("battle_music", "assets/music/Battle_music.mp3");
+    engine_ctx.assets_manager.load_music("menu_music", "assets/music/Menu_music.mp3");
     engine_ctx.assets_manager.load_sound("shoot_sound", "assets/music/Blaster2.mp3");
 
     // Add scene loaders
@@ -46,16 +47,30 @@ int main(void) {
     engine_ctx.add_scene_loader(k_settings_gamepad_scene_id, load_settings_gamepad_menu_scene);
     engine_ctx.set_scene(1); // Game menu scene
 
-    std::optional<Music> battle_music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
-    if (battle_music.has_value())
-        PlayMusicStream(battle_music.value());
+    std::optional<Music> music = engine_ctx.assets_manager.get_asset<Music>("menu_music");
+    if (music.has_value())
+        PlayMusicStream(music.value());
     // Main game loop
     while (!WindowShouldClose() && !engine_ctx.should_quit) {
         engine_ctx.delta_time = GetFrameTime();
 
+        // Handle music change
+        std::optional<unsigned int> scene_id = engine_ctx.get_current_scene();
+        if (scene_id == 0 && engine_ctx.change_music) {
+            engine_ctx.change_music = false;
+            StopMusicStream(music.value());
+            music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
+            PlayMusicStream(music.value());
+        } else if (scene_id == 1 && engine_ctx.change_music) {
+            engine_ctx.change_music = false;
+            StopMusicStream(music.value());
+            music = engine_ctx.assets_manager.get_asset<Music>("menu_music");
+            PlayMusicStream(music.value());
+        }
+
         // Update music
-        if (battle_music.has_value())
-            UpdateMusicStream(battle_music.value());
+        if (music.has_value())
+            UpdateMusicStream(music.value());
 
         BeginDrawing();
         ClearBackground((Color){0, 0, 0, k_alpha_opaque});
@@ -70,8 +85,8 @@ int main(void) {
         EndDrawing();
     }
 
-    if (battle_music.has_value())
-        UnloadMusicStream(battle_music.value());
+    if (music.has_value())
+        UnloadMusicStream(music.value());
     std::optional<Sound> shoot_sound = engine_ctx.assets_manager.get_asset<Sound>("shoot_sound");
     if (shoot_sound.has_value())
         UnloadSound(shoot_sound.value());

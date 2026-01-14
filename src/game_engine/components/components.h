@@ -14,6 +14,8 @@
 #include "tag.h"
 #include "transform.h"
 #include "velocity.h"
+#include "shooter.h"
+#include "bullet_shooter.h"
 
 // Non headless components
 #include "particle.h"

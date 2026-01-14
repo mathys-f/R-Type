@@ -67,6 +67,11 @@ void EngineContext::set_scene(unsigned char scene_id) {
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", static_cast<int>(scene_id));
     m_scenes_loaders[scene_id](*this);
+    if ((scene_id == 1) || 
+        (current_scene_id == 1 && scene_id == 0)) {
+        change_music = true;
+    }
+    current_scene_id = scene_id;
     LOG_INFO("Scene {} loaded", static_cast<int>(scene_id));
 }
 
