@@ -127,3 +127,8 @@ Set_ui_transform(1, "exit_button", {
     anchor_y = 0,
     rotation = 0
 })
+
+Set_ui_navigation(1, "play_solo_button", { up = "exit_button", down = "play_multiplayer_button" })
+Set_ui_navigation(1, "play_multiplayer_button", { up = "play_solo_button", down = "setting_button" })
+Set_ui_navigation(1, "setting_button", { up = "play_multiplayer_button", down = "exit_button" })
+Set_ui_navigation(1, "exit_button", { up = "setting_button", down = "play_solo_button" })

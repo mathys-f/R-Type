@@ -7,10 +7,11 @@
 using namespace engn;
 
 void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>& transforms,
-                                 const ecs::SparseArray<cpnt::UIStyle>& styles) {
+                                 const ecs::SparseArray<cpnt::UIStyle>& styles,
+                                 const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
 
-    for (const auto& [index, transform, style] : ecs::indexed_zipper(transforms, styles)) {
+    for (const auto& [index, transform, style, interactable] : ecs::indexed_zipper(transforms, styles, interactables)) {
         if (index == 0)
             continue;
 
@@ -21,6 +22,20 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
         Color rect_color{style->background_color.r, style->background_color.g, style->background_color.b,
                          style->background_color.a};
         Color border_color{style->border_color.r, style->border_color.g, style->border_color.b, style->border_color.a};
+
+        if (interactable.has_value()) {
+            if (interactable->pressed) {
+                rect_color = {style->background_color_pressed.r, style->background_color_pressed.g,
+                              style->background_color_pressed.b, style->background_color_pressed.a};
+                border_color = {style->border_color_pressed.r, style->border_color_pressed.g,
+                                style->border_color_pressed.b, style->border_color_pressed.a};
+            } else if (interactable->hovered) {
+                rect_color = {style->background_color_hovered.r, style->background_color_hovered.g,
+                              style->background_color_hovered.b, style->background_color_hovered.a};
+                border_color = {style->border_color_hovered.r, style->border_color_hovered.g,
+                                style->border_color_hovered.b, style->border_color_hovered.a};
+            }
+        }
 
         DrawRectangleRounded(rect, style->border_radius, 0.0f, rect_color);
         DrawRectangleRoundedLinesEx(rect, style->border_radius, 0.0f, style->border_thickness, border_color);

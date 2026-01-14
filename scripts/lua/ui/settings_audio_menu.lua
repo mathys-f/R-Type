@@ -519,3 +519,22 @@ Set_ui_transform(5, "sfx_mute_button", {
     anchor_y = 0,
     rotation = 0
 })
+
+Set_ui_navigation(5, "nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "general_volume_down_button" })
+Set_ui_navigation(5, "nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "general_volume_down_button" })
+Set_ui_navigation(5, "nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "general_volume_down_button" })
+
+Set_ui_navigation(5, "general_volume_down_button", { up = "nav_audio_button", down = "music_volume_down_button", left = "nav_audio_button", right = "general_volume_up_button" })
+Set_ui_navigation(5, "general_volume_up_button", { up = "nav_audio_button", down = "music_volume_up_button", left = "general_volume_down_button", right = "general_mute_button" })
+Set_ui_navigation(5, "general_mute_button", { up = "nav_audio_button", down = "music_mute_button", left = "general_volume_up_button", right = "general_volume_down_button" })
+
+Set_ui_navigation(5, "music_volume_down_button", { up = "general_volume_down_button", down = "sfx_volume_down_button", left = "nav_audio_button", right = "music_volume_up_button" })
+Set_ui_navigation(5, "music_volume_up_button", { up = "general_volume_up_button", down = "sfx_volume_up_button", left = "music_volume_down_button", right = "music_mute_button" })
+Set_ui_navigation(5, "music_mute_button", { up = "general_mute_button", down = "sfx_mute_button", left = "music_volume_up_button", right = "music_volume_down_button" })
+
+Set_ui_navigation(5, "sfx_volume_down_button", { up = "music_volume_down_button", down = "main_menu_button", left = "nav_audio_button", right = "sfx_volume_up_button" })
+Set_ui_navigation(5, "sfx_volume_up_button", { up = "music_volume_up_button", down = "main_menu_button", left = "sfx_volume_down_button", right = "sfx_mute_button" })
+Set_ui_navigation(5, "sfx_mute_button", { up = "music_mute_button", down = "main_menu_button", left = "sfx_volume_up_button", right = "sfx_volume_down_button" })
+Set_ui_navigation(5, "back_button", { up = "sfx_volume_down_button", left = "nav_audio_button", right = "exit_button" })
+Set_ui_navigation(5, "exit_button", { up = "sfx_volume_down_button", left = "back_button", right = "main_menu_button" })
+Set_ui_navigation(5, "main_menu_button", { up = "sfx_volume_down_button", left = "exit_button", right = "back_button" })

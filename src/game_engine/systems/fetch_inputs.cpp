@@ -256,10 +256,22 @@ static void fetch_mouse_button_released_events(evts::EventQueue<evts::Event>& in
 }
 
 static void fetch_mouse_moved_events(evts::EventQueue<evts::Event>& input_events) {
+    static int s_previous_mouse_x = -1;
+    static int s_previous_mouse_y = -1;
+    int mouse_x = GetMouseX();
+    int mouse_y = GetMouseY();
+    bool mouse_pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+
+    if (mouse_x == s_previous_mouse_x && mouse_y == s_previous_mouse_y && !mouse_pressed)
+        return;
+
+    s_previous_mouse_x = mouse_x;
+    s_previous_mouse_y = mouse_y;
+
     evts::MouseMoved evt{};
 
-    evt.x = static_cast<float>(GetMouseX());
-    evt.y = static_cast<float>(GetMouseY());
+    evt.x = static_cast<float>(mouse_x);
+    evt.y = static_cast<float>(mouse_y);
     input_events.push(evt);
 }
 
