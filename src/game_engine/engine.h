@@ -64,6 +64,7 @@ class EngineContext {
     GamepadControlAction pending_gamepad_rebind = GamepadControlAction::None;
     bool confirm_keyboard_reset = false;
     bool confirm_gamepad_reset = false;
+    bool confirm_enter_rebind = false;
     unsigned char settings_return_scene = 1;
     int master_volume = 100;
     int music_volume = 100;

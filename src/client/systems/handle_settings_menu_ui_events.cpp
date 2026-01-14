@@ -36,6 +36,7 @@ void handle_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
         if (engine_ctx.settings_return_scene != 1) {
             engine_ctx.pending_rebind = ControlAction::None;
             engine_ctx.confirm_keyboard_reset = false;
+            engine_ctx.confirm_enter_rebind = false;
             engine_ctx.set_scene(engine_ctx.settings_return_scene);
             return;
         }
@@ -43,6 +44,12 @@ void handle_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
 
     if (engine_ctx.pending_rebind != ControlAction::None) {
         if (key_evt) {
+            if (key_evt->keycode == evts::KeyboardKeyCode::KeyEnter) {
+                if (!engine_ctx.confirm_enter_rebind) {
+                    engine_ctx.confirm_enter_rebind = true;
+                    return;
+                }
+            }
             switch (engine_ctx.pending_rebind) {
                 case ControlAction::MoveUp:
                     engine_ctx.controls.move_up.primary = key_evt->keycode;
@@ -63,6 +70,7 @@ void handle_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
                     break;
             }
             engine_ctx.pending_rebind = ControlAction::None;
+            engine_ctx.confirm_enter_rebind = false;
         }
     }
 
@@ -88,6 +96,10 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     if (tag_name != "reset_controls_button") {
         ctx.confirm_keyboard_reset = false;
     }
+    if (tag_name != "rebind_move_up" && tag_name != "rebind_move_down" && tag_name != "rebind_move_left" &&
+        tag_name != "rebind_move_right" && tag_name != "rebind_shoot") {
+        ctx.confirm_enter_rebind = false;
+    }
 
     if (tag_name == "back_button") {
         ctx.set_scene(ctx.settings_return_scene);
@@ -107,10 +119,12 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         return true;
     } else if (tag_name == "nav_audio_button") {
         ctx.pending_rebind = ControlAction::None;
+        ctx.confirm_enter_rebind = false;
         ctx.set_scene(k_settings_audio_scene_id);
         return true;
     } else if (tag_name == "reset_controls_button") {
         ctx.pending_rebind = ControlAction::None;
+        ctx.confirm_enter_rebind = false;
         if (!ctx.confirm_keyboard_reset) {
             ctx.confirm_keyboard_reset = true;
         } else {
@@ -119,22 +133,27 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         }
     } else if (tag_name == "rebind_move_up") {
         ctx.confirm_keyboard_reset = false;
+        ctx.confirm_enter_rebind = false;
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::MoveUp) ? ControlAction::None
                                                                            : ControlAction::MoveUp;
     } else if (tag_name == "rebind_move_down") {
         ctx.confirm_keyboard_reset = false;
+        ctx.confirm_enter_rebind = false;
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::MoveDown) ? ControlAction::None
                                                                              : ControlAction::MoveDown;
     } else if (tag_name == "rebind_move_left") {
         ctx.confirm_keyboard_reset = false;
+        ctx.confirm_enter_rebind = false;
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::MoveLeft) ? ControlAction::None
                                                                              : ControlAction::MoveLeft;
     } else if (tag_name == "rebind_move_right") {
         ctx.confirm_keyboard_reset = false;
+        ctx.confirm_enter_rebind = false;
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::MoveRight) ? ControlAction::None
                                                                               : ControlAction::MoveRight;
     } else if (tag_name == "rebind_shoot") {
         ctx.confirm_keyboard_reset = false;
+        ctx.confirm_enter_rebind = false;
         ctx.pending_rebind = (ctx.pending_rebind == ControlAction::Shoot) ? ControlAction::None
                                                                           : ControlAction::Shoot;
     }
@@ -283,6 +302,10 @@ static void update_prompt_text(EngineContext& ctx) {
     }
     std::string prompt = "Press a key for ";
     prompt += action_to_label(ctx.pending_rebind);
+    if (ctx.confirm_enter_rebind) {
+        prompt = "Press Enter again to confirm Enter for ";
+        prompt += action_to_label(ctx.pending_rebind);
+    }
     set_text_if_exists(ctx, "rebind_prompt", prompt);
 }
 

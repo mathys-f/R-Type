@@ -330,3 +330,8 @@ Set_ui_transform(2, "back_button", {
     anchor_y = 0,
     rotation = 0
 })
+
+Set_ui_navigation(2, "connect_to_server_button", { up = "back_button", down = "refresh_lobbies_button" })
+Set_ui_navigation(2, "refresh_lobbies_button", { up = "connect_to_server_button", down = "create_lobby_button" })
+Set_ui_navigation(2, "create_lobby_button", { up = "refresh_lobbies_button", down = "back_button" })
+Set_ui_navigation(2, "back_button", { up = "create_lobby_button", down = "connect_to_server_button" })
