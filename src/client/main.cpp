@@ -61,7 +61,7 @@ int main(void) {
         // Run all systems
         engine_ctx.run_systems();
 
-        if (GetKeyPressed() == KEY_R) {
+        if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && GetKeyPressed() == KEY_R) {
             engine_ctx.set_scene(engine_ctx.get_current_scene());
         }
 
