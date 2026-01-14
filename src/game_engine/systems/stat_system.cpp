@@ -15,12 +15,16 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
 
             if (stat->score >= stat->point_to_next_level) {
                 stat->level += 1;
-                stat->point_to_next_level += 2500;
+                stat->point_to_next_level += 2500; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             }
+            // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+            // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
             DrawText(TextFormat("Score: %d", stat->score), 10, 10, 20, WHITE);
             DrawText(TextFormat("Enemies killed: %d", stat->kills), 10, 40, 20, WHITE);
             DrawText(TextFormat("Level: %d", stat->level), 10, 70, 20, WHITE);
             DrawText(TextFormat("Points to next level: %d", stat->point_to_next_level), 10, 100, 20, WHITE);
+            // NOLINTEND(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
+            // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
         }
     }
 }
