@@ -137,3 +137,7 @@ void engn::EngineContext::record_snapshot(SnapshotRecord &record) {
     for (auto &history : m_snapshots_history)
         std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }
+
+std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() const {
+    return m_snapshots_history;
+}

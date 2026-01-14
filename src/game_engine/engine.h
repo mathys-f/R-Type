@@ -69,6 +69,7 @@ class EngineContext {
     void record_snapshot(SnapshotRecord &snapshot);
     SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
     const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
+    std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& get_snapshots_history() const;
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;

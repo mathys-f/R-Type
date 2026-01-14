@@ -59,6 +59,7 @@ void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                         ecs::SparseArray<cpnt::Star> const& stars);
 
 void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void update_snapshots_system(EngineContext& ctx);
 
 void poll_input_events_from_client(EngineContext& ctx);
 void send_snapshot_to_client(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
