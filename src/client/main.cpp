@@ -46,13 +46,8 @@ static void update_window_size(EngineContext& engine_ctx) {
                 new_height = static_cast<int>(static_cast<float>(k_current_width) / k_target_aspect_ratio);
             }
 
-            // Use GLFW to resize the actual window (Raylib uses GLFW internally)
-            #ifdef PLATFORM_DESKTOP
-                GLFWwindow* window = static_cast<GLFWwindow*>(GetWindowHandle());
-                if (window) {
-                    glfwSetWindowSize(window, new_width, new_height);
-                }
-            #endif
+            // This changes the viewport size, not the window size
+            SetWindowSize(new_width, new_height);
 
             // Update stored dimensions
             s_last_width = new_width;
