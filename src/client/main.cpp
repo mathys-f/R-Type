@@ -63,7 +63,7 @@ int main(void) {
         // Run all systems
         engine_ctx.run_systems();
 
-        if (GetKeyPressed() == KEY_R) {
+        if (GetKeyPressed() == KEY_F5){
             engine_ctx.set_scene(engine_ctx.get_current_scene());
         }
 

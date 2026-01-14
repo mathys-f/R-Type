@@ -12,7 +12,6 @@ using namespace engn;
 
 namespace {
 constexpr float k_text_spacing = 1.0f;
-constexpr float k_center_divisor = 2.0f;
 constexpr float k_blink_period = 1.0f;
 constexpr float k_half = 2.0f;
 } // namespace
@@ -22,6 +21,8 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
                            const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
     const auto& input_fields = ctx.registry.get_components<cpnt::UIInputField>();
+    const float k_width = ctx.k_window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_height = ctx.k_window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (const auto& [index, transform, text, style, interactable] :
          ecs::indexed_zipper(transforms, texts, styles, interactables)) {
@@ -34,8 +35,10 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
         Vector2 string_size =
             MeasureTextEx(GetFontDefault(), text->content.c_str(), static_cast<float>(text->font_size), k_text_spacing);
         Vector2 position;
-        position.x = transform->x + (transform->w - string_size.x) / k_center_divisor;
-        position.y = transform->y + (transform->h - string_size.y) / k_center_divisor;
+        position.x = (transform->x / 100.0f * k_width)
+            + ((transform->w / 100.0f * k_width) - string_size.x) / 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+        position.y = (transform->y / 100.0f * k_height)
+            + ((transform->h / 100.0f * k_height) - string_size.y) / 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 
         Color text_color{style->text_color.r, style->text_color.g, style->text_color.b, style->text_color.a};
 
