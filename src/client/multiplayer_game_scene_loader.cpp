@@ -104,7 +104,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
-            //LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
+            LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
 
             Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
 
@@ -121,14 +121,14 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             registry.add_component(player, cpnt::Replicated{player_id});
 
         } else {
-            //LOG_ERROR("Login failed! Cannot start game.");
+            LOG_ERROR("Login failed! Cannot start game.");
             return;
         }
     });
 
     const char* player_name = "Player1";
 
-    //LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
+    LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
     engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
