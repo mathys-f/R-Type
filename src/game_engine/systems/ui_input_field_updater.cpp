@@ -49,6 +49,7 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
         if (inter->pressed && !input->editing) {
             input->editing = true;
             input->timer = 0.0f;
+            input->cursor_index = text->content.size();
         }
 
         // Stop editing when clicked outside or Enter is pressed
@@ -79,14 +80,22 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
             LOG_DEBUG("Key pressed: {}", static_cast<int>(key_pressed->keycode));
             if (key_pressed->keycode == evts::KeyboardKeyCode::KeyBackspace) {
                 // Remove last character
-                if (!text->content.empty()) {
-                    text->content.pop_back();
+                if (input->cursor_index > 0 && !text->content.empty()) {
+                    text->content.erase(input->cursor_index - 1, 1);
+                    input->cursor_index--;
                 }
+            } else if (key_pressed->keycode == evts::KeyboardKeyCode::KeyLeft) {
+                if (input->cursor_index > 0)
+                    input->cursor_index--;
+            } else if (key_pressed->keycode == evts::KeyboardKeyCode::KeyRight) {
+                if (input->cursor_index < text->content.size())
+                    input->cursor_index++;
             } else {
                 // Add character if valid
                 char new_char = keycode_to_char(key_pressed->keycode);
                 if (new_char != '\0') {
-                    text->content += new_char;
+                    text->content.insert(text->content.begin() + static_cast<long>(input->cursor_index), new_char);
+                    input->cursor_index++;
                 }
             }
         }

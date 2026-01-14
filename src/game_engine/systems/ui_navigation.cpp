@@ -116,6 +116,11 @@ void sys::ui_navigation(EngineContext& ctx, const ecs::SparseArray<cpnt::UIInter
 
     auto& interactables = ctx.registry.get_components<cpnt::UIInteractable>();
     auto& focusables = ctx.registry.get_components<cpnt::UIFocusable>();
+    const auto& inputs = ctx.registry.get_components<cpnt::UIInputField>();
+    for (const auto& input : inputs) {
+        if (input.has_value() && input->editing)
+            return;
+    }
     const auto& events = ctx.input_event_queue;
     NavDirection direction = read_navigation_direction(events);
     bool confirm = read_confirm_input(events);

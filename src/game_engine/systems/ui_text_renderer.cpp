@@ -5,17 +5,23 @@
 
 #include <raylib.h>
 
+#include <algorithm>
+#include <cmath>
+
 using namespace engn;
 
 namespace {
 constexpr float k_text_spacing = 1.0f;
 constexpr float k_center_divisor = 2.0f;
+constexpr float k_blink_period = 1.0f;
+constexpr float k_half = 2.0f;
 } // namespace
 
 void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>& transforms,
                            const ecs::SparseArray<cpnt::UIText>& texts, const ecs::SparseArray<cpnt::UIStyle>& styles,
                            const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
+    const auto& input_fields = ctx.registry.get_components<cpnt::UIInputField>();
 
     for (const auto& [index, transform, text, style, interactable] :
          ecs::indexed_zipper(transforms, texts, styles, interactables)) {
@@ -43,7 +49,18 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
             }
         }
 
-        DrawText(text->content.c_str(), static_cast<int>(position.x), static_cast<int>(position.y), text->font_size,
+        std::string display_text = text->content;
+        if (index < input_fields.size()) {
+            const auto& input_field = input_fields[index];
+            if (input_field.has_value() && input_field->editing) {
+                if (std::fmod(input_field->timer, k_blink_period) < (k_blink_period / k_half)) {
+                    size_t cursor = std::min(input_field->cursor_index, display_text.size());
+                    display_text.insert(cursor, "|");
+                }
+            }
+        }
+
+        DrawText(display_text.c_str(), static_cast<int>(position.x), static_cast<int>(position.y), text->font_size,
                  text_color);
     }
 }
