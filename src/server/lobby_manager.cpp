@@ -74,20 +74,25 @@ bool GameLobby::can_join() const {
     return !is_full() && m_running.load();
 }
 
-void GameLobby::add_player(const asio::ip::udp::endpoint& endpoint) {
+void GameLobby::add_player(const std::string& player_ip) {
     std::lock_guard<std::mutex> lock(m_players_mutex);
-    m_players.push_back(endpoint);
-    m_current_players = static_cast<std::uint8_t>(m_players.size());
-    LOG_INFO("Player joined lobby '{}'. Current players: {}/{}", m_lobby_name, m_current_players.load(), m_max_players);
+    auto it = std::find(m_players.begin(), m_players.end(), player_ip);
+    if (it == m_players.end()) {
+        m_players.push_back(player_ip);
+        m_current_players = static_cast<std::uint8_t>(m_players.size());
+        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(), m_max_players);
+    } else {
+        LOG_INFO("Player {} reconnected to lobby '{}'", player_ip, m_lobby_name);
+    }
 }
 
-void GameLobby::remove_player(const asio::ip::udp::endpoint& endpoint) {
+void GameLobby::remove_player(const std::string& player_ip) {
     std::lock_guard<std::mutex> lock(m_players_mutex);
-    auto it = std::find(m_players.begin(), m_players.end(), endpoint);
+    auto it = std::find(m_players.begin(), m_players.end(), player_ip);
     if (it != m_players.end()) {
         m_players.erase(it);
         m_current_players = static_cast<std::uint8_t>(m_players.size());
-        LOG_INFO("Player left lobby '{}'. Current players: {}/{}", m_lobby_name, m_current_players.load(),
+        LOG_INFO("Player {} left lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(),
                  m_max_players);
     }
 }

@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "glm/vec2.hpp"
@@ -43,7 +44,10 @@ class EngineContext {
     ecs::Registry registry;
     ecs::Entity focused_entity;
 
+    // Single event queue for local/client input
     evts::EventQueue<evts::Event> input_event_queue;
+    // Per-player event queues for server (indexed by player IP address)
+    std::unordered_map<std::string, evts::EventQueue<evts::Event>> player_input_queues;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
     std::unique_ptr<LuaContext> lua_ctx;

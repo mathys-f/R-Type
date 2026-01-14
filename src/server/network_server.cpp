@@ -109,10 +109,11 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 
         if (lobby) {
             if (lobby->can_join()) {
-                lobby->add_player(from);
+                std::string player_ip = from.address().to_string();
+                lobby->add_player(player_ip);
                 res.m_success = true;
                 res.m_port = lobby->get_port();
-                std::cout << "Player joined lobby ID " << req->m_lobby_id << "\n";
+                std::cout << "Player " << player_ip << " joined lobby ID " << req->m_lobby_id << "\n";
             } else if (lobby->is_full()) {
                 res.m_success = false;
                 res.m_error_message = "Lobby is full";
@@ -133,8 +134,9 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
     if (auto req = net::lobby::parse_req_leave_lobby(pkt)) {
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
         if (lobby) {
-            lobby->remove_player(from);
-            std::cout << "Player left lobby ID " << req->m_lobby_id << "\n";
+            std::string player_ip = from.address().to_string();
+            lobby->remove_player(player_ip);
+            std::cout << "Player " << player_ip << " left lobby ID " << req->m_lobby_id << "\n";
         }
         return;
     }
@@ -169,23 +171,25 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
     bool move_right = (input_mask & k_input_right) != 0;
     bool shoot = (input_mask & k_input_shoot) != 0;
 
+    std::string player_ip = from.address().to_string();
+
+    auto& player_queue = m_engine_ctx.player_input_queues[player_ip];
+
     const auto& controls = m_engine_ctx.controls;
 
     if (move_up) {
-        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_up.primary});
+        player_queue.push(engn::evts::KeyHold{controls.move_up.primary});
     }
     if (move_down) {
-        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_down.primary});
+        player_queue.push(engn::evts::KeyHold{controls.move_down.primary});
     }
     if (move_left) {
-        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_left.primary});
+        player_queue.push(engn::evts::KeyHold{controls.move_left.primary});
     }
     if (move_right) {
-        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_right.primary});
+        player_queue.push(engn::evts::KeyHold{controls.move_right.primary});
     }
     if (shoot) {
-        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.shoot.primary});
+        player_queue.push(engn::evts::KeyHold{controls.shoot.primary});
     }
-
-    LOG_DEBUG("Received input from {} (tick: {}, mask: 0x{:02X})", from.address().to_string(), tick, input_mask);
 }
