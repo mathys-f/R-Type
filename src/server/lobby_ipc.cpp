@@ -17,6 +17,7 @@ LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
     bip::message_queue::remove(lobby_to_main_name.c_str());
 
     try {
+        // NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions)
         m_main_to_lobby_queue = std::make_unique<bip::message_queue>(
             bip::create_only,
             main_to_lobby_name.c_str(),
@@ -30,6 +31,7 @@ LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
     }
 
     try {
+        // NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions)
         m_lobby_to_main_queue = std::make_unique<bip::message_queue>(
             bip::create_only,
             lobby_to_main_name.c_str(),

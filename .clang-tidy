@@ -1,14 +1,11 @@
 ---
 Checks: >
   cppcoreguidelines-*,
-  readability-identifier-naming,
-  -clang-analyzer-unix.StdCLibraryFunctions
+  readability-identifier-naming
 
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 
-HeaderFilterRegex: '^((?!\.cache/CPM).)*$'
-
-FormatStyle: none
+HeaderFilterRegex: '^(?!.*\.cache).*/src/.*'
 
 CheckOptions:
   - key: readability-identifier-naming.ClassCase
