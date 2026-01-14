@@ -16,7 +16,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(arc4random_uniform(k_rand_range)) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;  // NOLINT
 }
 
 void load_game_scene(engn::EngineContext& engine_ctx) {
