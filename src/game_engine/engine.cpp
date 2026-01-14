@@ -59,11 +59,15 @@ void EngineContext::set_scene(const std::string &scene_name) {
     registry.~Registry();
     new (&registry) ecs::Registry();
     m_systems.clear();
-    m_current_scene = scene_name;
     LOG_DEBUG("Spawning initial entity {}",
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", scene_name);
     m_scenes_loaders[scene_name](*this);
+    if ((scene_name == "main_menu") ||
+        (m_current_scene == "main_menu" && scene_name == "singleplayer_game")) {
+        change_music = true;
+    }
+    m_current_scene = scene_name;
     LOG_INFO("Scene {} loaded", scene_name);
 }
 
