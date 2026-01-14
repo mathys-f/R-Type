@@ -72,6 +72,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
+    engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet_shooter>(sys::bullet_shooter_system);
@@ -87,8 +88,8 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);

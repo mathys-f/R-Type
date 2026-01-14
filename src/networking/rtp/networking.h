@@ -10,6 +10,7 @@
 #include <optional>
 #include <span>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace net {
@@ -93,6 +94,15 @@ constexpr std::byte to_byte(std::uint32_t v) noexcept {
 constexpr std::uint8_t byte_to_u8(std::byte b) noexcept {
     return static_cast<std::uint8_t>(b);
 }
+
+// Hash specialization for asio::ip::udp::endpoint to use in unordered containers
+struct EndpointHash {
+    std::size_t operator()(const asio::ip::udp::endpoint& ep) const noexcept {
+        std::size_t h1 = std::hash<std::string>{}(ep.address().to_string());
+        std::size_t h2 = std::hash<unsigned short>{}(ep.port());
+        return h1 ^ (h2 << 1);
+    }
+};
 
 // Structure that represents the header of a network packet.
 struct PacketHeader {
@@ -264,6 +274,7 @@ class UdpTransport : public std::enable_shared_from_this<UdpTransport> {
 class Session : public std::enable_shared_from_this<Session> {
   public:
     using PacketCallback = std::function<void(const Packet&, const asio::ip::udp::endpoint&)>;
+    using ConnectionCallback = std::function<void(const asio::ip::udp::endpoint&)>;
 
     /**
      * Constructs a session with its own transport instance and reliability bookkeeping.
@@ -302,6 +313,16 @@ class Session : public std::enable_shared_from_this<Session> {
      * Returns the list of sequence identifiers that exceeded retry limits.
      */
     [[nodiscard]] const std::vector<std::uint32_t>& failed_sequences() const noexcept;
+
+    /**
+     * Callback invoked when a new client connects (first packet received from endpoint).
+     */
+    ConnectionCallback on_client_connect;
+
+    /**
+     * Callback invoked when a client disconnects (excessive retransmission failures).
+     */
+    ConnectionCallback on_client_disconnect;
 
   private:
     struct FragmentBuffer {
@@ -350,5 +371,6 @@ class Session : public std::enable_shared_from_this<Session> {
     std::unordered_map<std::uint16_t, FragmentBuffer> m_fragment_buffers{};
     std::size_t m_fragment_payload_size = k_max_payload_size;
     bool m_started = false;
+    std::unordered_set<asio::ip::udp::endpoint, EndpointHash> m_connected_endpoints{};
 };
 } // namespace net
