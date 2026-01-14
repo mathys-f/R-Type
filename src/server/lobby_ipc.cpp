@@ -10,30 +10,41 @@ namespace ipc {
 LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
     namespace bip = boost::interprocess;
 
+    std::string main_to_lobby_name = get_main_to_lobby_queue_name();
+    std::string lobby_to_main_name = get_lobby_to_main_queue_name();
+
+    bip::message_queue::remove(main_to_lobby_name.c_str());
+    bip::message_queue::remove(lobby_to_main_name.c_str());
+
     try {
-        std::string main_to_lobby_name = get_main_to_lobby_queue_name();
-        bip::message_queue::remove(main_to_lobby_name.c_str());
         m_main_to_lobby_queue = std::make_unique<bip::message_queue>(
             bip::create_only,
             main_to_lobby_name.c_str(),
             k_max_messages,
             k_message_size
         );
+    } catch (const bip::interprocess_exception& e) {
+        LOG_ERROR("Failed to create main_to_lobby queue for lobby {}: {}", m_lobby_id, e.what());
+        bip::message_queue::remove(main_to_lobby_name.c_str());
+        throw;
+    }
 
-        std::string lobby_to_main_name = get_lobby_to_main_queue_name();
-        bip::message_queue::remove(lobby_to_main_name.c_str());
+    try {
         m_lobby_to_main_queue = std::make_unique<bip::message_queue>(
             bip::create_only,
             lobby_to_main_name.c_str(),
             k_max_messages,
             k_message_size
         );
-
-        LOG_INFO("Created IPC message queues for lobby {}", m_lobby_id);
     } catch (const bip::interprocess_exception& e) {
-        LOG_ERROR("Failed to create IPC queues for lobby {}: {}", m_lobby_id, e.what());
+        LOG_ERROR("Failed to create lobby_to_main queue for lobby {}: {}", m_lobby_id, e.what());
+        m_main_to_lobby_queue.reset();
+        bip::message_queue::remove(main_to_lobby_name.c_str());
+        bip::message_queue::remove(lobby_to_main_name.c_str());
         throw;
     }
+
+    LOG_INFO("Created IPC message queues for lobby {}", m_lobby_id);
 }
 
 LobbyIPC::~LobbyIPC() {
