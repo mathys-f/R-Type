@@ -14,6 +14,6 @@ void handle_game_pause_inputs(engn::EngineContext& engine_ctx) {
 
     if (k_escape_pressed || k_pause_pressed) {
         engine_ctx.settings_return_scene = engine_ctx.get_current_scene();
-        engine_ctx.set_scene(4);
+        engine_ctx.set_scene("audio_settings");
     }
 }

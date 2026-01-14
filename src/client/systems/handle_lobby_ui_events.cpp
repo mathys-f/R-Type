@@ -463,7 +463,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                 update_status_text(engine_ctx, "Joining lobby...");
                 engine_ctx.server_ip = get_lobby_state().server_ip;
                 engine_ctx.server_port = join_res->m_port;
-                engine_ctx.set_scene(3); // Multiplayer game scene
+                engine_ctx.set_scene("multiplayer_game"); // Multiplayer game scene
             } else {
                 update_status_text(engine_ctx, "Failed to join lobby: " + join_res->m_error_message);
             }
@@ -488,7 +488,7 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "create_lobby_button") {
         handle_create_lobby_button(ctx);
     } else if (tag_name == "back_button") {
-        ctx.set_scene(1); // Main menu scene
+        ctx.set_scene("main_menu"); // Main menu scene
     } else if (tag_name.find("lobby_item_") == 0) {
         // Extract lobby index from tag name
         int lobby_index = std::stoi(tag_name.substr(k_tag_prefix_length));

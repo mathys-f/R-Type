@@ -72,10 +72,10 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
 
                     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
                     pos->x =
-                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.k_window_size.x),
-                                                          static_cast<int>(ctx.k_window_size.x * k_spawn_multiplier)));
+                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
+                                                          static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
                     pos->y = static_cast<float>(
-                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.k_window_size.y) - k_spawn_margin));
+                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
                     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
                     if (health) {
                         health->hp = health->max_hp;
@@ -85,7 +85,7 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
 
             // Shoot projectiles at player
             shot->timer += dt;
-            if (shot->timer >= 1.0f && pos_opt->x < ctx.k_window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access,-warnings-as-errors)
+            if (shot->timer >= 1.0f && pos_opt->x < ctx.window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access,-warnings-as-errors)
                 float dx = 0.0f;
                 float dy = 0.0f;
                 for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, player)) {

@@ -25,8 +25,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.input_context = InputContext::Gameplay;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x);
-    const int k_height = static_cast<int>(engine_ctx.k_window_size.y);
+    const int k_width = static_cast<int>(engine_ctx.window_size.x);
+    const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
     auto& registry = engine_ctx.registry;

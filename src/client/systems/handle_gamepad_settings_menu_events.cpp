@@ -12,7 +12,7 @@ static void sync_settings_texts(EngineContext& ctx);
 static void update_prompt_text(EngineContext& ctx);
 static void update_rebind_buttons(EngineContext& ctx);
 static void update_reset_button(EngineContext& ctx);
-void handle_gamepad_menu_ui_events(engn::EngineContext& engine_ctx) {
+void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
     const auto& evts = engine_ctx.ui_event_queue;
 
     bool switched_scene = false;
@@ -33,7 +33,7 @@ void handle_gamepad_menu_ui_events(engn::EngineContext& engine_ctx) {
         pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
                     pad_evt->button == evts::ControllerButton::ControllerButtonBack);
     if (k_escape_pressed || k_pause_pressed) {
-        if (engine_ctx.settings_return_scene != 1) {
+        if (engine_ctx.settings_return_scene != "") {
             engine_ctx.pending_gamepad_rebind = GamepadControlAction::None;
             engine_ctx.confirm_gamepad_reset = false;
             engine_ctx.skip_next_gamepad_rebind_input = false;
@@ -90,9 +90,6 @@ void handle_gamepad_menu_ui_events(engn::EngineContext& engine_ctx) {
 static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt) {
     const auto& tags = ctx.registry.get_tag_registry();
     std::string tag_name = tags.get_tag_name(evt.tag);
-    constexpr unsigned char k_settings_audio_scene_id = 5;
-    constexpr unsigned char k_settings_controls_scene_id = 4;
-    constexpr unsigned char k_settings_gamepad_scene_id = 6;
 
     if (tag_name != "reset_gamepad_button") {
         ctx.confirm_gamepad_reset = false;
@@ -106,16 +103,16 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         return true;
     } else if (tag_name == "main_menu_button") {
         ctx.settings_return_scene = 1;
-        ctx.set_scene(1);
+        ctx.set_scene("main_menu");
         return true;
     } else if (tag_name == "nav_controls_button") {
-        ctx.set_scene(k_settings_controls_scene_id);
+        ctx.set_scene("keyboard_settings");
         return true;
     } else if (tag_name == "nav_gamepad_button") {
-        ctx.set_scene(k_settings_gamepad_scene_id);
+        ctx.set_scene("gamepad_settings");
         return true;
     } else if (tag_name == "nav_audio_button") {
-        ctx.set_scene(k_settings_audio_scene_id);
+        ctx.set_scene("audio_settings");
         return true;
     } else if (tag_name == "reset_gamepad_button") {
         ctx.pending_gamepad_rebind = GamepadControlAction::None;

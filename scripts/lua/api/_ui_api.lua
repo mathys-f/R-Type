@@ -11,13 +11,13 @@
 --------------------------------------------------------------------------------
 
 ---@class UITransform
----@field x number # Horizontal position
----@field y number # Vertical position
+---@field x number # Horizontal position (0.0-100.0%) of screen width
+---@field y number # Vertical position (0.0-100.0%) of screen width
 ---@field z number # Layer index
----@field w number # Width
----@field h number # Height
----@field anchor_x number # Horizontal anchor point (0.0 - 1.0)
----@field anchor_y number # Vertical anchor point (0.0 - 1.0)
+---@field w number # Width (0.0-100.0%) of screen width
+---@field h number # Height (0.0-100.0%) of screen width
+---@field anchor_x number # Horizontal rotation anchor point (0.0 - 100.0%) of Width
+---@field anchor_y number # Vertical rotation anchor point (0.0 - 100.0%) of Width
 ---@field rotation number # Rotation in degrees
 
 ---@class UIStyle
@@ -61,63 +61,52 @@
 ----------------------------------------------------------
 
 --- Creates a new entity with these components:
---- - Scene - Cannot be changed afterwards !
 --- - UIButton
 --- - UIFocusable
 --- - UITransform
 --- - UIStyle
 --- - UINavigation
---- @param scene integer # Scene id (0-255)
 --- @param name string # Unique name (tag) for the entity.
-function Create_ui_button(scene, name) end
+function Create_ui_button(name) end
 
 --- Create a new entity with these components:
---- - Scene - Cannot be changed afterwards !
 --- - UIButton
 --- - UITransform
 --- - UIStyle
---- @param scene integer # Scene id (0-255)
 --- @param name string # Unique name (tag) for the entity.
---- @param scene integer # Scene id (0-255)
 --- @param UIText UIText
-function Create_ui_text(scene, name, UIText) end
+function Create_ui_text(name, UIText) end
 
 --- Creates a new entity with these components:
---- - Scene - Cannot be changed afterwards !
 --- - UIButton
 --- - UIFocusable
 --- - UITransform
 --- - UIStyle
 --- - UINavigation
---- @param scene integer # Scene id (0-255)
 --- @param name string # Unique name (tag) for the entity.
 --- @param default_value string
-function Create_ui_input_field(scene, name, default_value) end
+function Create_ui_input_field(name, default_value) end
 
 ----------------------------------------------------------
 -- UI Components Setters
 ----------------------------------------------------------
 
 --- Sets the UITransform component for the given entity tag.
---- @param scene integer # Scene id (0-255)
 --- @param tag Tag
 --- @param UITransform UITransform
-function Set_ui_transform(scene, tag, UITransform) end
+function Set_ui_transform(tag, UITransform) end
 
 --- Sets the UIStyle component for the given entity tag.
---- @param scene integer # Scene id (0-255)
 --- @param tag Tag
 --- @param UIStyle UIStyle
-function Set_ui_style(scene, tag, UIStyle) end
+function Set_ui_style(tag, UIStyle) end
 
 --- Sets the UIText component for the given entity tag
---- @param scene integer # Scene id (0-255)
 --- @param tag Tag
 --- @param UIText UIText
-function Set_ui_text(scene, tag, UIText) end
+function Set_ui_text(tag, UIText) end
 
 --- Sets the UINavigation component for the given entity tag
---- @param scene integer # Scene id (0-255)
 --- @param tag Tag
 --- @param UINavigation UINavigation
-function Set_ui_navigation(scene, tag, UINavigation) end
+function Set_ui_navigation(tag, UINavigation) end

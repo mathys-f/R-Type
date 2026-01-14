@@ -10,8 +10,8 @@ void sys::star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transfor
                              ecs::SparseArray<cpnt::Star> const& stars) {
     const float k_scroll_speed = static_cast<float>(ctx.k_scroll_speed);
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-    const float k_width = ctx.k_window_size.x;
-    const float k_height = ctx.k_window_size.y;
+    const float k_width = ctx.window_size.x;
+    const float k_height = ctx.window_size.y;
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
     auto& reg = ctx.registry;
 
