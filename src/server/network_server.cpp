@@ -21,6 +21,19 @@ NetworkServer::~NetworkServer() {
 }
 
 void NetworkServer::start() {
+    // Set up connection callbacks
+    m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
+        m_io.post([this, endpoint]() {
+            handle_client_connect(endpoint);
+        });
+    };
+
+    m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
+        m_io.post([this, endpoint]() {
+            handle_client_disconnect(endpoint);
+        });
+    };
+
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
@@ -133,5 +146,21 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
             std::cout << "Player left lobby ID " << req->m_lobby_id << "\n";
         }
         return;
+    }
+}
+
+void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    if (m_connected_clients.insert(endpoint).second) {
+        LOG_INFO("Client connected: {}:{}", endpoint.address().to_string(), endpoint.port());
+        // TODO: JEANNNNNN
+    }
+}
+
+void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    if (m_connected_clients.erase(endpoint) > 0) {
+        LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
+        // TODO: JEAAAAAAAAAAAAAAAAAAAN
     }
 }
