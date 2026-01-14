@@ -2,6 +2,7 @@
 
 #include "game_engine/engine.h"
 #include "networking/handshake/handshake.h"
+#include "utils/logger.h"
 
 #include <iostream>
 
@@ -133,6 +134,24 @@ void NetworkClient::send_unreliable(const net::Packet& packet) {
         return;
     }
     m_session->send(packet, false);
+}
+
+void NetworkClient::send_input_mask(std::uint8_t mask, std::uint32_t tick) {
+    if (!m_connected.load()) {
+        return;
+    }
+
+    net::Packet pkt;
+    pkt.header.m_command = static_cast<std::uint8_t>(net::CommandId::KClientInput);
+
+    pkt.payload.resize(5);
+    pkt.payload[0] = std::byte(static_cast<unsigned char>(tick & 0xFF));
+    pkt.payload[1] = std::byte(static_cast<unsigned char>((tick >> 8) & 0xFF));
+    pkt.payload[2] = std::byte(static_cast<unsigned char>((tick >> 16) & 0xFF));
+    pkt.payload[3] = std::byte(static_cast<unsigned char>((tick >> 24) & 0xFF));
+    pkt.payload[4] = std::byte(static_cast<unsigned char>(mask));
+
+    m_session->send(pkt, false);
 }
 
 bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {

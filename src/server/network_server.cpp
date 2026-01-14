@@ -2,6 +2,7 @@
 
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
+#include "game_engine/events/events.h"
 #include "lobby_manager.h"
 #include "networking/handshake/handshake.h"
 #include "networking/lobby/lobby_messages.h"
@@ -37,6 +38,9 @@ void NetworkServer::start() {
         // onUnreliable
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Handle unreliable packets here (player input, etc.)
+            if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KClientInput)) {
+                handle_client_input(pkt, from);
+            }
         });
     m_running = true;
     m_io_thread = std::thread([this]() {
@@ -134,4 +138,54 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
         }
         return;
     }
+}
+
+void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
+    constexpr std::size_t k_input_packet_size = 5;
+    constexpr std::uint8_t k_shift_8 = 8;
+    constexpr std::uint8_t k_shift_16 = 16;
+    constexpr std::uint8_t k_shift_24 = 24;
+    constexpr std::uint8_t k_input_up = 0x01;
+    constexpr std::uint8_t k_input_down = 0x02;
+    constexpr std::uint8_t k_input_left = 0x04;
+    constexpr std::uint8_t k_input_right = 0x08;
+    constexpr std::uint8_t k_input_shoot = 0x10;
+
+    if (pkt.payload.size() < k_input_packet_size) {
+        LOG_WARNING("Invalid client input packet size: {}", pkt.payload.size());
+        return;
+    }
+
+    std::uint32_t tick = static_cast<std::uint32_t>(pkt.payload[0]) |
+                        (static_cast<std::uint32_t>(pkt.payload[1]) << k_shift_8) |
+                        (static_cast<std::uint32_t>(pkt.payload[2]) << k_shift_16) |
+                        (static_cast<std::uint32_t>(pkt.payload[3]) << k_shift_24);
+
+    std::uint8_t input_mask = static_cast<std::uint8_t>(pkt.payload[4]);
+
+    bool move_up = (input_mask & k_input_up) != 0;
+    bool move_down = (input_mask & k_input_down) != 0;
+    bool move_left = (input_mask & k_input_left) != 0;
+    bool move_right = (input_mask & k_input_right) != 0;
+    bool shoot = (input_mask & k_input_shoot) != 0;
+
+    const auto& controls = m_engine_ctx.controls;
+
+    if (move_up) {
+        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_up.primary});
+    }
+    if (move_down) {
+        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_down.primary});
+    }
+    if (move_left) {
+        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_left.primary});
+    }
+    if (move_right) {
+        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.move_right.primary});
+    }
+    if (shoot) {
+        m_engine_ctx.input_event_queue.push(engn::evts::KeyHold{controls.shoot.primary});
+    }
+
+    LOG_DEBUG("Received input from {} (tick: {}, mask: 0x{:02X})", from.address().to_string(), tick, input_mask);
 }

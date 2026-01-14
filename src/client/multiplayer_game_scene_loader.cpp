@@ -68,7 +68,10 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::UIText>();
     registry.register_component<cpnt::UITransform>();
 
+    static std::unique_ptr<NetworkClient> s_network_client;
+
     engine_ctx.add_system<>(sys::fetch_inputs);
+    engine_ctx.add_system<>(send_input_system);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<>(sys::ui_press);
@@ -93,9 +96,9 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
 
-    static std::unique_ptr<NetworkClient> s_network_client;
-
     s_network_client = std::make_unique<NetworkClient>(engine_ctx);
+    // Provide the NetworkClient pointer to the client systems
+    set_network_client(s_network_client.get());
 
     s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
@@ -126,9 +129,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
-    engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
-
-    
+    engine_ctx.add_system<>([](engn::EngineContext& ctx) { if (s_network_client) s_network_client->poll(); });
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();
