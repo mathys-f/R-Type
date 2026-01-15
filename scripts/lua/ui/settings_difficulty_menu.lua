@@ -41,14 +41,14 @@ Set_ui_transform("difficulty_title", {
     rotation = 0
 })
 
--- Max Enemies
+-- Max Shooters
 Create_ui_text("max_shooter_label", {
-    content = "Max Flying Enemies:",
+    content = "Max Shooters:",
     font_size = 20
 })
 Set_ui_style("max_shooter_label", styles.label)
 Set_ui_transform("max_shooter_label", {
-    x = 20, y = 20, z = 0,
+    x = 26, y = 20, z = 0,
     w = 25, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -61,7 +61,7 @@ Set_ui_text("max_shooter_down_button", {
 })
 Set_ui_style("max_shooter_down_button", styles.main_menu)
 Set_ui_transform("max_shooter_down_button", {
-    x = 50, y = 20, z = 0,
+    x = 56, y = 20, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -73,7 +73,7 @@ Create_ui_text("max_shooter_value", {
 })
 Set_ui_style("max_shooter_value", styles.label)
 Set_ui_transform("max_shooter_value", {
-    x = 56, y = 20, z = 0,
+    x = 62, y = 20, z = 0,
     w = 6, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -86,7 +86,58 @@ Set_ui_text("max_shooter_up_button", {
 })
 Set_ui_style("max_shooter_up_button", styles.main_menu)
 Set_ui_transform("max_shooter_up_button", {
-    x = 63, y = 20, z = 0,
+    x = 69, y = 20, z = 0,
+    w = 5, h = 5,
+    anchor_x = 0, anchor_y = 0,
+    rotation = 0
+})
+
+-- Max Chargers
+Create_ui_text("max_charger_label", {
+    content = "Max Chargers:",
+    font_size = 20
+})
+Set_ui_style("max_charger_label", styles.label)
+Set_ui_transform("max_charger_label", {
+    x = 26, y = 28, z = 0,
+    w = 25, h = 5,
+    anchor_x = 0, anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button("max_charger_down_button")
+Set_ui_text("max_charger_down_button", {
+    content = "-",
+    font_size = 24
+})
+Set_ui_style("max_charger_down_button", styles.main_menu)
+Set_ui_transform("max_charger_down_button", {
+    x = 56, y = 28, z = 0,
+    w = 5, h = 5,
+    anchor_x = 0, anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_text("max_charger_value", {
+    content = "5",
+    font_size = 20
+})
+Set_ui_style("max_charger_value", styles.label)
+Set_ui_transform("max_charger_value", {
+    x = 62, y = 28, z = 0,
+    w = 6, h = 5,
+    anchor_x = 0, anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_button("max_charger_up_button")
+Set_ui_text("max_charger_up_button", {
+    content = "+",
+    font_size = 24
+})
+Set_ui_style("max_charger_up_button", styles.main_menu)
+Set_ui_transform("max_charger_up_button", {
+    x = 69, y = 28, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -99,7 +150,7 @@ Create_ui_text("enemy_health_label", {
 })
 Set_ui_style("enemy_health_label", styles.label)
 Set_ui_transform("enemy_health_label", {
-    x = 20, y = 30, z = 0,
+    x = 26, y = 36, z = 0,
     w = 25, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -112,7 +163,7 @@ Set_ui_text("enemy_health_down_button", {
 })
 Set_ui_style("enemy_health_down_button", styles.main_menu)
 Set_ui_transform("enemy_health_down_button", {
-    x = 50, y = 30, z = 0,
+    x = 56, y = 36, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -124,7 +175,7 @@ Create_ui_text("enemy_health_value", {
 })
 Set_ui_style("enemy_health_value", styles.label)
 Set_ui_transform("enemy_health_value", {
-    x = 56, y = 30, z = 0,
+    x = 62, y = 36, z = 0,
     w = 6, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -137,7 +188,7 @@ Set_ui_text("enemy_health_up_button", {
 })
 Set_ui_style("enemy_health_up_button", styles.main_menu)
 Set_ui_transform("enemy_health_up_button", {
-    x = 63, y = 30, z = 0,
+    x = 69, y = 36, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -150,7 +201,7 @@ Create_ui_text("enemy_speed_label", {
 })
 Set_ui_style("enemy_speed_label", styles.label)
 Set_ui_transform("enemy_speed_label", {
-    x = 20, y = 40, z = 0,
+    x = 26, y = 44, z = 0,
     w = 25, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -163,7 +214,7 @@ Set_ui_text("enemy_speed_down_button", {
 })
 Set_ui_style("enemy_speed_down_button", styles.main_menu)
 Set_ui_transform("enemy_speed_down_button", {
-    x = 50, y = 40, z = 0,
+    x = 56, y = 44, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -175,7 +226,7 @@ Create_ui_text("enemy_speed_value", {
 })
 Set_ui_style("enemy_speed_value", styles.label)
 Set_ui_transform("enemy_speed_value", {
-    x = 56, y = 40, z = 0,
+    x = 62, y = 44, z = 0,
     w = 6, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -188,7 +239,7 @@ Set_ui_text("enemy_speed_up_button", {
 })
 Set_ui_style("enemy_speed_up_button", styles.main_menu)
 Set_ui_transform("enemy_speed_up_button", {
-    x = 63, y = 40, z = 0,
+    x = 69, y = 44, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -201,7 +252,7 @@ Create_ui_text("player_health_label", {
 })
 Set_ui_style("player_health_label", styles.label)
 Set_ui_transform("player_health_label", {
-    x = 20, y = 48, z = 0,
+    x = 26, y = 52, z = 0,
     w = 25, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -214,7 +265,7 @@ Set_ui_text("player_health_down_button", {
 })
 Set_ui_style("player_health_down_button", styles.main_menu)
 Set_ui_transform("player_health_down_button", {
-    x = 50, y = 48, z = 0,
+    x = 56, y = 52, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -226,7 +277,7 @@ Create_ui_text("player_health_value", {
 })
 Set_ui_style("player_health_value", styles.label)
 Set_ui_transform("player_health_value", {
-    x = 56, y = 48, z = 0,
+    x = 62, y = 52, z = 0,
     w = 6, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -239,7 +290,7 @@ Set_ui_text("player_health_up_button", {
 })
 Set_ui_style("player_health_up_button", styles.main_menu)
 Set_ui_transform("player_health_up_button", {
-    x = 63, y = 48, z = 0,
+    x = 69, y = 52, z = 0,
     w = 5, h = 5,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -253,7 +304,7 @@ Set_ui_text("preset_easy_button", {
 })
 Set_ui_style("preset_easy_button", styles.main_menu)
 Set_ui_transform("preset_easy_button", {
-    x = 20, y = 63, z = 0,
+    x = 24.5, y = 67, z = 0,
     w = 15, h = 6,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -266,7 +317,7 @@ Set_ui_text("preset_normal_button", {
 })
 Set_ui_style("preset_normal_button", styles.main_menu)
 Set_ui_transform("preset_normal_button", {
-    x = 38, y = 63, z = 0,
+    x = 42.5, y = 67, z = 0,
     w = 15, h = 6,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -279,7 +330,7 @@ Set_ui_text("preset_hard_button", {
 })
 Set_ui_style("preset_hard_button", styles.main_menu)
 Set_ui_transform("preset_hard_button", {
-    x = 56, y = 63, z = 0,
+    x = 60.5, y = 67, z = 0,
     w = 15, h = 6,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -292,7 +343,7 @@ Create_ui_text("preset_description", {
 })
 Set_ui_style("preset_description", styles.label)
 Set_ui_transform("preset_description", {
-    x = 0, y = 73, z = 0,
+    x = 0, y = 77, z = 0,
     w = 100, h = 4,
     anchor_x = 0, anchor_y = 0,
     rotation = 0
@@ -313,10 +364,12 @@ Set_ui_transform("back_button", {
 })
 
 -- Navigation setup
-Set_ui_navigation("max_shooter_down_button", { up = "back_button", down = "enemy_health_down_button", right = "max_shooter_up_button" })
-Set_ui_navigation("max_shooter_up_button", { up = "back_button", down = "enemy_health_up_button", left = "max_shooter_down_button" })
-Set_ui_navigation("enemy_health_down_button", { up = "max_shooter_down_button", down = "enemy_speed_down_button", right = "enemy_health_up_button" })
-Set_ui_navigation("enemy_health_up_button", { up = "max_shooter_up_button", down = "enemy_speed_up_button", left = "enemy_health_down_button" })
+Set_ui_navigation("max_shooter_down_button", { up = "back_button", down = "max_charger_down_button", right = "max_shooter_up_button" })
+Set_ui_navigation("max_shooter_up_button", { up = "back_button", down = "max_charger_up_button", left = "max_shooter_down_button" })
+Set_ui_navigation("max_charger_down_button", { up = "max_shooter_down_button", down = "enemy_health_down_button", right = "max_charger_up_button" })
+Set_ui_navigation("max_charger_up_button", { up = "max_shooter_up_button", down = "enemy_health_up_button", left = "max_charger_down_button" })
+Set_ui_navigation("enemy_health_down_button", { up = "max_charger_down_button", down = "enemy_speed_down_button", right = "enemy_health_up_button" })
+Set_ui_navigation("enemy_health_up_button", { up = "max_charger_up_button", down = "enemy_speed_up_button", left = "enemy_health_down_button" })
 Set_ui_navigation("enemy_speed_down_button", { up = "enemy_health_down_button", down = "player_health_down_button", right = "enemy_speed_up_button" })
 Set_ui_navigation("enemy_speed_up_button", { up = "enemy_health_up_button", down = "player_health_up_button", left = "enemy_speed_down_button" })
 Set_ui_navigation("player_health_down_button", { up = "enemy_speed_down_button", down = "preset_easy_button", right = "player_health_up_button" })

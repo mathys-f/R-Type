@@ -57,7 +57,6 @@ class EngineContext {
     size_t k_stars = 1000;
 
     // Difficulty settings (adjustable in main menu)
-    size_t k_max_bullets = 100;
     size_t k_max_charger = 5;
     size_t k_max_shooter = 2;
     float k_shooter_base_speed = 3.0f;

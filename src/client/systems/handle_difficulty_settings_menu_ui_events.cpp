@@ -14,6 +14,10 @@ constexpr int k_max_shooter_min = 1;
 constexpr int k_max_shooter_max = 20;
 constexpr int k_max_shooter_step = 1;
 
+constexpr int k_max_charger_min = 1;
+constexpr int k_max_charger_max = 20;
+constexpr int k_max_charger_step = 1;
+
 constexpr int k_enemy_health_min = 1;
 constexpr int k_enemy_health_max = 20;
 constexpr int k_enemy_health_step = 1;
@@ -68,17 +72,17 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         ctx.set_scene("main_menu");
         return true;
     } else if (tag_name == "max_shooter_down_button") {
-        if (ctx.k_max_shooter > k_max_shooter_min) {
+        if (ctx.k_max_shooter > k_max_shooter_min)
             ctx.k_max_shooter -= k_max_shooter_step;
-            if (ctx.k_max_charger > k_max_shooter_min)
-                ctx.k_max_charger -= k_max_shooter_step;
-        }
     } else if (tag_name == "max_shooter_up_button") {
-        if (ctx.k_max_shooter < k_max_shooter_max) {
+        if (ctx.k_max_shooter < k_max_shooter_max)
             ctx.k_max_shooter += k_max_shooter_step;
-            if (ctx.k_max_charger < k_max_shooter_max)
-                ctx.k_max_charger += k_max_shooter_step;
-        }
+    } else if (tag_name == "max_charger_down_button") {
+        if (ctx.k_max_charger > k_max_charger_min)
+            ctx.k_max_charger -= k_max_charger_step;
+    } else if (tag_name == "max_charger_up_button") {
+        if (ctx.k_max_charger < k_max_charger_max)
+            ctx.k_max_charger += k_max_charger_step;
     } else if (tag_name == "enemy_health_down_button") {
         if (ctx.k_enemy_health > k_enemy_health_min)
             ctx.k_enemy_health -= k_enemy_health_step;
@@ -125,6 +129,11 @@ static void update_difficulty_text(EngineContext& ctx) {
     if (ctx.k_max_shooter > k_max_shooter_max)
         ctx.k_max_shooter = k_max_shooter_max;
     
+    if (ctx.k_max_charger < k_max_charger_min)
+        ctx.k_max_charger = k_max_charger_min;
+    if (ctx.k_max_charger > k_max_charger_max)
+        ctx.k_max_charger = k_max_charger_max;
+    
     if (ctx.k_enemy_health < k_enemy_health_min)
         ctx.k_enemy_health = k_enemy_health_min;
     if (ctx.k_enemy_health > k_enemy_health_max)
@@ -142,9 +151,10 @@ static void update_difficulty_text(EngineContext& ctx) {
 
     // Update UI text
     set_text_if_exists(ctx, "max_shooter_value", std::to_string(ctx.k_max_shooter));
+    set_text_if_exists(ctx, "max_charger_value", std::to_string(ctx.k_max_charger));
     set_text_if_exists(ctx, "enemy_health_value", std::to_string(ctx.k_enemy_health));
     set_text_if_exists(ctx, "player_health_value", std::to_string(ctx.k_player_health));
-    
+
     // Format float to 1 decimal place
     std::ostringstream speed_stream;
     speed_stream << std::fixed << std::setprecision(1) << ctx.k_enemy_base_speed;
@@ -152,7 +162,6 @@ static void update_difficulty_text(EngineContext& ctx) {
 }
 
 static void apply_preset_easy(EngineContext& ctx) {
-    ctx.k_max_bullets = 150; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_charger = 3; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_shooter = 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_base_speed = 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
@@ -165,7 +174,6 @@ static void apply_preset_easy(EngineContext& ctx) {
 }
 
 static void apply_preset_normal(EngineContext& ctx) {
-    ctx.k_max_bullets = 100; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_charger = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_shooter = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_base_speed = 3.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
@@ -178,7 +186,6 @@ static void apply_preset_normal(EngineContext& ctx) {
 }
 
 static void apply_preset_hard(EngineContext& ctx) {
-    ctx.k_max_bullets = 75; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_charger = 8; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_max_shooter = 10; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_base_speed = 5.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
