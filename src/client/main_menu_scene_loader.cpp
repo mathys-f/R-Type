@@ -23,9 +23,11 @@ static float randf() {
 
 void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
+    engine_ctx.input_context = InputContext::Menu;
 
     reg.register_component<cpnt::UIButton>();
     reg.register_component<cpnt::UIFocusable>();
+    reg.register_component<cpnt::UIInputField>();
     reg.register_component<cpnt::UIInteractable>();
     reg.register_component<cpnt::UINavigation>();
     reg.register_component<cpnt::UISlider>();
@@ -40,17 +42,18 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
+    engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_main_menu_ui_events);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);
 
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const int k_width = static_cast<int>(engine_ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height =
-        static_cast<int>(engine_ctx.k_window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
+        static_cast<int>(engine_ctx.window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = engine_ctx.registry.spawn_entity();

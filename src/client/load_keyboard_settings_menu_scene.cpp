@@ -10,15 +10,18 @@
 
 using namespace engn;
 
-const std::string k_script_file = "scripts/lua/ui/settings_audio_menu.lua";
+const std::string k_script_file = "scripts/lua/ui/settings_menu.lua";
 
-void load_settings_audio_scene(engn::EngineContext& engine_ctx) {
+void load_keyboard_settings_menu_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
 
+    engine_ctx.input_context = InputContext::Menu;
     engine_ctx.pending_rebind = ControlAction::None;
+    engine_ctx.confirm_keyboard_reset = false;
 
     reg.register_component<cpnt::UIButton>();
     reg.register_component<cpnt::UIFocusable>();
+    reg.register_component<cpnt::UIInputField>();
     reg.register_component<cpnt::UIInteractable>();
     reg.register_component<cpnt::UINavigation>();
     reg.register_component<cpnt::UISlider>();
@@ -29,10 +32,11 @@ void load_settings_audio_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
+    engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
-    engine_ctx.add_system<>(handle_volume_menu_ui_events);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
+    engine_ctx.add_system<>(handle_keyboard_settings_menu_ui_events);
 
     engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
 }

@@ -53,12 +53,23 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    const glm::vec2 k_window_size{1080.0f, 720.0f};
+    glm::vec2 window_size{1080.0f, 720.0f};
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
-    const size_t k_max_enemies = 8;
+    const size_t k_max_charger = 5;
+    const size_t k_max_shooter = 2;
+    float k_shooter_base_speed = 3.0f;
+    float k_shooter_speed_variance = 5.0f;
+    int k_shooter_health = 3;
+    int k_spawn_margin = 100;
+    float k_enemy_base_speed = 3.0f;
+    float k_enemy_speed_variance = 5.0f;
+    int k_enemy_health = 3;
+    float k_pattern_speed_variance = 3.0f;
+    int k_pattern_amplitude_max = 10;
+    ///
 
     std::shared_ptr<net::Session> network_session;
 
@@ -71,9 +82,17 @@ class EngineContext {
     const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
     std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& get_snapshots_history();
 
+    InputContext input_context = InputContext::Gameplay;
+    InputState input_state;
     ControlScheme controls = make_default_controls();
+    GamepadControlScheme gamepad_controls = make_default_gamepad_controls();
     ControlAction pending_rebind = ControlAction::None;
-    unsigned char settings_return_scene = 1;
+    GamepadControlAction pending_gamepad_rebind = GamepadControlAction::None;
+    bool confirm_keyboard_reset = false;
+    bool confirm_gamepad_reset = false;
+    bool confirm_enter_rebind = false;
+    bool skip_next_gamepad_rebind_input = false;
+    std::string settings_return_scene = "";
     int master_volume = 100;
     int music_volume = 100;
     int sfx_volume = 100;
@@ -84,13 +103,15 @@ class EngineContext {
     bool music_muted = false;
     bool sfx_muted = false;
 
+    bool change_music = false;
+
     std::string server_ip;
     std::uint16_t server_port;
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
-    void add_scene_loader(unsigned char scene_id, std::function<void(EngineContext&)> loader);
-    void set_scene(unsigned char scene_id);
-    unsigned char get_current_scene() const;
+    void add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader);
+    void set_scene(const std::string &scene_name);
+    const std::string &get_current_scene() const;
 
     std::size_t get_current_tick() const;
 
@@ -110,8 +131,8 @@ class EngineContext {
     void run_systems();
 
   private:
-    unsigned char m_current_scene;
-    std::unordered_map<unsigned char, std::function<void(EngineContext&)>> m_scenes_loaders;
+    std::string m_current_scene;
+    std::unordered_map<std::string, std::function<void(EngineContext&)>> m_scenes_loaders;
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
 

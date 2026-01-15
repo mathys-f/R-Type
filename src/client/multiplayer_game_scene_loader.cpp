@@ -32,8 +32,8 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     constexpr int k_player_health = 100;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x);
-    const int k_height = static_cast<int>(engine_ctx.k_window_size.y);
+    const int k_width = static_cast<int>(engine_ctx.window_size.x);
+    const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
     auto& registry = engine_ctx.registry;
@@ -44,6 +44,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     registry.register_component<cpnt::Bullet>();
     registry.register_component<cpnt::Enemy>();
+    registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
     registry.register_component<cpnt::Health>();
     registry.register_component<cpnt::Hitbox>();
@@ -71,22 +72,27 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
+    engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet_shooter>(sys::bullet_shooter_system);
+
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::Bullet_shooter, cpnt::Shooter, cpnt::Stats>(
         sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet>(sys::particle_emission_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::Bullet_shooter>(sys::particle_emission_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
         sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
         sys::render_system);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle>(sys::ui_background_renderer);
-    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle>(sys::ui_text_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
+    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
@@ -99,22 +105,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
-            LOG_DEBUG("Connected! Creating player entity (ID: {})", player_id);
-
-            Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
-
-            auto player = registry.spawn_entity();
-            registry.add_component(player,
-                                   cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
-            registry.add_component(player, cpnt::Player{});
-            registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "player_ship"});
-            registry.add_component(player, cpnt::Health{k_player_health, k_player_health});
-            registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-            registry.add_component(player, cpnt::Hitbox{ship_source_rect.height * 2, ship_source_rect.width * 2,
-                                                        k_ship_width, k_ship_height});
-
-            registry.add_component(player, cpnt::Replicated{player_id});
-
+            LOG_DEBUG("Connected!");
         } else {
             LOG_ERROR("Login failed! Cannot start game.");
             return;
@@ -128,7 +119,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
 
-    
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();

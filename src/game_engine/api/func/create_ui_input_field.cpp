@@ -15,7 +15,7 @@ constexpr float k_input_field_width = 200.0f;
 constexpr float k_input_field_height = 30.0f;
 constexpr int k_input_field_font_size = 16;
 
-void lua::create_ui_input_field(EngineContext& ctx, unsigned char scene_id, std::string name,
+void lua::create_ui_input_field(EngineContext& ctx, std::string name,
                                 std::string default_value) {
     auto& reg = ctx.registry;
     static float s_i = 0;
@@ -43,7 +43,8 @@ void lua::create_ui_input_field(EngineContext& ctx, unsigned char scene_id, std:
     reg.add_component<cpnt::UIInteractable>(
         entity, cpnt::UIInteractable{.hovered = false, .pressed = false, .released = false});
 
-    reg.add_component<cpnt::UIInputField>(entity, cpnt::UIInputField{.editing = false, .timer = s_i++});
+    reg.add_component<cpnt::UIInputField>(
+        entity, cpnt::UIInputField{.editing = false, .timer = s_i++, .cursor_index = default_value.size()});
 
     reg.add_component<cpnt::UIText>(entity,
                                     cpnt::UIText{.content = default_value, .font_size = k_input_field_font_size});

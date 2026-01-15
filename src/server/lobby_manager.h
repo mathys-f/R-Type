@@ -2,15 +2,23 @@
 
 #include "../networking/lobby/lobby_messages.h"
 #include "network_server.h"
+#include "lobby_ipc.h"
 
 #include <asio.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <vector>
+
+#ifdef _WIN32
+    #include <windows.h>
+    using process_handle_t = HANDLE;
+#else
+    #include <sys/types.h>
+    using process_handle_t = pid_t;
+#endif
 
 namespace engn {
 class EngineContext;
@@ -21,13 +29,10 @@ namespace lobby_constants {
 inline constexpr std::uint16_t k_default_lobby_base_port = 9000;
 }
 
-void lobby_scene_loader(engn::EngineContext &ctx);
-
 // Represents a single game lobby with its own thread and server
 class GameLobby {
   public:
-    GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players, std::uint16_t port,
-              engn::EngineContext& engine_ctx);
+    GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players, std::uint16_t port);
     ~GameLobby();
 
     GameLobby(const GameLobby&) = delete;
@@ -37,6 +42,12 @@ class GameLobby {
 
     void start();
     void stop();
+    
+    // Check if process is still alive
+    bool is_process_alive() const;
+    
+    // Process IPC messages from lobby
+    void process_ipc_messages();
 
     bool is_full() const;
     bool can_join() const;
@@ -61,9 +72,17 @@ class GameLobby {
     bool is_running() const {
         return m_running.load();
     }
+    
+    process_handle_t get_process_handle() const {
+        return m_process_handle;
+    }
 
   private:
-    void lobby_thread_func();
+    void fork_and_run_lobby_process();
+    
+    // Static function to run lobby in child process
+    static void run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, 
+        std::uint16_t port, std::uint8_t max_players);
 
     std::uint32_t m_lobby_id;
     std::string m_lobby_name;
@@ -71,10 +90,9 @@ class GameLobby {
     std::atomic<std::uint8_t> m_current_players{0};
     std::uint16_t m_port;
 
-    engn::EngineContext& m_engine_ctx;
-    std::unique_ptr<NetworkServer> m_server;
-    std::thread m_lobby_thread;
+    process_handle_t m_process_handle;
     std::atomic<bool> m_running{false};
+    std::unique_ptr<ipc::LobbyIPC> m_ipc;
 
     mutable std::mutex m_players_mutex;
     std::vector<asio::ip::udp::endpoint> m_players;
@@ -92,8 +110,7 @@ class LobbyManager {
     LobbyManager& operator=(LobbyManager&&) = delete;
 
     // Create a new lobby
-    std::uint32_t create_lobby(const std::string& lobby_name, std::uint8_t max_players,
-                               engn::EngineContext& engine_ctx);
+    std::uint32_t create_lobby(const std::string& lobby_name, std::uint8_t max_players);
 
     // Get lobby by ID
     std::shared_ptr<GameLobby> get_lobby(std::uint32_t lobby_id);
