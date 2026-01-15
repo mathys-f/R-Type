@@ -1,5 +1,7 @@
 #include "systems/systems.h"
 
+#include "engine.h"
+
 using namespace engn;
 
 void sys::update_snapshots_system(EngineContext& ctx)

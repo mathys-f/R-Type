@@ -102,7 +102,7 @@ std::size_t engn::EngineContext::get_current_tick() const {
     return m_current_tick;
 }
 
-SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) const {
+SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
     if (m_snapshots_history.empty())
@@ -138,6 +138,6 @@ void engn::EngineContext::record_snapshot(SnapshotRecord &record) {
         std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }
 
-std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() const {
+std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() {
     return m_snapshots_history;
 }

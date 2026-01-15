@@ -60,16 +60,16 @@ class EngineContext {
     const size_t k_max_bullets = 100;
     const size_t k_max_enemies = 8;
 
-    std::unique_ptr<net::Session> network_session;
+    std::shared_ptr<net::Session> network_session;
 
     void add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
     const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &get_clients();
 
     void record_snapshot(SnapshotRecord &snapshot);
-    SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
+    SnapshotRecord &get_latest_snapshot(std::size_t player_id);
     const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
-    std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& get_snapshots_history() const;
+    std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& get_snapshots_history();
 
     ControlScheme controls = make_default_controls();
     ControlAction pending_rebind = ControlAction::None;

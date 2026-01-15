@@ -50,6 +50,8 @@ void GameLobby::lobby_thread_func() {
         // Create the network server for this lobby
         m_server = std::make_unique<NetworkServer>(lobby_engine_ctx, m_port);
         m_server->start();
+        m_server->get_engine().add_scene_loader("lobby", lobby_scene_loader);
+        m_server->get_engine().set_scene("lobby");
 
         LOG_INFO("Lobby '{}' game server running on port {}", m_lobby_name, m_port);
 
@@ -57,6 +59,7 @@ void GameLobby::lobby_thread_func() {
         constexpr int k_tick_ms = 16; // ~60 FPS
         while (m_running.load()) {
             m_server->poll();
+            m_server->get_engine().run_systems();
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
         }
 

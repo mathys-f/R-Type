@@ -22,6 +22,9 @@ class NetworkServer {
     NetworkServer& operator=(const NetworkServer&) = delete;
     NetworkServer(NetworkServer&&) = delete;
     NetworkServer& operator=(NetworkServer&&) = delete;
+
+    engn::EngineContext &get_engine();
+
     void start();
     void poll();
     void stop();

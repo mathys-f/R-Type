@@ -21,6 +21,8 @@ namespace lobby_constants {
 inline constexpr std::uint16_t k_default_lobby_base_port = 9000;
 }
 
+void lobby_scene_loader(engn::EngineContext &ctx);
+
 // Represents a single game lobby with its own thread and server
 class GameLobby {
   public:

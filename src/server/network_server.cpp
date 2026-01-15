@@ -14,10 +14,15 @@ using namespace engn;
 NetworkServer::NetworkServer(engn::EngineContext& engine_ctx, std::uint16_t port, LobbyManager* lobby_manager)
     : m_engine_ctx(engine_ctx), m_port(port), m_lobby_manager(lobby_manager) {
     m_session = std::make_shared<net::Session>(m_io, asio::ip::udp::endpoint{}, net::ReliabilityConfig{}, m_port);
+    m_engine_ctx.network_session = m_session;
 }
 
 NetworkServer::~NetworkServer() {
     stop();
+}
+
+EngineContext &NetworkServer::get_engine() {
+    return m_engine_ctx;
 }
 
 void NetworkServer::start() {

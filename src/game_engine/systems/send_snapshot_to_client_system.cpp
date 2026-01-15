@@ -112,7 +112,7 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
         net::Packet packet;
         packet.header.m_command = static_cast<std::uint8_t>(net::CommandId::KServerEntityState);
         packet.header.m_payload_size = static_cast<std::uint16_t>(world_delta.get_serialized_size());
-        packet.payload = std::vector<std::byte>(data.get(), data.get() + world_delta.get_serialized_size());
+        packet.payload = std::vector<std::byte>(data.get(), data.get() + world_delta.get_serialized_size()); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         data.release(); // Prevent freing the data since it's now owned by the packet payload
         std::uint32_t packet_id = ctx.network_session->send(packet, endpoint, true);
         latest_snapshot.msg_id = packet_id;
