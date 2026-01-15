@@ -16,7 +16,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_game_scene(engn::EngineContext& engine_ctx) {
@@ -100,7 +100,6 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_ship_width = 33.0f;
     constexpr float k_ship_height = 18.0f;
     constexpr float k_ship_scale = 3.0f;
-    constexpr int k_player_health = 100;
 
     Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
 
@@ -111,7 +110,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         player, cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
     engine_ctx.registry.add_component(player, cpnt::Player{});
     engine_ctx.registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "player_ship"});
-    engine_ctx.registry.add_component(player, cpnt::Health{k_player_health, k_player_health});
+    engine_ctx.registry.add_component(player, cpnt::Health{engine_ctx.k_player_health, engine_ctx.k_player_health});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     engine_ctx.registry.add_component(
         player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});

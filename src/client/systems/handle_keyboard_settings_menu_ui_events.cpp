@@ -119,6 +119,11 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         ctx.confirm_enter_rebind = false;
         ctx.set_scene("audio_settings");
         return true;
+    } else if (tag_name == "nav_graphics_button") {
+        ctx.pending_rebind = ControlAction::None;
+        ctx.confirm_enter_rebind = false;
+        ctx.set_scene("graphics_settings");
+        return true;
     } else if (tag_name == "reset_controls_button") {
         ctx.pending_rebind = ControlAction::None;
         ctx.confirm_enter_rebind = false;

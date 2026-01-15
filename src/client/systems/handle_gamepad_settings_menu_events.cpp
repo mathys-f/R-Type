@@ -114,6 +114,9 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "nav_audio_button") {
         ctx.set_scene("audio_settings");
         return true;
+    } else if (tag_name == "nav_graphics_button") {
+        ctx.set_scene("graphics_settings");
+        return true;
     } else if (tag_name == "reset_gamepad_button") {
         ctx.pending_gamepad_rebind = GamepadControlAction::None;
         ctx.skip_next_gamepad_rebind_input = false;
