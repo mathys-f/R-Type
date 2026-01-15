@@ -9,16 +9,16 @@ using namespace engn;
 namespace {
 constexpr float k_particle_radius = 3.0f;
 constexpr int k_alpha_max = 255;
+    constexpr int k_level_to_appear = 0;
 } // namespace
 
 void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Star> const& stars,
-                        ecs::SparseArray<cpnt::Velocity> const& velocities,
-                        ecs::SparseArray<cpnt::Particle> const& particles, ecs::SparseArray<cpnt::Stats> const& stats) {
+                        ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Particle> const& particles,
+                        ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::Boss> const& bosses) {
 
     auto& reg = ctx.registry;
     Color stars_color = WHITE;
-
 
     // Get Stats
     for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
@@ -87,6 +87,39 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                 DrawTexturePro(texture.value(), sprite_opt->source_rect,
                                (Rectangle){pos_opt->x, pos_opt->y, width, height},
                                (Vector2){pos_opt->origin_x, pos_opt->origin_y}, vel_opt ? vel_opt->vz : 0.0f, WHITE);
+            }
+        }
+    }
+
+    //  Render boss wave effect
+    for (auto [boss_idx, boss_opt] : ecs::indexed_zipper(bosses)) {
+        if (boss_opt && boss_opt->roar_active) {
+            float radius = boss_opt->waveRadius;
+            int centerX = (int)boss_opt->waveCenter.x;
+            int centerY = (int)boss_opt->waveCenter.y;
+            
+            // Draw multiple trailing rings with decreasing thickness and alpha
+            int numRings = 8;
+            float ringSpacing = 15.0f;
+            
+            for (int i = numRings - 1; i >= 0; i--) {
+                float ringRadius = radius - (i * ringSpacing);
+                
+                if (ringRadius > 0) {
+                    // Calculate alpha fade (older rings are more transparent)
+                    float alpha = 1.0f - (i / (float)numRings);
+                    alpha = alpha * alpha; // Quadratic falloff for smoother fade
+                    
+                    // Calculate thickness (thicker at the front)
+                    int thickness = (i == 0) ? 10 : (i <= 2) ? 3 : 2;
+                    
+                    Color ringColor = Fade(WHITE, alpha);
+                    
+                    // Draw multiple lines for thickness
+                    for (int t = 0; t < thickness; t++) {
+                        DrawCircleLines(centerX, centerY, ringRadius + t, ringColor);
+                    }
+                }
             }
         }
     }

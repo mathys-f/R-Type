@@ -56,17 +56,17 @@ int main(void) {
 
         // Handle music change
         std::optional<unsigned int> scene_id = engine_ctx.get_current_scene();
-        if (scene_id == 0 && engine_ctx.change_music) {
-            engine_ctx.change_music = false;
-            StopMusicStream(music.value());
-            music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
-            PlayMusicStream(music.value());
-        } else if (scene_id == 1 && engine_ctx.change_music) {
-            engine_ctx.change_music = false;
-            StopMusicStream(music.value());
-            music = engine_ctx.assets_manager.get_asset<Music>("menu_music");
-            PlayMusicStream(music.value());
-        }
+        //if (scene_id == 0 && engine_ctx.change_music) {
+        //    engine_ctx.change_music = false;
+        //    StopMusicStream(music.value());
+        //    music = engine_ctx.assets_manager.get_asset<Music>("battle_music");
+        //    PlayMusicStream(music.value());
+        //} else if (scene_id == 1 && engine_ctx.change_music) {
+        //    engine_ctx.change_music = false;
+        //    StopMusicStream(music.value());
+        //    music = engine_ctx.assets_manager.get_asset<Music>("menu_music");
+        //    PlayMusicStream(music.value());
+        //}
 
         // Update music
         if (music.has_value())

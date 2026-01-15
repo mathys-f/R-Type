@@ -49,7 +49,7 @@ void load_main_menu_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_main_menu_ui_events);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
         sys::render_system);
 
     const int k_width = static_cast<int>(engine_ctx.k_window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)

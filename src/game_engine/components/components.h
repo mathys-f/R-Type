@@ -16,6 +16,8 @@
 #include "velocity.h"
 #include "shooter.h"
 #include "bullet_shooter.h"
+#include "boss.h"
+#include "boss_hitbox.h"
 
 // Non headless components
 #include "particle.h"

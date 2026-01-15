@@ -23,7 +23,8 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                            ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                            ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
                            ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
-                           ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats) {
+                           ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats,
+                           ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes) {
     std::vector<ecs::Entity> bullets_to_kill;
     auto& reg = ctx.registry;
 
@@ -37,6 +38,25 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
             Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
                               hitbox_opt->width, hitbox_opt->height};
             DrawRectangleLinesEx(rect, 2.0f, GREEN);
+        }
+    }
+
+    // Debug - show boss hitboxes
+    for (auto [idx, pos_opt, boss_hitbox_opt] : ecs::indexed_zipper(positions, boss_hitboxes)) {
+        if (pos_opt && boss_hitbox_opt) {
+            //printf("Drawing boss hitboxes at position (%f, %f)\n", pos_opt->x, pos_opt->y);
+            Rectangle rect_1 = {pos_opt->x + boss_hitbox_opt->offset_x_1,
+                                pos_opt->y + boss_hitbox_opt->offset_y_1,
+                                boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
+            Rectangle rect_2 = {pos_opt->x + boss_hitbox_opt->offset_x_2,
+                                pos_opt->y + boss_hitbox_opt->offset_y_2,
+                                boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
+            Rectangle rect_3 = {pos_opt->x + boss_hitbox_opt->offset_x_3,
+                                pos_opt->y + boss_hitbox_opt->offset_y_3,
+                                boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
+            DrawRectangleLinesEx(rect_1, 2.0f, BLUE);
+            DrawRectangleLinesEx(rect_2, 2.0f, BLUE);
+            DrawRectangleLinesEx(rect_3, 2.0f, BLUE);
         }
     }
 
