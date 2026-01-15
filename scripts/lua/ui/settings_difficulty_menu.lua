@@ -338,7 +338,7 @@ Set_ui_transform("preset_hard_button", {
 
 -- Preset Description
 Create_ui_text("preset_description", {
-    content = "Presets adjust: Player Health, Enemy count, Health, Speed, Bullet limit, and more",
+    content = "Presets adjust: Player Health, Enemy count, Health, Speed and more",
     font_size = 18
 })
 Set_ui_style("preset_description", styles.label)
