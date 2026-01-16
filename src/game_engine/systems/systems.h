@@ -76,13 +76,15 @@ void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& 
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Particle> const& particles,
                    ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::Boss> const& bosses);
 
+void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, ecs::SparseArray<cpnt::Transform> const& positions,
+                     ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
+                     ecs::SparseArray<cpnt::Enemy> const& enemies, ecs::SparseArray<cpnt::Shooter> const& shooters,
+                     ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets);
+
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);
 
 void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats);
-
-void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss,
-                     ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes);
 
 void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
 

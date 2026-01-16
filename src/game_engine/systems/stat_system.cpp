@@ -12,6 +12,7 @@ namespace {
     constexpr float k_rand_divisor = 1000.0f;
     constexpr int new_charger_enemies = 1;
     constexpr int new_shooter_enemies = 1;
+    constexpr int boss_level = 4;
 }
 
 static float randf() {
@@ -36,8 +37,14 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
 
             if (stat->score >= stat->point_to_next_level) {
                 stat->level += 1;
-                stat->point_to_next_level += 1000; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                stat->point_to_next_level += 500; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
 
+                // Pass creation every boss level (4 levels)
+                if (stat->level % boss_level == 0) {
+                    printf("Boss level reached: %d\n", stat->level);
+                    continue;
+                }
+                printf("Level up! New level: %d\n", stat->level);
                 // Create New enemies
 
                 constexpr float k_enemy_sprite_x = 5.0f;
