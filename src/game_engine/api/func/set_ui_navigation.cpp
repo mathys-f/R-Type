@@ -1,5 +1,4 @@
 #include "api/lua.h"
-#include "components/scene.h"
 #include "components/ui/ui_navigation.h"
 #include "engine.h"
 #include "utils/logger.h"
@@ -28,21 +27,13 @@ static auto read_navigation(const ecs::TagRegistry& tags, sol::table table) {
     return navigation;
 }
 
-void lua::set_ui_navigation(EngineContext& ctx, unsigned char scene_id, std::string tag, sol::table t) {
-    if (scene_id != ctx.get_current_scene()) {
-        LOG_WARNING("Set_ui_navigation: Attempted to edit {} in scene {}, but current scene is {}", tag,
-                    static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
-        return;
-    }
+void lua::set_ui_navigation(EngineContext& ctx, std::string tag, sol::table t) {
     auto entity = ctx.registry.get_tag_registry().get_entity(tag);
 
     if (!entity.has_value()) {
         LOG_WARNING("Set_ui_navigation: No entity found with tag '{}'", tag);
         return;
     }
-
-    cpnt::Scene scene{scene_id};
-    ctx.registry.add_component(entity.value(), std::move(scene));
 
     cpnt::UINavigation navigation = read_navigation(ctx.registry.get_tag_registry(), t);
 

@@ -5,14 +5,14 @@
 
 using namespace engn;
 
-void sys::bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+void sys::bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Velocity> const& velocities,
-                        ecs::SparseArray<cpnt::Bullet> const& bullets) {
+                        ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter) {
     std::vector<ecs::Entity> to_kill;
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
 
-    for (auto [idx, pos_opt, vel_opt, bullet_opt] : ecs::indexed_zipper(positions, velocities, bullets)) {
+    for (auto [idx, pos_opt, vel_opt, bullet_opt] : ecs::indexed_zipper(positions, velocities, bullets_shooter)) {
         if (pos_opt && vel_opt && bullet_opt) {
             auto entity = reg.entity_from_index(idx);
             auto& pos = reg.get_components<cpnt::Transform>()[idx];

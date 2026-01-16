@@ -18,12 +18,14 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     std::string tag_name = tags.get_tag_name(evt.tag);
 
     if (tag_name == "play_solo_button") {
-        ctx.set_scene(0);
+        ctx.set_scene("singleplayer_game"); // Navigate to singleplayer game scene
     } else if (tag_name == "play_multiplayer_button") {
-        ctx.set_scene(2); // Navigate to lobby scene
+        ctx.set_scene("lobby"); // Navigate to lobby scene
     } else if (tag_name == "setting_button") {
-        ctx.settings_return_scene = 1;
-        ctx.set_scene(4);
+        ctx.settings_return_scene = "main_menu";
+        ctx.set_scene("audio_settings"); // Navigate to audio settings scene
+    } else if (tag_name == "difficulty_button") {
+        ctx.set_scene("difficulty_settings"); // Navigate to difficulty settings scene
     } else if (tag_name == "exit_button") {
         ctx.should_quit = true;
     }

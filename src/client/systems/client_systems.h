@@ -11,10 +11,12 @@ void handle_main_menu_ui_events(engn::EngineContext& ctx);
 void handle_lobby_ui_events(engn::EngineContext& ctx);
 void reset_lobby_ui_state();
 void handle_connection_menu_ui_events(engn::EngineContext& ctx);
-void handle_settings_menu_ui_events(engn::EngineContext& ctx);
-void handle_gamepad_menu_ui_events(engn::EngineContext& ctx);
+void handle_keyboard_settings_menu_ui_events(engn::EngineContext& ctx);
+void handle_gamepad_settings_menu_events(engn::EngineContext& ctx);
 void handle_game_pause_inputs(engn::EngineContext& ctx);
 void handle_volume_menu_ui_events(engn::EngineContext& ctx);
+void handle_graphics_settings_menu_ui_events(engn::EngineContext& ctx);
+void handle_difficulty_settings_menu_ui_events(engn::EngineContext& ctx);
 
 void set_network_client(void* client_ptr);
 void send_input_system(engn::EngineContext& ctx);
