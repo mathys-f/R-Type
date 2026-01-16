@@ -69,6 +69,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::UIText>();
     registry.register_component<cpnt::UITransform>();
 
+    engine_ctx.add_system<>(sys::handle_snapshots_deltas_system);
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
@@ -109,6 +110,14 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         } else {
             LOG_ERROR("Login failed! Cannot start game.");
             return;
+        }
+    });
+
+    s_network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
+        if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
+            WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
+            LOG_INFO("Received snapshot delta with {} entries", delta.entries.size());
+            engine_ctx.add_snapshot_delta(delta);
         }
     });
 

@@ -92,9 +92,6 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
     return delta_snapshot;
 }
 
-
-
-
 void sys::send_snapshot_to_client(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
@@ -116,5 +113,7 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
         data.release(); // Prevent freing the data since it's now owned by the packet payload
         std::uint32_t packet_id = ctx.network_session->send(packet, endpoint, true);
         latest_snapshot.msg_id = packet_id;
+        LOG_DEBUG("Sent snapshot delta to client {}:{}, base_snapshot_tick {}",
+            endpoint.address().to_string(), endpoint.port(), latest_snapshot.last_update_tick);
     }
 }
