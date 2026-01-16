@@ -47,22 +47,19 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
     }
 }
 
-void engn::EngineContext::add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint) {
+void EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    m_clients[client_id] = client_endpoint;
+    m_clients.push_back(client_endpoint);
 }
 
-void engn::EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
+void EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
-        if (it->second == client_endpoint) {
-            m_clients.erase(it);
-            break;
-        }
-    }
+    auto it = std::find(m_clients.begin(), m_clients.end(), client_endpoint);
+    if (it != m_clients.end())
+        m_clients.erase(it);
 }
 
-const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &engn::EngineContext::get_clients() {
+const std::vector<asio::ip::udp::endpoint> &EngineContext::get_clients() {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     return m_clients;
 }
@@ -99,17 +96,17 @@ const std::string &EngineContext::get_current_scene() const {
     return m_current_scene;
 }
 
-std::size_t engn::EngineContext::get_current_tick() const {
+std::size_t EngineContext::get_current_tick() const {
     return m_current_tick;
 }
 
-SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) {
+SnapshotRecord& EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoint) {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
     if (m_snapshots_history.empty())
        return s_empty_record;
 
-    auto &history = m_snapshots_history.at(player_id);
+    auto &history = m_snapshots_history.at(endpoint);
 
     SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
     if (!record.snapshot.entities.empty())
@@ -117,13 +114,13 @@ SnapshotRecord& engn::EngineContext::get_latest_snapshot(std::size_t player_id) 
     return s_empty_record;
 }
 
-const SnapshotRecord& engn::EngineContext::get_latest_acknowledged_snapshot(std::size_t player_id) const {
+const SnapshotRecord& EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) const {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
-    if (m_snapshots_history.find(player_id) == m_snapshots_history.end())
+    if (m_snapshots_history.find(endpoint) == m_snapshots_history.end())
        return s_empty_record;
 
-    const auto &history = m_snapshots_history.at(player_id);
+    const auto &history = m_snapshots_history.at(endpoint);
 
     for (std::size_t tick = m_current_tick; tick > 0; tick--) {
         const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
@@ -134,11 +131,24 @@ const SnapshotRecord& engn::EngineContext::get_latest_acknowledged_snapshot(std:
     return s_empty_record;
 }
 
-void engn::EngineContext::record_snapshot(SnapshotRecord &record) {
+void EngineContext::record_snapshot(SnapshotRecord &record) {
     for (auto &history : m_snapshots_history)
         std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }
 
-std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() {
+std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() {
     return m_snapshots_history;
+}
+
+void EngineContext::add_snapshot_delta(WorldDelta &delta) {
+    std::lock_guard<std::mutex> lock(m_snapshots_delta_mutex);
+    m_snapshots_delta.push_back(delta);
+}
+
+void EngineContext::for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func) {
+    std::lock_guard<std::mutex> lock(m_snapshots_delta_mutex);
+    for (const auto &delta : m_snapshots_delta) {
+        func(*this, delta);
+    }
+    m_snapshots_delta.clear();
 }

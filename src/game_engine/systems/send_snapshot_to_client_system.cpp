@@ -100,9 +100,9 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
 {
     const auto &clients = ctx.get_clients();
 
-    for (const auto &[id, endpoint] : clients) {
-        const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(id);
-        auto &latest_snapshot = ctx.get_latest_snapshot(id);
+    for (const auto &endpoint : clients) {
+        const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
+        auto &latest_snapshot = ctx.get_latest_snapshot(endpoint);
 
         auto delta_snapshot_opt = compute_delta(ack_snapshot.snapshot, latest_snapshot.last_update_tick, ctx.registry);
         if (!delta_snapshot_opt.has_value()) continue;

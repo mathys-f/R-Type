@@ -73,14 +73,18 @@ class EngineContext {
 
     std::shared_ptr<net::Session> network_session;
 
-    void add_client(std::size_t client_id, asio::ip::udp::endpoint client_endpoint);
+    void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
-    const std::unordered_map<std::size_t, asio::ip::udp::endpoint> &get_clients();
+    const std::vector<asio::ip::udp::endpoint> &get_clients();
 
     void record_snapshot(SnapshotRecord &snapshot);
-    SnapshotRecord &get_latest_snapshot(std::size_t player_id);
-    const SnapshotRecord& get_latest_acknowledged_snapshot(std::size_t player_id) const;
-    std::unordered_map<std::size_t, std::vector<SnapshotRecord>>& get_snapshots_history();
+    SnapshotRecord &get_latest_snapshot(asio::ip::udp::endpoint endpoint);
+    const SnapshotRecord& get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) const;
+    std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
+
+    void add_snapshot_delta(WorldDelta &delta);
+    /// After being run, will send back ACKs to the server and clear the deltas list
+    void for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func);
 
     InputContext input_context = InputContext::Gameplay;
     InputState input_state;
@@ -138,10 +142,13 @@ class EngineContext {
 
     std::size_t m_current_tick = 0;
 
-    std::unordered_map<std::size_t, std::vector<SnapshotRecord>> m_snapshots_history;
+    std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>> m_snapshots_history;
+
+    std::mutex m_snapshots_delta_mutex;
+    std::vector<WorldDelta> m_snapshots_delta;
 
     std::mutex m_clients_mutex;
-    std::unordered_map<std::size_t, asio::ip::udp::endpoint> m_clients;
+    std::vector<asio::ip::udp::endpoint> m_clients;
 };
 
 } // namespace engn

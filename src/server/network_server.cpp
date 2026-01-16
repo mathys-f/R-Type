@@ -158,7 +158,7 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     if (m_connected_clients.insert(endpoint).second) {
         LOG_INFO("Client connected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEANNNNNN
+        m_engine_ctx.add_client(endpoint);
     }
 }
 
@@ -166,6 +166,6 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEAAAAAAAAAAAAAAAAAAAN
+        m_engine_ctx.remove_client(endpoint);
     }
 }

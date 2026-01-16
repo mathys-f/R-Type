@@ -92,7 +92,7 @@ void update_snapshots_system(EngineContext& ctx);
 void send_snapshot_to_client(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
 
 
-void poll_snapshot_from_server(EngineContext& ctx);
+void handle_snapshots_deltas_system(EngineContext& ctx);
 void send_input_events_to_server(EngineContext& ctx);
 
 } // namespace sys
