@@ -23,6 +23,8 @@ void ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransfo
                       const ecs::SparseArray<cpnt::UIText>&, const ecs::SparseArray<cpnt::UIStyle>&,
                       const ecs::SparseArray<cpnt::UIInteractable>&);
 void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UIInteractable>&);
+void ui_scroll_area(EngineContext& ctx, const ecs::SparseArray<cpnt::UITransform>&,
+                    const ecs::SparseArray<cpnt::UIScrollArea>&);
 
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet> const& bullets);

@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "systems/systems.h"
 #include "utils/logger.h"
+#include "components/ui/ui_clip.h"
 
 #include <raylib.h>
 
@@ -21,6 +22,7 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
                            const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
     const auto& input_fields = ctx.registry.get_components<cpnt::UIInputField>();
+    auto& clips = ctx.registry.register_component<cpnt::UIClip>();
     const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
     const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
@@ -63,7 +65,21 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
             }
         }
 
+        const bool k_has_clip = index < clips.size() && clips[index].has_value();
+        if (k_has_clip) {
+            const auto& clip = clips[index].value();
+            const int k_clip_x = static_cast<int>(clip.x / 100.0f * k_width);
+            const int k_clip_y = static_cast<int>(clip.y / 100.0f * k_height);
+            const int k_clip_w = static_cast<int>(clip.w / 100.0f * k_width);
+            const int k_clip_h = static_cast<int>(clip.h / 100.0f * k_height);
+            BeginScissorMode(k_clip_x, k_clip_y, k_clip_w, k_clip_h);
+        }
+
         DrawText(display_text.c_str(), static_cast<int>(position.x), static_cast<int>(position.y), text->font_size,
                  text_color);
+
+        if (k_has_clip) {
+            EndScissorMode();
+        }
     }
 }

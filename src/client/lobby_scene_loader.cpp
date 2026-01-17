@@ -32,6 +32,7 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
     reg.register_component<cpnt::UIInputField>();
     reg.register_component<cpnt::UIInteractable>();
     reg.register_component<cpnt::UINavigation>();
+    reg.register_component<cpnt::UIScrollArea>();
     reg.register_component<cpnt::UISlider>();
     reg.register_component<cpnt::UIStyle>();
     reg.register_component<cpnt::UIText>();
@@ -48,6 +49,7 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::UIInteractable>(sys::ui_input_field_updater);
+    engine_ctx.add_system<cpnt::UITransform, cpnt::UIScrollArea>(sys::ui_scroll_area);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
