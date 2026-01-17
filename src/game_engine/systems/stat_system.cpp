@@ -22,8 +22,8 @@ static float randf() {
 void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats) {
     auto& reg = ctx.registry;
 
-    const int k_width = static_cast<int>(ctx.k_window_size.x);
-    const int k_height = static_cast<int>(ctx.k_window_size.y);
+    const int k_width = static_cast<int>(ctx.window_size.x);
+    const int k_height = static_cast<int>(ctx.window_size.y);
     constexpr float k_dist_min = 0.1f;
     constexpr float k_dist_max = 0.8f;
 
@@ -41,10 +41,8 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
 
                 // Pass creation every boss level (4 levels)
                 if (stat->level % boss_level == 0) {
-                    printf("Boss level reached: %d\n", stat->level);
                     continue;
                 }
-                printf("Level up! New level: %d\n", stat->level);
                 // Create New enemies
 
                 constexpr float k_enemy_sprite_x = 5.0f;
@@ -166,10 +164,10 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
             }
             // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
-            DrawText(TextFormat("Score: %d", stat->score), 10, 10, 20, WHITE);
-            DrawText(TextFormat("Enemies killed: %d", stat->kills), 10, 40, 20, WHITE);
-            DrawText(TextFormat("Level: %d", stat->level), 10, 70, 20, WHITE);
-            DrawText(TextFormat("Points to next level: %d", stat->point_to_next_level), 10, 100, 20, WHITE);
+            //DrawText(TextFormat("Score: %d", stat->score), 10, 10, 20, WHITE);
+            //DrawText(TextFormat("Enemies killed: %d", stat->kills), 10, 40, 20, WHITE);
+            //DrawText(TextFormat("Level: %d", stat->level), 10, 70, 20, WHITE);
+            //DrawText(TextFormat("Points to next level: %d", stat->point_to_next_level), 10, 100, 20, WHITE);
             // NOLINTEND(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
             // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
         }

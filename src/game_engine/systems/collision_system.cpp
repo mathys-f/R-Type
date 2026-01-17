@@ -44,7 +44,6 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
     //// Debug - show boss hitboxes
     //for (auto [idx, pos_opt, boss_hitbox_opt] : ecs::indexed_zipper(positions, boss_hitboxes)) {
     //    if (pos_opt && boss_hitbox_opt) {
-    //        //printf("Drawing boss hitboxes at position (%f, %f)\n", pos_opt->x, pos_opt->y);
     //        Rectangle rect_1 = {pos_opt->x + boss_hitbox_opt->offset_x_1,
     //                            pos_opt->y + boss_hitbox_opt->offset_y_1,
     //                            boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};

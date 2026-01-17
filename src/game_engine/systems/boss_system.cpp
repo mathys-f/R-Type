@@ -38,8 +38,8 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                     ecs::SparseArray<cpnt::Health> const& healths) {
     std::vector<ecs::Entity> entity_to_kill;
     auto& reg = ctx.registry;
-    const int k_width = static_cast<int>(ctx.k_window_size.x);
-    const int k_height = static_cast<int>(ctx.k_window_size.y);
+    const int k_width = static_cast<int>(ctx.window_size.x);
+    const int k_height = static_cast<int>(ctx.window_size.y);
     const float maxDist = sqrtf(k_width * k_width + k_height * k_height);
 
     // Check level
@@ -68,7 +68,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
 
 
                 auto boss = ctx.registry.spawn_entity();
-                ctx.registry.add_component(boss, cpnt::Transform{1200.f, 100.f, 0, 0, 0, 0, 1, 1, 1});
+                ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1});
                 ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, true, false, {1350.f, 400.f}, 0.f, 600.f});
                 ctx.registry.add_component(
                     boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, boss_scale, 0, "boss"});
@@ -303,8 +303,8 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
             if (boss->cooldown_2 <= 0.0f) {
                 boss->cooldown_2 = k_cooldown_2_duration;
                 
-                const int k_height = static_cast<int>(ctx.k_window_size.y);
-                const int k_width = static_cast<int>(ctx.k_window_size.x);
+                const int k_height = static_cast<int>(ctx.window_size.y);
+                const int k_width = static_cast<int>(ctx.window_size.x);
                 
                 // Spawn bullets along right edge
                 constexpr int num_bullets = 25;
