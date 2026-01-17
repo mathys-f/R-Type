@@ -19,7 +19,7 @@ namespace {
     constexpr float k_explosion_sprite_w = 17.0f;
     constexpr float k_explosion_sprite_h = 16.0f;
     constexpr float k_explosion_scale = 3.0f;
-    constexpr float roarThickness = 20.0f;
+    constexpr float k_roarThickness = 20.0f;
     constexpr float k_cooldown_1_duration = 3.0f;
     constexpr float k_cooldown_2_duration = 5.0f;
 
@@ -38,9 +38,11 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                     ecs::SparseArray<cpnt::Health> const& healths) {
     std::vector<ecs::Entity> entity_to_kill;
     auto& reg = ctx.registry;
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
     const int k_width = static_cast<int>(ctx.window_size.x);
     const int k_height = static_cast<int>(ctx.window_size.y);
-    const float maxDist = sqrtf(k_width * k_width + k_height * k_height);
+    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+    const float k_maxDist = sqrtf(k_width * k_width + k_height * k_height);
 
     // Check level
     for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
@@ -48,36 +50,36 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
             auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
             if (stat->level >= k_level_to_appear && stat->boss_active == false) {
                 stat->boss_active = true;
-                const float boss_sprite_x = 27.0f;
-                const float boss_sprite_y = 861.0f;
-                const float boss_sprite_width = 154.0f;
-                const float boss_sprite_height = 203.0f;
-                const float boss_scale = 5.0f;
-                const float boss_hitbox_head_width = 111.f * boss_scale;
-                const float boss_hitbox_head_height = 86.f * boss_scale;
-                const float boss_hitbox_body_width = 76.f * boss_scale;
-                const float boss_hitbox_body_height = 93.f * boss_scale;
-                const float boss_hitbox_tail_width = 68.f * boss_scale;
-                const float boss_hitbox_tail_height = 30.f * boss_scale;
-                const float boss_hitbox_head_x_offset = 0.f;
-                const float boss_hitbox_head_y_offset = 0.f;
-                const float boss_hitbox_body_x_offset = 83.f * boss_scale;
-                const float boss_hitbox_body_y_offset = 85.f * boss_scale;
-                const float boss_hitbox_tail_x_offset = 55.f * boss_scale;
-                const float boss_hitbox_tail_y_offset = 176.f * boss_scale;
+                const float k_boss_sprite_x = 27.0f;
+                const float k_boss_sprite_y = 861.0f;
+                const float k_boss_sprite_width = 154.0f;
+                const float k_boss_sprite_height = 203.0f;
+                const float k_boss_scale = 5.0f;
+                const float k_boss_hitbox_head_width = 111.f * k_boss_scale;
+                const float k_boss_hitbox_head_height = 86.f * k_boss_scale;
+                const float k_boss_hitbox_body_width = 76.f * k_boss_scale;
+                const float k_boss_hitbox_body_height = 93.f * k_boss_scale;
+                const float k_boss_hitbox_tail_width = 68.f * k_boss_scale;
+                const float k_boss_hitbox_tail_height = 30.f * k_boss_scale;
+                const float k_boss_hitbox_head_x_offset = 0.f;
+                const float k_boss_hitbox_head_y_offset = 0.f;
+                const float k_boss_hitbox_body_x_offset = 83.f * k_boss_scale;
+                const float k_boss_hitbox_body_y_offset = 85.f * k_boss_scale;
+                const float k_boss_hitbox_tail_x_offset = 55.f * k_boss_scale;
+                const float k_boss_hitbox_tail_y_offset = 176.f * k_boss_scale;
 
 
                 auto boss = ctx.registry.spawn_entity();
                 ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1});
                 ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, true, false, {1350.f, 400.f}, 0.f, 600.f});
                 ctx.registry.add_component(
-                    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, boss_scale, 0, "boss"});
+                    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, k_boss_scale, 0, "boss"});
                 ctx.registry.add_component(boss, cpnt::Health{100, 100});
                 ctx.registry.add_component(boss, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
                 ctx.registry.add_component(boss, cpnt::BossHitbox{
-                    boss_hitbox_head_width, boss_hitbox_head_height, boss_hitbox_head_x_offset, boss_hitbox_head_y_offset,
-                    boss_hitbox_body_width, boss_hitbox_body_height, boss_hitbox_body_x_offset, boss_hitbox_body_y_offset,
-                    boss_hitbox_tail_width, boss_hitbox_tail_height, boss_hitbox_tail_x_offset, boss_hitbox_tail_y_offset
+                    k_boss_hitbox_head_width, k_boss_hitbox_head_height, k_boss_hitbox_head_x_offset, k_boss_hitbox_head_y_offset,
+                    k_boss_hitbox_body_width, k_boss_hitbox_body_height, k_boss_hitbox_body_x_offset, k_boss_hitbox_body_y_offset,
+                    k_boss_hitbox_tail_width, k_boss_hitbox_tail_height, k_boss_hitbox_tail_x_offset, k_boss_hitbox_tail_y_offset
                 });
             }
 
@@ -96,7 +98,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                         if (boss_comp->roar_active) {
                             boss_comp->waveRadius += boss_comp->waveSpeed * GetFrameTime();
 
-                            if (boss_comp->waveRadius > maxDist) {
+                            if (boss_comp->waveRadius > k_maxDist) {
                                 boss_comp->roar_active = false;
                             }
                         }
@@ -110,7 +112,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                                 float distY = pos->y - boss_comp->waveCenter.y;
                                 float distance = sqrtf(distX * distX + distY * distY);
 
-                                if (distance >= boss_comp->waveRadius - roarThickness && 
+                                if (distance >= boss_comp->waveRadius - k_roarThickness && 
                                     distance <= boss_comp->waveRadius) {
                                     entity_to_kill.push_back(reg.entity_from_index(pos_idx));
                                     
@@ -149,7 +151,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                         }
                         
                         for (auto [pos_idx, pos_opt] : ecs::indexed_zipper(positions)) {
-                            if (boss_comp->waveRadius > maxDist) {
+                            if (boss_comp->waveRadius > k_maxDist) {
                                 boss_comp->roar_active = false;
 
                                 // Cleanup: kill any remaining enemies/bullets that survived
