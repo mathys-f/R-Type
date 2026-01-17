@@ -70,7 +70,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
 
 
                 auto boss = ctx.registry.spawn_entity();
-                ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors, cppcoreguidelines-pro-type-union-access)
                 ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, true, false, {1350.f, 400.f}, 0.f, 600.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                 ctx.registry.add_component(
                     boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, k_boss_scale, 0, "boss"}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
@@ -312,7 +312,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                 constexpr int k_num_bullets = 25;
                 constexpr float k_spacing = 100.0f; // Vertical k_spacing between bullets
                 
-                float start_y = (k_height - (k_num_bullets * k_spacing)) / 2.0f; // Center vertically // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                float start_y = (k_height - (k_num_bullets * k_spacing)) / 2.0f; // Center vertically // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors, cppcoreguidelines-avoid-magic-numbers)
                 
                 for (int i = 0; i < k_num_bullets; i++) {
                     float spawn_x = k_width - 1.0f; // Just off right edge // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
