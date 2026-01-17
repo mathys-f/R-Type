@@ -104,9 +104,9 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
             const float k_ring_spacing = 15.0f;
             
             for (int i = k_num_rings - 1; i >= 0; i--) {
-                float ringRadius = radius - (i * k_ring_spacing);  // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                float ring_radius = radius - (i * k_ring_spacing);  // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                 
-                if (ringRadius > 0) {
+                if (ring_radius > 0) {
                     // Calculate alpha fade (older rings are more transparent)
                     float alpha = 1.0f - (i / (float)k_num_rings); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                     alpha = alpha * alpha; // Quadratic falloff for smoother fade
@@ -118,7 +118,7 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                     
                     // Draw multiple lines for thickness
                     for (int t = 0; t < thickness; t++) {
-                        DrawCircleLines(center_x, center_y, ringRadius + t, ring_color); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                        DrawCircleLines(center_x, center_y, ring_radius + t, ring_color); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                     }
                 }
             }
