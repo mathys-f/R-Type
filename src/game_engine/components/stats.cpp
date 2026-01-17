@@ -3,7 +3,7 @@
 
 using namespace engn::cpnt;
 
-Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool bass_active) : score(score), dmg(dmg), kills(kills),
+Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active) : score(score), dmg(dmg), kills(kills),
                                                                                   level(level), point_to_next_level(point_to_next_level), 
                                                                                   boss_active(boss_active) {}
 
