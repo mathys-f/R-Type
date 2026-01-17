@@ -20,12 +20,22 @@ namespace {
     constexpr float k_explosion_sprite_h = 16.0f;
     constexpr float k_explosion_scale = 3.0f;
     constexpr float roarThickness = 20.0f;
+    constexpr float k_cooldown_1_duration = 3.0f;
+    constexpr float k_cooldown_2_duration = 5.0f;
+
+    constexpr float k_bullet_sprite_x = 249.f; // Adjust to your values
+    constexpr float k_bullet_sprite_y = 105.0f;
+    constexpr float k_bullet_width = 16.0f;
+    constexpr float k_bullet_height = 8.0f;
+    constexpr float k_bullet_scale = 1.0f;
+    constexpr float k_bullet_speed = 300.0f;
 } // namespace
 
 void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, ecs::SparseArray<cpnt::Transform> const& positions,
                     ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
                     ecs::SparseArray<cpnt::Enemy> const& enemies, ecs::SparseArray<cpnt::Shooter> const& shooters,
-                    ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets) {
+                    ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets,
+                    ecs::SparseArray<cpnt::Health> const& healths) {
     std::vector<ecs::Entity> entity_to_kill;
     auto& reg = ctx.registry;
     const int k_width = static_cast<int>(ctx.k_window_size.x);
@@ -231,7 +241,97 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
             }
         }
     }
+
+    // Check Health and remove boss if dead
+
+    for (auto [boss_idx, boss_tag_opt, health_opt] : ecs::indexed_zipper(boss, healths)) {
+        if (boss_tag_opt && health_opt) {
+            if (health_opt->hp <= 0) {
+                entity_to_kill.push_back(reg.entity_from_index(boss_idx));
+            }
+        }
+    }
+
     for (auto e : entity_to_kill) {
         reg.kill_entity(e);
+    }
+
+    for (auto [boss_idx, boss_opt, pos_opt] : ecs::indexed_zipper(boss, positions)) {
+        if (boss_opt && pos_opt && !boss_opt->roar_active) {
+            auto& boss = reg.get_components<cpnt::Boss>()[boss_idx];
+            auto& pos = reg.get_components<cpnt::Transform>()[boss_idx];
+            
+            float dt = GetFrameTime();
+            boss->cooldown_1 -= dt;
+            boss->cooldown_2 -= dt;
+            
+            // Attack 1: Semi-circle bullet spray from boss position
+            if (boss->cooldown_1 <= 0.0f) {
+                boss->cooldown_1 = k_cooldown_1_duration;
+                
+                // Spawn point (adjust based on your boss sprite)
+                float spawn_x = pos->x + 400.0f; // Adjust offset
+                float spawn_y = pos->y + 550.0f;
+                
+                // Create semi-circle of bullets (180 degrees, facing left/down)
+                constexpr int num_bullets = 12;
+                constexpr float start_angle = 90.0f;  // degrees
+                constexpr float end_angle = 270.0f;
+                
+                for (int i = 0; i < num_bullets; i++) {
+                    float angle = start_angle + (end_angle - start_angle) * i / (num_bullets - 1);
+                    float rad = angle * DEG2RAD;
+                    
+                    float vx = cosf(rad) * k_bullet_speed;
+                    float vy = sinf(rad) * k_bullet_speed;
+                    
+                    auto bullet = reg.spawn_entity();
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                    reg.add_component(bullet, cpnt::Velocity{vx, vy, angle, 0.0f, 0.0f, 0.0f});
+                    reg.add_component(bullet, cpnt::Bullet_shooter{});
+                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});
+                    reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
+                                                           k_bullet_scale, 0, "shooter_bullet"});
+                }
+                
+                std::optional<Sound> shoot_sound = ctx.assets_manager.get_asset<Sound>("shoot_sound");
+                if (shoot_sound.has_value())
+                    PlaySound(shoot_sound.value());
+            }
+            
+            // Attack 2: Vertical wall of bullets from right side moving left
+            if (boss->cooldown_2 <= 0.0f) {
+                boss->cooldown_2 = k_cooldown_2_duration;
+                
+                const int k_height = static_cast<int>(ctx.k_window_size.y);
+                const int k_width = static_cast<int>(ctx.k_window_size.x);
+                
+                // Spawn bullets along right edge
+                constexpr int num_bullets = 25;
+                constexpr float spacing = 100.0f; // Vertical spacing between bullets
+                
+                float start_y = (k_height - (num_bullets * spacing)) / 2.0f; // Center vertically
+                
+                for (int i = 0; i < num_bullets; i++) {
+                    float spawn_x = k_width - 1.0f; // Just off right edge
+                    float spawn_y = start_y + i * spacing;
+                    
+                    float vx = -k_bullet_speed; // Move left
+                    float vy = 0.0f;
+                    
+                    auto bullet = reg.spawn_entity();
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                    reg.add_component(bullet, cpnt::Velocity{vx, vy, 180.0f, 0.0f, 0.0f, 0.0f});
+                    reg.add_component(bullet, cpnt::Bullet_shooter{});
+                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});
+                    reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
+                                                           k_bullet_scale, 0, "shooter_bullet"});
+                }
+                
+                std::optional<Sound> shoot_sound = ctx.assets_manager.get_asset<Sound>("shoot_sound");
+                if (shoot_sound.has_value())
+                    PlaySound(shoot_sound.value());
+            }
+        }
     }
 }

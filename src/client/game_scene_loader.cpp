@@ -90,7 +90,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
     engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox,
-                          cpnt::Enemy, cpnt::Shooter, cpnt::Bullet_shooter, cpnt::Bullet>(sys::boss_system);
+                          cpnt::Enemy, cpnt::Shooter, cpnt::Bullet_shooter, cpnt::Bullet, cpnt::Health>(sys::boss_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
     engine_ctx.add_system<cpnt::Stats>(sys::stat_system);
