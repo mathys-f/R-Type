@@ -234,7 +234,6 @@ void connect_to_server(EngineContext& ctx, const std::string& server_ip, std::ui
         update_status_text(ctx, std::string("Connection error: ") + e.what());
     }
 }
-
 const cpnt::UITransform* get_lobby_list_transform(EngineContext& ctx) {
     auto list_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_list_bg");
     if (!list_ent_opt.has_value())
@@ -797,6 +796,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                 engine_ctx.server_ip = get_lobby_state().server_ip;
                 engine_ctx.server_port = join_res->m_port;
                 engine_ctx.set_scene("multiplayer_game"); // Multiplayer game scene
+                return;
             } else {
                 update_status_text(engine_ctx, "Failed to join lobby: " + join_res->m_error_message);
             }
@@ -807,7 +807,6 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
     if (engine_ctx.get_current_scene() != "lobby") {
         return;
     }
-
     update_lobby_list_on_scroll(engine_ctx);
     ensure_focused_lobby_visible(engine_ctx);
 
