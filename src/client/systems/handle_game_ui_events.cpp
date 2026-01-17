@@ -21,6 +21,6 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
 
     if (tag_name == "back_button") {
         LOG_INFO("Back button clicked in connection menu");
-        ctx.set_scene(1); // Main menu scene
+        ctx.set_scene("main_menu"); // Main menu scene
     }
 }

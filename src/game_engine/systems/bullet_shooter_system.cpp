@@ -22,7 +22,7 @@ void sys::bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
                 pos->y += vel_opt->vy * dt;
 
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                if (pos->x > ctx.k_window_size.x || pos->x < 0 || pos->y > ctx.k_window_size.y || pos->y < 0) {
+                if (pos->x > ctx.window_size.x || pos->x < 0 || pos->y > ctx.window_size.y || pos->y < 0) {
                     to_kill.push_back(entity);
                 }
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)

@@ -18,7 +18,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
@@ -29,11 +29,10 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_ship_width = 33.0f;
     constexpr float k_ship_height = 18.0f;
     constexpr float k_ship_scale = 3.0f;
-    constexpr int k_player_health = 100;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x);
-    const int k_height = static_cast<int>(engine_ctx.k_window_size.y);
+    const int k_width = static_cast<int>(engine_ctx.window_size.x);
+    const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
     auto& registry = engine_ctx.registry;
@@ -115,7 +114,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
                                    cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
             registry.add_component(player, cpnt::Player{});
             registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "player_ship"});
-            registry.add_component(player, cpnt::Health{k_player_health, k_player_health});
+            registry.add_component(player, cpnt::Health{engine_ctx.k_player_health, engine_ctx.k_player_health});
             registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
             registry.add_component(player, cpnt::Hitbox{ship_source_rect.height * 2, ship_source_rect.width * 2,
                                                         k_ship_width, k_ship_height});

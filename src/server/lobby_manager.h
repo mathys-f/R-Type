@@ -76,13 +76,13 @@ class GameLobby {
     process_handle_t get_process_handle() const {
         return m_process_handle;
     }
+    
+    // Static function to run lobby in child process (public for Windows lobby mode)
+    static void run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, 
+        std::uint16_t port, std::uint8_t max_players);
 
   private:
     void fork_and_run_lobby_process();
-    
-    // Static function to run lobby in child process
-    static void run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, 
-        std::uint16_t port, std::uint8_t max_players);
 
     std::uint32_t m_lobby_id;
     std::string m_lobby_name;

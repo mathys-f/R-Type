@@ -10,6 +10,8 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
                                  const ecs::SparseArray<cpnt::UIStyle>& styles,
                                  const ecs::SparseArray<cpnt::UIInteractable>& interactables) {
     const ecs::Registry& reg = ctx.registry;
+    const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (const auto& [index, transform, style, interactable] : ecs::indexed_zipper(transforms, styles, interactables)) {
         if (index == 0)
@@ -18,7 +20,12 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
         if (!transform.has_value() || !style.has_value())
             continue;
 
-        Rectangle rect{transform->x, transform->y, transform->w, transform->h};
+        Rectangle rect{
+            transform->x / 100.0f * k_width,
+            transform->y / 100.0f * k_height,
+            transform->w / 100.0f * k_width,
+            transform->h / 100.0f * k_height
+        };
         Color rect_color{style->background_color.r, style->background_color.g, style->background_color.b,
                          style->background_color.a};
         Color border_color{style->border_color.r, style->border_color.g, style->border_color.b, style->border_color.a};

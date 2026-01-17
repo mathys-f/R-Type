@@ -15,7 +15,7 @@ constexpr float k_input_field_width = 200.0f;
 constexpr float k_input_field_height = 30.0f;
 constexpr int k_input_field_font_size = 16;
 
-void lua::create_ui_input_field(EngineContext& ctx, unsigned char scene_id, std::string name,
+void lua::create_ui_input_field(EngineContext& ctx, std::string name,
                                 std::string default_value) {
     auto& reg = ctx.registry;
     static float s_i = 0;

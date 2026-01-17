@@ -11,9 +11,6 @@ namespace {
 constexpr int k_volume_min = 0;
 constexpr int k_volume_max = 100;
 constexpr int k_volume_step = 5;
-constexpr unsigned char k_settings_controls_scene_id = 4;
-constexpr unsigned char k_settings_audio_scene_id = 5;
-constexpr unsigned char k_settings_gamepad_scene_id = 6;
 } // namespace
 
 static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonClicked& evt);
@@ -46,7 +43,7 @@ void handle_volume_menu_ui_events(engn::EngineContext& engine_ctx) {
         pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
                     pad_evt->button == evts::ControllerButton::ControllerButtonBack);
     if (k_escape_pressed || k_pause_pressed) {
-        if (engine_ctx.settings_return_scene != 1) {
+        if (engine_ctx.settings_return_scene != "") {
             engine_ctx.set_scene(engine_ctx.settings_return_scene);
             return;
         }
@@ -67,16 +64,19 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
         return true;
     } else if (tag_name == "main_menu_button") {
         ctx.settings_return_scene = 1;
-        ctx.set_scene(1);
+        ctx.set_scene("main_menu");
         return true;
     } else if (tag_name == "nav_controls_button") {
-        ctx.set_scene(k_settings_controls_scene_id);
+        ctx.set_scene("keyboard_settings");
         return true;
     } else if (tag_name == "nav_gamepad_button") {
-        ctx.set_scene(k_settings_gamepad_scene_id);
+        ctx.set_scene("gamepad_settings");
         return true;
     } else if (tag_name == "nav_audio_button") {
-        ctx.set_scene(k_settings_audio_scene_id);
+        ctx.set_scene("audio_settings");
+        return true;
+    } else if (tag_name == "nav_graphics_button") {
+        ctx.set_scene("graphics_settings");
         return true;
     } else if (tag_name == "general_volume_down_button") {
         adjust_volume(ctx, -k_volume_step);
