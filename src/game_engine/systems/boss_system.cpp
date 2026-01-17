@@ -19,7 +19,7 @@ namespace {
     constexpr float k_explosion_sprite_w = 17.0f;
     constexpr float k_explosion_sprite_h = 16.0f;
     constexpr float k_explosion_scale = 3.0f;
-    constexpr float k_roarThickness = 20.0f;
+    constexpr float k_roar_thickness = 20.0f;
     constexpr float k_cooldown_1_duration = 3.0f;
     constexpr float k_cooldown_2_duration = 5.0f;
 
@@ -42,7 +42,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
     const int k_width = static_cast<int>(ctx.window_size.x);
     const int k_height = static_cast<int>(ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-    const float k_maxDist = sqrtf(k_width * k_width + k_height * k_height);
+    const float k_max_dist = sqrtf(k_width * k_width + k_height * k_height);  // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
 
     // Check level
     for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
@@ -70,11 +70,11 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
 
 
                 auto boss = ctx.registry.spawn_entity();
-                ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1});
-                ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, true, false, {1350.f, 400.f}, 0.f, 600.f});
+                ctx.registry.add_component(boss, cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, true, false, {1350.f, 400.f}, 0.f, 600.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                 ctx.registry.add_component(
-                    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, k_boss_scale, 0, "boss"});
-                ctx.registry.add_component(boss, cpnt::Health{100, 100});
+                    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, k_boss_scale, 0, "boss"}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                ctx.registry.add_component(boss, cpnt::Health{100, 100}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                 ctx.registry.add_component(boss, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
                 ctx.registry.add_component(boss, cpnt::BossHitbox{
                     k_boss_hitbox_head_width, k_boss_hitbox_head_height, k_boss_hitbox_head_x_offset, k_boss_hitbox_head_y_offset,
@@ -98,7 +98,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                         if (boss_comp->roar_active) {
                             boss_comp->waveRadius += boss_comp->waveSpeed * GetFrameTime();
 
-                            if (boss_comp->waveRadius > k_maxDist) {
+                            if (boss_comp->waveRadius > k_max_dist) {
                                 boss_comp->roar_active = false;
                             }
                         }
@@ -108,11 +108,11 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                             if (pos_opt && (charg_opt || shot_opt || bul_shot_opt || bul_opt)) {
                                 auto& pos = reg.get_components<cpnt::Transform>()[pos_idx];
 
-                                float distX = pos->x - boss_comp->waveCenter.x;
-                                float distY = pos->y - boss_comp->waveCenter.y;
-                                float distance = sqrtf(distX * distX + distY * distY);
+                                float dist_x = pos->x - boss_comp->waveCenter.x;
+                                float dist_y = pos->y - boss_comp->waveCenter.y;
+                                float distance = sqrtf(dist_x * dist_x + dist_y * dist_y);
 
-                                if (distance >= boss_comp->waveRadius - k_roarThickness && 
+                                if (distance >= boss_comp->waveRadius - k_roar_thickness && 
                                     distance <= boss_comp->waveRadius) {
                                     entity_to_kill.push_back(reg.entity_from_index(pos_idx));
                                     
@@ -151,7 +151,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                         }
                         
                         for (auto [pos_idx, pos_opt] : ecs::indexed_zipper(positions)) {
-                            if (boss_comp->waveRadius > k_maxDist) {
+                            if (boss_comp->waveRadius > k_max_dist) {
                                 boss_comp->roar_active = false;
 
                                 // Cleanup: kill any remaining enemies/bullets that survived
@@ -272,26 +272,26 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                 boss->cooldown_1 = k_cooldown_1_duration;
                 
                 // Spawn point (adjust based on your boss sprite)
-                float spawn_x = pos->x + 400.0f; // Adjust offset
-                float spawn_y = pos->y + 550.0f;
+                float spawn_x = pos->x + 400.0f; // Adjust offset // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                float spawn_y = pos->y + 550.0f;    // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                 
                 // Create semi-circle of bullets (180 degrees, facing left/down)
-                constexpr int num_bullets = 12;
-                constexpr float start_angle = 90.0f;  // degrees
-                constexpr float end_angle = 270.0f;
+                constexpr int k_num_bullets = 12;
+                constexpr float k_start_angle = 90.0f;  // degrees
+                constexpr float k_end_angle = 270.0f;
                 
-                for (int i = 0; i < num_bullets; i++) {
-                    float angle = start_angle + (end_angle - start_angle) * i / (num_bullets - 1);
+                for (int i = 0; i < k_num_bullets; i++) {
+                    float angle = k_start_angle + (k_end_angle - k_start_angle) * i / (k_num_bullets - 1); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                     float rad = angle * DEG2RAD;
                     
                     float vx = cosf(rad) * k_bullet_speed;
                     float vy = sinf(rad) * k_bullet_speed;
                     
                     auto bullet = reg.spawn_entity();
-                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Velocity{vx, vy, angle, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet_shooter{});
-                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});
+                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                                            k_bullet_scale, 0, "shooter_bullet"});
                 }
@@ -305,27 +305,27 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
             if (boss->cooldown_2 <= 0.0f) {
                 boss->cooldown_2 = k_cooldown_2_duration;
                 
-                const int k_height = static_cast<int>(ctx.window_size.y);
-                const int k_width = static_cast<int>(ctx.window_size.x);
+                const int k_height = static_cast<int>(ctx.window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
+                const int k_width = static_cast<int>(ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
                 
                 // Spawn bullets along right edge
-                constexpr int num_bullets = 25;
-                constexpr float spacing = 100.0f; // Vertical spacing between bullets
+                constexpr int k_num_bullets = 25;
+                constexpr float k_spacing = 100.0f; // Vertical k_spacing between bullets
                 
-                float start_y = (k_height - (num_bullets * spacing)) / 2.0f; // Center vertically
+                float start_y = (k_height - (k_num_bullets * k_spacing)) / 2.0f; // Center vertically // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                 
-                for (int i = 0; i < num_bullets; i++) {
-                    float spawn_x = k_width - 1.0f; // Just off right edge
-                    float spawn_y = start_y + i * spacing;
+                for (int i = 0; i < k_num_bullets; i++) {
+                    float spawn_x = k_width - 1.0f; // Just off right edge // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                    float spawn_y = start_y + i * k_spacing; // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
                     
                     float vx = -k_bullet_speed; // Move left
                     float vy = 0.0f;
                     
                     auto bullet = reg.spawn_entity();
-                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                    reg.add_component(bullet, cpnt::Velocity{vx, vy, 180.0f, 0.0f, 0.0f, 0.0f});
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Velocity{vx, vy, 180.0f, 0.0f, 0.0f, 0.0f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Bullet_shooter{});
-                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});
+                    reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                                            k_bullet_scale, 0, "shooter_bullet"});
                 }
