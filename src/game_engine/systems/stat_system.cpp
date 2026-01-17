@@ -10,9 +10,9 @@ using namespace engn;
 namespace {
     constexpr int k_rand_range = 1000;
     constexpr float k_rand_divisor = 1000.0f;
-    constexpr int new_charger_enemies = 1;
-    constexpr int new_shooter_enemies = 1;
-    constexpr int boss_level = 4;
+    constexpr int k_new_charger_enemies = 1;
+    constexpr int k_new_shooter_enemies = 1;
+    constexpr int k_boss_level = 4;
 }
 
 static float randf() {
@@ -22,8 +22,8 @@ static float randf() {
 void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats) {
     auto& reg = ctx.registry;
 
-    const int k_width = static_cast<int>(ctx.window_size.x);
-    const int k_height = static_cast<int>(ctx.window_size.y);
+    const int k_width = static_cast<int>(ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const int k_height = static_cast<int>(ctx.window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
     constexpr float k_dist_min = 0.1f;
     constexpr float k_dist_max = 0.8f;
 
@@ -40,7 +40,7 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                 stat->point_to_next_level += 500; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
 
                 // Pass creation every boss level (4 levels)
-                if (stat->level % boss_level == 0) {
+                if (stat->level % k_boss_level == 0) {
                     continue;
                 }
                 // Create New enemies
@@ -53,7 +53,7 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                 constexpr float k_enemy_hitbox_width = 15.0f;
                 constexpr float k_enemy_hitbox_height = 18.0f;
                 constexpr float k_pattern_base_speed = 201.0f;
-                for (size_t i = 0; i < new_charger_enemies * stat->level; i++) {
+                for (size_t i = 0; i < k_new_charger_enemies * stat->level; i++) {
                     auto enemy = ctx.registry.spawn_entity();
 
                     float spawn_y = (float)GetRandomValue(ctx.k_spawn_margin, k_height - ctx.k_spawn_margin);
@@ -112,7 +112,7 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                 constexpr float k_shooter_hitbox_width = 15.0f;
                 constexpr float k_shooter_hitbox_height = 18.0f;
             
-                for (size_t i = 0; i < new_shooter_enemies; i++) {
+                for (size_t i = 0; i < k_new_shooter_enemies; i++) {
                     auto shooter = ctx.registry.spawn_entity();
             
                     float spawn_y = (float)GetRandomValue(ctx.k_spawn_margin, k_height - ctx.k_spawn_margin);
