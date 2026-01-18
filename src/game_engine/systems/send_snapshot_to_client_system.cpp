@@ -5,6 +5,7 @@
 #include "networking/rtp/networking.h"
 
 #include "engine.h"
+#include "snapshots.h"
 
 using namespace engn;
 
@@ -18,6 +19,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
         if (latest_ack_version >= version) continue;
 
+        LOG_DEBUG("New entity...");
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_add;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
@@ -29,6 +31,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     for (const auto &[identifier, version] : registry.get_component_metadata()) {
         if (latest_ack_version >= version) continue;
 
+        LOG_DEBUG("New/edit component...");
         ecs::Entity entity = identifier.first;
         std::type_index type_idx = identifier.second;
 
@@ -40,8 +43,8 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
         );
 
         // Ensure the entity exists in the snapshot
-        if ( entity_it == snapshot.entities.end()) {
-            // LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
+        if (entity_it == snapshot.entities.end()) {
+            LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
             continue;
         }
 
@@ -55,8 +58,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
         // Ensure the component exists in the entity
         if (comp_it == entity_it->components.end()) {
             LOG_ERROR("Component of type {} for entity {} not found in current snapshot while computing delta",
-                static_cast<std::uint8_t>(k_type_index_to_component_type_map.at(type_idx)),
-                entity.value());
+                type_idx.name(), entity.value());
             continue;
         }
 
@@ -73,6 +75,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
         for (const auto &[component, version] : comp_and_version) {
             if (latest_ack_version >= version) continue;
 
+            LOG_DEBUG("Remove component...");
             DeltaEntry entry;
             entry.operation = DeltaOperation::component_remove;
             entry.entity_id = static_cast<std::uint32_t>(id.value());
@@ -86,6 +89,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     for (const auto &[id, version] : registry.get_entity_destruction_tombstones()) {
         if (latest_ack_version >= version) continue;
 
+        LOG_DEBUG("Remove entity...");
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_remove;
         entry.entity_id = static_cast<std::uint32_t>(id.value());

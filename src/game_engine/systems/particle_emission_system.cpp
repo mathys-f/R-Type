@@ -29,7 +29,7 @@ void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tr
                                    ecs::SparseArray<cpnt::Velocity> const& velocities,
                                    ecs::SparseArray<cpnt::Particle> const& particles,
                                    ecs::SparseArray<cpnt::Bullet> const& bullets,
-                                   ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter) {
+                                   ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter) {
     const auto k_particles = static_cast<int>(ctx.k_particles);
     auto& reg = ctx.registry;
 
