@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./r-type.sql:/docker-entrypoint-initdb.d/r-type.sql
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./web/backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    volumes:
+      - ./web/backend/src:/app/src
+      - /usr/src/app/node_modules
+
+  public-frontend:
+    build:
+      context: ./web/frontend/public
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web/frontend/public:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+
+  admin-frontend:
+    build:
+      context: ./web/frontend/admin
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./web/frontend/admin:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
