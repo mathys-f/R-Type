@@ -8,7 +8,7 @@ using namespace engn;
 /// Also clears the metadatas of components additions/modifications when the same condition is satisfied
 void sys::clear_tombstones_system(EngineContext &ctx)
 {
-    if (ctx.get_clients().size() < ctx.player_count) return; // We should keep everythinf that has happened if everyone is not connected yet
+    if (ctx.get_clients().size() < ctx.k_player_count) return; // We should keep everythinf that has happened if everyone is not connected yet
 
     std::vector<ecs::Registry::EntityType> creation_tombstones_to_delete;
     std::vector<ecs::Registry::EntityType> remove_tombstones_to_delete;

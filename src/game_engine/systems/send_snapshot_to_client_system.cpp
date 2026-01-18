@@ -17,14 +17,12 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
 
     // New entities
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
-        LOG_DEBUG("Entity creation tombstone id#{} version#{}", id, version);
         if (latest_ack_version >= version) continue;
 
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_add;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
-        LOG_DEBUG("Sent new entity #{}", id);
     }
 
     // New or modified components
