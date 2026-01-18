@@ -35,6 +35,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::EntityType>();
+    registry.register_component<cpnt::Shooter>();
     // Net
     registry.register_component<cpnt::Replicated>();
 
@@ -42,6 +43,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Velocity>(sys::server_player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::server_enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health>(sys::server_enemy_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Shooter, cpnt::Health>(sys::server_shooter_system);
     // Net
     engine_ctx.add_system<cpnt::Replicated>(sys::create_snapshot_system);
     engine_ctx.add_system<>(sys::update_snapshots_system);
@@ -61,6 +63,14 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     constexpr float k_enemy_hitbox_height = 18.0f;
     constexpr float k_pattern_base_speed = 201.0f;
 
+    constexpr float k_shooter_sprite_x = 87.0f;
+    constexpr float k_shooter_sprite_y = 67.0f;
+    constexpr float k_shooter_sprite_width = 22.0f;
+    constexpr float k_shooter_sprite_height = 18.0f;
+    constexpr float k_shooter_scale = 5.0f;
+    constexpr float k_shooter_hitbox_width = 15.0f;
+    constexpr float k_shooter_hitbox_height = 18.0f;
+
     constexpr const int k_width = 1920;
     constexpr const int k_height = 1080;
 
@@ -70,6 +80,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
 
     // Create enemies
     for (size_t i = 0; i < engine_ctx.k_max_charger; i++) {
+        LOG_DEBUG("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
         auto enemy = engine_ctx.registry.spawn_entity();
 
         float spawn_y = (float)GetRandomValue(engine_ctx.k_spawn_margin, k_height - engine_ctx.k_spawn_margin);
@@ -118,5 +129,57 @@ void lobby_scene_loader(EngineContext &engine_ctx)
         engine_ctx.registry.add_component(enemy, std::move(pat));
         engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale, k_enemy_hitbox_height * k_enemy_scale,
                                                               k_enemy_sprite_width, k_enemy_sprite_height});
+    }
+
+    // Create Shooter
+    for (size_t i = 0; i < engine_ctx.k_max_shooter; i++) {
+        LOG_DEBUG("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        auto shooter = engine_ctx.registry.spawn_entity();
+
+        float spawn_y = (float)GetRandomValue(engine_ctx.k_spawn_margin, k_height - engine_ctx.k_spawn_margin);
+        float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
+
+        // Replicated
+        engine_ctx.registry.add_component(shooter, cpnt::Replicated{static_cast<uint32_t>(shooter)});
+
+        // Tag for archetype
+        engine_ctx.registry.add_component(shooter, cpnt::EntityType{"shooter"});
+
+        // Position
+        engine_ctx.registry.add_component(shooter, cpnt::Transform{spawn_x, spawn_y, 0, 0, 0, 0, 1, 1, 1});
+
+        // Velocity
+        engine_ctx.registry.add_component(
+            shooter, cpnt::Velocity{-(engine_ctx.k_enemy_base_speed + randf() * engine_ctx.k_enemy_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+        
+        // Other components
+        engine_ctx.registry.add_component(shooter, cpnt::Shooter{});
+        engine_ctx.registry.add_component(shooter, cpnt::Health{engine_ctx.k_enemy_health, engine_ctx.k_enemy_health});
+
+        cpnt::MovementPattern pat;
+        pat.speed = k_pattern_base_speed + randf() * engine_ctx.k_pattern_speed_variance;
+        pat.amplitude = (float)GetRandomValue(1, engine_ctx.k_pattern_amplitude_max);
+        pat.frequency = dist(gen);
+        pat.timer = 1.f;
+        int pattern_nbr = GetRandomValue(0, 3);
+        switch (pattern_nbr) {
+            case 0:
+                pat.type = cpnt::MovementPattern::PatternType::ZigZag;
+                break;
+            case 1:
+                pat.type = cpnt::MovementPattern::PatternType::Straight;
+                break;
+            case 2:
+                pat.type = cpnt::MovementPattern::PatternType::Sine;
+                break;
+            case 3:
+                pat.type = cpnt::MovementPattern::PatternType::Dive;
+                break;
+        }
+        pat.base_y = spawn_y;
+
+        engine_ctx.registry.add_component(shooter, std::move(pat));
+        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * k_shooter_scale, k_shooter_hitbox_height * k_shooter_scale,
+                                                                k_shooter_sprite_width, k_shooter_hitbox_height});
     }
 }

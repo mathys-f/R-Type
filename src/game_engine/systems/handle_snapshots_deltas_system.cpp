@@ -224,9 +224,28 @@ constexpr float k_enemy_sprite_width = 21.0f;
 constexpr float k_enemy_sprite_height = 23.0f;
 constexpr float k_enemy_scale = 5.0f;
 
+constexpr float k_player_sprite_x = 34.0f;
+constexpr float k_player_sprite_y = 0.0f;
+constexpr float k_player_sprite_width = 33.0f;
+constexpr float k_player_sprite_height = 18.0f;
+constexpr float k_player_scale = 3.0f;
+
+constexpr float k_shooter_sprite_x = 87.0f;
+constexpr float k_shooter_sprite_y = 67.0f;
+constexpr float k_shooter_sprite_width = 22.0f;
+constexpr float k_shooter_sprite_height = 18.0f;
+constexpr float k_shooter_scale = 5.0f;
+
+constexpr float k_bullet_sprite_width = 16.0f;
+constexpr float k_bullet_sprite_height = 8.0f;
+constexpr float k_bullet_sprite_x = 249.0f;
+constexpr float k_bullet_sprite_y = 105.0f;
+constexpr float k_bullet_scale = 2.0f;
+
 static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, const DeltaEntry& entry)
 {
     // Check if entity has an EntityType component to determine its archetype
+    LOG_WARNING("Initializing archetype for entity id: {}", entry.entity_id);
     if (!registry.has_component<cpnt::EntityType>(entity)) {
         return;
     }
@@ -234,18 +253,21 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
     auto& components = registry.get_components<cpnt::EntityType>();
     auto entity_type_opt = components[entity];
 
+    LOG_WARNING("Entity type found for entity id: {}", entry.entity_id);
     if (!entity_type_opt.has_value()) {
         return;
     }
 
+    LOG_WARNING("Entity type value found for entity id: {}", entry.entity_id);
     const auto& entity_type = entity_type_opt.value();
 
+    LOG_WARNING("Initializing archetype for entity type: {}", entity_type.type_name);
     // Initialize graphics components based on entity type
     if (entity_type.type_name == "player") {
         LOG_INFO("Spawning archetype player");
         // TODO: Add proper sprite initialization for player
     } else if (entity_type.type_name == "charger") {
-        LOG_INFO("Spawning archetype charger");
+        LOG_WARNING("Spawning archetype charger");
         // TODO: Add proper sprite initialization for charger enemy
         registry.add_component(
             entity, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y, k_enemy_sprite_width, k_enemy_sprite_height},
@@ -253,12 +275,17 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
                                 0,
                                 "enemy_ship"});
     } else if (entity_type.type_name == "shooter") {
-        LOG_INFO("Spawning archetype shooter");
-        // TODO: Add proper sprite initialization for shooter enemy
+        LOG_WARNING("Spawning archetype shooter");
+        registry.add_component(
+            entity, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y, k_shooter_sprite_width, k_shooter_sprite_height},
+                                k_shooter_scale,
+                                0,
+                                "shooter_sprite"});
     } else if (entity_type.type_name == "bullet") {
         LOG_INFO("Spawning archetype bullet");
-        // TODO: Add proper sprite initialization for bullet
-    } // etc
+    } else if (entity_type.type_name == "bullet_shooter") {
+        LOG_INFO("Spawning archetype shooter bullet");
+    }
 }
 
 #pragma endregion Archetypes

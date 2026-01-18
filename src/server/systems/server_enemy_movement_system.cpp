@@ -22,6 +22,7 @@ void sys::server_enemy_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt
     float dt = ctx.delta_time;
 
     for (auto [idx, pos_opt, pat_opt] : ecs::indexed_zipper(positions, patterns)) {
+        //LOG_DEBUG("Processing enemy movement for entity index {}", idx);
         if (!pos_opt || !pat_opt)
             continue;
 

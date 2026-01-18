@@ -102,6 +102,8 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+    engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+    engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
 
     // Reset and create network client in engine context
     if (engine_ctx.network_client) {
