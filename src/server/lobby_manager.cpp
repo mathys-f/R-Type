@@ -176,6 +176,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         int heartbeat_counter = 0;
 
         while (running) {
+            LOG_DEBUG("lobby while loop A");
             ipc::IPCMessage msg;
             if (ipc.try_receive_from_main(msg, 0)) {
                 if (msg.type == ipc::MessageType::SHUTDOWNREQ) {
@@ -189,6 +190,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 }
             }
 
+            LOG_DEBUG("lobby while loop B");
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
@@ -196,9 +198,13 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 ipc.send_to_main(heartbeat);
                 heartbeat_counter = 0;
             }
+            LOG_DEBUG("lobby while loop C");
             server->poll();
+            LOG_DEBUG("lobby while loop D");
             server->get_engine().run_systems();
+            LOG_DEBUG("lobby while loop E");
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
+            LOG_DEBUG("lobby while loop F");
         }
 
         server->stop();

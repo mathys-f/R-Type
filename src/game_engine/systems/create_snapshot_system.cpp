@@ -46,6 +46,9 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components) {
     auto& registry = engine_ctx.registry;
     WorldSnapshot snapshot;
+    LOG_INFO("create_snapshot_system called");
+
+    int repl_ent = 0;
 
     for (const auto &[idx, replicated] : ecs::indexed_zipper(replicated_components)) {
         EntitySnapshot entity_snapshot;
@@ -67,7 +70,9 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
 
         if (!entity_snapshot.components.empty())
             snapshot.entities.push_back(std::move(entity_snapshot));
+        repl_ent++;
     }
+    LOG_DEBUG("Found {} replicated entities", repl_ent);
 
     SnapshotRecord record;
 
