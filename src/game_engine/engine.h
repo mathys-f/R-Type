@@ -126,6 +126,9 @@ class EngineContext {
 
     std::string server_ip;
     std::uint16_t server_port;
+
+    class BackendAPIClient* backend_api_client = nullptr; // Backend sync (server-side only)
+    std::uint32_t current_lobby_id = 0; // Current lobby ID for backend sync
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
     void add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader);

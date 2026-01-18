@@ -2,6 +2,7 @@
 #include "game_engine/engine.h"
 #include "lobby_manager.h"
 #include "network_server.h"
+#include "admin_http_server.h"
 #include "scenes_loaders.h"
 
 #include <chrono>
@@ -34,6 +35,7 @@ namespace {
 constexpr std::uint16_t k_default_port = 8080;
 constexpr int k_server_tick_ms = 16;              // ~60 updates per second
 constexpr std::uint16_t k_lobby_base_port = 9000; // Lobbies will use ports starting from 9000
+constexpr std::uint16_t k_admin_http_port = 8082; // Admin HTTP server for backend communication
 } // namespace
 
 int main(int argc, char** argv) {
@@ -67,13 +69,19 @@ int main(int argc, char** argv) {
     // Create lobby manager
     LobbyManager lobby_manager(k_lobby_base_port);
 
+    // Start admin HTTP server for backend communication
+    AdminHTTPServer admin_server(&lobby_manager, k_admin_http_port);
+    admin_server.start();
+
     // Start main network server (handles lobby management)
     NetworkServer server(engine_ctx, port, &lobby_manager);
     server.start();
 
     // Main server loop (headless)
     constexpr int k_cleanup_interval = 60; // Cleanup every 60 ticks (~1 second)
+    constexpr int k_sync_interval = 180;   // Sync player counts every 180 ticks (~3 seconds)
     int tick_count = 0;
+    int sync_count = 0;
 
     // Main server loop (headless)
     while (g_running) {
@@ -85,11 +93,18 @@ int main(int argc, char** argv) {
             tick_count = 0;
         }
 
+        // Periodically sync player counts to database
+        if (++sync_count >= k_sync_interval) {
+            lobby_manager.sync_player_counts();
+            sync_count = 0;
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(k_server_tick_ms));
     }
 
     LOG_INFO("Shutting down server...");
 
+    admin_server.stop();
     server.stop();
     return 0;
 }

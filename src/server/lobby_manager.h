@@ -3,6 +3,7 @@
 #include "../networking/lobby/lobby_messages.h"
 #include "network_server.h"
 #include "lobby_ipc.h"
+#include "backend_api_client.h"
 
 #include <asio.hpp>
 #include <atomic>
@@ -123,6 +124,17 @@ class LobbyManager {
 
     // Clean up empty lobbies
     void cleanup_empty_lobbies();
+    
+    // Sync player counts to backend database
+    void sync_player_counts();
+    
+    // Backend API integration helpers
+    std::optional<std::uint32_t> add_player_session(
+        std::uint32_t lobby_id,
+        const std::string& player_name,
+        std::optional<std::uint32_t> account_id = std::nullopt,
+        const std::string& ip_address = ""
+    );
 
   private:
     std::uint16_t allocate_port();
@@ -133,4 +145,5 @@ class LobbyManager {
     std::uint32_t m_next_lobby_id{1};
     std::uint16_t m_base_lobby_port;
     std::uint16_t m_next_port_offset{0};
+    std::unique_ptr<engn::BackendAPIClient> m_api_client;
 };
