@@ -51,6 +51,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::Transform>();
     registry.register_component<cpnt::Star>();
     registry.register_component<cpnt::Sprite>();
+    registry.register_component<cpnt::Boss>();
+    registry.register_component<cpnt::BossHitbox>();
     registry.register_component<cpnt::UIButton>();
     registry.register_component<cpnt::UICheckbox>();
     registry.register_component<cpnt::UIDropdown>();
@@ -71,7 +73,9 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
 
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats>(sys::collision_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,
+        cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(
+        sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
@@ -80,11 +84,13 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
         sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
         sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
+    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox,
+                          cpnt::Enemy, cpnt::Shooter, cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::boss_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
     engine_ctx.add_system<cpnt::Stats>(sys::stat_system);
@@ -93,6 +99,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
+    engine_ctx.assets_manager.load_texture("boss", "assets/sprites/r-typesheet30.gif");
 
     // Create player
     constexpr float k_ship_sprite_x = 166.0f;
@@ -254,6 +261,55 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
                                                               -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
     }
 
+
+
+    // Spawn Boss
+
+    /*
+top right: 27 861
+
+bottom left: 181 1064
+
+width: 154
+
+height: 203
+*/
+    //const float boss_sprite_x = 27.0f;
+    //const float boss_sprite_y = 861.0f;
+    //const float boss_sprite_width = 154.0f;
+    //const float boss_sprite_height = 203.0f;
+    //const float boss_scale = 5.0f;
+    //const float boss_hitbox_head_width = 111.f * boss_scale;
+    //const float boss_hitbox_head_height = 86.f * boss_scale;
+    //const float boss_hitbox_body_width = 76.f * boss_scale;
+    //const float boss_hitbox_body_height = 93.f * boss_scale;
+    //const float boss_hitbox_tail_width = 68.f * boss_scale;
+    //const float boss_hitbox_tail_height = 30.f * boss_scale;
+    //const float boss_hitbox_head_x_offset = 0.f;
+    //const float boss_hitbox_head_y_offset = 0.f;
+    //const float boss_hitbox_body_x_offset = 83.f * boss_scale;
+    //const float boss_hitbox_body_y_offset = 85.f * boss_scale;
+    //const float boss_hitbox_tail_x_offset = 55.f * boss_scale;
+    //const float boss_hitbox_tail_y_offset = 176.f * boss_scale;
+//
+//
+    //auto boss = engine_ctx.registry.spawn_entity();
+    //engine_ctx.registry.add_component(boss, cpnt::Transform{1200.f, 100.f, 0, 0, 0, 0, 1, 1, 1});
+    //engine_ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, false, false, {1350.f, 400.f}, 0.f, 600.f});
+    //engine_ctx.registry.add_component(
+    //    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, boss_scale, 0, "boss"});
+    //engine_ctx.registry.add_component(boss, cpnt::Health{100, 100});
+    //engine_ctx.registry.add_component(boss, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
+    //engine_ctx.registry.add_component(boss, cpnt::BossHitbox{
+    //    boss_hitbox_head_width, boss_hitbox_head_height, boss_hitbox_head_x_offset, boss_hitbox_head_y_offset,
+    //    boss_hitbox_body_width, boss_hitbox_body_height, boss_hitbox_body_x_offset, boss_hitbox_body_y_offset,
+    //    boss_hitbox_tail_width, boss_hitbox_tail_height, boss_hitbox_tail_x_offset, boss_hitbox_tail_y_offset
+    //});
+
     // lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(),
     //     "scripts/lua/ui/game_menu.lua");
 }
+
+//        27.f, 861.f, 110.f, 85.f,
+//        105.f, 947.f, 76.f, 93.f,
+//        82.f, 1040.f, 68.f, 24.f

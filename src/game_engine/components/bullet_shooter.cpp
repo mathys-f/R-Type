@@ -4,7 +4,7 @@ using namespace engn::cpnt;
 
 engn::SerializedComponent BulletShooter::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::BulletShooter;
+    serialized.type = engn::ComponentType::bullet_shooter;
     serialized.data = {}; // Empty data for tag component
     return serialized;
 }

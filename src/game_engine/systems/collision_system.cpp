@@ -23,7 +23,8 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                            ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                            ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
                            ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
-                           ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats) {
+                           ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats,
+                           ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes) {
     std::vector<ecs::Entity> bullets_to_kill;
     auto& reg = ctx.registry;
 
@@ -32,13 +33,31 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
     // Debug - show hitboxes
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-    for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
-        if (pos_opt && hitbox_opt) {
-            Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
-                              hitbox_opt->width, hitbox_opt->height};
-            DrawRectangleLinesEx(rect, 2.0f, GREEN);
-        }
-    }
+    //for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
+    //    if (pos_opt && hitbox_opt) {
+    //        Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
+    //                          hitbox_opt->width, hitbox_opt->height};
+    //        DrawRectangleLinesEx(rect, 2.0f, GREEN);
+    //    }
+    //}
+//
+    //// Debug - show boss hitboxes
+    //for (auto [idx, pos_opt, boss_hitbox_opt] : ecs::indexed_zipper(positions, boss_hitboxes)) {
+    //    if (pos_opt && boss_hitbox_opt) {
+    //        Rectangle rect_1 = {pos_opt->x + boss_hitbox_opt->offset_x_1,
+    //                            pos_opt->y + boss_hitbox_opt->offset_y_1,
+    //                            boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
+    //        Rectangle rect_2 = {pos_opt->x + boss_hitbox_opt->offset_x_2,
+    //                            pos_opt->y + boss_hitbox_opt->offset_y_2,
+    //                            boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
+    //        Rectangle rect_3 = {pos_opt->x + boss_hitbox_opt->offset_x_3,
+    //                            pos_opt->y + boss_hitbox_opt->offset_y_3,
+    //                            boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
+    //        DrawRectangleLinesEx(rect_1, 2.0f, BLUE);
+    //        DrawRectangleLinesEx(rect_2, 2.0f, BLUE);
+    //        DrawRectangleLinesEx(rect_3, 2.0f, BLUE);
+    //    }
+    //}
 
     // Get bullet entities
     for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets)) {
@@ -67,7 +86,6 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                         reg.add_component(explosion,
                                           cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f,
                                                           k_explosion_frame_duration, 0, k_explosion_total_frames});
-                        // DrawCircleV(bullet_pos, 20, RED); // Visual debug
 
                         auto& health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (health) {
@@ -223,6 +241,56 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                         if (health_player) {
                             health_player->hp -= k_collision_damage; // Reduce player health
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    // BUllet - Boss collision
+
+    for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets)) {
+        if (bullet_pos_opt && bullet_tag_opt) {
+            for (auto [boss_idx, boss_pos_opt, health_opt, boss_hitbox_opt] :
+                 ecs::indexed_zipper(positions, healths, boss_hitboxes)) {
+                if (boss_pos_opt && health_opt && health_opt->hp > 0 && boss_hitbox_opt) {
+                    Rectangle rect_1 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_1,
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_1,
+                                        boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
+                    Rectangle rect_2 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_2,
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_2,
+                                        boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
+                    Rectangle rect_3 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_3,
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_3,
+                                        boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
+                    Vector2 bullet_pos = {bullet_pos_opt->x, bullet_pos_opt->y};
+
+                    if (CheckCollisionCircleRec(bullet_pos, k_bullet_radius, rect_1) ||
+                        CheckCollisionCircleRec(bullet_pos, k_bullet_radius, rect_2) ||
+                        CheckCollisionCircleRec(bullet_pos, k_bullet_radius, rect_3)) {
+                        bullets_to_kill.push_back(reg.entity_from_index(bullet_idx));
+                        auto explosion = reg.spawn_entity();
+                        reg.add_component(explosion, cpnt::Transform{bullet_pos_opt->x, bullet_pos_opt->y, 0.0f, 0.0f,
+                                                                     0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                        reg.add_component(explosion, cpnt::Sprite{{k_explosion_sprite_x, k_explosion_sprite_y,
+                                                                   k_explosion_sprite_w, k_explosion_sprite_h},
+                                                                  k_explosion_scale,
+                                                                  0,
+                                                                  "bulletExplosion"});
+                        reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                        reg.add_component(explosion,
+                                          cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f,
+                                                          k_explosion_frame_duration, 0, k_explosion_total_frames});
+
+                        auto& health_boss = reg.get_components<cpnt::Health>()[boss_idx];
+                        if (health_boss) {
+                            health_boss->hp -= 1;
+                            if (health_boss->hp <= 0) {
+                                points_gained += 500;
+                                enemies_killed += 1;
+                            }
+                        }
+                        break;
                     }
                 }
             }
