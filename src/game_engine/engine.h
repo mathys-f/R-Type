@@ -26,6 +26,7 @@
 #include "events/ui_events.h"
 #include "lua_context.h"
 #include "snapshots.h"
+#include "network_client.h"
 
 #define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
 
@@ -77,7 +78,8 @@ class EngineContext {
     int k_pattern_amplitude_max = 10;
     int k_player_health = 100;
 
-    std::shared_ptr<net::Session> network_session;
+    std::shared_ptr<net::Session> network_session; // TO REMOVE
+    std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
 
     const std::size_t k_player_count = 4;
     std::mutex clients_mutex;

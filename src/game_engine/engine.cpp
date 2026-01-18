@@ -78,6 +78,14 @@ void EngineContext::set_scene(const std::string &scene_name) {
         return;
     }
     LOG_INFO("Switching to scene {}", scene_name);
+
+    // Disconnect network client if it exists before scene change
+    if (network_client && network_client->is_connected()) {
+        LOG_DEBUG("Disconnecting network client...");
+        network_client->disconnect();
+        network_client.reset();
+    }
+
     LOG_DEBUG("Clearing registry...");
     registry.~Registry();
     new (&registry) ecs::Registry();

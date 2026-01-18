@@ -2,7 +2,7 @@
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
 #include "game_engine/systems/systems.h"
-#include "network_client.h"
+#include "game_engine/network_client.h"
 #include "raylib.h"
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
@@ -103,11 +103,13 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
 
-    static std::unique_ptr<NetworkClient> s_network_client;
+    // Reset and create network client in engine context
+    if (engine_ctx.network_client) {
+        engine_ctx.network_client->disconnect();
+    }
+    engine_ctx.network_client = std::make_shared<engn::NetworkClient>();
 
-    s_network_client = std::make_unique<NetworkClient>(engine_ctx);
-
-    s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
+    engine_ctx.network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
         if (success) {
             LOG_DEBUG("Connected!");
         } else {
@@ -116,7 +118,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         }
     });
 
-    s_network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
+    engine_ctx.network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
         if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
@@ -126,10 +128,13 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     const char* player_name = "Player1";
 
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
-    s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
+    engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
-    engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
-
+    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) { 
+        if (engine_ctx.network_client) {
+            engine_ctx.network_client->poll(); 
+        }
+    });
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();

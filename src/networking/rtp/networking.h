@@ -28,23 +28,26 @@ constexpr std::chrono::milliseconds k_default_initial_rto{200};
 constexpr std::chrono::milliseconds k_default_max_rto{2000};
 constexpr std::size_t k_default_window_size = 256;
 constexpr std::uint32_t k_byte_mask = 0xFFU;
+constexpr std::chrono::seconds k_client_timeout{30}; // Disconnect clients after 30 seconds of inactivity
 
 // Command identifiers for different packet types.
 // TODO: Add commands for the game
 enum class CommandId : std::uint8_t {
     KReqLogin = 0x01,
     KResLogin = 0x02,
-    KReqJoinRoom = 0x03,
-    KResRoomState = 0x04,
+    KReqLogout = 0x03,
+    KHeartbeat = 0x04, // Keepalive ping
+    KReqJoinRoom = 0x05,
+    KResRoomState = 0x06,
     // Lobby commands
-    KReqLobbyList = 0x05,
-    KResLobbyList = 0x06,
-    KReqCreateLobby = 0x07,
-    KResCreateLobby = 0x08,
-    KReqJoinLobby = 0x09,
-    KResJoinLobby = 0x0A,
-    KReqLeaveLobby = 0x0B,
-    KLobbyStateUpdate = 0x0C,
+    KReqLobbyList = 0x07,
+    KResLobbyList = 0x08,
+    KReqCreateLobby = 0x09,
+    KResCreateLobby = 0x0A,
+    KReqJoinLobby = 0x0B,
+    KResJoinLobby = 0x0C,
+    KReqLeaveLobby = 0x0D,
+    KLobbyStateUpdate = 0x0E,
     // Game commands
     KClientInput = 0x10,
     KServerEntityState = 0x11,

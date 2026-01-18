@@ -97,6 +97,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
 void sys::send_snapshot_to_client_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
+    // LOG_DEBUG("Running send_snapshot_to_client_system");
     const auto &clients = ctx.get_clients();
     std::lock_guard<std::mutex> lock(ctx.clients_mutex); // Avoid creation & deletion of clients while iterating trought them
 

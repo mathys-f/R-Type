@@ -28,6 +28,7 @@ void sys::server_player_control_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,
     ecs::SparseArray<cpnt::Player> const& players,
     ecs::SparseArray<cpnt::Velocity> const& velocities) {
+    // LOG_DEBUG("Running server_player_control_system");
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
 

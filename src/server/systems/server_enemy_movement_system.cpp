@@ -15,8 +15,9 @@ constexpr float k_dive_amplitude_multiplier = 2.0f;
 } // namespace
 
 void sys::server_enemy_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                                ecs::SparseArray<cpnt::MovementPattern> const& patterns,
-                                ecs::SparseArray<cpnt::Velocity> const& velocity) {
+    ecs::SparseArray<cpnt::MovementPattern> const& patterns,
+    ecs::SparseArray<cpnt::Velocity> const& velocity) {
+    // LOG_DEBUG("Running server_enemy_movement_system");
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
 

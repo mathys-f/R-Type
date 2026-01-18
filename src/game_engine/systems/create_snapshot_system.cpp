@@ -45,6 +45,7 @@ static const std::unordered_map<std::type_index, Extractor> k_sync_extractors = 
 
 void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components) {
+    // LOG_DEBUG("Creating world snapshot");
     auto& registry = engine_ctx.registry;
     WorldSnapshot snapshot;
 

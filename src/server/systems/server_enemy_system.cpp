@@ -17,6 +17,7 @@ void sys::server_enemy_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Velocity> const& velocities,
     ecs::SparseArray<cpnt::Enemy> const& enemies,
     ecs::SparseArray<cpnt::Health> const& healths) {
+    // LOG_DEBUG("Running server_enemy_system");
     auto& reg = ctx.registry;
 
     for (auto [idx, pos_opt, vel_opt, enemy_opt, health_opt] :

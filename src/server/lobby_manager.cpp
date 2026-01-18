@@ -191,7 +191,6 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                     ipc.send_to_main(ack);
                 }
             }
-
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
