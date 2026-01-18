@@ -137,6 +137,26 @@ Set_ui_transform("nav_audio_button", {
     rotation = 0
 })
 
+Create_ui_button("nav_graphics_button")
+
+Set_ui_style("nav_graphics_button", styles.main_menu)
+
+Set_ui_text("nav_graphics_button", {
+    content = "Graphics",
+    font_size = 20
+})
+
+Set_ui_transform("nav_graphics_button", {
+    x = 1.85,
+    y = 39.58,
+    z = 0,
+    w = 16.67,
+    h = 6.25,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
 Create_ui_text("settings_title", {
     content = "Settings",
     font_size = 80
@@ -479,9 +499,10 @@ Set_ui_transform("main_menu_button", {
     rotation = 0
 })
 
-Set_ui_navigation("nav_controls_button", { up = "nav_audio_button", down = "nav_gamepad_button", right = "rebind_gamepad_move_up" })
+Set_ui_navigation("nav_controls_button", { up = "nav_graphics_button", down = "nav_gamepad_button", right = "rebind_gamepad_move_up" })
 Set_ui_navigation("nav_gamepad_button", { up = "nav_controls_button", down = "nav_audio_button", right = "rebind_gamepad_move_up" })
-Set_ui_navigation("nav_audio_button", { up = "nav_gamepad_button", down = "nav_controls_button", right = "rebind_gamepad_move_up" })
+Set_ui_navigation("nav_audio_button", { up = "nav_gamepad_button", down = "nav_graphics_button", right = "rebind_gamepad_move_up" })
+Set_ui_navigation("nav_graphics_button", { up = "nav_audio_button", down = "nav_controls_button", right = "rebind_gamepad_move_up" })
 
 Set_ui_navigation("rebind_gamepad_move_up", { up = "nav_gamepad_button", down = "rebind_gamepad_move_down", left = "nav_gamepad_button" })
 Set_ui_navigation("rebind_gamepad_move_down", { up = "rebind_gamepad_move_up", down = "rebind_gamepad_move_left", left = "nav_gamepad_button" })

@@ -37,13 +37,27 @@ constexpr std::uint16_t k_lobby_base_port = 9000; // Lobbies will use ports star
 } // namespace
 
 int main(int argc, char** argv) {
-    // Parse port from args
+    // Parse command line arguments
     std::uint16_t port = k_default_port;
+    bool is_lobby = false;
+    std::uint32_t lobby_id = 0;
+    
     for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "-p") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             port = static_cast<std::uint16_t>(
                 std::stoi(argv[i + 1])); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        } else if (std::string(argv[i]) == "-islobby") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            is_lobby = true;
+        } else if (std::string(argv[i]) == "-lobby-id") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            lobby_id = static_cast<std::uint32_t>(
+                std::stoul(argv[i + 1])); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         }
+    }
+
+    if (is_lobby) {
+        std::string lobby_name = "Lobby_" + std::to_string(lobby_id);
+        GameLobby::run_lobby_in_child_process(lobby_id, lobby_name, port, 4);
+        return 0;
     }
 
     setup_signal_handling();

@@ -116,35 +116,37 @@ void GameLobby::fork_and_run_lobby_process() {
     // Windows implementation using CreateProcess
     STARTUPINFOA si = {sizeof(si)};
     PROCESS_INFORMATION pi = {};
-    
-    std::string cmd_line = "r-type_server.exe -lobby " + std::to_string(m_lobby_id) + 
-                           " -port " + std::to_string(m_port);
-    
-    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE, 
+    char exe_path[MAX_PATH];
+    GetModuleFileNameA(NULL, exe_path, MAX_PATH);
+
+    std::string cmd_line = std::string(exe_path) + " -islobby -lobby-id " +
+                           std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
+
+    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE,
                         0, NULL, NULL, &si, &pi)) {
         LOG_ERROR("Failed to create process for lobby {}: {}", m_lobby_id, GetLastError());
         m_running = false;
         throw std::runtime_error("CreateProcess failed");
     }
-    
+
     m_process_handle = pi.hProcess;
     CloseHandle(pi.hThread);
 #else
     // Unix implementation using fork
     pid_t pid = fork();
-    
+
     if (pid < 0) {
         LOG_ERROR("Failed to fork process for lobby {}", m_lobby_id);
         m_running = false;
         throw std::runtime_error("Fork failed");
     }
-    
+
     if (pid == 0) {
         // Child process
         run_lobby_in_child_process(m_lobby_id, m_lobby_name, m_port, m_max_players);
         _exit(0);
     }
-    
+
     m_process_handle = pid;
 #endif
 }

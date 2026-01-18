@@ -18,7 +18,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
@@ -29,7 +29,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_ship_width = 33.0f;
     constexpr float k_ship_height = 18.0f;
     constexpr float k_ship_scale = 3.0f;
-    constexpr int k_player_health = 100;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
     const int k_width = static_cast<int>(engine_ctx.window_size.x);
