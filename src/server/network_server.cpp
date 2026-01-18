@@ -15,10 +15,15 @@ using namespace engn;
 NetworkServer::NetworkServer(engn::EngineContext& engine_ctx, std::uint16_t port, LobbyManager* lobby_manager)
     : m_engine_ctx(engine_ctx), m_port(port), m_lobby_manager(lobby_manager) {
     m_session = std::make_shared<net::Session>(m_io, asio::ip::udp::endpoint{}, net::ReliabilityConfig{}, m_port);
+    m_engine_ctx.network_session = m_session;
 }
 
 NetworkServer::~NetworkServer() {
     stop();
+}
+
+EngineContext &NetworkServer::get_engine() {
+    return m_engine_ctx;
 }
 
 void NetworkServer::start() {
@@ -152,18 +157,18 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 }
 
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
     if (m_connected_clients.insert(endpoint).second) {
         LOG_INFO("Client connected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEANNNNNN
+        m_engine_ctx.add_client(endpoint);
     }
 }
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEAAAAAAAAAAAAAAAAAAAN
+        m_engine_ctx.remove_client(endpoint);
     }
 }
 

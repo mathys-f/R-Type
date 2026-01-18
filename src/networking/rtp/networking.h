@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <asio.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -12,6 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "asio.hpp"
 
 namespace net {
 constexpr std::uint16_t k_magic_number = 0xD1CE; // Magic number defined in the RFC

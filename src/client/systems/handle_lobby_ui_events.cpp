@@ -202,11 +202,22 @@ void update_lobby_list_ui(EngineContext& ctx) {
             tag_cache[i] = tag_id;
             ctx.registry.add_component(entity, cpnt::Tag{tag_id});
         }
+        const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+        const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
         // Add UI components
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
         ctx.registry.add_component(
-            entity, cpnt::UITransform{k_start_x, k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing),
-                                      0.0f, k_lobby_width, k_item_height, 0.0f, 0.0f, 0.0f});
+            entity, cpnt::UITransform{
+                k_start_x / k_width* 100.0f, 
+                (k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing)) / k_height * 100.0f,
+                0.0f, 
+                k_lobby_width / k_width* 100.0f, 
+                k_item_height / k_height * 100.0f, 
+                0.0f, 
+                0.0f, 
+                0.0f});
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
 
         std::string lobby_info = lobby.m_lobby_name + " - " + std::to_string(lobby.m_current_players) + "/" +
                                  std::to_string(lobby.m_max_players) + " players";

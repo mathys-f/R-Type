@@ -9,8 +9,8 @@ Velocity::Velocity(float vx, float vy, float vz, float vrx, float vry, float vrz
 engn::SerializedComponent Velocity::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::velocity;
-    serialized.size = sizeof(this->vx) + sizeof(this->vy) + sizeof(this->vz) + sizeof(this->vrx) + sizeof(this->vry) + sizeof(this->vrz);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(this->vx) + sizeof(this->vy) + sizeof(this->vz) + sizeof(this->vrx) + sizeof(this->vry) + sizeof(this->vrz);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <format>
+#include <functional>
 
 namespace ecs {
 
@@ -26,6 +27,20 @@ class Entity {
     /// @return The raw entity id as `IdType`.
     IdType value() const noexcept;
 
+    /// Equality comparison operator.
+    /// @param other The other entity to compare with.
+    /// @return True if the entities have the same id.
+    bool operator==(const Entity& other) const noexcept {
+        return m_id == other.m_id;
+    }
+
+    /// Inequality comparison operator.
+    /// @param other The other entity to compare with.
+    /// @return True if the entities have different ids.
+    bool operator!=(const Entity& other) const noexcept {
+        return m_id != other.m_id;
+    }
+
   private:
     /// Construct an Entity from a raw id. Only `Registry` may create entities.
     /// @param v The raw id to wrap.
@@ -39,6 +54,14 @@ class Entity {
 };
 
 } // namespace ecs
+
+// Hash specialization for Entity to make it usable in std::unordered_map
+template <>
+struct std::hash<ecs::Entity> {
+    std::size_t operator()(const ecs::Entity& entity) const noexcept {
+        return std::hash<ecs::Entity::IdType>{}(entity.value());
+    }
+};
 
 template <> struct std::formatter<ecs::Entity> : std::formatter<size_t> {
     auto format(const ecs::Entity& entity, auto& ctx) const {

@@ -8,9 +8,8 @@ Controllable::Controllable(float speed) : speed(speed) {}
 engn::SerializedComponent Controllable::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::controllable;
-    serialized.size = sizeof(speed);
-    serialized.data.resize(serialized.size);
-    std::memcpy(serialized.data.data(), &speed, sizeof(speed));
+    serialized.data.resize(sizeof(speed));
+    std::memcpy(serialized.data.data(), &speed, serialized.data.size());
     return serialized;
 }
 

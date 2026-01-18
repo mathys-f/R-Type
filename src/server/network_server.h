@@ -25,6 +25,9 @@ class NetworkServer {
     NetworkServer& operator=(const NetworkServer&) = delete;
     NetworkServer(NetworkServer&&) = delete;
     NetworkServer& operator=(NetworkServer&&) = delete;
+
+    engn::EngineContext &get_engine();
+
     void start();
     void poll();
     void stop();
@@ -43,6 +46,6 @@ class NetworkServer {
     std::atomic<bool> m_running{false};
     LobbyManager* m_lobby_manager;
     std::unordered_set<asio::ip::udp::endpoint, net::EndpointHash> m_connected_clients;
-    std::mutex m_clients_mutex;
+    std::mutex clients_mutex;
     std::unordered_map<std::uint32_t, asio::ip::udp::endpoint> m_player_endpoints;
 };
