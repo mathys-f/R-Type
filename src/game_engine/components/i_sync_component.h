@@ -7,10 +7,11 @@
 
 namespace engn::cpnt {
 
+// All components inheriting from ISyncComponent can be serialized and deserialized
+// for synchronization purposes (e.g., networked multiplayer).
 struct ISyncComponent {
     virtual ~ISyncComponent() = default;
 
-    // Explicitly default copy and move constructors/assignment operators
     ISyncComponent() = default;
     ISyncComponent(const ISyncComponent&) = default;
     ISyncComponent(ISyncComponent&&) = default;

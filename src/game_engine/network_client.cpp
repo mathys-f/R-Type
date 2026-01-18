@@ -1,6 +1,5 @@
 #include "network_client.h"
 
-#include "game_engine/engine.h"
 #include "networking/handshake/handshake.h"
 #include "utils/logger.h"
 
@@ -8,7 +7,8 @@
 
 using namespace engn;
 
-NetworkClient::NetworkClient(engn::EngineContext& engine_ctx) : m_engine_ctx(engine_ctx) {}
+constexpr std::chrono::seconds k_heartbeat_interval{5};
+constexpr std::chrono::milliseconds k_leave_msg_wait_time{250};
 
 NetworkClient::~NetworkClient() {
     disconnect();
@@ -114,9 +114,22 @@ void NetworkClient::set_on_login(OnLoginCallback callback) {
     m_on_login = callback;
 }
 
+void NetworkClient::set_on_logout(OnLogoutCallback callback) {
+    m_on_logout = callback;
+}
+
 void NetworkClient::poll() {
     if (m_session) {
         m_session->poll();
+    }
+
+    if (m_connected.load()) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_last_heartbeat);
+        if (elapsed >= k_heartbeat_interval) {
+            send_heartbeat();
+            m_last_heartbeat = now;
+        }
     }
 }
 
@@ -166,13 +179,44 @@ bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {
     return m_session->is_message_acknowledged(id, m_server_endpoint);
 }
 
+void NetworkClient::send_heartbeat() {
+    if (!m_connected.load() || !m_session) {
+        return;
+    }
+    
+    // Create a simple heartbeat packet with no payload
+    net::Packet heartbeat{};
+    heartbeat.header.m_command = static_cast<std::uint8_t>(net::CommandId::KHeartbeat);
+    
+    // Send unreliably - it's just a keepalive, if it's lost the next one will arrive
+    try {
+        m_session->send(heartbeat, false);
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to send heartbeat: " << e.what() << std::endl;
+    }
+}
+
 void NetworkClient::disconnect() {
     if (m_running.exchange(false)) {
+        // Send logout message to server before disconnecting
+        if (m_connected.load() && m_session) {
+            net::handshake::ReqLogout logout_req{.m_player_id = m_player_id};
+            try {
+                m_session->send(net::handshake::make_req_logout(logout_req), true);
+                // Give a brief moment for the message to be sent
+                std::this_thread::sleep_for(k_leave_msg_wait_time);
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to send logout message: " << e.what() << std::endl;
+            }
+        }
+
         m_connected = false;
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();
         }
+        if (m_on_logout)
+            m_on_logout();
         std::cout << "Disconnected from server" << std::endl;
     }
 }

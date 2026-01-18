@@ -18,7 +18,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;  // NOLINT
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_server_scene(engn::EngineContext& engine_ctx) {
@@ -44,7 +44,7 @@ void load_server_scene(engn::EngineContext& engine_ctx) {
 
     engine_ctx.add_system<>(sys::log_inputs);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox>(
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats>(
         sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
@@ -65,7 +65,7 @@ void load_server_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_pattern_speed_variance = 3.0f;
     constexpr int k_pattern_amplitude_max = 10;
 
-    for (size_t i = 0; i < engine_ctx.k_max_enemies; i++) {
+    for (size_t i = 0; i < engine_ctx.k_max_charger; i++) {
         auto enemy = engine_ctx.registry.spawn_entity();
 
         float spawn_y = (float)GetRandomValue(k_spawn_margin, k_height - k_spawn_margin);

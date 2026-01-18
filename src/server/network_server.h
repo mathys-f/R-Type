@@ -8,8 +8,10 @@
 #include <memory>
 #include <thread>
 #include <unordered_set>
+#include <unordered_map>
 #include <mutex>
 #include <unordered_map>
+#include <chrono>
 
 namespace engn {
 class EngineContext;
@@ -25,15 +27,20 @@ class NetworkServer {
     NetworkServer& operator=(const NetworkServer&) = delete;
     NetworkServer(NetworkServer&&) = delete;
     NetworkServer& operator=(NetworkServer&&) = delete;
+
+    engn::EngineContext &get_engine();
+
     void start();
     void poll();
     void stop();
+    void check_client_timeouts(); // Check for inactive clients
 
   private:
     void handle_lobby_requests(const net::Packet& pkt, const asio::ip::udp::endpoint& from);
     void handle_client_connect(const asio::ip::udp::endpoint& endpoint);
     void handle_client_disconnect(const asio::ip::udp::endpoint& endpoint);
     void handle_client_input(const net::Packet& pkt, const asio::ip::udp::endpoint& from);
+    void update_client_activity(const asio::ip::udp::endpoint& endpoint); // Update last activity time
 
     engn::EngineContext& m_engine_ctx;
     std::uint16_t m_port;
@@ -43,6 +50,6 @@ class NetworkServer {
     std::atomic<bool> m_running{false};
     LobbyManager* m_lobby_manager;
     std::unordered_set<asio::ip::udp::endpoint, net::EndpointHash> m_connected_clients;
+    std::unordered_map<asio::ip::udp::endpoint, std::chrono::steady_clock::time_point, net::EndpointHash> m_client_last_activity;
     std::mutex m_clients_mutex;
-    std::unordered_map<std::uint32_t, asio::ip::udp::endpoint> m_player_endpoints;
 };

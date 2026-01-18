@@ -85,12 +85,12 @@ void sys::player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
 
                 // Clamp position
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                if (pos->x >= ctx.k_window_size.x - k_player_width)
-                    pos->x = ctx.k_window_size.x - k_player_width;
+                if (pos->x >= ctx.window_size.x - k_player_width)
+                    pos->x = ctx.window_size.x - k_player_width;
                 if (pos->x <= 0)
                     pos->x = 0;
-                if (pos->y >= ctx.k_window_size.y - k_player_height)
-                    pos->y = ctx.k_window_size.y - k_player_height;
+                if (pos->y >= ctx.window_size.y - k_player_height)
+                    pos->y = ctx.window_size.y - k_player_height;
                 if (pos->y <= 0)
                     pos->y = 0;
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
@@ -155,7 +155,7 @@ void sys::player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
                                                               0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet{});
-                    reg.add_component(bullet, cpnt::Hitbox{0.0f, 0.0f, k_bullet_width, k_bullet_height});
+                    reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(
                         bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                              k_bullet_scale,

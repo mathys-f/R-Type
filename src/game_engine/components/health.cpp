@@ -9,8 +9,8 @@ Health::Health(int hp, int max_hp, int changes)
 engn::SerializedComponent Health::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::health;
-    serialized.size = sizeof(hp) + sizeof(max_hp) + sizeof(changes);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(hp) + sizeof(max_hp) + sizeof(changes);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

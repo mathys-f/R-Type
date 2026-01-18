@@ -17,7 +17,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;  // NOLINT
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 const std::string k_script_file = "scripts/lua/ui/lobby_menu.lua";
@@ -58,9 +58,9 @@ void load_lobby_scene(engn::EngineContext& engine_ctx) {
     engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
 
     // Create stars
-    const int k_width = static_cast<int>(engine_ctx.k_window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const int k_width = static_cast<int>(engine_ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height =
-        static_cast<int>(engine_ctx.k_window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
+        static_cast<int>(engine_ctx.window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = engine_ctx.registry.spawn_entity();

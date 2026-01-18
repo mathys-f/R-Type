@@ -2,7 +2,7 @@
 #include "game_engine/components/ui/ui_focusable.h"
 #include "game_engine/components/ui/ui_navigation.h"
 #include "game_engine/engine.h"
-#include "network_client.h"
+#include "game_engine/network_client.h"
 #include "networking/lobby/lobby_messages.h"
 #include "systems/client_systems.h"
 #include "utils/color.h"
@@ -42,7 +42,6 @@ constexpr float k_border_radius = 0.3f;
 constexpr float k_border_thickness = 3.0f;
 
 struct LobbyState {
-    std::shared_ptr<NetworkClient> network_client;
     std::vector<net::lobby::LobbyInfo> available_lobbies;
     bool connected = false;
     bool waiting_for_response = false;
@@ -202,11 +201,22 @@ void update_lobby_list_ui(EngineContext& ctx) {
             tag_cache[i] = tag_id;
             ctx.registry.add_component(entity, cpnt::Tag{tag_id});
         }
+        const float k_width = ctx.window_size.x;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+        const float k_height = ctx.window_size.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
 
         // Add UI components
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
         ctx.registry.add_component(
-            entity, cpnt::UITransform{k_start_x, k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing),
-                                      0.0f, k_lobby_width, k_item_height, 0.0f, 0.0f, 0.0f});
+            entity, cpnt::UITransform{
+                k_start_x / k_width* 100.0f, 
+                (k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing)) / k_height * 100.0f,
+                0.0f, 
+                k_lobby_width / k_width* 100.0f, 
+                k_item_height / k_height * 100.0f, 
+                0.0f, 
+                0.0f, 
+                0.0f});
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
 
         std::string lobby_info = lobby.m_lobby_name + " - " + std::to_string(lobby.m_current_players) + "/" +
                                  std::to_string(lobby.m_max_players) + " players";
@@ -272,9 +282,9 @@ void handle_connect_button(EngineContext& ctx) {
         state.server_ip = server_ip;
         state.server_port_main = server_port;
 
-        state.network_client = std::make_shared<NetworkClient>(ctx);
+        ctx.network_client = std::make_shared<engn::NetworkClient>();
 
-        state.network_client->set_on_reliable([](const net::Packet& pkt) {
+        ctx.network_client->set_on_reliable([](const net::Packet& pkt) {
             auto& s = get_lobby_state();
             std::lock_guard<std::mutex> lock(s.mutex);
             if (auto res = net::lobby::parse_res_lobby_list(pkt)) {
@@ -291,7 +301,7 @@ void handle_connect_button(EngineContext& ctx) {
             }
         });
 
-        state.network_client->set_on_login([&ctx](bool success, uint32_t /*player_id*/) {
+        ctx.network_client->set_on_login([&ctx](bool success, uint32_t /*player_id*/) {
             auto& s = get_lobby_state();
             if (success) {
                 s.connected = true;
@@ -301,14 +311,14 @@ void handle_connect_button(EngineContext& ctx) {
                 }
 
                 net::lobby::ReqLobbyList req{};
-                s.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+                ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
             } else {
                 std::lock_guard<std::mutex> lock(s.mutex);
                 s.pending_status = "Failed to connect to server";
             }
         });
 
-        state.network_client->connect(server_ip, server_port, "LobbyBrowser");
+        ctx.network_client->connect(server_ip, server_port, "LobbyBrowser");
         update_status_text(ctx, "Connecting to " + server_ip + ":" + port_str + "...");
     } catch (const std::exception& e) {
         update_status_text(ctx, std::string("Connection error: ") + e.what());
@@ -316,7 +326,7 @@ void handle_connect_button(EngineContext& ctx) {
 }
 
 void handle_refresh_button(EngineContext& ctx) {
-    if (!get_lobby_state().connected || !get_lobby_state().network_client) {
+    if (!get_lobby_state().connected || !ctx.network_client) {
         update_status_text(ctx, "Not connected to server");
         return;
     }
@@ -326,12 +336,12 @@ void handle_refresh_button(EngineContext& ctx) {
         s.pending_status = "Refreshing lobby list...";
     }
     net::lobby::ReqLobbyList req{};
-    get_lobby_state().network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+    ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
     get_lobby_state().waiting_for_response = true;
 }
 
 void handle_create_lobby_button(EngineContext& ctx) {
-    if (!get_lobby_state().connected || !get_lobby_state().network_client) {
+    if (!get_lobby_state().connected || !ctx.network_client) {
         update_status_text(ctx, "Not connected to server");
         return;
     }
@@ -363,7 +373,7 @@ void handle_create_lobby_button(EngineContext& ctx) {
     net::lobby::ReqCreateLobby req{};
     req.m_lobby_name = lobby_name;
     req.m_max_players = 4; // Default to 4 players
-    get_lobby_state().network_client->send_reliable(net::lobby::make_req_create_lobby(req));
+    ctx.network_client->send_reliable(net::lobby::make_req_create_lobby(req));
     get_lobby_state().waiting_for_response = true;
 }
 
@@ -379,7 +389,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
         return;
     }
 
-    if (!get_lobby_state().connected || !get_lobby_state().network_client) {
+    if (!get_lobby_state().connected || !ctx.network_client) {
         update_status_text(ctx, "Not connected to server");
         return;
     }
@@ -393,7 +403,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
 
     net::lobby::ReqJoinLobby req{};
     req.m_lobby_id = lobby.m_lobby_id;
-    get_lobby_state().network_client->send_reliable(net::lobby::make_req_join_lobby(req));
+    ctx.network_client->send_reliable(net::lobby::make_req_join_lobby(req));
     get_lobby_state().waiting_for_response = true;
 }
 
@@ -409,8 +419,8 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
 
 void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
     // Poll network client if connected
-    if (get_lobby_state().network_client && get_lobby_state().connected) {
-        get_lobby_state().network_client->poll();
+    if (engine_ctx.network_client && get_lobby_state().connected) {
+        engine_ctx.network_client->poll();
 
         // Process pending lobby messages on the main thread
         std::optional<net::lobby::ResLobbyList> lobby_list;
@@ -451,7 +461,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                                                    std::to_string(create_res->m_lobby_id) + ")");
                 // Refresh lobby list so it appears immediately
                 net::lobby::ReqLobbyList req{};
-                get_lobby_state().network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+                engine_ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
             } else {
                 update_status_text(engine_ctx, "Failed to create lobby: " + create_res->m_error_message);
             }
@@ -463,7 +473,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                 update_status_text(engine_ctx, "Joining lobby...");
                 engine_ctx.server_ip = get_lobby_state().server_ip;
                 engine_ctx.server_port = join_res->m_port;
-                engine_ctx.set_scene(3); // Multiplayer game scene
+                engine_ctx.set_scene("multiplayer_game"); // Multiplayer game scene
             } else {
                 update_status_text(engine_ctx, "Failed to join lobby: " + join_res->m_error_message);
             }
@@ -488,7 +498,7 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "create_lobby_button") {
         handle_create_lobby_button(ctx);
     } else if (tag_name == "back_button") {
-        ctx.set_scene(1); // Main menu scene
+        ctx.set_scene("main_menu"); // Main menu scene
     } else if (tag_name.find("lobby_item_") == 0) {
         // Extract lobby index from tag name
         int lobby_index = std::stoi(tag_name.substr(k_tag_prefix_length));

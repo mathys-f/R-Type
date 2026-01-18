@@ -1,6 +1,5 @@
 #include "api/lua.h"
 #include "components/tag.h"
-#include "components/scene.h"
 #include "components/ui/ui_style.h"
 #include "components/ui/ui_text.h"
 #include "components/ui/ui_transform.h"
@@ -37,12 +36,7 @@ static auto read_text(sol::table table) {
     return text;
 }
 
-void lua::create_ui_text(EngineContext& ctx, unsigned char scene_id, std::string name, sol::table t) {
-    if (scene_id != ctx.get_current_scene()) {
-        LOG_WARNING("Create_ui_text: Attempted to create Text {} in scene {}, but current scene is {}", name,
-                    static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
-        return;
-    }
+void lua::create_ui_text(EngineContext& ctx, std::string name, sol::table t) {
     const ecs::Entity k_e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.get_tag_registry().create_and_bind_tag(name, k_e);
@@ -54,9 +48,6 @@ void lua::create_ui_text(EngineContext& ctx, unsigned char scene_id, std::string
     cpnt::Tag tag;
     tag.id = id;
     ctx.registry.add_component(k_e, std::move(tag));
-
-    cpnt::Scene scene{scene_id};
-    ctx.registry.add_component(k_e, std::move(scene));
 
     cpnt::UIText text = read_text(t);
     ctx.registry.add_component(k_e, std::move(text));

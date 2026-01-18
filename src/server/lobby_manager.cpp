@@ -1,4 +1,5 @@
 #include "lobby_manager.h"
+#include "scenes_loaders.h"
 
 #include "game_engine/engine.h"
 #include "utils/logger.h"
@@ -115,35 +116,37 @@ void GameLobby::fork_and_run_lobby_process() {
     // Windows implementation using CreateProcess
     STARTUPINFOA si = {sizeof(si)};
     PROCESS_INFORMATION pi = {};
-    
-    std::string cmd_line = "r-type_server.exe -lobby " + std::to_string(m_lobby_id) + 
-                           " -port " + std::to_string(m_port);
-    
-    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE, 
+    char exe_path[MAX_PATH];
+    GetModuleFileNameA(NULL, exe_path, MAX_PATH);
+
+    std::string cmd_line = std::string(exe_path) + " -islobby -lobby-id " +
+                           std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
+
+    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE,
                         0, NULL, NULL, &si, &pi)) {
         LOG_ERROR("Failed to create process for lobby {}: {}", m_lobby_id, GetLastError());
         m_running = false;
         throw std::runtime_error("CreateProcess failed");
     }
-    
+
     m_process_handle = pi.hProcess;
     CloseHandle(pi.hThread);
 #else
     // Unix implementation using fork
     pid_t pid = fork();
-    
+
     if (pid < 0) {
         LOG_ERROR("Failed to fork process for lobby {}", m_lobby_id);
         m_running = false;
         throw std::runtime_error("Fork failed");
     }
-    
+
     if (pid == 0) {
         // Child process
         run_lobby_in_child_process(m_lobby_id, m_lobby_name, m_port, m_max_players);
         _exit(0);
     }
-    
+
     m_process_handle = pid;
 #endif
 }
@@ -151,7 +154,7 @@ void GameLobby::fork_and_run_lobby_process() {
 void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name,
                                            std::uint16_t port, std::uint8_t max_players) {
     try {
-        LOG_INFO("Lobby '{}' process started (PID: {})", lobby_name, 
+        LOG_INFO("Lobby '{}' process started (PID: {})", lobby_name,
 #ifdef _WIN32
                  GetCurrentProcessId()
 #else
@@ -165,6 +168,8 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
 
         auto server = std::make_unique<NetworkServer>(lobby_engine_ctx, port);
         server->start();
+        server->get_engine().add_scene_loader("lobby", lobby_scene_loader);
+        server->get_engine().set_scene("lobby");
 
         LOG_INFO("Lobby '{}' game server running on port {}", lobby_name, port);
 
@@ -173,6 +178,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         int heartbeat_counter = 0;
 
         while (running) {
+            server->get_engine().delta_time = k_tick_ms / 1000.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
             ipc::IPCMessage msg;
             if (ipc.try_receive_from_main(msg, 0)) {
                 if (msg.type == ipc::MessageType::SHUTDOWNREQ) {
@@ -185,7 +191,6 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                     ipc.send_to_main(ack);
                 }
             }
-
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
@@ -194,12 +199,13 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 heartbeat_counter = 0;
             }
             server->poll();
+            server->get_engine().run_systems();
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
         }
 
         server->stop();
         LOG_INFO("Lobby '{}' process exiting gracefully", lobby_name);
-        
+
     } catch (const std::exception& e) {
         LOG_ERROR("Lobby '{}' process error: {}", lobby_name, e.what());
     }

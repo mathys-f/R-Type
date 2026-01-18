@@ -38,36 +38,36 @@ void sys::enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> con
             auto& vel = reg.get_components<cpnt::Velocity>()[idx];
 
             if (pos && vel_opt) {
-                pos->x += vel_opt->vx;
-                pos->y += vel_opt->vy;
+                // pos->x += vel_opt->vx;
+                // pos->y += vel_opt->vy;
                 // Respawn if off screen or dead
-                if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
-                    if (pos->x > k_offscreen_left) {
-                        auto explosion = reg.spawn_entity();
-                        reg.add_component(explosion,
-                                          cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                        reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
-                                                                   k_large_explosion_h},
-                                                                  k_large_explosion_scale,
-                                                                  0,
-                                                                  "explosion"});
-                        reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-                        reg.add_component(explosion,
-                                          cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
-                                                          k_explosion_frame_duration, 0, k_explosion_frames});
-                    }
+                // if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
+                //     if (pos->x > k_offscreen_left) {
+                //         auto explosion = reg.spawn_entity();
+                //         reg.add_component(explosion,
+                //                           cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                //         reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
+                //                                                    k_large_explosion_h},
+                //                                                   k_large_explosion_scale,
+                //                                                   0,
+                //                                                   "explosion"});
+                //         reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                //         reg.add_component(explosion,
+                //                           cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
+                //                                           k_explosion_frame_duration, 0, k_explosion_frames});
+                //     }
 
-                    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                    pos->x =
-                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.k_window_size.x),
-                                                          static_cast<int>(ctx.k_window_size.x * k_spawn_multiplier)));
-                    pos->y = static_cast<float>(
-                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.k_window_size.y) - k_spawn_margin));
-                    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-                    if (health) {
-                        health->hp = health->max_hp;
-                    }
-                }
+                //     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+                //     pos->x =
+                //         static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
+                //                                           static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
+                //     pos->y = static_cast<float>(
+                //         GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
+                //     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+                //     if (health) {
+                //         health->hp = health->max_hp;
+                //     }
+                // }
 
                 // Animate enemies
 

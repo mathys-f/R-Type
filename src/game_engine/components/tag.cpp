@@ -8,8 +8,8 @@ Tag::Tag(ecs::TagRegistry::TagId id) : id(id) {}
 engn::SerializedComponent Tag::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::tag;
-    serialized.size = sizeof(id);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(id);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

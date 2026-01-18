@@ -1,6 +1,5 @@
 #include "api/lua.h"
 #include "components/tag.h"
-#include "components/scene.h"
 #include "components/ui/ui_button.h"
 #include "components/ui/ui_focusable.h"
 #include "components/ui/ui_interactable.h"
@@ -30,12 +29,7 @@ constexpr unsigned char k_color_darker_gray = 60;
 constexpr float k_button_border_radius = 5.0f;
 constexpr float k_button_border_width = 2.0f;
 
-void lua::create_ui_button(EngineContext& ctx, unsigned char scene_id, std::string name) {
-    if (scene_id != ctx.get_current_scene()) {
-        LOG_WARNING("Create_ui_button: Attempted to create button {} in scene {}, but current scene is {}", name,
-                    static_cast<size_t>(scene_id), static_cast<size_t>(ctx.get_current_scene()));
-        return;
-    }
+void lua::create_ui_button(EngineContext& ctx, std::string name) {
     const ecs::Entity k_e = ctx.registry.spawn_entity();
 
     ecs::TagRegistry::TagId id = ctx.registry.get_tag_registry().create_and_bind_tag(name, k_e);
@@ -47,9 +41,6 @@ void lua::create_ui_button(EngineContext& ctx, unsigned char scene_id, std::stri
     cpnt::Tag tag;
     tag.id = id;
     ctx.registry.add_component(k_e, std::move(tag));
-
-    cpnt::Scene scene{scene_id};
-    ctx.registry.add_component(k_e, std::move(scene));
 
     cpnt::UIInteractable interactable{false, false, false};
     ctx.registry.add_component(k_e, std::move(interactable));

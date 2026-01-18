@@ -21,17 +21,27 @@ struct ResLogin {
     std::uint16_t m_effective_fragment_size = static_cast<std::uint16_t>(k_max_payload_size);
 };
 
+struct ReqLogout {
+    std::uint32_t m_player_id = 0;
+};
+
 // Build a REQ_LOGIN packet containing username, protocol version and preferred fragment size.
 Packet make_req_login(const ReqLogin& req);
 
 // Build a RES_LOGIN packet containing success, player id and the negotiated fragment size.
 Packet make_res_login(const ResLogin& res);
 
+// Build a REQ_LOGOUT packet to notify server of disconnect
+Packet make_req_logout(const ReqLogout& req);
+
 // Parse a REQ_LOGIN packet returning all fields when valid.
 std::optional<ReqLogin> parse_req_login(const Packet& packet);
 
 // Parse a RES_LOGIN packet returning all fields when valid.
 std::optional<ResLogin> parse_res_login(const Packet& packet);
+
+// Parse a REQ_LOGOUT packet returning all fields when valid.
+std::optional<ReqLogout> parse_req_logout(const Packet& packet);
 
 // Server-side convenience handler: if `packet` is a REQ_LOGIN this function
 // will send a RES_LOGIN reply (currently accepts any username) and return true.
