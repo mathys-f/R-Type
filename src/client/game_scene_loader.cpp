@@ -100,9 +100,10 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
     engine_ctx.assets_manager.load_texture("boss", "assets/sprites/r-typesheet30.gif");
+    engine_ctx.assets_manager.load_texture("players", "assets/sprites/r-typesheet42.gif");
 
     // Create player
-    constexpr float k_ship_sprite_x = 166.0f;
+    constexpr float k_ship_sprite_x = 34.0f;
     constexpr float k_ship_sprite_y = 0.0f;
     constexpr float k_ship_width = 33.0f;
     constexpr float k_ship_height = 18.0f;
@@ -115,8 +116,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     auto player = engine_ctx.registry.spawn_entity();
     engine_ctx.registry.add_component(
         player, cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
-    engine_ctx.registry.add_component(player, cpnt::Player{});
-    engine_ctx.registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "player_ship"});
+    engine_ctx.registry.add_component(player, cpnt::Player{3});
+    engine_ctx.registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "players"});
     engine_ctx.registry.add_component(player, cpnt::Health{engine_ctx.k_player_health, engine_ctx.k_player_health});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     engine_ctx.registry.add_component(

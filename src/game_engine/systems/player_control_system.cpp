@@ -20,15 +20,17 @@ constexpr float k_player_speed = 400.0f;
 
 // Player bounds
 constexpr float k_player_width = 99.0f;
-constexpr float k_player_height = 54.0f;
+constexpr float k_player_height = 33.0f;
 
 // Animation
 constexpr int k_animation_frame_limit = 5;
-constexpr float k_sprite_down_left = 100.0f;
-constexpr float k_sprite_down_anim = 133.0f;
-constexpr float k_sprite_neutral = 166.0f;
-constexpr float k_sprite_up_anim = 199.0f;
-constexpr float k_sprite_up_right = 232.0f;
+constexpr float k_sprite_down_left = 1.0f;
+constexpr float k_sprite_down_anim = 34.0f;
+constexpr float k_sprite_neutral = 67.0f;
+constexpr float k_sprite_up_anim = 100.0f;
+constexpr float k_sprite_up_right = 133.0f;
+
+constexpr float k_sprite_y_add = 17.0f;
 
 // Rotation
 constexpr float k_rotation_speed = 5.0f;
@@ -80,6 +82,7 @@ void sys::player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
 
             if (pos) {
                 const auto& input = ctx.input_state;
+                const std::uint8_t player_id = reg.get_components<cpnt::Player>()[idx]->id;
                 pos->x += k_player_speed * dt * input.move_x;
                 pos->y += k_player_speed * dt * input.move_y;
 
@@ -101,16 +104,20 @@ void sys::player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
                         if (sprite->frame <= k_animation_frame_limit && sprite->source_rect.x != k_sprite_up_right) {
                             sprite->frame++;
                             sprite->source_rect.x = k_sprite_up_anim;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                         } else {
                             sprite->source_rect.x = k_sprite_up_right;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                             sprite->frame = 0;
                         }
                     } else if (input.move_y > 0.0f) {
                         if (sprite->frame <= k_animation_frame_limit && sprite->source_rect.x != k_sprite_down_left) {
                             sprite->frame++;
                             sprite->source_rect.x = k_sprite_down_anim;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                         } else {
                             sprite->source_rect.x = k_sprite_down_left;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                             sprite->frame = 0;
                         }
                     } else {
@@ -118,13 +125,16 @@ void sys::player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
                                                                          sprite->source_rect.x == k_sprite_down_anim)) {
                             sprite->frame++;
                             sprite->source_rect.x = k_sprite_down_anim;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                         } else if (sprite->frame <= k_animation_frame_limit &&
                                    (sprite->source_rect.x == k_sprite_up_right ||
                                     sprite->source_rect.x == k_sprite_up_anim)) {
                             sprite->frame++;
                             sprite->source_rect.x = k_sprite_up_anim;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                         } else {
                             sprite->source_rect.x = k_sprite_neutral;
+                            sprite->source_rect.y = k_sprite_y_add * player_id;
                             sprite->frame = 0;
                         }
                     }
