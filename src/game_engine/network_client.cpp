@@ -28,7 +28,6 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
     }
 
     try {
-        m_login_handled = false;
         // Resolve server address
         asio::ip::udp::resolver resolver(m_io);
         auto endpoints = resolver.resolve(asio::ip::udp::v4(), host, std::to_string(port));
