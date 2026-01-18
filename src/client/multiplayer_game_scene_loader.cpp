@@ -72,6 +72,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::handle_snapshots_deltas_system);
     // IO
     engine_ctx.add_system<>(sys::fetch_inputs);
+    engine_ctx.add_system<>(send_input_system);
     // engine_ctx.add_system<>(sys::log_inputs);
     // UI
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);

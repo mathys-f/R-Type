@@ -1,6 +1,6 @@
 # Enable clang-tidy for all targets in src/ if available
 if(CLANG_TIDY_COMMAND)
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND};--system-headers=0")
 endif()
 
 # Static libraries

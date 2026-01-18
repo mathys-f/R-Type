@@ -51,6 +51,7 @@ enum class CommandId : std::uint8_t {
     // Game commands
     KClientInput = 0x10,
     KServerEntityState = 0x11,
+    KServerAssignPlayerId = 0x12,
     KServerPlayerDeath = 0x20,
     KServerScoreUpdate = 0x21,
     KAck = 0xFF

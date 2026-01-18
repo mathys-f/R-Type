@@ -51,8 +51,8 @@ class GameLobby {
 
     bool is_full() const;
     bool can_join() const;
-    void add_player(const asio::ip::udp::endpoint& endpoint);
-    void remove_player(const asio::ip::udp::endpoint& endpoint);
+    void add_player(const std::string& player_ip);
+    void remove_player(const std::string& player_ip);
 
     std::uint32_t get_id() const {
         return m_lobby_id;
@@ -95,7 +95,7 @@ class GameLobby {
     std::unique_ptr<ipc::LobbyIPC> m_ipc;
 
     mutable std::mutex m_players_mutex;
-    std::vector<asio::ip::udp::endpoint> m_players;
+    std::vector<std::string> m_players;
 };
 
 // Manages all lobbies and handles lobby-related requests

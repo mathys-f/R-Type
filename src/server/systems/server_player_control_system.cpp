@@ -4,6 +4,8 @@
 #include "raylib.h"
 #include "systems/systems.h"
 
+#include <mutex>
+
 using namespace engn;
 
 // Player movement
@@ -23,6 +25,7 @@ constexpr float k_bullet_speed = 650.0f;
 constexpr float k_bullet_width = 16.0f;
 constexpr float k_bullet_height = 8.0f;
 constexpr float k_bullet_scale = 2.0f;
+constexpr float k_shoot_cooldown = 0.2f; // 0.2 seconds between shots
 
 void sys::server_player_control_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Transform> const& positions,
@@ -38,11 +41,55 @@ void sys::server_player_control_system(EngineContext& ctx,
 
         if (pos_opt && player_opt) {
             auto& vel = reg.get_components<cpnt::Velocity>()[idx];
+            auto& player = reg.get_components<cpnt::Player>()[idx];
 
-            if (pos) {
-                const auto& input = ctx.input_state;
-                pos->x += k_player_speed * dt * input.move_x;
-                pos->y += k_player_speed * dt * input.move_y;
+            if (pos && player) {
+                // Convert player ID to endpoint
+                auto endpoint_it = ctx.player_id_to_endpoint.find(player->id);
+                if (endpoint_it == ctx.player_id_to_endpoint.end())
+                    continue; // Player ID not mapped to endpoint
+
+                auto& endpoint = endpoint_it->second;
+
+                std::lock_guard<std::mutex> lock(ctx.player_input_queues_mutex);
+                auto queue_it = ctx.player_input_queues.find(endpoint);
+
+                if (queue_it == ctx.player_input_queues.end())
+                    continue; // No input for this player
+
+                auto &input_queue = queue_it->second;
+
+                float move_x = 0.0f;
+                float move_y = 0.0f;
+                bool shoot_pressed = false;
+
+                input_queue.for_each<evts::KeyHold>([&](const evts::KeyHold& key_hold) {
+                    if (key_hold.keycode == ctx.controls.move_up.primary) {
+                        move_y = -1.0f;
+                    }
+                    if (key_hold.keycode == ctx.controls.move_down.primary) {
+                        move_y = 1.0f;
+                    }
+                    if (key_hold.keycode == ctx.controls.move_left.primary) {
+                        move_x = -1.0f;
+                    }
+                    if (key_hold.keycode == ctx.controls.move_right.primary) {
+                        move_x = 1.0f;
+                    }
+                    if (key_hold.keycode == ctx.controls.shoot.primary) {
+                        shoot_pressed = true;
+                    }
+                });
+
+                input_queue.clear();
+
+                // Update shoot cooldown
+                if (player->shoot_cooldown > 0.0f) {
+                    player->shoot_cooldown -= dt;
+                }
+
+                pos->x += k_player_speed * dt * move_x;
+                pos->y += k_player_speed * dt * move_y;
                 ctx.registry.mark_dirty<cpnt::Transform>(ctx.registry.entity_from_index(idx));
 
                 // Clamp position
@@ -59,17 +106,18 @@ void sys::server_player_control_system(EngineContext& ctx,
 
                 // Rotation based on movement
                 if (vel) {
-                    if (input.move_x < 0.0f) {
+                    ctx.registry.mark_dirty<cpnt::Velocity>(ctx.registry.entity_from_index(idx));
+                    if (move_x < 0.0f) {
                         vel->vrz = -k_rotation_speed;
-                    } else if (input.move_x > 0.0f) {
+                    } else if (move_x > 0.0f) {
                         vel->vrz = k_rotation_speed;
                     } else {
                         vel->vrz = 0.0f;
                     }
                 }
 
-                // Shoot
-                if (input.shoot_pressed) {
+                // Shoot (only if cooldown expired)
+                if (shoot_pressed && player->shoot_cooldown <= 0.0f) {
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, cpnt::Transform{pos->x + k_bullet_offset_x, pos->y + k_bullet_offset_y,
                                                               0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
@@ -77,6 +125,10 @@ void sys::server_player_control_system(EngineContext& ctx,
                     reg.add_component(bullet, cpnt::Bullet{});
                     reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
+                    reg.add_component(bullet, cpnt::EntityType{"bullet"});
+                    
+                    // Reset cooldown
+                    player->shoot_cooldown = k_shoot_cooldown;
                 }
             }
         }

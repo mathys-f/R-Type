@@ -20,7 +20,6 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            std::lock_guard<std::mutex> lock_a(ctx.clients_mutex);
             if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
                 should_delete = false;
         }
@@ -33,7 +32,6 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            std::lock_guard<std::mutex> lock_a(ctx.clients_mutex);
             if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
                 should_delete = false;
         }
@@ -47,7 +45,6 @@ void sys::clear_tombstones_system(EngineContext &ctx)
             bool should_delete = true;
 
             for (const auto &client : ctx.get_clients()) {
-                std::lock_guard<std::mutex> lock_a(ctx.clients_mutex);
                 if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
                     should_delete = false;
             }
@@ -61,7 +58,6 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            std::lock_guard<std::mutex> lock_a(ctx.clients_mutex);
             if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
                 should_delete = false;
         }

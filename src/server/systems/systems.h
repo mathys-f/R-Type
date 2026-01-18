@@ -24,6 +24,14 @@ void server_enemy_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Velocity> const& velocities,
     ecs::SparseArray<cpnt::Enemy> const& enemies,
     ecs::SparseArray<cpnt::Health> const& healths);
+
+void server_update_player_entities_system(EngineContext &ctx,
+    ecs::SparseArray<cpnt::Player> const& players);
+
+void server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+    ecs::SparseArray<cpnt::Velocity> const& velocities,
+    ecs::SparseArray<cpnt::Bullet> const& bullets);
+
 } // namespace sys
 
 } // namespace engn

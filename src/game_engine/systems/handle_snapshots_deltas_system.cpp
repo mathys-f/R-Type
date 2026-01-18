@@ -141,7 +141,7 @@ static void add_entity(ecs::Registry &registry, const DeltaEntry &entry)
     // All entity created over the network will have the replicated tag
     // It helps make a relation between server entities ids & local ones
     registry.add_component(id, cpnt::Replicated{entry.entity_id});
-    LOG_INFO("New net entity");
+    LOG_INFO("New net entity #{}", entry.entity_id);
 }
 
 static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
@@ -224,6 +224,23 @@ constexpr float k_enemy_sprite_width = 21.0f;
 constexpr float k_enemy_sprite_height = 23.0f;
 constexpr float k_enemy_scale = 5.0f;
 
+// Create player's entity
+constexpr float k_ship_sprite_x = 166.0f;
+constexpr float k_ship_sprite_y = 0.0f;
+constexpr float k_ship_width = 33.0f;
+constexpr float k_ship_height = 18.0f;
+constexpr float k_ship_scale = 3.0f;
+
+// Bullet
+constexpr float k_bullet_offset_x = 50.0f;
+constexpr float k_bullet_offset_y = 30.0f;
+constexpr float k_bullet_speed = 650.0f;
+constexpr float k_bullet_width = 16.0f;
+constexpr float k_bullet_height = 8.0f;
+constexpr float k_bullet_sprite_x = 249.0f;
+constexpr float k_bullet_sprite_y = 105.0f;
+constexpr float k_bullet_scale = 2.0f;
+
 static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, const DeltaEntry& entry)
 {
     // Check if entity has an EntityType component to determine its archetype
@@ -243,10 +260,13 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
     // Initialize graphics components based on entity type
     if (entity_type.type_name == "player") {
         LOG_INFO("Spawning archetype player");
-        // TODO: Add proper sprite initialization for player
+        registry.add_component(
+            entity, cpnt::Sprite{{k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height},
+                                k_ship_scale,
+                                0,
+                                "player_ship"});
     } else if (entity_type.type_name == "charger") {
         LOG_INFO("Spawning archetype charger");
-        // TODO: Add proper sprite initialization for charger enemy
         registry.add_component(
             entity, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y, k_enemy_sprite_width, k_enemy_sprite_height},
                                 k_enemy_scale,
@@ -256,8 +276,11 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
         LOG_INFO("Spawning archetype shooter");
         // TODO: Add proper sprite initialization for shooter enemy
     } else if (entity_type.type_name == "bullet") {
-        LOG_INFO("Spawning archetype bullet");
-        // TODO: Add proper sprite initialization for bullet
+        registry.add_component(
+            entity, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
+                                 k_bullet_scale,
+                                 0,
+                                 "player_ship"});
     } // etc
 }
 

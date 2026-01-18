@@ -2,6 +2,7 @@
 
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
+#include "game_engine/events/events.h"
 #include "lobby_manager.h"
 #include "networking/handshake/handshake.h"
 #include "networking/lobby/lobby_messages.h"
@@ -28,15 +29,11 @@ EngineContext &NetworkServer::get_engine() {
 void NetworkServer::start() {
     // Set up connection callbacks
     m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() {
-            handle_client_connect(endpoint);
-        });
+        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });
     };
 
     m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() {
-            handle_client_disconnect(endpoint);
-        });
+        m_io.post([this, endpoint]() { handle_client_disconnect(endpoint); });
     };
 
     m_session->start(
@@ -69,6 +66,9 @@ void NetworkServer::start() {
             // Update client activity for unreliable packets too
             update_client_activity(from);
             // Handle unreliable packets here (player input, etc.)
+            if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KClientInput)) {
+                handle_client_input(pkt, from);
+            }
         });
     m_running = true;
     m_io_thread = std::thread([this]() {
@@ -138,10 +138,11 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 
         if (lobby) {
             if (lobby->can_join()) {
-                lobby->add_player(from);
+                std::string player_ip = from.address().to_string();
+                lobby->add_player(player_ip);
                 res.m_success = true;
                 res.m_port = lobby->get_port();
-                std::cout << "Player joined lobby ID " << req->m_lobby_id << "\n";
+                std::cout << "Player " << player_ip << " joined lobby ID " << req->m_lobby_id << "\n";
             } else if (lobby->is_full()) {
                 res.m_success = false;
                 res.m_error_message = "Lobby is full";
@@ -162,23 +163,28 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
     if (auto req = net::lobby::parse_req_leave_lobby(pkt)) {
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
         if (lobby) {
-            lobby->remove_player(from);
-            std::cout << "Player left lobby ID " << req->m_lobby_id << "\n";
+            std::string player_ip = from.address().to_string();
+            lobby->remove_player(player_ip);
+            std::cout << "Player " << player_ip << " left lobby ID " << req->m_lobby_id << "\n";
         }
         return;
     }
 }
 
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(clients_mutex);
-    if (m_connected_clients.insert(endpoint).second) {
-        LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
-        m_engine_ctx.add_client(endpoint);
-    }
+    {
+        std::lock_guard<std::mutex> lock(m_clients_mutex);
+        if (m_connected_clients.insert(endpoint).second) {
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+        } else {
+            return;
+        }
+    } // Clears the lock before adding client to engine context
+    m_engine_ctx.add_client(endpoint);
 }
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(clients_mutex);
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
     LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
@@ -188,12 +194,12 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
 }
 
 void NetworkServer::update_client_activity(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(clients_mutex);
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
     m_client_last_activity[endpoint] = std::chrono::steady_clock::now();
 }
 
 void NetworkServer::check_client_timeouts() {
-    std::lock_guard<std::mutex> lock(clients_mutex);
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
     auto now = std::chrono::steady_clock::now();
     std::vector<asio::ip::udp::endpoint> timed_out_clients;
 
@@ -215,5 +221,58 @@ void NetworkServer::check_client_timeouts() {
         m_connected_clients.erase(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+    }
+}
+
+void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
+    constexpr std::size_t k_input_packet_size = 5;
+    constexpr std::uint8_t k_shift_8 = 8;
+    constexpr std::uint8_t k_shift_16 = 16;
+    constexpr std::uint8_t k_shift_24 = 24;
+    constexpr std::uint8_t k_input_up = 0x01;
+    constexpr std::uint8_t k_input_down = 0x02;
+    constexpr std::uint8_t k_input_left = 0x04;
+    constexpr std::uint8_t k_input_right = 0x08;
+    constexpr std::uint8_t k_input_shoot = 0x10;
+
+    if (pkt.payload.size() < k_input_packet_size) {
+        LOG_WARNING("Invalid client input packet size: {}", pkt.payload.size());
+        return;
+    }
+
+    // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores)
+    std::uint32_t tick = static_cast<std::uint32_t>(pkt.payload[0]) |
+                         (static_cast<std::uint32_t>(pkt.payload[1]) << k_shift_8) |
+                         (static_cast<std::uint32_t>(pkt.payload[2]) << k_shift_16) |
+                         (static_cast<std::uint32_t>(pkt.payload[3]) << k_shift_24);
+
+    std::uint8_t input_mask = static_cast<std::uint8_t>(pkt.payload[4]);
+
+    // LOG_DEBUG("Received input mask {:08b}", input_mask);
+
+    bool move_up = (input_mask & k_input_up) != 0;
+    bool move_down = (input_mask & k_input_down) != 0;
+    bool move_left = (input_mask & k_input_left) != 0;
+    bool move_right = (input_mask & k_input_right) != 0;
+    bool shoot = (input_mask & k_input_shoot) != 0;
+
+    std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+    auto& player_queue = m_engine_ctx.player_input_queues[from];
+    const auto& controls = m_engine_ctx.controls;
+
+    if (move_up) {
+        player_queue.push(engn::evts::KeyHold{controls.move_up.primary});
+    }
+    if (move_down) {
+        player_queue.push(engn::evts::KeyHold{controls.move_down.primary});
+    }
+    if (move_left) {
+        player_queue.push(engn::evts::KeyHold{controls.move_left.primary});
+    }
+    if (move_right) {
+        player_queue.push(engn::evts::KeyHold{controls.move_right.primary});
+    }
+    if (shoot) {
+        player_queue.push(engn::evts::KeyHold{controls.shoot.primary});
     }
 }
