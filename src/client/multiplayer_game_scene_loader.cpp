@@ -104,32 +104,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
 
-    s_network_client = std::make_unique<NetworkClient>(engine_ctx);
-    // Provide the NetworkClient pointer to the client systems
-    set_network_client(s_network_client.get());
-
-    s_network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
-        if (success) {
-            LOG_DEBUG("Connected!");
-        } else {
-            LOG_ERROR("Login failed! Cannot start game.");
-            return;
-        }
-    });
-
-    s_network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
-        if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
-            WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
-            engine_ctx.add_snapshot_delta(delta);
-        }
-    });
-
-    const char* player_name = "Player1";
-
-    LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
-    s_network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
-
-    engine_ctx.add_system<>([client = s_network_client.get()](engn::EngineContext& ctx) { client->poll(); });
 
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {

@@ -1,14 +1,9 @@
 #include "client_systems.h"
 #include "game_engine/engine.h"
-#include "network_client.h"
 #include "game_engine/events/events.h"
 #include "utils/logger.h"
 
 #include <cstdint>
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
-static NetworkClient* g_s_client = nullptr;
-// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 constexpr std::uint8_t k_input_mask_up = 0x01;
 constexpr std::uint8_t k_input_mask_down = 0x02;
@@ -16,9 +11,6 @@ constexpr std::uint8_t k_input_mask_left = 0x04;
 constexpr std::uint8_t k_input_mask_right = 0x08;
 constexpr std::uint8_t k_input_mask_shoot = 0x10;
 
-void set_network_client(void* client_ptr) {
-    g_s_client = static_cast<NetworkClient*>(client_ptr);
-}
 
 void send_input_system(engn::EngineContext& ctx) {
     // Send input every game tick
@@ -50,7 +42,20 @@ void send_input_system(engn::EngineContext& ctx) {
     mask |= static_cast<std::uint8_t>(right ? k_input_mask_right : 0x00);
     mask |= static_cast<std::uint8_t>(shoot ? k_input_mask_shoot : 0x00);
 
-    if (g_s_client && g_s_client->is_connected()) {
-        g_s_client->send_input_mask(mask, static_cast<std::uint32_t>(ctx.get_current_tick()));
+    if (ctx.network_session) {
+        net::Packet pkt;
+        pkt.header.m_command = static_cast<std::uint8_t>(net::CommandId::KClientInput);
+
+        std::uint32_t tick = static_cast<std::uint32_t>(ctx.get_current_tick());
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+        pkt.payload.resize(5);
+        pkt.payload[0] = std::byte(static_cast<unsigned char>(tick & 0xFF));
+        pkt.payload[1] = std::byte(static_cast<unsigned char>((tick >> 8) & 0xFF));
+        pkt.payload[2] = std::byte(static_cast<unsigned char>((tick >> 16) & 0xFF));
+        pkt.payload[3] = std::byte(static_cast<unsigned char>((tick >> 24) & 0xFF));
+        pkt.payload[4] = std::byte(static_cast<unsigned char>(mask));
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+
+        ctx.network_session->send(pkt, false);
     }
 }
