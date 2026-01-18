@@ -57,8 +57,6 @@ class EngineContext {
     glm::vec2 k_sim_size{1920.0f, 1080.0f};
 
     const size_t k_max_bullets = 100;
-    const size_t k_max_charger = 5;
-    const size_t k_max_shooter = 2;
 
     // Graphics settings (modifiable at runtime via pause menu)
     size_t k_scroll_speed = 5;
