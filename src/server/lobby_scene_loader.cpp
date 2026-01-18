@@ -34,6 +34,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     registry.register_component<cpnt::MovementPattern>();
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
+    registry.register_component<cpnt::EntityType>();
     // Net
     registry.register_component<cpnt::Replicated>();
 
@@ -68,17 +69,20 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     std::uniform_real_distribution<float> dist(k_dist_min, k_dist_max);
 
     // Create enemies
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < engine_ctx.k_max_charger; i++) {
         auto enemy = engine_ctx.registry.spawn_entity();
 
         float spawn_y = (float)GetRandomValue(engine_ctx.k_spawn_margin, k_height - engine_ctx.k_spawn_margin);
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Replicated
-        engine_ctx.registry.add_component(enemy, engn::cpnt::Replicated{static_cast<uint32_t>(enemy)});
+        engine_ctx.registry.add_component(enemy, cpnt::Replicated{static_cast<uint32_t>(enemy)});
+
+        // Tag for archetype
+        engine_ctx.registry.add_component(enemy, cpnt::EntityType{"charger"});
 
         // Position
-        engine_ctx.registry.add_component(enemy, engn::cpnt::Transform{spawn_x, spawn_y, 0, 0, 0, 0, 1, 1, 1});
+        engine_ctx.registry.add_component(enemy, cpnt::Transform{spawn_x, spawn_y, 0, 0, 0, 0, 1, 1, 1});
 
         // Velocity
         engine_ctx.registry.add_component(

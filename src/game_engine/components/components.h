@@ -4,6 +4,7 @@
 #include "bullet.h"
 #include "controllable.h"
 #include "enemy.h"
+#include "entity_type.h"
 #include "health.h"
 #include "hitbox.h"
 #include "movement_pattern.h"

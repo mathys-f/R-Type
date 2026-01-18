@@ -1,15 +1,16 @@
 #pragma once
 
-#include "ecs/tag_registry.h"
 #include "components/i_sync_component.h"
+#include <string>
 
 namespace engn::cpnt {
 
-struct Tag : ISyncComponent {
-    ecs::TagRegistry::TagId id = ecs::TagRegistry::k_invalid_tag_id;
+struct EntityType : ISyncComponent {
+    std::string type_name;
 
-    Tag() = default;
-    Tag(ecs::TagRegistry::TagId id);
+    EntityType() = default;
+    explicit EntityType(const std::string& type_name);
+    explicit EntityType(std::string&& type_name);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;

@@ -44,5 +44,5 @@ class NetworkServer {
     std::atomic<bool> m_running{false};
     LobbyManager* m_lobby_manager;
     std::unordered_set<asio::ip::udp::endpoint, net::EndpointHash> m_connected_clients;
-    std::mutex m_clients_mutex;
+    std::mutex clients_mutex;
 };

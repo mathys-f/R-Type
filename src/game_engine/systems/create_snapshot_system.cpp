@@ -36,7 +36,8 @@ static std::unordered_map<std::type_index, Extractor> build_sync_extractors() {
         {typeid(cpnt::Transform), extract_sync_component<cpnt::Transform>},
         {typeid(cpnt::Velocity), extract_sync_component<cpnt::Velocity>},
         {typeid(cpnt::Shooter), extract_sync_component<cpnt::Shooter>},
-        {typeid(cpnt::BulletShooter), extract_sync_component<cpnt::BulletShooter>}
+        {typeid(cpnt::BulletShooter), extract_sync_component<cpnt::BulletShooter>},
+        {typeid(cpnt::EntityType), extract_sync_component<cpnt::EntityType>}
     };
 }
 
@@ -46,7 +47,6 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components) {
     auto& registry = engine_ctx.registry;
     WorldSnapshot snapshot;
-    LOG_INFO("create_snapshot_system called");
 
     int repl_ent = 0;
 
@@ -72,7 +72,6 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
             snapshot.entities.push_back(std::move(entity_snapshot));
         repl_ent++;
     }
-    LOG_DEBUG("Found {} replicated entities", repl_ent);
 
     SnapshotRecord record;
 
@@ -80,5 +79,4 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     record.last_update_tick = static_cast<std::uint32_t>(engine_ctx.get_current_tick());
     record.acknowledged = false;
     engine_ctx.record_snapshot(record);
-    LOG_INFO("New snapshot for tick {} & #{} entities", record.last_update_tick, record.snapshot.entities.size());
 }

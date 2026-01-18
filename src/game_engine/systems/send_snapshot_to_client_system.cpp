@@ -17,12 +17,14 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
 
     // New entities
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
+        LOG_DEBUG("Entity creation tombstone id#{} version#{}", id, version);
         if (latest_ack_version >= version) continue;
 
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_add;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
+        LOG_DEBUG("Sent new entity #{}", id);
     }
 
     // New or modified components
@@ -98,6 +100,7 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
     const auto &clients = ctx.get_clients();
+    std::lock_guard<std::mutex> lock(ctx.clients_mutex); // Avoid creation & deletion of clients while iterating trought them
 
     for (const auto &endpoint : clients) {
         const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
@@ -116,7 +119,5 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
         data.release(); // Prevent freing the data since it's now owned by the packet payload
         std::uint32_t packet_id = ctx.network_session->send(packet, endpoint, true);
         latest_snapshot.msg_id = packet_id;
-        LOG_DEBUG("Sent snapshot delta to client {}:{}, base_snapshot_tick {}",
-            endpoint.address().to_string(), endpoint.port(), latest_snapshot.last_update_tick);
     }
 }

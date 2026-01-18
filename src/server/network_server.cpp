@@ -155,7 +155,7 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 }
 
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
     if (m_connected_clients.insert(endpoint).second) {
         LOG_INFO("Client connected: {}:{}", endpoint.address().to_string(), endpoint.port());
         m_engine_ctx.add_client(endpoint);
@@ -163,7 +163,7 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
 }
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
         m_engine_ctx.remove_client(endpoint);

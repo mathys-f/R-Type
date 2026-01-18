@@ -54,6 +54,8 @@ class EngineContext {
     AssetsManager assets_manager;
 
     glm::vec2 window_size{1080.0f, 720.0f};
+    glm::vec2 k_sim_size{1920.0f, 1080.0f};
+
     const size_t k_scroll_speed = 5.0f;
     const size_t k_particles = 3;
     const size_t k_stars = 1000;
@@ -73,13 +75,19 @@ class EngineContext {
 
     std::shared_ptr<net::Session> network_session;
 
+    std::mutex clients_mutex;
     void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
+    // Mutex 'clients_mutex' must be locked when using
     const std::vector<asio::ip::udp::endpoint> &get_clients();
 
+    std::mutex snapshots_history_mutex;
     void record_snapshot(SnapshotRecord &snapshot);
+    // Mutex 'snapshots_history_mutex' must be locked when using
     SnapshotRecord &get_latest_snapshot(asio::ip::udp::endpoint endpoint);
-    const SnapshotRecord& get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) const;
+    // Mutex 'snapshots_history_mutex' must be locked when using
+    const SnapshotRecord& get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
+
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
 
     void add_snapshot_delta(WorldDelta &delta);
@@ -140,15 +148,14 @@ class EngineContext {
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
 
-    std::size_t m_current_tick = 0;
+    std::size_t m_current_tick = 1; // 0 is reserved for error values
 
-    std::mutex m_snapshots_history_mutex;
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>> m_snapshots_history;
 
     std::mutex m_snapshots_delta_mutex;
     std::vector<WorldDelta> m_snapshots_delta;
 
-    std::mutex m_clients_mutex;
+    // Mutex 'clients_mutex' in public
     std::vector<asio::ip::udp::endpoint> m_clients;
 };
 

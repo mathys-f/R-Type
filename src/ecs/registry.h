@@ -146,6 +146,8 @@ class Registry {
     /// Must be called when the tombstone is no longer needed to save up RAM
     /// Also delete the component's metadatas entry
     void remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti);
+    /// Remove an entity's component metadatas entry
+    void remove_component_metadata(EntityType const& e, std::type_index const& ti);
 
   private:
     // Tag registry
@@ -170,7 +172,7 @@ class Registry {
     std::vector<EntityType> m_free_entities;
 
     // Current version counter
-    Version m_current_version = 0;
+    Version m_current_version = 1; // The 0 is reserved for error values
 
     // Tumbstones to track created entities
     std::unordered_map<EntityType, Version> m_entity_creation_tumbstones;
@@ -184,8 +186,6 @@ class Registry {
     // Last version in which an entity's component has changed/been created
     std::unordered_map<std::pair<EntityType, std::type_index>, Version> m_component_metadata;
 
-    /// Remove an entity's component metadatas entry
-    void remove_component_metadata(EntityType const& e, std::type_index const& ti);
     /// Remove all of an entity's components metadatas entries
     void remove_entity_components_metadata(EntityType const& e);
 };

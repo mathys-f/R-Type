@@ -23,6 +23,7 @@ static std::unordered_map<ComponentType, ComponentRemover> build_component_remov
     return {
         {ComponentType::bullet, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Bullet>(e); }},
         {ComponentType::enemy, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Enemy>(e); }},
+        {ComponentType::entity_type, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::EntityType>(e); }},
         {ComponentType::health, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Health>(e); }},
         {ComponentType::hitbox, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Hitbox>(e); }},
         {ComponentType::movement_pattern, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::MovementPattern>(e); }},
@@ -47,6 +48,11 @@ static std::unordered_map<ComponentType, ComponentAdder> build_component_adders(
         }},
         {ComponentType::enemy, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
             cpnt::Enemy component;
+            component.deserialize(sc.data);
+            reg.add_component(e, std::move(component));
+        }},
+        {ComponentType::entity_type, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
+            cpnt::EntityType component;
             component.deserialize(sc.data);
             reg.add_component(e, std::move(component));
         }},
@@ -114,17 +120,15 @@ static const std::unordered_map<ComponentType, ComponentAdder> k_component_adder
 void sys::handle_snapshots_deltas_system(EngineContext& ctx)
 {
     ctx.for_each_snapshot_delta([](EngineContext &ctx, const WorldDelta& delta) {
-        LOG_DEBUG("Processing snapshot delta based on tick {}", delta.base_snapshot_tick);
-        LOG_DEBUG("Entries count: {}", delta.entries.size());
         ecs::Registry &registry = ctx.registry;
 
         for (const DeltaEntry &entry : delta.entries) {
             switch (entry.operation) {
 
-                case (DeltaOperation::entity_add): add_entity(registry, entry); break;
-                case (DeltaOperation::entity_remove): remove_entity(registry, entry); break;
-                case (DeltaOperation::component_add_or_update): add_component(registry, entry); break;
-                case (DeltaOperation::component_remove): remove_component(registry, entry); break;
+                case (DeltaOperation::entity_add): add_entity(registry, entry); /*LOG_DEBUG("add_entity");*/ break;
+                case (DeltaOperation::entity_remove): remove_entity(registry, entry); /*LOG_DEBUG("remove_entity");*/ break;
+                case (DeltaOperation::component_add_or_update): add_component(registry, entry); /*LOG_DEBUG("add_component");*/ break;
+                case (DeltaOperation::component_remove): remove_component(registry, entry); /*LOG_DEBUG("remove_component");*/ break;
             }
         }
     });
@@ -137,6 +141,7 @@ static void add_entity(ecs::Registry &registry, const DeltaEntry &entry)
     // All entity created over the network will have the replicated tag
     // It helps make a relation between server entities ids & local ones
     registry.add_component(id, cpnt::Replicated{entry.entity_id});
+    LOG_INFO("New net entity");
 }
 
 static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
@@ -172,8 +177,10 @@ static void remove_component(ecs::Registry &registry, const DeltaEntry &entry)
             return;
         }
     }
-    LOG_WARNING("Could not find local entity with replicated id {} for component removal", replicated_id);
+    // LOG_WARNING("Could not find local entity with replicated id {} for component removal", replicated_id);
 }
+
+static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, const DeltaEntry& entry);
 
 static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
 {
@@ -194,6 +201,11 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
             auto it = k_component_adders.find(type);
             if (it != k_component_adders.end()) {
                 it->second(registry, local_entity, serialized);
+
+                // Init graphics component if an EntityType was added
+                if (type == ComponentType::entity_type) {
+                    initialize_archetype(registry, local_entity, entry);
+                }
             } else {
                 LOG_WARNING("Unknown component type {} for addition",
                     static_cast<std::uint8_t>(type));
@@ -203,3 +215,50 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
     }
     LOG_WARNING("Could not find local entity with replicated id {} for component addition", replicated_id);
 }
+
+#pragma region Archetypes
+
+constexpr float k_enemy_sprite_x = 5.0f;
+constexpr float k_enemy_sprite_y = 6.0f;
+constexpr float k_enemy_sprite_width = 21.0f;
+constexpr float k_enemy_sprite_height = 23.0f;
+constexpr float k_enemy_scale = 5.0f;
+
+static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, const DeltaEntry& entry)
+{
+    // Check if entity has an EntityType component to determine its archetype
+    if (!registry.has_component<cpnt::EntityType>(entity)) {
+        return;
+    }
+
+    auto& components = registry.get_components<cpnt::EntityType>();
+    auto entity_type_opt = components[entity];
+
+    if (!entity_type_opt.has_value()) {
+        return;
+    }
+
+    const auto& entity_type = entity_type_opt.value();
+
+    // Initialize graphics components based on entity type
+    if (entity_type.type_name == "player") {
+        LOG_INFO("Spawning archetype player");
+        // TODO: Add proper sprite initialization for player
+    } else if (entity_type.type_name == "charger") {
+        LOG_INFO("Spawning archetype charger");
+        // TODO: Add proper sprite initialization for charger enemy
+        registry.add_component(
+            entity, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y, k_enemy_sprite_width, k_enemy_sprite_height},
+                                k_enemy_scale,
+                                0,
+                                "enemy_ship"});
+    } else if (entity_type.type_name == "shooter") {
+        LOG_INFO("Spawning archetype shooter");
+        // TODO: Add proper sprite initialization for shooter enemy
+    } else if (entity_type.type_name == "bullet") {
+        LOG_INFO("Spawning archetype bullet");
+        // TODO: Add proper sprite initialization for bullet
+    } // etc
+}
+
+#pragma endregion Archetypes

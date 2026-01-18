@@ -3,6 +3,7 @@
 #include "components/bullet.h"
 #include "components/controllable.h"
 #include "components/enemy.h"
+#include "components/entity_type.h"
 #include "components/health.h"
 #include "components/hitbox.h"
 #include "components/movement_pattern.h"
@@ -20,6 +21,7 @@ const std::unordered_map<ComponentType, std::type_index> engn::k_component_type_
     {ComponentType::bullet, typeid(cpnt::Bullet)},
     {ComponentType::controllable, typeid(cpnt::Controllable)},
     {ComponentType::enemy, typeid(cpnt::Enemy)},
+    {ComponentType::entity_type, typeid(cpnt::EntityType)},
     {ComponentType::health, typeid(cpnt::Health)},
     {ComponentType::hitbox, typeid(cpnt::Hitbox)},
     {ComponentType::player, typeid(cpnt::Player)},
@@ -35,6 +37,7 @@ const std::unordered_map<std::type_index, ComponentType> engn::k_type_index_to_c
     {typeid(cpnt::Bullet), ComponentType::bullet},
     {typeid(cpnt::Controllable), ComponentType::controllable},
     {typeid(cpnt::Enemy), ComponentType::enemy},
+    {typeid(cpnt::EntityType), ComponentType::entity_type},
     {typeid(cpnt::Health), ComponentType::health},
     {typeid(cpnt::Hitbox), ComponentType::hitbox},
     {typeid(cpnt::Player), ComponentType::player},
