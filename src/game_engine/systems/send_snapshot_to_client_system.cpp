@@ -8,11 +8,11 @@
 
 using namespace engn;
 
-static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
+static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     ecs::Registry::Version latest_ack_version,
     const ecs::Registry &registry)
 {
-    WorldDelta delta_snapshot;
+    WorldDelta delta;
 
     // New entities
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
@@ -21,7 +21,8 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_add;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
-        delta_snapshot.entries.push_back(entry);
+        delta.entries.push_back(entry);
+        LOG_INFO("New entity {} added to delta", id);
     }
 
     // New or modified components
@@ -32,15 +33,15 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         std::type_index type_idx = identifier.second;
 
         // Find the entity in the snapshot
-        auto entity_it = std::find_if(current.entities.begin(), current.entities.end(),
+        auto entity_it = std::find_if(snapshot.entities.begin(), snapshot.entities.end(),
             [entity](const EntitySnapshot& snapshot) {
                 return snapshot.entity_id == entity.value();
             }
         );
 
         // Ensure the entity exists in the snapshot
-        if ( entity_it == current.entities.end()) {
-            LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
+        if ( entity_it == snapshot.entities.end()) {
+            // LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
             continue;
         }
 
@@ -63,7 +64,8 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         entry.operation = DeltaOperation::component_add_or_update;
         entry.entity_id = static_cast<std::uint32_t>(entity.value());
         entry.component = *comp_it;
-        delta_snapshot.entries.push_back(entry);
+        delta.entries.push_back(entry);
+        LOG_INFO("New / edit component in delta e#{}", entity);
     }
 
     // Deleted components
@@ -75,7 +77,8 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
             entry.operation = DeltaOperation::component_remove;
             entry.entity_id = static_cast<std::uint32_t>(id.value());
             entry.component_type = k_type_index_to_component_type_map.at(component);
-            delta_snapshot.entries.push_back(entry);
+            delta.entries.push_back(entry);
+            LOG_INFO("Removed component in delta e#{}", id);
         }
     }
 
@@ -86,13 +89,16 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& current,
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_remove;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
-        delta_snapshot.entries.push_back(entry);
+        delta.entries.push_back(entry);
+        LOG_INFO("Removed entity in delta e#{}", id);
     }
 
-    return delta_snapshot;
+    if (delta.entries.size() == 0) return std::nullopt;
+
+    return delta;
 }
 
-void sys::send_snapshot_to_client(EngineContext& ctx,
+void sys::send_snapshot_to_client_system(EngineContext& ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components)
 {
     const auto &clients = ctx.get_clients();
@@ -101,7 +107,8 @@ void sys::send_snapshot_to_client(EngineContext& ctx,
         const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
         auto &latest_snapshot = ctx.get_latest_snapshot(endpoint);
 
-        auto delta_snapshot_opt = compute_delta(ack_snapshot.snapshot, latest_snapshot.last_update_tick, ctx.registry);
+        LOG_INFO("Computing delta with {} entities in snapshot tick {}", latest_snapshot.snapshot.entities.size(), latest_snapshot.last_update_tick);
+        auto delta_snapshot_opt = compute_delta(latest_snapshot.snapshot, ack_snapshot.last_update_tick, ctx.registry);
         if (!delta_snapshot_opt.has_value()) continue;
 
         WorldDelta world_delta = delta_snapshot_opt.value();

@@ -142,6 +142,7 @@ class EngineContext {
 
     std::size_t m_current_tick = 0;
 
+    std::mutex m_snapshots_history_mutex;
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>> m_snapshots_history;
 
     std::mutex m_snapshots_delta_mutex;

@@ -13,7 +13,7 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
 
     for (const auto &[idx, replicated] : ecs::indexed_zipper(replicated_components)) {
         EntitySnapshot entity_snapshot;
-        entity_snapshot.entity_id = replicated->tag;
+        entity_snapshot.entity_id = idx;
 
         const auto &components = registry.get_entity_components(registry.entity_from_index(idx));
 
@@ -35,4 +35,5 @@ void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     record.last_update_tick = static_cast<std::uint32_t>(engine_ctx.get_current_tick());
     record.acknowledged = false;
     engine_ctx.record_snapshot(record);
+    LOG_INFO("New snapshot for tick {} & #{} entities", record.last_update_tick, record.snapshot.entities.size());
 }

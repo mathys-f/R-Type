@@ -2,7 +2,6 @@
 
 #include "api/lua.h"
 #include "components/components.h"
-#include "systems/systems.h"
 #include "utils/logger.h"
 
 #include <filesystem>
@@ -49,14 +48,17 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
 
 void EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock_b(m_snapshots_history_mutex);
     m_clients.push_back(client_endpoint);
+    m_snapshots_history[client_endpoint] = std::vector<SnapshotRecord>(SNAPSHOT_HISTORY_SIZE);
 }
 
 void EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     auto it = std::find(m_clients.begin(), m_clients.end(), client_endpoint);
-    if (it != m_clients.end())
+    if (it != m_clients.end()) {
         m_clients.erase(it);
+    }
 }
 
 const std::vector<asio::ip::udp::endpoint> &EngineContext::get_clients() {
@@ -103,20 +105,24 @@ std::size_t EngineContext::get_current_tick() const {
 SnapshotRecord& EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoint) {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
-    if (m_snapshots_history.empty())
+    if (m_snapshots_history.empty()) {
        return s_empty_record;
+    }
 
     auto &history = m_snapshots_history.at(endpoint);
 
     SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
-    if (!record.snapshot.entities.empty())
+    if (!record.snapshot.entities.empty()) {
         return record;
+    }
     return s_empty_record;
 }
 
 const SnapshotRecord& EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) const {
     static SnapshotRecord s_empty_record; // Need to be static to return reference
 
+    s_empty_record.acknowledged = true; // The empty record is sent if the player has never acknowledged anything yet
+    s_empty_record.last_update_tick = 0;
     if (m_snapshots_history.find(endpoint) == m_snapshots_history.end())
        return s_empty_record;
 
@@ -125,13 +131,15 @@ const SnapshotRecord& EngineContext::get_latest_acknowledged_snapshot(asio::ip::
     for (std::size_t tick = m_current_tick; tick > 0; tick--) {
         const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
 
-        if (record.acknowledged)
+        if (record.acknowledged) {
             return record;
+        }
     }
     return s_empty_record;
 }
 
 void EngineContext::record_snapshot(SnapshotRecord &record) {
+    record.last_update_tick = m_current_tick;
     for (auto &history : m_snapshots_history)
         std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }

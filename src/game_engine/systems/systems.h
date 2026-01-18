@@ -85,11 +85,13 @@ void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats)
 // 1. poll_input_events_from_client
 // 2. create_snapshot_system
 // 3. update_snapshots_system
-// 4. send_snapshot_to_client
+// 4. send_snapshot_to_client_system
+// 5. clear_tombstones_system
 void poll_input_events_from_client(EngineContext& ctx);
 void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
 void update_snapshots_system(EngineContext& ctx);
-void send_snapshot_to_client(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void send_snapshot_to_client_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void clear_tombstones_system(EngineContext &ctx);
 
 
 void handle_snapshots_deltas_system(EngineContext& ctx);

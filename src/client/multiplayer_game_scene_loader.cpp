@@ -116,7 +116,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     s_network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
         if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
-            LOG_INFO("Received snapshot delta with {} entries", delta.entries.size());
             engine_ctx.add_snapshot_delta(delta);
         }
     });
