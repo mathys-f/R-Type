@@ -75,6 +75,9 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     } else if (tag_name == "nav_audio_button") {
         ctx.set_scene("audio_settings");
         return true;
+    } else if (tag_name == "nav_graphics_button") {
+        ctx.set_scene("graphics_settings");
+        return true;
     } else if (tag_name == "general_volume_down_button") {
         adjust_volume(ctx, -k_volume_step);
     } else if (tag_name == "general_volume_up_button") {

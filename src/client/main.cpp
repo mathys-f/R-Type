@@ -99,6 +99,8 @@ int main(void) {
     engine_ctx.add_scene_loader("audio_settings", load_audio_settings_scene);
     engine_ctx.add_scene_loader("keyboard_settings", load_keyboard_settings_menu_scene);
     engine_ctx.add_scene_loader("gamepad_settings", load_gamepad_settings_menu_scene);
+    engine_ctx.add_scene_loader("graphics_settings", load_graphics_settings_scene);
+    engine_ctx.add_scene_loader("difficulty_settings", load_difficulty_settings_scene);
     engine_ctx.set_scene("main_menu"); // Game menu scene
 
     std::optional<Music> music = engine_ctx.assets_manager.get_asset<Music>("menu_music");

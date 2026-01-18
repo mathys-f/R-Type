@@ -56,12 +56,18 @@ class EngineContext {
     glm::vec2 window_size{1080.0f, 720.0f};
     glm::vec2 k_sim_size{1920.0f, 1080.0f};
 
-    const size_t k_scroll_speed = 5.0f;
-    const size_t k_particles = 3;
-    const size_t k_stars = 1000;
     const size_t k_max_bullets = 100;
     const size_t k_max_charger = 5;
     const size_t k_max_shooter = 2;
+
+    // Graphics settings (modifiable at runtime via pause menu)
+    size_t k_scroll_speed = 5;
+    size_t k_particles = 3;
+    size_t k_stars = 1000;
+
+    // Difficulty settings (adjustable in main menu)
+    size_t k_max_charger = 5;
+    size_t k_max_shooter = 2;
     float k_shooter_base_speed = 3.0f;
     float k_shooter_speed_variance = 5.0f;
     int k_shooter_health = 3;
@@ -71,7 +77,7 @@ class EngineContext {
     int k_enemy_health = 3;
     float k_pattern_speed_variance = 3.0f;
     int k_pattern_amplitude_max = 10;
-    ///
+    int k_player_health = 100;
 
     std::shared_ptr<net::Session> network_session;
 

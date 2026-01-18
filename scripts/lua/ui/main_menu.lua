@@ -108,6 +108,26 @@ Set_ui_transform("setting_button", {
     rotation = 0
 })
 
+Create_ui_button("difficulty_button")
+
+Set_ui_text("difficulty_button", {
+    content = "Difficulty",
+    font_size = 32
+})
+
+Set_ui_style("difficulty_button", styles.main_menu)
+
+Set_ui_transform("difficulty_button", {
+    x = 39.35,
+    y = 65.97,
+    z = 0,
+    w = 18.52,
+    h = 6.94,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
 Create_ui_button("exit_button")
 
 Set_ui_text("exit_button", {
@@ -119,7 +139,7 @@ Set_ui_style("exit_button", styles.main_menu)
 
 Set_ui_transform("exit_button", {
     x = 39.35,
-    y = 65.97,
+    y = 76.39,
     z = 0,
     w = 18.52,
     h = 6.94,
@@ -130,5 +150,6 @@ Set_ui_transform("exit_button", {
 
 Set_ui_navigation("play_solo_button", { up = "exit_button", down = "play_multiplayer_button" })
 Set_ui_navigation("play_multiplayer_button", { up = "play_solo_button", down = "setting_button" })
-Set_ui_navigation("setting_button", { up = "play_multiplayer_button", down = "exit_button" })
-Set_ui_navigation("exit_button", { up = "setting_button", down = "play_solo_button" })
+Set_ui_navigation("setting_button", { up = "play_multiplayer_button", down = "difficulty_button" })
+Set_ui_navigation("difficulty_button", { up = "setting_button", down = "exit_button" })
+Set_ui_navigation("exit_button", { up = "difficulty_button", down = "play_solo_button" })

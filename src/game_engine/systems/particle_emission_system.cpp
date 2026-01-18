@@ -22,7 +22,7 @@ constexpr float k_particle_lifetime = 0.5f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
