@@ -11,8 +11,8 @@ MovementPattern::MovementPattern(PatternType type, float speed, float amplitude,
 engn::SerializedComponent MovementPattern::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::movement_pattern;
-    serialized.size = sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

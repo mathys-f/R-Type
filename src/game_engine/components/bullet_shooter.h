@@ -4,10 +4,10 @@
 
 namespace engn::cpnt {
 
-struct Bullet_shooter : ISyncComponent {
-    // Tag component for bullet_shooters
+struct BulletShooter : ISyncComponent {
+    // Tag component for BulletShooters
 
-    Bullet_shooter() = default;
+    BulletShooter() = default;
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;

@@ -5,7 +5,6 @@ using namespace engn::cpnt;
 engn::SerializedComponent Bullet::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::bullet;
-    serialized.size = 0; // Tag component has no data
     serialized.data = {}; // Empty data for tag component
     return serialized;
 }

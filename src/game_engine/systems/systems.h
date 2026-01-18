@@ -27,8 +27,8 @@ void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UII
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet> const& bullets);
 
-void bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                   ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter);
+void BulletShooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                   ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
 
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
@@ -64,7 +64,7 @@ void particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transfo
                               ecs::SparseArray<cpnt::Velocity> const& velocities,
                               ecs::SparseArray<cpnt::Particle> const& particles,
                               ecs::SparseArray<cpnt::Bullet> const& bullets,
-                              ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter);
+                              ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
 
 void player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::Player> const& players, ecs::SparseArray<cpnt::Sprite> const& sprites,
@@ -85,14 +85,23 @@ void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, e
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);
 
+
 void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats);
 
-void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
-
+// In order to use the networking feature of the engine, these three systems must be called in this order:
+// 1. poll_input_events_from_client
+// 2. create_snapshot_system
+// 3. update_snapshots_system
+// 4. send_snapshot_to_client_system
+// 5. clear_tombstones_system
 void poll_input_events_from_client(EngineContext& ctx);
-void send_snapshot_to_client(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void update_snapshots_system(EngineContext& ctx);
+void send_snapshot_to_client_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void clear_tombstones_system(EngineContext &ctx);
 
-void poll_snapshot_from_server(EngineContext& ctx);
+
+void handle_snapshots_deltas_system(EngineContext& ctx);
 void send_input_events_to_server(EngineContext& ctx);
 
 } // namespace sys

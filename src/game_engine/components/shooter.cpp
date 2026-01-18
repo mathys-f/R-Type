@@ -8,8 +8,8 @@ Shooter::Shooter(float time) : timer(time) {}
 engn::SerializedComponent Shooter::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::shooter;
-    serialized.size = sizeof(timer);
-    serialized.data.resize(serialized.size);
+    std::uint32_t total_size = sizeof(timer);
+    serialized.data.resize(total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

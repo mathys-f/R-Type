@@ -115,6 +115,30 @@ std::optional<ResLogin> parse_res_login(const Packet& packet) {
     return result;
 }
 
+Packet make_req_logout(const ReqLogout& req) {
+    Packet packet{};
+    packet.header.m_command = static_cast<std::uint8_t>(CommandId::KReqLogout);
+    packet.header.m_flags = 0;
+
+    packet.payload.reserve(sizeof(req.m_player_id));
+    append_u32_le(packet.payload, req.m_player_id);
+    return packet;
+}
+
+std::optional<ReqLogout> parse_req_logout(const Packet& packet) {
+    if (packet.header.m_command != static_cast<std::uint8_t>(CommandId::KReqLogout)) {
+        return std::nullopt;
+    }
+    const auto& buf = packet.payload;
+    if (buf.size() < sizeof(std::uint32_t)) {
+        return std::nullopt;
+    }
+
+    ReqLogout result{};
+    result.m_player_id = read_u32_le(buf, 0);
+    return result;
+}
+
 bool handle_server_handshake(const Packet& packet, const std::shared_ptr<Session>& session,
                              const asio::ip::udp::endpoint& endpoint) {
     const auto k_req = parse_req_login(packet);

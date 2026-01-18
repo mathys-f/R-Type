@@ -1,4 +1,5 @@
 #include "lobby_manager.h"
+#include "scenes_loaders.h"
 
 #include "game_engine/engine.h"
 #include "utils/logger.h"
@@ -167,6 +168,8 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
 
         auto server = std::make_unique<NetworkServer>(lobby_engine_ctx, port);
         server->start();
+        server->get_engine().add_scene_loader("lobby", lobby_scene_loader);
+        server->get_engine().set_scene("lobby");
 
         LOG_INFO("Lobby '{}' game server running on port {}", lobby_name, port);
 
@@ -175,6 +178,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         int heartbeat_counter = 0;
 
         while (running) {
+            server->get_engine().delta_time = k_tick_ms / 1000.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
             ipc::IPCMessage msg;
             if (ipc.try_receive_from_main(msg, 0)) {
                 if (msg.type == ipc::MessageType::SHUTDOWNREQ) {
@@ -187,7 +191,6 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                     ipc.send_to_main(ack);
                 }
             }
-
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
@@ -196,6 +199,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 heartbeat_counter = 0;
             }
             server->poll();
+            server->get_engine().run_systems();
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
         }
 
