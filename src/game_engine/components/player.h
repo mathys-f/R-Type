@@ -2,6 +2,8 @@
 
 #include "components/i_sync_component.h"
 
+#include <cstring>
+
 namespace engn::cpnt {
 
 struct Player : ISyncComponent {

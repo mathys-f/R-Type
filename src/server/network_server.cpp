@@ -181,7 +181,6 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
         m_engine_ctx.remove_client(endpoint);
