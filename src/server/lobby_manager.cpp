@@ -4,6 +4,7 @@
 #include "game_engine/engine.h"
 #include "utils/logger.h"
 #include "lobby_ipc.h"
+#include "backend_api_client.h"
 
 #include <chrono>
 
@@ -18,6 +19,7 @@
 namespace {
     constexpr int k_shutdown_wait_ms = 100;
     constexpr int k_heartbeat_interval_ticks = 60;
+    constexpr std::uint16_t k_backend_port = 8081;
 }
 
 // GameLobby implementation
@@ -166,6 +168,11 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
 
         engn::EngineContext lobby_engine_ctx;
 
+        // Initialize backend API client for score sync
+        engn::BackendAPIClient api_client("localhost", k_backend_port);
+        lobby_engine_ctx.backend_api_client = &api_client;
+        lobby_engine_ctx.current_lobby_id = lobby_id;
+
         auto server = std::make_unique<NetworkServer>(lobby_engine_ctx, port);
         server->start();
         server->get_engine().add_scene_loader("lobby", lobby_scene_loader);
@@ -286,7 +293,11 @@ void GameLobby::remove_player(const std::string& player_ip) {
 }
 
 // LobbyManager implementation
-LobbyManager::LobbyManager(std::uint16_t base_lobby_port) : m_base_lobby_port(base_lobby_port) {}
+LobbyManager::LobbyManager(std::uint16_t base_lobby_port) : m_base_lobby_port(base_lobby_port) {
+    // Initialize HTTP API client for backend communication
+    // Backend expected to run on localhost:8081 (Node.js server)
+    m_api_client = std::make_unique<engn::BackendAPIClient>("localhost", k_backend_port);
+}
 
 LobbyManager::~LobbyManager() {
     std::lock_guard<std::mutex> lock(m_lobbies_mutex);
@@ -309,6 +320,17 @@ std::uint32_t LobbyManager::create_lobby(const std::string& lobby_name, std::uin
     lobby->start();
 
     LOG_INFO("Created lobby '{}' with ID {} on port {}", lobby_name, lobby_id, port);
+
+    // Notify backend about the new lobby (async, don't block on failure)
+    if (m_api_client) {
+        auto backend_lobby_id = m_api_client->create_lobby(lobby_name, max_players);
+        if (backend_lobby_id.has_value()) {
+            LOG_INFO("Synced lobby to backend with ID {}", backend_lobby_id.value());
+        } else {
+            LOG_WARNING("Failed to sync lobby to backend: {}", m_api_client->get_last_error());
+        }
+    }
+
     return lobby_id;
 }
 
@@ -325,6 +347,11 @@ void LobbyManager::remove_lobby(std::uint32_t lobby_id) {
     std::lock_guard<std::mutex> lock(m_lobbies_mutex);
     auto it = m_lobbies.find(lobby_id);
     if (it != m_lobbies.end()) {
+        // Finalize match data before destroying lobby
+        if (m_api_client && m_api_client->finalize_match(lobby_id)) {
+            LOG_INFO("Finalized match data for lobby {}", lobby_id);
+        }
+
         it->second->stop();
         m_lobbies.erase(it);
         LOG_INFO("Removed lobby ID {}", lobby_id);
@@ -393,6 +420,18 @@ void LobbyManager::cleanup_empty_lobbies() {
         // Zombie reaped
     }
 #endif
+}
+
+void LobbyManager::sync_player_counts() {
+    if (!m_api_client) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(m_lobbies_mutex);
+    for (const auto& [id, lobby] : m_lobbies) {
+        std::uint8_t player_count = lobby->get_current_players();
+        m_api_client->update_lobby_player_count(id, player_count);
+    }
 }
 
 std::uint16_t LobbyManager::allocate_port() {

@@ -2,7 +2,7 @@
 build/
 .cache/
 
-# executables files
+# Executables files
 r-type*.exe
 r-type-server*.exe
 r-type_client
@@ -14,3 +14,7 @@ r-type_server
 .idea/
 .obsidian/
 .cache
+
+# Node
+node_modules/
+.env

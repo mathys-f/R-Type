@@ -126,6 +126,22 @@ if(asio_ADDED)
     target_link_libraries(asio INTERFACE Threads::Threads)
 endif()
 
+# cpp-httplib for HTTP client requests to Node backend
+CPMAddPackage(
+    NAME cpp-httplib
+    GITHUB_REPOSITORY yhirose/cpp-httplib
+    GIT_TAG v0.15.3
+    DOWNLOAD_ONLY YES
+)
+set(CPP_HTTPLIB_INCLUDE_DIR ${cpp-httplib_SOURCE_DIR})
+
+# nlohmann/json for JSON serialization
+CPMAddPackage(
+    NAME nlohmann_json
+    GITHUB_REPOSITORY nlohmann/json
+    GIT_TAG v3.11.3
+)
+
 CPMAddPackage(
     NAME Boost
     VERSION 1.84.0
