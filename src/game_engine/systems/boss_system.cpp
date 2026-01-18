@@ -34,7 +34,7 @@ namespace {
 void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, ecs::SparseArray<cpnt::Transform> const& positions,
                     ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
                     ecs::SparseArray<cpnt::Enemy> const& enemies, ecs::SparseArray<cpnt::Shooter> const& shooters,
-                    ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets,
+                    ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets,
                     ecs::SparseArray<cpnt::Health> const& healths) {
     std::vector<ecs::Entity> entity_to_kill;
     auto& reg = ctx.registry;
@@ -159,7 +159,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                                 auto& enemies_cleanup = reg.get_components<cpnt::Enemy>();
                                 auto& shooters_cleanup = reg.get_components<cpnt::Shooter>();
                                 auto& bullets_cleanup = reg.get_components<cpnt::Bullet>();
-                                auto& bullets_shooter_cleanup = reg.get_components<cpnt::Bullet_shooter>();
+                                auto& bullets_shooter_cleanup = reg.get_components<cpnt::BulletShooter>();
 
                                 // Kill all chargers
                                 for (auto [idx, pos_opt, enemy_opt] : ecs::indexed_zipper(positions_cleanup, enemies_cleanup)) {
@@ -290,7 +290,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Velocity{vx, vy, angle, 0.0f, 0.0f, 0.0f});
-                    reg.add_component(bullet, cpnt::Bullet_shooter{});
+                    reg.add_component(bullet, cpnt::BulletShooter{});
                     reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                                            k_bullet_scale, 0, "shooter_bullet"});
@@ -324,7 +324,7 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f, 1.0f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Velocity{vx, vy, 180.0f, 0.0f, 0.0f, 0.0f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                    reg.add_component(bullet, cpnt::Bullet_shooter{});
+                    reg.add_component(bullet, cpnt::BulletShooter{});
                     reg.add_component(bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f, 0.f});// NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
                     reg.add_component(bullet, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                                            k_bullet_scale, 0, "shooter_bullet"});

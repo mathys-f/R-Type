@@ -33,7 +33,7 @@ void BulletShooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> 
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                       ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
-                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
+                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
                       ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats,
                       ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes);
 
@@ -79,7 +79,7 @@ void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& 
 void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, ecs::SparseArray<cpnt::Transform> const& positions,
                      ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
                      ecs::SparseArray<cpnt::Enemy> const& enemies, ecs::SparseArray<cpnt::Shooter> const& shooters,
-                     ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets, 
+                     ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets, 
                      ecs::SparseArray<cpnt::Health> const& healths);
 
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,

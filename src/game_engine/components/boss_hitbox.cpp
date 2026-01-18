@@ -13,10 +13,10 @@ BossHitbox::BossHitbox(float width_1, float height_1, float offset_x_1, float of
 engn::SerializedComponent BossHitbox::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::boss_hitbox;
-    serialized.size = sizeof(width_1) + sizeof(height_1) + sizeof(offset_x_1) + sizeof(offset_y_1) +
+    const std::uint16_t k_total_size = sizeof(width_1) + sizeof(height_1) + sizeof(offset_x_1) + sizeof(offset_y_1) +
                       sizeof(width_2) + sizeof(height_2) + sizeof(offset_x_2) + sizeof(offset_y_2) +
                       sizeof(width_3) + sizeof(height_3) + sizeof(offset_x_3) + sizeof(offset_y_3);
-    serialized.data.resize(serialized.size);
+    serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

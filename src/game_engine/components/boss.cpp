@@ -24,8 +24,8 @@ Boss::Boss(float time,
 engn::SerializedComponent Boss::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::boss;
-    serialized.size = sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) + sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) + sizeof(waveSpeed);
-    serialized.data.resize(serialized.size);
+    const std::uint16_t k_total_size =  sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) + sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) + sizeof(waveSpeed);
+    serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;
