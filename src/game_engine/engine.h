@@ -52,7 +52,9 @@ class EngineContext {
     // Single event queue for local/client input
     evts::EventQueue<evts::Event> input_event_queue;
     // Per-player event queues for server (indexed by player IP address)
-    std::unordered_map<std::string, evts::EventQueue<evts::Event>> player_input_queues;
+    std::mutex player_input_queues_mutex;
+    std::unordered_map<asio::ip::udp::endpoint, evts::EventQueue<evts::Event>> player_input_queues;
+    std::unordered_map<std::uint8_t, asio::ip::udp::endpoint> player_id_to_endpoint;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
     std::unique_ptr<LuaContext> lua_ctx;
@@ -61,7 +63,7 @@ class EngineContext {
     glm::vec2 window_size{1080.0f, 720.0f};
     glm::vec2 k_sim_size{1920.0f, 1080.0f};
 
-    const size_t k_max_bullets = 100;
+    const size_t k_max_bullets = 200;
 
     // Graphics settings (modifiable at runtime via pause menu)
     size_t k_scroll_speed = 5;
@@ -90,7 +92,7 @@ class EngineContext {
     void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
     // Mutex 'clients_mutex' must be locked when using
-    const std::vector<asio::ip::udp::endpoint> &get_clients();
+    std::vector<asio::ip::udp::endpoint> get_clients();
 
     std::mutex snapshots_history_mutex;
     void record_snapshot(SnapshotRecord &snapshot);
@@ -168,6 +170,8 @@ class EngineContext {
 
     // Mutex 'clients_mutex' in public
     std::vector<asio::ip::udp::endpoint> m_clients;
+
+    std::mutex m_registry_mutex; // To protect registry during net callbacks
 };
 
 } // namespace engn

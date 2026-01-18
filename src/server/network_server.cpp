@@ -172,11 +172,15 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 }
 
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
-    if (m_connected_clients.insert(endpoint).second) {
-        LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
-        m_engine_ctx.add_client(endpoint);
-    }
+    {
+        std::lock_guard<std::mutex> lock(m_clients_mutex);
+        if (m_connected_clients.insert(endpoint).second) {
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+        } else {
+            return;
+        }
+    } // Clears the lock before adding client to engine context
+    m_engine_ctx.add_client(endpoint);
 }
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
@@ -243,16 +247,16 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
 
     std::uint8_t input_mask = static_cast<std::uint8_t>(pkt.payload[4]);
 
+    // LOG_DEBUG("Received input mask {:08b}", input_mask);
+
     bool move_up = (input_mask & k_input_up) != 0;
     bool move_down = (input_mask & k_input_down) != 0;
     bool move_left = (input_mask & k_input_left) != 0;
     bool move_right = (input_mask & k_input_right) != 0;
     bool shoot = (input_mask & k_input_shoot) != 0;
 
-    std::string player_ip = from.address().to_string();
-
-    auto& player_queue = m_engine_ctx.player_input_queues[player_ip];
-
+    std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+    auto& player_queue = m_engine_ctx.player_input_queues[from];
     const auto& controls = m_engine_ctx.controls;
 
     if (move_up) {

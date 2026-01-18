@@ -49,6 +49,12 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx) {
 void EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(clients_mutex);
     std::lock_guard<std::mutex> lock_b(snapshots_history_mutex);
+    if (std::find(m_clients.begin(), m_clients.end(), client_endpoint) != m_clients.end()) {
+        LOG_WARNING("Client {}:{} already connected",
+            client_endpoint.address().to_string(),
+            client_endpoint.port());
+        return;
+    }
     m_clients.push_back(client_endpoint);
     m_snapshots_history[client_endpoint] = std::vector<SnapshotRecord>(SNAPSHOT_HISTORY_SIZE);
 }
@@ -61,7 +67,7 @@ void EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
     }
 }
 
-const std::vector<asio::ip::udp::endpoint> &EngineContext::get_clients() {
+std::vector<asio::ip::udp::endpoint> EngineContext::get_clients() {
     std::lock_guard<std::mutex> lock(clients_mutex);
     return m_clients;
 }

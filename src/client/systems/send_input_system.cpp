@@ -43,6 +43,7 @@ void send_input_system(engn::EngineContext& ctx) {
     mask |= static_cast<std::uint8_t>(shoot ? k_input_mask_shoot : 0x00);
 
     if (ctx.network_client && ctx.network_client->is_connected()) {
+        // LOG_DEBUG("Sending input mask {:08b} at tick {}", mask, ctx.get_current_tick());
         ctx.network_client->send_input_mask(mask, static_cast<std::uint32_t>(ctx.get_current_tick()));
     }
 }

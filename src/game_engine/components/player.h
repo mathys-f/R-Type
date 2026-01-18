@@ -8,6 +8,7 @@ namespace engn::cpnt {
 
 struct Player : ISyncComponent {
     std::uint8_t id{0};
+    float shoot_cooldown{0.0f};
 
     Player() = default;
 
