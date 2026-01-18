@@ -19,19 +19,16 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
         if (latest_ack_version >= version) continue;
 
-        LOG_DEBUG("New entity...");
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_add;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
-        LOG_INFO("New entity {} added to delta", id);
     }
 
     // New or modified components
     for (const auto &[identifier, version] : registry.get_component_metadata()) {
         if (latest_ack_version >= version) continue;
 
-        LOG_DEBUG("New/edit component...");
         ecs::Entity entity = identifier.first;
         std::type_index type_idx = identifier.second;
 
@@ -67,7 +64,6 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
         entry.entity_id = static_cast<std::uint32_t>(entity.value());
         entry.component = *comp_it;
         delta.entries.push_back(entry);
-        LOG_INFO("New / edit component in delta e#{}", entity);
     }
 
     // Deleted components
@@ -75,13 +71,11 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
         for (const auto &[component, version] : comp_and_version) {
             if (latest_ack_version >= version) continue;
 
-            LOG_DEBUG("Remove component...");
             DeltaEntry entry;
             entry.operation = DeltaOperation::component_remove;
             entry.entity_id = static_cast<std::uint32_t>(id.value());
             entry.component_type = k_type_index_to_component_type_map.at(component);
             delta.entries.push_back(entry);
-            LOG_INFO("Removed component in delta e#{}", id);
         }
     }
 
@@ -89,12 +83,10 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
     for (const auto &[id, version] : registry.get_entity_destruction_tombstones()) {
         if (latest_ack_version >= version) continue;
 
-        LOG_DEBUG("Remove entity...");
         DeltaEntry entry;
         entry.operation = DeltaOperation::entity_remove;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
-        LOG_INFO("Removed entity in delta e#{}", id);
     }
 
     if (delta.entries.size() == 0) return std::nullopt;
@@ -111,11 +103,11 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
         const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
         auto &latest_snapshot = ctx.get_latest_snapshot(endpoint);
 
-        LOG_INFO("Computing delta with {} entities in snapshot tick {}", latest_snapshot.snapshot.entities.size(), latest_snapshot.last_update_tick);
         auto delta_snapshot_opt = compute_delta(latest_snapshot.snapshot, ack_snapshot.last_update_tick, ctx.registry);
         if (!delta_snapshot_opt.has_value()) continue;
 
         WorldDelta world_delta = delta_snapshot_opt.value();
+        world_delta.base_snapshot_tick = ctx.get_current_tick();
         std::unique_ptr<std::byte> data(world_delta.serialize());
         net::Packet packet;
         packet.header.m_command = static_cast<std::uint8_t>(net::CommandId::KServerEntityState);

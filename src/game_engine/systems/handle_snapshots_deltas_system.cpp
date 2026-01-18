@@ -55,10 +55,10 @@ static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
 
 static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
 {
+    
 }
 
 static void remove_component(ecs::Registry &registry, const DeltaEntry &entry)
 {
-
 }
 

@@ -44,40 +44,24 @@ static const std::unordered_map<std::type_index, Extractor> k_sync_extractors = 
 
 void sys::create_snapshot_system(engn::EngineContext& engine_ctx,
     ecs::SparseArray<cpnt::Replicated> const& replicated_components) {
-    LOG_INFO("create_snapshot_system called");
     auto& registry = engine_ctx.registry;
     WorldSnapshot snapshot;
 
     for (const auto &[idx, replicated] : ecs::indexed_zipper(replicated_components)) {
         EntitySnapshot entity_snapshot;
         entity_snapshot.entity_id = idx;
-        LOG_DEBUG("Generating snapshot of entity {}", idx);
 
         const auto &components = registry.get_entity_components(registry.entity_from_index(idx));
 
         for (const auto &[type_idx, component_any] : components) {
-            LOG_DEBUG("Looking for type_index: {} (name: {})",
-                type_idx.hash_code(), type_idx.name());
-
-            LOG_DEBUG("component_any contains type: {}", component_any.type().name());
-
             // Look up the extractor for this component type
             auto it = k_sync_extractors.find(type_idx);
             if (it != k_sync_extractors.end()) {
-                LOG_DEBUG("Found extractor!");
                 auto sync_comp = it->second(component_any);
                 if (sync_comp) {
-                    LOG_DEBUG("Successfully extracted sync component");
                     SerializedComponent serialized_comp = sync_comp->serialize();
                     entity_snapshot.components.push_back(std::move(serialized_comp));
-                    LOG_DEBUG("Add component of type {} to entity {}",
-                        static_cast<std::uint8_t>(k_type_index_to_component_type_map.at(type_idx)),
-                        registry.entity_from_index(idx).value());
-                } else {
-                    LOG_DEBUG("Sync component was null (doesn't inherit ISyncComponent)");
                 }
-            } else {
-                LOG_DEBUG("No extractor found for this type_index");
             }
         }
 
