@@ -68,6 +68,7 @@ void sys::enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> con
                 //         health->hp = health->max_hp;
                 //     }
                 // }
+                }
 
                 // Animate enemies
 

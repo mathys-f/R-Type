@@ -67,6 +67,7 @@ struct UiRectPx {
 };
 
 struct LobbyState {
+    std::shared_ptr<NetworkClient> network_client;
     std::vector<net::lobby::LobbyInfo> available_lobbies;
     bool connected = false;
     bool waiting_for_response = false;
@@ -486,78 +487,8 @@ void update_lobby_list_ui(EngineContext& ctx) {
     apply_lobby_list_navigation(ctx, lobby_count);
 }
 
-void handle_connect_button(EngineContext& ctx) {
-    auto ip_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_server_ip");
-    auto port_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_server_port");
-
-    if (!ip_ent_opt.has_value() || !port_ent_opt.has_value()) {
-        update_status_text(ctx, "Error: Input fields not found");
-        return;
-    }
-
-    const auto& ip_input = ctx.registry.get_components<cpnt::UIText>()[ip_ent_opt.value()];
-    const auto& port_input = ctx.registry.get_components<cpnt::UIText>()[port_ent_opt.value()];
-
-    if (!ip_input.has_value() || !port_input.has_value()) {
-        update_status_text(ctx, "Error: Input fields not found");
-        return;
-    }
-
-    std::string server_ip = ip_input->content;
-    std::string port_str = port_input->content;
-    uint16_t server_port = static_cast<uint16_t>(std::stoi(port_str));
-
-    // Create network client and connect
-    try {
-        auto& state = get_lobby_state();
-        state.server_ip = server_ip;
-        state.server_port_main = server_port;
-
-        ctx.network_client = std::make_shared<engn::NetworkClient>();
-
-        ctx.network_client->set_on_reliable([](const net::Packet& pkt) {
-            auto& s = get_lobby_state();
-            std::lock_guard<std::mutex> lock(s.mutex);
-            if (auto res = net::lobby::parse_res_lobby_list(pkt)) {
-                s.pending_lobby_list = *res;
-                return;
-            }
-            if (auto res = net::lobby::parse_res_create_lobby(pkt)) {
-                s.pending_create = *res;
-                return;
-            }
-            if (auto res = net::lobby::parse_res_join_lobby(pkt)) {
-                s.pending_join = *res;
-                return;
-            }
-        });
-
-        ctx.network_client->set_on_login([&ctx](bool success, uint32_t /*player_id*/) {
-            auto& s = get_lobby_state();
-            if (success) {
-                s.connected = true;
-                {
-                    std::lock_guard<std::mutex> lock(s.mutex);
-                    s.pending_status = "Connected! Requesting lobby list...";
-                }
-
-                net::lobby::ReqLobbyList req{};
-                ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
-            } else {
-                std::lock_guard<std::mutex> lock(s.mutex);
-                s.pending_status = "Failed to connect to server";
-            }
-        });
-
-        ctx.network_client->connect(server_ip, server_port, "LobbyBrowser");
-        update_status_text(ctx, "Connecting to " + server_ip + ":" + port_str + "...");
-    } catch (const std::exception& e) {
-        update_status_text(ctx, std::string("Connection error: ") + e.what());
-    }
-}
-
 void handle_refresh_button(EngineContext& ctx) {
-    if (!get_lobby_state().connected || !ctx.network_client) {
+    if (!get_lobby_state().connected || !get_lobby_state().network_client) {
         update_status_text(ctx, "Not connected to server");
         return;
     }
@@ -567,7 +498,7 @@ void handle_refresh_button(EngineContext& ctx) {
         s.pending_status = "Refreshing lobby list...";
     }
     net::lobby::ReqLobbyList req{};
-    ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+    get_lobby_state().network_client->send_reliable(net::lobby::make_req_lobby_list(req));
     get_lobby_state().waiting_for_response = true;
 }
 
@@ -630,7 +561,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
         return;
     }
 
-    if (!get_lobby_state().connected || !ctx.network_client) {
+    if (!get_lobby_state().connected || !get_lobby_state().network_client) {
         update_status_text(ctx, "Not connected to server");
         return;
     }
@@ -644,7 +575,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
 
     net::lobby::ReqJoinLobby req{};
     req.m_lobby_id = lobby.m_lobby_id;
-    ctx.network_client->send_reliable(net::lobby::make_req_join_lobby(req));
+    get_lobby_state().network_client->send_reliable(net::lobby::make_req_join_lobby(req));
     get_lobby_state().waiting_for_response = true;
 }
 
@@ -836,9 +767,9 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
         connect_to_server(engine_ctx, engine_ctx.server_ip, engine_ctx.server_port);
     }
 
-    // Poll network client if connected
-    if (engine_ctx.network_client && get_lobby_state().connected) {
-        engine_ctx.network_client->poll();
+    // Poll network client while connected/connecting to receive login + lobby events.
+    if (state.network_client) {
+        state.network_client->poll();
 
         // Process pending lobby messages on the main thread
         std::optional<net::lobby::ResLobbyList> lobby_list;
@@ -878,7 +809,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                                                    std::to_string(create_res->m_lobby_id) + ")");
                 // Refresh lobby list so it appears immediately
                 net::lobby::ReqLobbyList req{};
-                engine_ctx.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+                state.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
             } else {
                 update_status_text(engine_ctx, "Failed to create lobby: " + create_res->m_error_message);
             }
