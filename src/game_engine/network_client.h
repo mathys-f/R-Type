@@ -9,17 +9,17 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <chrono>
 
 namespace engn {
-class EngineContext;
-}
 
 class NetworkClient {
   public:
     using OnPacketCallback = std::function<void(const net::Packet&)>;
     using OnLoginCallback = std::function<void(bool success, uint32_t player_id)>;
+    using OnLogoutCallback = std::function<void()>;
 
-    NetworkClient(engn::EngineContext& engine_ctx);
+    NetworkClient() = default;
     ~NetworkClient();
 
     NetworkClient(const NetworkClient&) = delete;
@@ -29,8 +29,9 @@ class NetworkClient {
 
     void connect(const std::string& host, std::uint16_t port, const std::string& username);
     void set_on_login(OnLoginCallback callback);
-    void set_on_reliable(OnPacketCallback callback);
     void set_on_unreliable(OnPacketCallback callback);
+    void set_on_logout(OnLogoutCallback callback);
+    void set_on_reliable(OnPacketCallback callback);
     void poll();
     std::uint32_t send_reliable(const net::Packet& packet);
     void send_unreliable(const net::Packet& packet);
@@ -44,7 +45,8 @@ class NetworkClient {
     }
 
   private:
-    engn::EngineContext& m_engine_ctx;
+    void send_heartbeat(); // Send keepalive ping to server
+
     asio::io_context m_io;
     std::shared_ptr<net::Session> m_session;
     std::thread m_io_thread;
@@ -54,6 +56,10 @@ class NetworkClient {
     uint32_t m_player_id{0};
     asio::ip::udp::endpoint m_server_endpoint{};
     OnLoginCallback m_on_login;
+    OnLogoutCallback m_on_logout;
     OnPacketCallback m_on_reliable;
     OnPacketCallback m_on_unreliable;
+    std::chrono::steady_clock::time_point m_last_heartbeat{};
 };
+
+} // namespace engn

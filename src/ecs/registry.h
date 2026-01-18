@@ -11,6 +11,17 @@
 #include <unordered_map>
 #include <vector>
 
+// Hash specialization for std::pair<ecs::Entity, std::type_index>
+template <>
+struct std::hash<std::pair<ecs::Entity, std::type_index>> {
+    std::size_t operator()(const std::pair<ecs::Entity, std::type_index>& pair) const noexcept {
+        std::size_t h1 = std::hash<ecs::Entity>{}(pair.first);
+        std::size_t h2 = std::hash<std::type_index>{}(pair.second);
+        // Combine hashes using a simple method
+        return h1 ^ (h2 << 1);
+    }
+};
+
 namespace ecs {
 
 /// Registry manages entities, component storage and registered systems.
@@ -19,9 +30,16 @@ namespace ecs {
 ///   arrays (SparseArray).
 /// - Manages entity creation / recycling.
 /// - Allows systems to be registered and executed with bound component views.
+/// - Keeps metadata about creation, destruction & modification of entities and components.
 class Registry {
   public:
     using EntityType = Entity;
+    using Version = std::uint32_t;
+    using ExtractFunction = std::function<std::optional<std::any>(const Registry&, EntityType const&)>;
+
+    struct ComponentMetadata {
+        Version version = 0;
+    };
 
     // Component registration / access
     /// Register storage for a component type if not already present.
@@ -97,6 +115,40 @@ class Registry {
     /// @return Const reference to the tag registry.
     const TagRegistry& get_tag_registry() const noexcept;
 
+    /// Set current version (Used to track changes).
+    /// @param v The new version to set.
+    void set_current_version(Version v) noexcept;
+
+    /// Get current version (Used to track changes).
+    /// @return The current version.
+    Version get_current_version() const noexcept;
+
+    /// Mark an entitie's component has dirty
+    /// This must be called each time you modify a component you need to track (eg. for networking).
+    /// @param e The entity whose component is dirty.
+    /// @tparam TComponent The component type to mark as dirty.
+    template <typename TComponent>
+    void mark_dirty(EntityType const& e);
+
+    const std::unordered_map<EntityType, Version>& get_entity_creation_tombstones() const noexcept;
+    const std::unordered_map<EntityType, Version>& get_entity_destruction_tombstones() const noexcept;
+    const std::unordered_map<EntityType,
+        std::unordered_map<std::type_index, Version>>&
+        get_component_destruction_tombstones() const noexcept;
+    const std::unordered_map<std::pair<EntityType, std::type_index>, Version>&
+        get_component_metadata() const noexcept;
+
+    /// Must be called when the tombstone is no longer needed to save up RAM
+    void remove_entity_creation_tombstone(EntityType const& e);
+    /// Must be called when the tombstone is no longer needed to save up RAM
+    /// Also delete the entity's component's metadatas entry
+    void remove_entity_destruction_tombstone(EntityType const& e);
+    /// Must be called when the tombstone is no longer needed to save up RAM
+    /// Also delete the component's metadatas entry
+    void remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti);
+    /// Remove an entity's component metadatas entry
+    void remove_component_metadata(EntityType const& e, std::type_index const& ti);
+
   private:
     // Tag registry
     TagRegistry tag_registry;
@@ -108,7 +160,9 @@ class Registry {
     std::vector<std::function<void(Registry&, EntityType const&)>> m_erase_functions;
 
     // component extraction callbacks (one per component type)
-    std::vector<std::function<std::optional<std::any>(const Registry&, EntityType const&)>> m_extract_functions;
+    std::unordered_map<std::type_index, ExtractFunction> m_extract_functions;
+    // It needs to be an unordered_map to allow iteration along with the m_components_array
+    // in the method 'get_entity_components()'
 
     // registered systems
     std::vector<std::function<void(Registry&)>> m_systems;
@@ -116,6 +170,24 @@ class Registry {
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
+
+    // Current version counter
+    Version m_current_version = 1; // The 0 is reserved for error values
+
+    // Tumbstones to track created entities
+    std::unordered_map<EntityType, Version> m_entity_creation_tumbstones;
+    // Tumbstones to track destroyed entities
+    std::unordered_map<EntityType, Version> m_entity_destruction_tumbstones;
+    // Tumbstones to track destroyed components per entity
+    std::unordered_map<EntityType,
+        std::unordered_map<std::type_index, Version>>
+        m_component_destruction_tombstones;
+
+    // Last version in which an entity's component has changed/been created
+    std::unordered_map<std::pair<EntityType, std::type_index>, Version> m_component_metadata;
+
+    /// Remove all of an entity's components metadatas entries
+    void remove_entity_components_metadata(EntityType const& e);
 };
 
 } // namespace ecs

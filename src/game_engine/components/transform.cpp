@@ -13,9 +13,9 @@ Transform::Transform(float x, float y, float z,
 engn::SerializedComponent Transform::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::transform;
-    serialized.size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + 
+    std::uint32_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + 
                       sizeof(rx) + sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
-    serialized.data.resize(serialized.size);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

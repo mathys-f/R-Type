@@ -11,9 +11,13 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <mutex>
+#include <unordered_map>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
+
+#include "networking/rtp/networking.h"
 
 #include "assets_manager.h"
 #include "ecs/registry.h"
@@ -22,6 +26,7 @@
 #include "events/ui_events.h"
 #include "lua_context.h"
 #include "snapshots.h"
+#include "network_client.h"
 
 #define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
 
@@ -50,6 +55,9 @@ class EngineContext {
     AssetsManager assets_manager;
 
     glm::vec2 window_size{1080.0f, 720.0f};
+    glm::vec2 k_sim_size{1920.0f, 1080.0f};
+
+    const size_t k_max_bullets = 100;
 
     // Graphics settings (modifiable at runtime via pause menu)
     size_t k_scroll_speed = 5;
@@ -69,6 +77,29 @@ class EngineContext {
     float k_pattern_speed_variance = 3.0f;
     int k_pattern_amplitude_max = 10;
     int k_player_health = 100;
+
+    std::shared_ptr<net::Session> network_session; // TO REMOVE
+    std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
+
+    const std::size_t k_player_count = 4;
+    std::mutex clients_mutex;
+    void add_client(asio::ip::udp::endpoint client_endpoint);
+    void remove_client(asio::ip::udp::endpoint client_endpoint);
+    // Mutex 'clients_mutex' must be locked when using
+    const std::vector<asio::ip::udp::endpoint> &get_clients();
+
+    std::mutex snapshots_history_mutex;
+    void record_snapshot(SnapshotRecord &snapshot);
+    // Mutex 'snapshots_history_mutex' must be locked when using
+    SnapshotRecord &get_latest_snapshot(asio::ip::udp::endpoint endpoint);
+    // Mutex 'snapshots_history_mutex' must be locked when using
+    const SnapshotRecord& get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
+
+    std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
+
+    void add_snapshot_delta(WorldDelta &delta);
+    /// After being run, will send back ACKs to the server and clear the deltas list
+    void for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func);
 
     InputContext input_context = InputContext::Gameplay;
     InputState input_state;
@@ -103,9 +134,6 @@ class EngineContext {
 
     std::size_t get_current_tick() const;
 
-    const SnapshotRecord &get_latest_snapshot(std::size_t player_id) const;
-    void record_snapshot(SnapshotRecord &snapshot);
-
     // System registration / execution
     /// Register a system that accepts const views to the requested
     /// component storages. The callable should accept `(Registry&, const
@@ -127,9 +155,15 @@ class EngineContext {
 
     std::vector<std::function<void(EngineContext&)>> m_systems;
 
-    std::size_t m_current_tick = 0;
+    std::size_t m_current_tick = 1; // 0 is reserved for error values
 
-    std::unordered_map<size_t, std::vector<SnapshotRecord>> m_snapshots_history;
+    std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>> m_snapshots_history;
+
+    std::mutex m_snapshots_delta_mutex;
+    std::vector<WorldDelta> m_snapshots_delta;
+
+    // Mutex 'clients_mutex' in public
+    std::vector<asio::ip::udp::endpoint> m_clients;
 };
 
 } // namespace engn

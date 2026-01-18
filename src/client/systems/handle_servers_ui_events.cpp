@@ -5,7 +5,7 @@
 #include "game_engine/components/ui/ui_scroll_area.h"
 #include "game_engine/components/ui/ui_transform.h"
 #include "game_engine/engine.h"
-#include "network_client.h"
+#include "game_engine/network_client.h"
 #include "systems/client_systems.h"
 #include "utils/color.h"
 
@@ -485,7 +485,7 @@ void handle_join_server_button(EngineContext& ctx) {
     state.connecting = true;
     state.connect_elapsed_sec = 0.0f;
 
-    state.network_client = std::make_shared<NetworkClient>(ctx);
+    state.network_client = std::make_shared<NetworkClient>();
     state.network_client->set_on_login([ip, port](bool success, uint32_t /*player_id*/) {
         auto& s = get_servers_state();
         std::lock_guard<std::mutex> lock(s.mutex);

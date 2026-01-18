@@ -5,7 +5,7 @@
 #include "game_engine/components/ui/ui_scroll_area.h"
 #include "game_engine/components/ui/ui_transform.h"
 #include "game_engine/engine.h"
-#include "network_client.h"
+#include "game_engine/network_client.h"
 #include "networking/lobby/lobby_messages.h"
 #include "systems/client_systems.h"
 #include "utils/color.h"
@@ -186,7 +186,7 @@ void connect_to_server(EngineContext& ctx, const std::string& server_ip, std::ui
         state.server_port_main = server_port;
         state.lobby_list_requested = false;
 
-        state.network_client = std::make_shared<NetworkClient>(ctx);
+        state.network_client = std::make_shared<NetworkClient>();
 
         state.network_client->set_on_reliable([](const net::Packet& pkt) {
             auto& s = get_lobby_state();
@@ -438,7 +438,6 @@ void update_lobby_list_ui(EngineContext& ctx) {
             tag_cache[i] = tag_id;
             ctx.registry.add_component(entity, cpnt::Tag{tag_id});
         }
-
         // Add UI components
         const float k_item_y_px = k_start_y_px + static_cast<float>(i) * (k_item_height_px + k_item_spacing_px);
         ctx.registry.add_component(
@@ -732,6 +731,10 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
                                      engn::evts::EventQueue<engn::evts::UIEvent> evts_queue);
 
 void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
+    if (engine_ctx.get_current_scene() != "lobby") {
+        return;
+    }
+
     auto& state = get_lobby_state();
     if (!state.auto_connect_attempted && !state.connected && !state.network_client &&
         !engine_ctx.server_ip.empty() && engine_ctx.server_port != 0) {
@@ -781,7 +784,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                                                    std::to_string(create_res->m_lobby_id) + ")");
                 // Refresh lobby list so it appears immediately
                 net::lobby::ReqLobbyList req{};
-                get_lobby_state().network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+                state.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
             } else {
                 update_status_text(engine_ctx, "Failed to create lobby: " + create_res->m_error_message);
             }
@@ -799,6 +802,10 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
             }
             get_lobby_state().waiting_for_response = false;
         }
+    }
+
+    if (engine_ctx.get_current_scene() != "lobby") {
+        return;
     }
 
     update_lobby_list_on_scroll(engine_ctx);

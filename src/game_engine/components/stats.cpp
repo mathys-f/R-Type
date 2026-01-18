@@ -9,8 +9,8 @@ Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level) 
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::stats;
-    serialized.size = sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level);
-    serialized.data.resize(serialized.size);
+    const std::uint16_t k_total_size = sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level);
+    serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;
@@ -28,10 +28,10 @@ engn::SerializedComponent Stats::serialize() const {
 }
 
 void Stats::deserialize(const std::vector<std::byte>& data) {
-    std::uint16_t size = sizeof(score) + sizeof(dmg) + sizeof(kills);
+    std::uint16_t k_size = sizeof(score) + sizeof(dmg) + sizeof(kills);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    if (data.size() >= size) {
+    if (data.size() >= k_size) {
         std::size_t offset = 0;
         std::memcpy(&score, data.data() + offset, sizeof(score));
         offset += sizeof(score);
