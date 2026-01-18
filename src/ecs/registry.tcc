@@ -26,7 +26,7 @@ template <class TComponent> SparseArray<TComponent>& Registry::register_componen
         });
 
         // Add extraction function for get_entity_components
-        m_extract_functions.emplace_back([k_key](const Registry& reg, EntityType const& e) -> std::optional<std::any> {
+        m_extract_functions[k_key] = ([k_key](const Registry& reg, EntityType const& e) -> std::optional<std::any> {
             try {
                 const auto& arr = reg.get_components<TComponent>();
                 auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(e));

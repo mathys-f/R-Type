@@ -95,12 +95,14 @@ ecs::Registry::get_entity_components(Entity entity) const noexcept {
     s_entity_components.clear();
 
     // Iterate through all registered component types and extract components for this entity
-    auto type_it = m_components_arrays.begin();
-    for (size_t i = 0; i < m_extract_functions.size() && type_it != m_components_arrays.end(); ++i, ++type_it) {
-        if (m_extract_functions[i]) {
-            auto component = m_extract_functions[i](*this, entity);
+    for (const auto& [type_idx, component_array] : m_components_arrays) {
+        // Look up the extractor
+        auto extract_it = m_extract_functions.find(type_idx);
+
+        if (extract_it != m_extract_functions.end() && extract_it->second) {
+            auto component = extract_it->second(*this, entity);
             if (component.has_value()) {
-                s_entity_components[type_it->first] = std::move(component.value());
+                s_entity_components[type_idx] = std::move(component.value());
             }
         }
     }

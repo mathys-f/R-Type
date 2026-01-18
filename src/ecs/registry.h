@@ -35,6 +35,7 @@ class Registry {
   public:
     using EntityType = Entity;
     using Version = std::uint32_t;
+    using ExtractFunction = std::function<std::optional<std::any>(const Registry&, EntityType const&)>;
 
     struct ComponentMetadata {
         Version version = 0;
@@ -157,7 +158,9 @@ class Registry {
     std::vector<std::function<void(Registry&, EntityType const&)>> m_erase_functions;
 
     // component extraction callbacks (one per component type)
-    std::vector<std::function<std::optional<std::any>(const Registry&, EntityType const&)>> m_extract_functions;
+    std::unordered_map<std::type_index, ExtractFunction> m_extract_functions;
+    // It needs to be an unordered_map to allow iteration along with the m_components_array
+    // in the method 'get_entity_components()'
 
     // registered systems
     std::vector<std::function<void(Registry&)>> m_systems;
