@@ -79,6 +79,7 @@ class EngineContext {
 
     std::shared_ptr<net::Session> network_session;
 
+    const std::size_t k_player_count = 4;
     std::mutex clients_mutex;
     void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
