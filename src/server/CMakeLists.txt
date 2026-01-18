@@ -10,6 +10,10 @@ target_include_directories(server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../game_engine
 )
 
+target_include_directories(server SYSTEM PRIVATE
+    ${CPP_HTTPLIB_INCLUDE_DIR}
+)
+
 target_link_libraries(server
     PRIVATE
         ecs
@@ -19,9 +23,8 @@ target_link_libraries(server
         glm
         lua
         sol2
-        Boost::interprocess)
-
-target_include_directories(server SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
+        Boost::interprocess
+        nlohmann_json::nlohmann_json)
 
 set_target_properties(server PROPERTIES
     OUTPUT_NAME "r-type_server"
