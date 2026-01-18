@@ -3,6 +3,9 @@
 
 using namespace engn::cpnt;
 
+Player::Player(std::uint8_t player_id)
+    : id(player_id) {};
+
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 engn::SerializedComponent Player::serialize() const {
     engn::SerializedComponent serialized;

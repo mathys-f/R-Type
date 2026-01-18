@@ -34,7 +34,7 @@ static std::unordered_map<ComponentType, ComponentRemover> build_component_remov
         {ComponentType::transform, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Transform>(e); }},
         {ComponentType::velocity, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Velocity>(e); }},
         {ComponentType::shooter, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Shooter>(e); }},
-        {ComponentType::BulletShooter, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::BulletShooter>(e); }},
+        {ComponentType::bullet_shooter, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::BulletShooter>(e); }},
     };
 }
 
@@ -106,7 +106,7 @@ static std::unordered_map<ComponentType, ComponentAdder> build_component_adders(
             component.deserialize(sc.data);
             reg.add_component(e, std::move(component));
         }},
-        {ComponentType::BulletShooter, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
+        {ComponentType::bullet_shooter, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
             cpnt::BulletShooter component;
             component.deserialize(sc.data);
             reg.add_component(e, std::move(component));

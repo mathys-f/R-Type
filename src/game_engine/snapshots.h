@@ -24,7 +24,9 @@ enum ComponentType : std::uint8_t {
     tag,
     transform,
     velocity,
-    BulletShooter,
+    bullet_shooter,
+    boss,
+    boss_hitbox,
     entity_type
 };
 
