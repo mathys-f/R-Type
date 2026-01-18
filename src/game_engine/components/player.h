@@ -5,7 +5,7 @@
 namespace engn::cpnt {
 
 struct Player : ISyncComponent {
-    // Tag component for players
+    std::uint8_t id{0};
 
     Player() = default;
 
