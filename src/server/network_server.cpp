@@ -14,10 +14,15 @@ using namespace engn;
 NetworkServer::NetworkServer(engn::EngineContext& engine_ctx, std::uint16_t port, LobbyManager* lobby_manager)
     : m_engine_ctx(engine_ctx), m_port(port), m_lobby_manager(lobby_manager) {
     m_session = std::make_shared<net::Session>(m_io, asio::ip::udp::endpoint{}, net::ReliabilityConfig{}, m_port);
+    m_engine_ctx.network_session = m_session;
 }
 
 NetworkServer::~NetworkServer() {
     stop();
+}
+
+EngineContext &NetworkServer::get_engine() {
+    return m_engine_ctx;
 }
 
 void NetworkServer::start() {
@@ -36,8 +41,20 @@ void NetworkServer::start() {
 
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
+            // Update client activity timestamp whenever we receive a packet
+            update_client_activity(from);
+            
             if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
-                LOG_INFO("Client connected from {}:{}", from.address().to_string(), from.port());
+                return;
+            }
+
+            // Handle logout requests
+            if (auto logout_req = net::handshake::parse_req_logout(pkt)) {
+                LOG_INFO("Client {}:{} requested logout", from.address().to_string(), from.port());
+                // Trigger disconnect callback
+                if (m_session->on_client_disconnect) {
+                    m_session->on_client_disconnect(from);
+                }
                 return;
             }
 
@@ -49,6 +66,8 @@ void NetworkServer::start() {
         },
         // onUnreliable
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
+            // Update client activity for unreliable packets too
+            update_client_activity(from);
             // Handle unreliable packets here (player input, etc.)
         });
     m_running = true;
@@ -62,6 +81,7 @@ void NetworkServer::start() {
 
 void NetworkServer::poll() {
     m_session->poll();
+    check_client_timeouts(); // Check for inactive clients
 }
 
 void NetworkServer::stop() {
@@ -150,17 +170,50 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 }
 
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
     if (m_connected_clients.insert(endpoint).second) {
-        LOG_INFO("Client connected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEANNNNNN
+        LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+        m_engine_ctx.add_client(endpoint);
     }
 }
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
-    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    std::lock_guard<std::mutex> lock(clients_mutex);
+    LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
-        // TODO: JEAAAAAAAAAAAAAAAAAAAN
+        m_engine_ctx.remove_client(endpoint);
+        m_client_last_activity.erase(endpoint);
+    }
+}
+
+void NetworkServer::update_client_activity(const asio::ip::udp::endpoint& endpoint) {
+    std::lock_guard<std::mutex> lock(clients_mutex);
+    m_client_last_activity[endpoint] = std::chrono::steady_clock::now();
+}
+
+void NetworkServer::check_client_timeouts() {
+    std::lock_guard<std::mutex> lock(clients_mutex);
+    auto now = std::chrono::steady_clock::now();
+    std::vector<asio::ip::udp::endpoint> timed_out_clients;
+
+    // Find all clients that have exceeded the timeout
+    for (const auto& [endpoint, last_activity] : m_client_last_activity) {
+        auto inactive_duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_activity);
+        if (inactive_duration >= net::k_client_timeout) {
+            timed_out_clients.push_back(endpoint);
+        }
+    }
+
+    // Disconnect timed out clients
+    for (const auto& endpoint : timed_out_clients) {
+        LOG_WARNING("Client {}:{} timed out after {} seconds of inactivity",
+                 endpoint.address().to_string(), endpoint.port(),
+                 net::k_client_timeout.count());
+
+        // Manually trigger disconnect (don't use the lock again)
+        m_connected_clients.erase(endpoint);
+        m_engine_ctx.remove_client(endpoint);
+        m_client_last_activity.erase(endpoint);
     }
 }

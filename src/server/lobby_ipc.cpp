@@ -85,8 +85,12 @@ bool LobbyIPC::send_to_lobby(const IPCMessage& msg) {
     namespace bip = boost::interprocess;
 
     try {
-        m_main_to_lobby_queue->send(&msg, k_message_size, 0);
-        return true;
+        if (m_main_to_lobby_queue->try_send(&msg, k_message_size, 0)) {
+            return true;
+        } else {
+            LOG_WARNING("IPC queue full, message dropped");
+            return false;
+        }
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Error sending to lobby {}: {}", m_lobby_id, e.what());
         return false;
@@ -126,8 +130,12 @@ bool LobbyIPC::send_to_main(const IPCMessage& msg) {
     namespace bip = boost::interprocess;
 
     try {
-        m_lobby_to_main_queue->send(&msg, k_message_size, 0);
-        return true;
+        if (m_lobby_to_main_queue->try_send(&msg, k_message_size, 0)) {
+            return true;
+        } else {
+            LOG_WARNING("IPC queue full, message dropped");
+            return false;
+        }
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Error sending to main server: {}", e.what());
         return false;

@@ -9,8 +9,8 @@ Hitbox::Hitbox(float width, float height, float offset_x, float offset_y)
 engn::SerializedComponent Hitbox::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::hitbox;
-    serialized.size = sizeof(width) + sizeof(height) + sizeof(offset_x) + sizeof(offset_y);
-    serialized.data.resize(serialized.size);
+    std::uint32_t size = sizeof(width) + sizeof(height) + sizeof(offset_x) + sizeof(offset_y);
+    serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::size_t offset = 0;

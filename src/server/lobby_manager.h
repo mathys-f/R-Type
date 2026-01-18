@@ -29,7 +29,7 @@ namespace lobby_constants {
 inline constexpr std::uint16_t k_default_lobby_base_port = 9000;
 }
 
-// Represents a single game lobby with its own process and server
+// Represents a single game lobby with its own thread and server
 class GameLobby {
   public:
     GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players, std::uint16_t port);

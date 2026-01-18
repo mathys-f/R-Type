@@ -22,7 +22,7 @@ constexpr float k_bullet_damage = 10;
 void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                            ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
-                           ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter,
+                           ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
                            ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats) {
     std::vector<ecs::Entity> bullets_to_kill;
     auto& reg = ctx.registry;

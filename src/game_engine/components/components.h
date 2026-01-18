@@ -4,12 +4,12 @@
 #include "bullet.h"
 #include "controllable.h"
 #include "enemy.h"
+#include "entity_type.h"
 #include "health.h"
 #include "hitbox.h"
 #include "movement_pattern.h"
 #include "player.h"
 #include "replicated.h"
-#include "sprite.h"
 #include "stats.h"
 #include "tag.h"
 #include "transform.h"
@@ -18,6 +18,7 @@
 #include "bullet_shooter.h"
 
 // Non headless components
+#include "sprite.h"
 #include "particle.h"
 #include "star.h"
 #include "explosion.h"

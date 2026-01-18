@@ -5,9 +5,9 @@
 
 using namespace engn;
 
-void sys::bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+void sys::BulletShooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Velocity> const& velocities,
-                        ecs::SparseArray<cpnt::Bullet_shooter> const& bullets_shooter) {
+                        ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter) {
     std::vector<ecs::Entity> to_kill;
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
