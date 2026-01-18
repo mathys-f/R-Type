@@ -78,7 +78,7 @@ struct ServersState {
     std::optional<std::size_t> selected_index;
     float last_scroll_offset_px = k_uninitialized_scroll_offset_px;
     std::string status_message = "Select a server or add a new one";
-    std::shared_ptr<NetworkClient> network_client;
+    std::shared_ptr<engn::NetworkClient> network_client;
     bool connecting = false;
     float connect_elapsed_sec = 0.0f;
     std::string pending_ip;

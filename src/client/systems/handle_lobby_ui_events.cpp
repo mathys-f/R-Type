@@ -205,7 +205,7 @@ void connect_to_server(EngineContext& ctx, const std::string& server_ip, std::ui
             }
         });
 
-        state.network_client->set_on_login([&ctx](bool success, uint32_t /*player_id*/) {
+        state.network_client->set_on_login([](bool success, uint32_t /*player_id*/) {
             auto& s = get_lobby_state();
             if (success) {
                 if (s.connected && s.lobby_list_requested)
@@ -536,6 +536,7 @@ void handle_create_lobby_button(EngineContext& ctx) {
     }
 
     {
+        auto& state = get_lobby_state();
         std::lock_guard<std::mutex> lock(state.mutex);
         state.pending_status = "Creating lobby '" + lobby_name + "'...";
     }
@@ -662,20 +663,21 @@ void update_lobby_list_on_scroll(EngineContext& ctx) {
 
 } // anonymous namespace
 
-void attach_lobby_network_client(std::shared_ptr<NetworkClient> client, const std::string& ip, std::uint16_t port) {
+void attach_lobby_network_client(std::shared_ptr<engn::NetworkClient> client, const std::string& ip,
+                                 std::uint16_t port) {
+    if (!client) {
+        return;
+    }
+
     auto& state = get_lobby_state();
     state.network_client = std::move(client);
     state.server_ip = ip;
     state.server_port_main = port;
     state.connected = true;
     state.waiting_for_response = false;
-    state.lobby_list_requested = true;
+    state.lobby_list_requested = false;
     state.auto_connect_attempted = true;
     state.preserve_connection = true;
-
-    if (!state.network_client) {
-        return;
-    }
 
     state.network_client->set_on_reliable([](const net::Packet& pkt) {
         auto& s = get_lobby_state();
@@ -694,14 +696,35 @@ void attach_lobby_network_client(std::shared_ptr<NetworkClient> client, const st
         }
     });
 
+    state.network_client->set_on_login([](bool success, uint32_t /*player_id*/) {
+        auto& s = get_lobby_state();
+        if (success) {
+            s.connected = true;
+            {
+                std::lock_guard<std::mutex> lock(s.mutex);
+                s.pending_status = "Connected! Requesting lobby list...";
+            }
+            if (!s.lobby_list_requested) {
+                s.lobby_list_requested = true;
+                s.waiting_for_response = true;
+                net::lobby::ReqLobbyList req{};
+                s.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
+            }
+        } else {
+            std::lock_guard<std::mutex> lock(s.mutex);
+            s.pending_status = "Failed to connect to lobby server";
+        }
+    });
+
     {
         std::lock_guard<std::mutex> lock(state.mutex);
         state.pending_status = "Connected! Requesting lobby list...";
     }
 
+    state.lobby_list_requested = true;
+    state.waiting_for_response = true;
     net::lobby::ReqLobbyList req{};
     state.network_client->send_reliable(net::lobby::make_req_lobby_list(req));
-    state.waiting_for_response = true;
 }
 
 void reset_lobby_ui_state() {
@@ -710,6 +733,9 @@ void reset_lobby_ui_state() {
         state.preserve_connection = false;
         state.available_lobbies.clear();
     } else {
+        if (state.network_client) {
+            state.network_client->disconnect();
+        }
         state.network_client.reset();
         state.available_lobbies.clear();
         state.connected = false;
@@ -722,7 +748,8 @@ void reset_lobby_ui_state() {
     }
     state.lobby_item_tags.clear();
     state.last_scroll_offset_px = k_uninitialized_scroll_offset_px;
-    state.auto_connect_attempted = false;
+    if (!state.preserve_connection)
+        state.auto_connect_attempted = false;
     state.last_create_tick = k_uninitialized_create_tick;
 }
 
