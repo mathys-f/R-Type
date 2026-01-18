@@ -5,6 +5,9 @@
 
 namespace engn::cpnt {
 
+/// Has two different uses
+/// 1. UI, identifies an element
+/// 2. Archetypes, for entities sent by the server, is related to a set of graphics only component
 struct Tag : ISyncComponent {
     ecs::TagRegistry::TagId id = ecs::TagRegistry::k_invalid_tag_id;
 

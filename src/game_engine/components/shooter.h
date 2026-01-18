@@ -10,7 +10,7 @@ struct Shooter : ISyncComponent {
     float timer{};
 
     Shooter() = default;
-    Shooter(float time = 0.0f);
+    Shooter(float time);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
