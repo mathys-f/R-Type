@@ -1,3 +1,9 @@
+// Windows header guards for MinGW/MSYS2 compatibility
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+#endif
+
 #include "backend_api_client.h"
 #include "utils/logger.h"
 #include <httplib.h>

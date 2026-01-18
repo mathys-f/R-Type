@@ -1,5 +1,11 @@
 #pragma once
 
+// Windows header guards for MinGW/MSYS2 compatibility
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+#endif
+
 #include "lobby_manager.h"
 #include <httplib.h>
 #include <memory>
