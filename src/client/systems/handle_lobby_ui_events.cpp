@@ -733,7 +733,6 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
     if (engine_ctx.get_current_scene() != "lobby") {
         return;
     }
-
     auto& state = get_lobby_state();
     if (!state.auto_connect_attempted && !state.connected && !state.network_client &&
         !engine_ctx.server_ip.empty() && engine_ctx.server_port != 0) {
