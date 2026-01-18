@@ -28,7 +28,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     registry.register_component<cpnt::Health>();
     registry.register_component<cpnt::Hitbox>();
     registry.register_component<cpnt::Bullet>();
-    registry.register_component<cpnt::Bullet_shooter>();
+    registry.register_component<cpnt::BulletShooter>();
     registry.register_component<cpnt::Player>();
     registry.register_component<cpnt::Enemy>();
     registry.register_component<cpnt::MovementPattern>();
