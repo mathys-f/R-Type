@@ -45,9 +45,12 @@ void sys::ui_input_field_updater(engn::EngineContext& ctx,
         if (!input.has_value() || !text.has_value() || !inter.has_value())
             continue;
 
-        // Focus input when clicked (editing starts with Enter)
+        // Focus and start editing on click to make inputs feel immediate.
         if (inter->pressed) {
             ctx.focused_entity = reg.entity_from_index(i);
+            input->editing = true;
+            input->timer = 0.0f;
+            input->cursor_index = text->content.size();
         }
 
         // Stop editing when clicked outside or Enter is pressed

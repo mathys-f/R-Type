@@ -28,6 +28,7 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
     }
 
     try {
+        m_login_handled = false;
         // Resolve server address
         asio::ip::udp::resolver resolver(m_io);
         auto endpoints = resolver.resolve(asio::ip::udp::v4(), host, std::to_string(port));
@@ -43,6 +44,8 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
             [this, session = m_session](const net::Packet& pkt, const asio::ip::udp::endpoint&) {
                 // Parse login response
                 if (auto res = net::handshake::parse_res_login(pkt)) {
+                    if (m_login_handled.exchange(true))
+                        return;
                     m_player_id = res->m_player_id;
                     m_connected = res->m_success;
 
@@ -145,6 +148,7 @@ bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {
 void NetworkClient::disconnect() {
     if (m_running.exchange(false)) {
         m_connected = false;
+        m_login_handled = false;
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();

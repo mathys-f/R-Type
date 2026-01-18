@@ -6,6 +6,7 @@ class EngineContext;
 
 void load_game_scene(engn::EngineContext& engine_ctx);
 void load_main_menu_scene(engn::EngineContext& engine_ctx);
+void load_servers_scene(engn::EngineContext& engine_ctx);
 void load_lobby_scene(engn::EngineContext& engine_ctx);
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx);
 void load_keyboard_settings_menu_scene(engn::EngineContext& engine_ctx);

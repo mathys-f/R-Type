@@ -50,6 +50,7 @@ class NetworkClient {
     std::thread m_io_thread;
     std::atomic<bool> m_running{false};
     std::atomic<bool> m_connected{false};
+    std::atomic<bool> m_login_handled{false};
     uint32_t m_player_id{0};
     asio::ip::udp::endpoint m_server_endpoint{};
     OnLoginCallback m_on_login;

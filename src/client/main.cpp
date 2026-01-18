@@ -95,6 +95,7 @@ int main(void) {
     engine_ctx.add_scene_loader("singleplayer_game", load_game_scene);
     engine_ctx.add_scene_loader("multiplayer_game", load_multiplayer_game_scene);
     engine_ctx.add_scene_loader("main_menu", load_main_menu_scene);
+    engine_ctx.add_scene_loader("servers", load_servers_scene);
     engine_ctx.add_scene_loader("lobby", load_lobby_scene);
     engine_ctx.add_scene_loader("audio_settings", load_audio_settings_scene);
     engine_ctx.add_scene_loader("keyboard_settings", load_keyboard_settings_menu_scene);

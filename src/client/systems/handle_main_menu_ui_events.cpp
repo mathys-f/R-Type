@@ -20,7 +20,7 @@ static void handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
     if (tag_name == "play_solo_button") {
         ctx.set_scene("singleplayer_game"); // Navigate to singleplayer game scene
     } else if (tag_name == "play_multiplayer_button") {
-        ctx.set_scene("lobby"); // Navigate to lobby scene
+        ctx.set_scene("servers"); // Navigate to servers scene
     } else if (tag_name == "setting_button") {
         ctx.settings_return_scene = "main_menu";
         ctx.set_scene("audio_settings"); // Navigate to audio settings scene
