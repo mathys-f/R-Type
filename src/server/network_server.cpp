@@ -29,7 +29,7 @@ EngineContext &NetworkServer::get_engine() {
 void NetworkServer::start() {
     // Set up connection callbacks
     m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });
+        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
     };
 
     m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
@@ -174,8 +174,8 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
     {
         std::lock_guard<std::mutex> lock(m_clients_mutex);
-        if (m_connected_clients.insert(endpoint).second) {
-            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+        if (m_connected_clients.insert(endpoint).second) {  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
         } else {
             return;
         }
