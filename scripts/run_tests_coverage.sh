@@ -6,7 +6,7 @@ echo "Configuring CMake with coverage support..."
 cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCOVERAGE=ON
 
 echo "Building networking_tests and ecs_tests..."
-cmake --build "$BUILD_DIR" --target networking_tests ecs_tests
+cmake --build "$BUILD_DIR" --target networking_tests ecs_tests -j
 if [ $? -ne 0 ]; then
     echo "Build failed."
     exit 1
