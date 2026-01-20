@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-networking/implementation-details" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Implementation Details | R-Type Documentation</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://your-docusaurus-site.example.com/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Implementation Details | R-Type Documentation"><meta data-rh="true" name="description" content="This page provides a compact API reference for the networking module. Focused on the public types, functions, and methods you will call from client/server code."><meta data-rh="true" property="og:description" content="This page provides a compact API reference for the networking module. Focused on the public types, functions, and methods you will call from client/server code."><link data-rh="true" rel="icon" href="/R-Type/previews/134-add-test-to-the-ecs/img/favicon.jpg"><link data-rh="true" rel="canonical" href="https://your-docusaurus-site.example.com/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details" hreflang="en"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Implementation Details","item":"https://your-docusaurus-site.example.com/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details"}]}</script><link rel="stylesheet" href="/R-Type/previews/134-add-test-to-the-ecs/assets/css/styles.4b065cb5.css">
+<script src="/R-Type/previews/134-add-test-to-the-ecs/assets/js/runtime~main.3f70e925.js" defer="defer"></script>
+<script src="/R-Type/previews/134-add-test-to-the-ecs/assets/js/main.6584794e.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/R-Type/previews/134-add-test-to-the-ecs/img/favicon.jpg"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/R-Type/previews/134-add-test-to-the-ecs/"><div class="navbar__logo"><img src="/R-Type/previews/134-add-test-to-the-ecs/img/favicon.jpg" alt="R-Type Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/R-Type/previews/134-add-test-to-the-ecs/img/favicon.jpg" alt="R-Type Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">R-Type Docs</b></a><a class="navbar__item navbar__link" href="/R-Type/previews/134-add-test-to-the-ecs/setup/">Setup</a><a class="navbar__item navbar__link" href="/R-Type/previews/134-add-test-to-the-ecs/architecture/">Architecture</a><a class="navbar__item navbar__link" href="/R-Type/previews/134-add-test-to-the-ecs/gameplay/">Game Design</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/R-Type/previews/134-add-test-to-the-ecs/networking/">Networking</a><a class="navbar__item navbar__link" href="/R-Type/previews/134-add-test-to-the-ecs/contributing/">Contributing</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/mathys-f/R-Type" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/R-Type/previews/134-add-test-to-the-ecs/networking/"><span title="RFC" class="linkLabel_WmDU">RFC</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/R-Type/previews/134-add-test-to-the-ecs/networking/flowcharts"><span title="Flowcharts" class="linkLabel_WmDU">Flowcharts</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" href="/R-Type/previews/134-add-test-to-the-ecs/networking/implementation-details"><span title="Implementation Details" class="linkLabel_WmDU">Implementation Details</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/R-Type/previews/134-add-test-to-the-ecs/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Implementation Details</span></li></ul></nav><div class="theme-doc-markdown markdown"><header><h1>Networking API Reference (concise)</h1></header>
+<p>This page provides a compact API reference for the networking module. Focused on the public types, functions, and methods you will call from client/server code.</p>
+<p>Source: <code>src/networking/rtp/networking.h</code>, <code>src/networking/rtp/*.cpp</code>, <code>src/networking/handshake/*</code>.</p>
+<p>Packet &amp; header</p>
+<ul>
+<li class="">
+<p><code>struct PacketHeader</code></p>
+<ul>
+<li class="">Fields: <code>m_magic</code>, <code>m_command</code>, <code>m_flags</code>, <code>m_sequence</code>, <code>m_ack</code>, <code>m_fragment_id</code>, <code>m_fragment_index</code>, <code>m_fragment_count</code>, <code>m_payload_size</code>, <code>m_checksum</code>.</li>
+<li class=""><code>std::array&lt;uint8_t, k_header_size&gt; serialize() const</code> — produce header bytes (little-endian).</li>
+<li class=""><code>static PacketHeader deserialize(std::span&lt;const uint8_t, k_header_size&gt;)</code> — parse header and validate magic/payload size.</li>
+</ul>
+</li>
+<li class="">
+<p><code>struct Packet</code></p>
+<ul>
+<li class="">Fields: <code>PacketHeader header</code>, <code>std::vector&lt;std::byte&gt; payload</code> (raw payload bytes stored as <code>std::byte</code>).</li>
+<li class=""><code>std::vector&lt;uint8_t&gt; to_buffer() const</code> — serialize header+payload into the on-wire <code>uint8_t</code> buffer and compute CRC.</li>
+<li class=""><code>static Packet from_buffer(std::span&lt;const uint8_t&gt;)</code> — parse full packet from an on-wire <code>uint8_t</code> buffer and validate checksum.</li>
+</ul>
+</li>
+</ul>
+<p>Enums &amp; flags</p>
+<ul>
+<li class=""><code>enum class CommandId : uint8_t</code> — command identifiers (e.g. <code>KReqLogin</code>, <code>KResLogin</code>, <code>KClientInput</code>, <code>KServerEntityState</code>, <code>KAck</code>).</li>
+<li class=""><code>enum class PacketFlag : uint8_t</code> — <code>KReliable</code>, <code>KFragment</code>, <code>KAck</code>, <code>KError</code>.</li>
+<li class="">Helpers: <code>has_flag(uint8_t mask, PacketFlag)</code>, <code>set_flag(uint8_t mask, PacketFlag)</code>, <code>clear_flag(...)</code> and bitwise operators.</li>
+</ul>
+<p>Reliability primitives</p>
+<ul>
+<li class="">
+<p><code>struct ReliabilityConfig</code> — parameters: <code>max_retransmissions</code>, <code>initial_rto</code>, <code>max_rto</code>, <code>window_size</code>.</p>
+</li>
+<li class="">
+<p><code>class ReliableSendQueue</code></p>
+<ul>
+<li class="">Constructor: <code>ReliableSendQueue(ReliabilityConfig config = {})</code></li>
+<li class=""><code>uint32_t next_sequence()</code> — returns next sequence id (increments counter).</li>
+<li class=""><code>void track(const Packet&amp; packet, time_point now)</code> — start tracking a sent reliable packet.</li>
+<li class=""><code>void acknowledge(uint32_t ackId)</code> — remove packets up to <code>ackId</code> from the queue.</li>
+<li class=""><code>std::vector&lt;Packet&gt; collect_timeouts(time_point now)</code> — return packets that need retransmission.</li>
+<li class=""><code>optional&lt;milliseconds&gt; time_until_next_timeout(time_point now) const</code> — time until next retransmit.</li>
+<li class=""><code>std::vector&lt;uint32_t&gt; take_failures()</code> — retrieve sequences that exhausted retries.</li>
+</ul>
+</li>
+<li class="">
+<p><code>class ReliableReceiveWindow</code></p>
+<ul>
+<li class=""><code>void observe(uint32_t sequence)</code> — update window with observed sequence.</li>
+<li class=""><code>uint32_t ack() const noexcept</code> — get highest contiguous ack id.</li>
+</ul>
+</li>
+</ul>
+<p>Transport</p>
+<ul>
+<li class=""><code>class UdpTransport : enable_shared_from_this&lt;UdpTransport&gt;</code>
+<ul>
+<li class="">Constructor: <code>UdpTransport(io_context&amp;, uint16_t localPort = 0)</code> — bind UDP socket.</li>
+<li class=""><code>void set_default_remote(const udp::endpoint&amp;)</code> — store default remote endpoint.</li>
+<li class=""><code>bool has_default_remote() const noexcept</code> — check default endpoint.</li>
+<li class=""><code>const udp::endpoint&amp; default_remote() const</code> — get default endpoint (throws if not set).</li>
+<li class=""><code>void start(PacketHandler handler)</code> — start async receive loop; <code>PacketHandler</code> is <code>function&lt;void(const error_code&amp;, Packet, const udp::endpoint&amp;)&gt;</code>.</li>
+<li class=""><code>void async_send(const Packet&amp; packet)</code> — send to default remote (throws if none).</li>
+<li class=""><code>void async_send(const Packet&amp; packet, const udp::endpoint&amp; endpoint, SendHandler handler = {})</code> — send to endpoint; <code>SendHandler</code> is <code>function&lt;void(const error_code&amp;, const Packet&amp;)&gt;</code>.</li>
+<li class=""><code>void close()</code> — close socket and stop receives.</li>
+</ul>
+</li>
+</ul>
+<p>Session (high-level)</p>
+<ul>
+<li class=""><code>class Session : enable_shared_from_this&lt;Session&gt;</code>
+<ul>
+<li class="">Constructor: <code>Session(io_context&amp;, const udp::endpoint&amp; remote, ReliabilityConfig config = {}, uint16_t localPort = 0)</code> — creates <code>UdpTransport</code>, configures remote.</li>
+<li class=""><code>using PacketCallback = function&lt;void(const Packet&amp;, const udp::endpoint&amp;)&gt;</code> — callback type.</li>
+<li class=""><code>void start(PacketCallback onReliable, PacketCallback onUnreliable)</code> — begin receiving and enable retransmit timers.</li>
+<li class=""><code>void send(Packet packet, bool reliable = false)</code> — send to configured default remote.</li>
+<li class=""><code>void send(Packet packet, const udp::endpoint&amp; endpoint, bool reliable = false)</code> — send to explicit endpoint.</li>
+<li class=""><code>void set_fragment_payload_size(size_t)</code> / <code>size_t fragment_payload_size() const</code> — set/get negotiated fragment payload size.</li>
+<li class=""><code>void poll()</code> — check retransmissions and send due packets (also invoked by internal timer).</li>
+<li class=""><code>const std::vector&lt;uint32_t&gt;&amp; failed_sequences() const noexcept</code> — sequences that exhausted retries.</li>
+</ul>
+</li>
+</ul>
+<p>Handshake helpers (namespace <code>net::handshake</code>)</p>
+<ul>
+<li class=""><code>struct ReqLogin { string m_username; uint32_t m_version; uint16_t m_preferred_fragment_size; }</code></li>
+<li class=""><code>struct ResLogin { bool m_success; uint32_t m_player_id; uint16_t m_effective_fragment_size; }</code></li>
+<li class=""><code>Packet make_req_login(const ReqLogin&amp;)</code> — build REQ_LOGIN packet payload.</li>
+<li class=""><code>Packet make_res_login(const ResLogin&amp;)</code> — build RES_LOGIN packet payload.</li>
+<li class=""><code>optional&lt;ReqLogin&gt; parse_req_login(const Packet&amp;)</code> — parse and validate REQ_LOGIN.</li>
+<li class=""><code>optional&lt;ResLogin&gt; parse_res_login(const Packet&amp;)</code> — parse and validate RES_LOGIN.</li>
+<li class=""><code>bool handle_server_handshake(const Packet&amp; packet, const shared_ptr&lt;Session&gt;&amp; session, const udp::endpoint&amp; endpoint)</code> — convenience: parse incoming REQ_LOGIN, set fragment size, send RES_LOGIN (returns true when handled).</li>
+</ul>
+<p>Quick usage notes</p>
+<ul>
+<li class="">To receive reliable messages: call <code>session-&gt;start(onReliableCallback, onUnreliableCallback)</code>.</li>
+<li class="">To send reliably: set <code>packet.header.m_flags</code> to include <code>KReliable</code> or call <code>session-&gt;send(packet, true)</code>.</li>
+<li class="">For large payloads: <code>Session</code> will fragment automatically (fragments are always sent reliably).</li>
+</ul>
+<p>Where to look in code</p>
+<ul>
+<li class=""><code>src/networking/rtp/networking.h</code> — primary API types and method signatures.</li>
+<li class=""><code>src/networking/rtp/packet.cpp</code> — serialization and checksum behavior.</li>
+<li class=""><code>src/networking/rtp/reliability.cpp</code> — retransmission and window logic.</li>
+<li class=""><code>src/networking/rtp/session.cpp</code> — session behavior, fragmentation, and callbacks.</li>
+<li class=""><code>src/networking/handshake/*</code> — login handshake helpers.</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/R-Type/previews/134-add-test-to-the-ecs/networking/flowcharts"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Flowcharts</div></a></nav></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/R-Type/previews/134-add-test-to-the-ecs/setup/">Setup</a></li><li class="footer__item"><a class="footer__link-item" href="/R-Type/previews/134-add-test-to-the-ecs/architecture/">Architecture</a></li><li class="footer__item"><a class="footer__link-item" href="/R-Type/previews/134-add-test-to-the-ecs/gameplay/">Game Design</a></li><li class="footer__item"><a class="footer__link-item" href="/R-Type/previews/134-add-test-to-the-ecs/networking/">Networking</a></li><li class="footer__item"><a class="footer__link-item" href="/R-Type/previews/134-add-test-to-the-ecs/contributing/">Contributing</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/mathys-f/R-Type" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright ©2025 R-Type, Inc. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>
