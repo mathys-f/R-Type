@@ -122,6 +122,9 @@ void sys::handle_snapshots_deltas_system(EngineContext& ctx)
     ctx.for_each_snapshot_delta([](EngineContext &ctx, const WorldDelta& delta) {
         ecs::Registry &registry = ctx.registry;
 
+        LOG_DEBUG("[CLIENT] Applying snapshot delta with {} entries (base tick {})",
+                  delta.entries.size(),
+                  delta.base_snapshot_tick);
         for (const DeltaEntry &entry : delta.entries) {
             switch (entry.operation) {
 
@@ -136,6 +139,15 @@ void sys::handle_snapshots_deltas_system(EngineContext& ctx)
 
 static void add_entity(ecs::Registry &registry, const DeltaEntry &entry)
 {
+    // Avoid duplicating entities if components arrived before the entity_add.
+    for (const auto &[entity_id, replicated] : ecs::indexed_zipper(registry.get_components<cpnt::Replicated>())) {
+        if (replicated != std::nullopt && replicated->tag == entry.entity_id) {
+            LOG_DEBUG("[CLIENT] entity_add ignored for replicated ID {} (already exists as local entity {})",
+                      entry.entity_id, static_cast<std::uint32_t>(registry.entity_from_index(entity_id)));
+            return;
+        }
+    }
+
     auto id = registry.spawn_entity();
 
     // All entity created over the network will have the replicated tag
@@ -224,34 +236,44 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
     auto replicated_id = entry.entity_id;
 
     // Find the local entity that has this replicated id
+    ecs::Entity local_entity{};
+    bool found = false;
     for (const auto &[entity_id, replicated] : ecs::indexed_zipper(registry.get_components<cpnt::Replicated>())) {
         if (replicated != std::nullopt && replicated->tag == replicated_id) {
-            auto local_entity = registry.entity_from_index(entity_id);
-
-            auto it = k_component_adders.find(type);
-            if (it != k_component_adders.end()) {
-                it->second(registry, local_entity, serialized);
-                
-                // Log EntityType additions
-                if (type == ComponentType::entity_type) {
-                    cpnt::EntityType temp_entity_type;
-                    temp_entity_type.deserialize(serialized.data);
-                    LOG_INFO("[CLIENT] Added EntityType '{}' to replicated ID {} (local entity {})", temp_entity_type.type_name, replicated_id, static_cast<std::uint32_t>(local_entity));
-                }
-
-                // Init graphics component if an EntityType was added
-                if (type == ComponentType::entity_type) {
-                    initialize_archetype(registry, local_entity, entry);
-                }
-            } else {
-                LOG_WARNING("Unknown component type {} for addition",
-                    static_cast<std::uint8_t>(type));
-            }
-            return;
+            local_entity = registry.entity_from_index(entity_id);
+            found = true;
+            break;
         }
     }
-    // Entity doesn't exist - likely destroyed before client received it, silently ignore
-    LOG_DEBUG("[CLIENT] Component update for replicated ID {} ignored (entity not found - likely destroyed)", replicated_id);
+
+    if (!found) {
+        // Create the entity if component updates arrived before entity_add.
+        local_entity = registry.spawn_entity();
+        registry.add_component(local_entity, cpnt::Replicated{replicated_id});
+        LOG_DEBUG("[CLIENT] Created entity {} for replicated ID {} from component update",
+                  static_cast<std::uint32_t>(local_entity), replicated_id);
+    }
+
+    auto it = k_component_adders.find(type);
+    if (it != k_component_adders.end()) {
+        it->second(registry, local_entity, serialized);
+
+        // Log EntityType additions
+        if (type == ComponentType::entity_type) {
+            cpnt::EntityType temp_entity_type;
+            temp_entity_type.deserialize(serialized.data);
+            LOG_INFO("[CLIENT] Added EntityType '{}' to replicated ID {} (local entity {})",
+                     temp_entity_type.type_name, replicated_id, static_cast<std::uint32_t>(local_entity));
+        }
+
+        // Init graphics component if an EntityType was added
+        if (type == ComponentType::entity_type) {
+            initialize_archetype(registry, local_entity, entry);
+        }
+    } else {
+        LOG_WARNING("Unknown component type {} for addition",
+            static_cast<std::uint8_t>(type));
+    }
 }
 
 #pragma region Archetypes

@@ -102,6 +102,7 @@ void clear_tombstones_system(EngineContext &ctx);
 
 
 void handle_snapshots_deltas_system(EngineContext& ctx);
+void apply_server_updates_system(EngineContext& ctx);
 void send_input_events_to_server(EngineContext& ctx);
 
 } // namespace sys
