@@ -118,24 +118,38 @@ void sys::server_player_control_system(EngineContext& ctx,
 
                 // Shoot (only if cooldown expired)
                 if (shoot_pressed && player->shoot_cooldown <= 0.0f) {
-                    auto bullet = reg.spawn_entity();
-                    // Add Replicated and EntityType FIRST to ensure they're in the snapshot
-                    reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
-                    reg.add_component(bullet, cpnt::EntityType{"bullet"});
-                    // Then add Transform and other critical components
-                    reg.add_component(bullet, cpnt::Transform{pos->x + k_bullet_offset_x, pos->y + k_bullet_offset_y,
-                                                              0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                    reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-                    reg.add_component(bullet, cpnt::Bullet{});
-                    reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    // Calculate bullet spawn position
+                    float bullet_x = pos->x + k_bullet_offset_x;
+                    float bullet_y = pos->y + k_bullet_offset_y;
                     
-                    LOG_INFO("[SERVER] Created bullet entity {} with Replicated ID {} at position ({}, {})", 
-                             static_cast<std::uint32_t>(bullet), 
-                             static_cast<std::uint32_t>(bullet),
-                             pos->x + k_bullet_offset_x,
-                             pos->y + k_bullet_offset_y);
+                    // Only spawn bullets if they start ON-SCREEN (visible to players)
+                    // This prevents bullets from spawning off-screen and being invisible
+                    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+                    if (bullet_x >= 0 && bullet_x <= ctx.window_size.x - k_bullet_width && 
+                        bullet_y >= 0 && bullet_y <= ctx.window_size.y - k_bullet_height) {
+                        // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+                        
+                        auto bullet = reg.spawn_entity();
+                        // Add Replicated and EntityType FIRST to ensure they're in the snapshot
+                        reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
+                        reg.add_component(bullet, cpnt::EntityType{"bullet"});
+                        // Then add Transform and other critical components
+                        reg.add_component(bullet, cpnt::Transform{bullet_x, bullet_y,
+                                                                  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                        reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                        reg.add_component(bullet, cpnt::Bullet{});
+                        reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                        
+                        LOG_INFO("[SERVER] Created bullet entity {} with Replicated ID {} at position ({}, {})", 
+                                 static_cast<std::uint32_t>(bullet), 
+                                 static_cast<std::uint32_t>(bullet),
+                                 bullet_x,
+                                 bullet_y);
+                    } else {
+                        LOG_DEBUG("[SERVER] Bullet spawn rejected - position ({}, {}) is off-screen", bullet_x, bullet_y);
+                    }
                     
-                    // Reset cooldown
+                    // Reset cooldown regardless of whether bullet was spawned
                     player->shoot_cooldown = k_shoot_cooldown;
                 }
             }

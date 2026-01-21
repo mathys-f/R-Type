@@ -88,6 +88,17 @@ void Registry::kill_entity(EntityType const& e) {
     m_free_entities.push_back(e);
 }
 
+void Registry::kill_entity_deferred(EntityType const& e) {
+    m_deferred_kills.push_back(e);
+}
+
+void Registry::process_deferred_kills() {
+    for (auto const& e : m_deferred_kills) {
+        kill_entity(e);
+    }
+    m_deferred_kills.clear();
+}
+
 const std::unordered_map<std::type_index, std::any>&
 ecs::Registry::get_entity_components(Entity entity) const noexcept {
     // Use a thread-local static map to store the result and return by reference

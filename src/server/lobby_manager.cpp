@@ -207,6 +207,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
             }
             server->poll();
             server->get_engine().run_systems();
+            server->get_engine().registry.process_deferred_kills();
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
         }
 

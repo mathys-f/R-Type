@@ -314,12 +314,15 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
         LOG_INFO("Spawning archetype shooter");
         // TODO: Add proper sprite initialization for shooter enemy
     } else if (entity_type.type_name == "bullet") {
-        LOG_INFO("[CLIENT] Initializing bullet archetype for local entity with Sprite component");
+        bool has_transform = registry.has_component<cpnt::Transform>(entity);
+        bool has_velocity = registry.has_component<cpnt::Velocity>(entity);
+        LOG_INFO("[CLIENT] Initializing bullet archetype - has Transform: {}, has Velocity: {}", has_transform, has_velocity);
         registry.add_component(
             entity, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                  k_bullet_scale,
                                  0,
                                  "player_ship"});
+        LOG_INFO("[CLIENT] Bullet sprite added for entity {}", static_cast<std::uint32_t>(entity));
     } // etc
 }
 

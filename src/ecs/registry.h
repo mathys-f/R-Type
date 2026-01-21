@@ -71,6 +71,13 @@ class Registry {
     /// @param e The entity to destroy.
     void kill_entity(EntityType const& e);
 
+    /// Mark an entity for deferred destruction (destroyed at end of frame).
+    /// @param e The entity to destroy later.
+    void kill_entity_deferred(EntityType const& e);
+
+    /// Process all deferred entity destructions. Call this at the end of each frame.
+    void process_deferred_kills();
+
     // Component management
     /// Add or replace a component instance for the given entity.
     /// @tparam TComponent Component type to add.
@@ -170,6 +177,7 @@ class Registry {
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
+    std::vector<EntityType> m_deferred_kills;
 
     // Current version counter
     Version m_current_version = 1; // The 0 is reserved for error values

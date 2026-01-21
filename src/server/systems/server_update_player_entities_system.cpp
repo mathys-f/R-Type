@@ -99,7 +99,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         for (auto [idx, player_opt] : ecs::indexed_zipper(players)) {
             if (player_opt && player_opt->id == player_id) {
                 auto entity = reg.entity_from_index(idx);
-                reg.kill_entity(entity);
+                reg.kill_entity_deferred(entity);
                 break;
             }
         }

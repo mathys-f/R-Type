@@ -96,6 +96,6 @@ void sys::server_collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
     }
 
     for (auto e : bullets_to_kill) {
-        reg.kill_entity(e);
+        reg.kill_entity_deferred(e);
     }
 }

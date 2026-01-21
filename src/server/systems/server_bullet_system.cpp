@@ -39,6 +39,6 @@ void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transf
     }
 
     for (auto e : to_kill) {
-        reg.kill_entity(e);
+        reg.kill_entity_deferred(e);
     }
 }
