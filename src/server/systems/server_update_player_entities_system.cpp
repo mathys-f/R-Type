@@ -17,10 +17,42 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
 
     // Create new player for each client who doesn't have one yet
     for (const auto &client : clients) {
-        // Skip if client already has a player
-        bool already_spawned = false;
+        std::uint8_t player_id = 0;
+        bool found_id = false;
+
+        // Reuse existing id if the client is already mapped
         for (const auto& [id, endpoint] : ctx.player_id_to_endpoint) {
             if (endpoint == client) {
+                player_id = id;
+                found_id = true;
+                break;
+            }
+        }
+
+        // Otherwise find the next available player ID
+        if (!found_id) {
+            for (std::uint8_t id = 0; id < ctx.k_player_count; ++id) {
+                if (ctx.player_id_to_endpoint.find(id) == ctx.player_id_to_endpoint.end()) {
+                    player_id = id;
+                    found_id = true;
+                    ctx.player_id_to_endpoint[player_id] = client;
+                    break;
+                }
+            }
+        }
+
+        if (!found_id) {
+            continue; // No available IDs
+        }
+
+        if (ctx.player_input_queues.find(client) == ctx.player_input_queues.end()) {
+            ctx.player_input_queues[client] = evts::EventQueue<evts::Event>{};
+        }
+
+        // Skip if the player entity already exists for this id
+        bool already_spawned = false;
+        for (const auto& [entity_id, player_opt] : ecs::indexed_zipper(players)) {
+            if (player_opt && player_opt->id == player_id) {
                 already_spawned = true;
                 break;
             }
@@ -29,25 +61,6 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         if (already_spawned) {
             continue;
         }
-
-        // Find the next available player ID
-        std::uint8_t new_player_id = 0;
-        bool found_id = false;
-        for (std::uint8_t id = 0; id < ctx.k_player_count; ++id) {
-            if (ctx.player_id_to_endpoint.find(id) == ctx.player_id_to_endpoint.end()) {
-                new_player_id = id;
-                found_id = true;
-                break;
-            }
-        }
-
-        if (!found_id) {
-            continue; // No available IDs
-        }
-
-        // Register the new player
-        ctx.player_id_to_endpoint[new_player_id] = client;
-        ctx.player_input_queues[client] = evts::EventQueue<evts::Event>{};
 
         // Create player's entity
         constexpr float k_ship_sprite_x = 166.0f;
@@ -68,7 +81,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         ctx.registry.add_component(
             player, cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
         cpnt::Player player_cpnt;
-        player_cpnt.id = new_player_id;
+        player_cpnt.id = player_id;
         ctx.registry.add_component(player, std::move(player_cpnt));
         ctx.registry.add_component(player, cpnt::Health{ctx.k_player_health, ctx.k_player_health});
         ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});

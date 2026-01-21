@@ -103,6 +103,10 @@ void clear_tombstones_system(EngineContext &ctx);
 
 void handle_snapshots_deltas_system(EngineContext& ctx);
 void apply_server_updates_system(EngineContext& ctx);
+void predict_local_player_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                                 ecs::SparseArray<cpnt::Player> const& players,
+                                 ecs::SparseArray<cpnt::Sprite> const& sprites,
+                                 ecs::SparseArray<cpnt::Velocity> const& velocities);
 void send_input_events_to_server(EngineContext& ctx);
 
 } // namespace sys

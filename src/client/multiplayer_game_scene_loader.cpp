@@ -73,11 +73,14 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::UIText>();
     registry.register_component<cpnt::UITransform>();
 
-    // Net
-    engine_ctx.add_system<>(sys::apply_server_updates_system);
     // IO
     engine_ctx.add_system<>(sys::fetch_inputs);
+    engine_ctx.add_system<>(sys::resolve_player_input);
     engine_ctx.add_system<>(send_input_system);
+    // Prediction
+    engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity>(sys::predict_local_player_system);
+    // Net
+    engine_ctx.add_system<>(sys::apply_server_updates_system);
     // engine_ctx.add_system<>(sys::log_inputs);
     // UI
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);

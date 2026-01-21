@@ -10,6 +10,7 @@ static void add_entity(ecs::Registry &registry, const DeltaEntry &entry);
 static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry);
 static void add_component(ecs::Registry &registry, const DeltaEntry &entry); // Also manages modifications
 static void remove_component(ecs::Registry &registry, const DeltaEntry &entry);
+static void apply_player_sprite_variant(ecs::Registry &registry, ecs::Entity entity);
 
 #pragma region Archetypes
 
@@ -25,6 +26,7 @@ constexpr float k_ship_sprite_y = 0.0f;
 constexpr float k_ship_width = 33.0f;
 constexpr float k_ship_height = 18.0f;
 constexpr float k_ship_scale = 3.0f;
+constexpr float k_player_sprite_row_height = 17.0f;
 
 // Bullet
 constexpr float k_bullet_offset_x = 50.0f;
@@ -337,6 +339,9 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
         if (type == ComponentType::entity_type) {
             initialize_archetype(registry, local_entity, entry);
         }
+        if (type == ComponentType::player) {
+            apply_player_sprite_variant(registry, local_entity);
+        }
         if (type == ComponentType::shooter && !registry.has_component<cpnt::EntityType>(local_entity)) {
             ensure_transform(registry, local_entity, "shooter");
             ensure_velocity(registry, local_entity, "shooter");
@@ -407,6 +412,7 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
                                     0,
                                     "players"});
         }
+        apply_player_sprite_variant(registry, entity);
     } else if (entity_type.type_name == "charger") {
         LOG_DEBUG("[CLIENT] Initializing charger archetype for entity {}", static_cast<std::uint32_t>(entity));
         if (!registry.has_component<cpnt::Sprite>(entity)) {
@@ -458,4 +464,20 @@ static void ensure_velocity(ecs::Registry &registry, ecs::Entity entity, const c
                     archetype_name,
                     static_cast<std::uint32_t>(entity));
     }
+}
+
+static void apply_player_sprite_variant(ecs::Registry &registry, ecs::Entity entity)
+{
+    if (!registry.has_component<cpnt::Player>(entity) || !registry.has_component<cpnt::Sprite>(entity)) {
+        return;
+    }
+
+    const auto& players = registry.get_components<cpnt::Player>();
+    const auto& sprites = registry.get_components<cpnt::Sprite>();
+    if (!players[entity].has_value() || !sprites[entity].has_value()) {
+        return;
+    }
+
+    auto& sprite = registry.get_components<cpnt::Sprite>()[entity];
+    sprite->source_rect.y = k_player_sprite_row_height * static_cast<float>(players[entity]->id);
 }

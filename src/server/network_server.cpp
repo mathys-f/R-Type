@@ -8,6 +8,7 @@
 #include "networking/lobby/lobby_messages.h"
 #include "utils/logger.h"
 
+#include <algorithm>
 #include <iostream>
 
 using namespace engn;
@@ -41,7 +42,47 @@ void NetworkServer::start() {
             // Update client activity timestamp whenever we receive a packet
             update_client_activity(from);
             
-            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
+            if (auto login_req = net::handshake::parse_req_login(pkt)) {
+                std::uint32_t assigned_id = 0;
+                bool id_available = false;
+                {
+                    std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+                    for (const auto& [player_id, endpoint] : m_engine_ctx.player_id_to_endpoint) {
+                        if (endpoint == from) {
+                            assigned_id = player_id;
+                            id_available = true;
+                            break;
+                        }
+                    }
+                    if (!id_available) {
+                        for (std::uint8_t id = 0; id < m_engine_ctx.k_player_count; ++id) {
+                            if (m_engine_ctx.player_id_to_endpoint.find(id) == m_engine_ctx.player_id_to_endpoint.end()) {
+                                assigned_id = id;
+                                id_available = true;
+                                m_engine_ctx.player_id_to_endpoint[id] = from;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                const std::uint16_t k_requested = login_req->m_preferred_fragment_size;
+                const std::uint16_t k_effective =
+                    (k_requested == 0) ? static_cast<std::uint16_t>(net::k_max_payload_size)
+                                       : static_cast<std::uint16_t>(std::min<std::size_t>(k_requested, net::k_max_payload_size));
+                m_session->set_fragment_payload_size(k_effective);
+
+                net::handshake::ResLogin resp_payload{
+                    .m_success = id_available,
+                    .m_player_id = assigned_id,
+                    .m_effective_fragment_size = k_effective
+                };
+                net::Packet resp = net::handshake::make_res_login(resp_payload);
+                m_session->send(resp, from, true);
+                if (!id_available) {
+                    LOG_WARNING("Rejecting login from {}:{} - no available player slots",
+                                from.address().to_string(), from.port());
+                }
                 return;
             }
 
