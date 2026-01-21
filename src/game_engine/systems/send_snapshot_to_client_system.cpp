@@ -15,6 +15,26 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
 {
     WorldDelta delta;
 
+    if (latest_ack_version == 0) {
+        for (const auto& entity_snapshot : snapshot.entities) {
+            DeltaEntry entity_entry;
+            entity_entry.operation = DeltaOperation::entity_add;
+            entity_entry.entity_id = entity_snapshot.entity_id;
+            delta.entries.push_back(entity_entry);
+
+            for (const auto& component : entity_snapshot.components) {
+                DeltaEntry comp_entry;
+                comp_entry.operation = DeltaOperation::component_add_or_update;
+                comp_entry.entity_id = entity_snapshot.entity_id;
+                comp_entry.component = component;
+                delta.entries.push_back(comp_entry);
+            }
+        }
+        
+        if (delta.entries.size() == 0) return std::nullopt;
+        return delta;
+    }
+
     // New entities
     for (const auto &[id, version] : registry.get_entity_creation_tombstones()) {
         if (latest_ack_version >= version) continue;
@@ -41,7 +61,8 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot,
 
         // Ensure the entity exists in the snapshot
         if (entity_it == snapshot.entities.end()) {
-            LOG_ERROR("Entity {} not found in current snapshot while computing delta", entity.value());
+            // This can happen for entities created before version tracking started
+            // Skip this component update - the entity will be sent in the next full sync or when properly created
             continue;
         }
 

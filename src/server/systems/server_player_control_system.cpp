@@ -21,7 +21,7 @@ constexpr float k_rotation_speed = 5.0f;
 // Bullet
 constexpr float k_bullet_offset_x = 50.0f;
 constexpr float k_bullet_offset_y = 30.0f;
-constexpr float k_bullet_speed = 650.0f;
+constexpr float k_bullet_speed = 350.0f;
 constexpr float k_bullet_width = 16.0f;
 constexpr float k_bullet_height = 8.0f;
 constexpr float k_bullet_scale = 2.0f;
@@ -119,13 +119,21 @@ void sys::server_player_control_system(EngineContext& ctx,
                 // Shoot (only if cooldown expired)
                 if (shoot_pressed && player->shoot_cooldown <= 0.0f) {
                     auto bullet = reg.spawn_entity();
+                    // Add Replicated and EntityType FIRST to ensure they're in the snapshot
+                    reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
+                    reg.add_component(bullet, cpnt::EntityType{"bullet"});
+                    // Then add Transform and other critical components
                     reg.add_component(bullet, cpnt::Transform{pos->x + k_bullet_offset_x, pos->y + k_bullet_offset_y,
                                                               0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet{});
                     reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                    reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
-                    reg.add_component(bullet, cpnt::EntityType{"bullet"});
+                    
+                    LOG_INFO("[SERVER] Created bullet entity {} with Replicated ID {} at position ({}, {})", 
+                             static_cast<std::uint32_t>(bullet), 
+                             static_cast<std::uint32_t>(bullet),
+                             pos->x + k_bullet_offset_x,
+                             pos->y + k_bullet_offset_y);
                     
                     // Reset cooldown
                     player->shoot_cooldown = k_shoot_cooldown;

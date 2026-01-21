@@ -18,7 +18,15 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
     // Create new player for each client who doesn't have one yet
     for (const auto &client : clients) {
         // Skip if client already has a player
-        if (ctx.player_input_queues.find(client) != ctx.player_input_queues.end()) {
+        bool already_spawned = false;
+        for (const auto& [id, endpoint] : ctx.player_id_to_endpoint) {
+            if (endpoint == client) {
+                already_spawned = true;
+                break;
+            }
+        }
+
+        if (already_spawned) {
             continue;
         }
 
@@ -38,8 +46,8 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         }
 
         // Register the new player
-        ctx.player_id_to_endpoint[new_player_id] = clients.back();
-        ctx.player_input_queues[clients.back()] = evts::EventQueue<evts::Event>{};
+        ctx.player_id_to_endpoint[new_player_id] = client;
+        ctx.player_input_queues[client] = evts::EventQueue<evts::Event>{};
 
         // Create player's entity
         constexpr float k_ship_sprite_x = 166.0f;

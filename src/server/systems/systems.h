@@ -32,6 +32,13 @@ void server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> 
     ecs::SparseArray<cpnt::Velocity> const& velocities,
     ecs::SparseArray<cpnt::Bullet> const& bullets);
 
+void server_collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+    ecs::SparseArray<cpnt::Bullet> const& bullets,
+    ecs::SparseArray<cpnt::Enemy> const& enemies,
+    ecs::SparseArray<cpnt::Health> const& healths,
+    ecs::SparseArray<cpnt::Hitbox> const& hitboxes,
+    ecs::SparseArray<cpnt::Player> const& players);
+
 } // namespace sys
 
 } // namespace engn

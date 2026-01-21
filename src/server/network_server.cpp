@@ -47,7 +47,7 @@ void NetworkServer::start() {
 
             // Handle logout requests
             if (auto logout_req = net::handshake::parse_req_logout(pkt)) {
-                LOG_INFO("Client {}:{} requested logout", from.address().to_string(), from.port());
+                LOG_INFO("Client logout request from port {}", from.port());
                 // Trigger disconnect callback
                 if (m_session->on_client_disconnect) {
                     m_session->on_client_disconnect(from);
@@ -100,7 +100,7 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
         net::lobby::ResLobbyList res;
         res.m_lobbies = lobby_list;
         m_session->send(net::lobby::make_res_lobby_list(res), from, true);
-        std::cout << "Sent lobby list to " << from.address().to_string() << ":" << from.port() << "\n";
+        std::cout << "Sent lobby list to client on port " << from.port() << "\n";
         return;
     }
 
@@ -138,11 +138,11 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 
         if (lobby) {
             if (lobby->can_join()) {
-                std::string player_ip = from.address().to_string();
+                std::string player_ip = from.address().to_string(); // NOLINT
                 lobby->add_player(player_ip);
                 res.m_success = true;
                 res.m_port = lobby->get_port();
-                std::cout << "Player " << player_ip << " joined lobby ID " << req->m_lobby_id << "\n";
+                std::cout << "Player joined lobby ID " << req->m_lobby_id << "\n";
             } else if (lobby->is_full()) {
                 res.m_success = false;
                 res.m_error_message = "Lobby is full";
@@ -163,9 +163,9 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
     if (auto req = net::lobby::parse_req_leave_lobby(pkt)) {
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
         if (lobby) {
-            std::string player_ip = from.address().to_string();
+            std::string player_ip = from.address().to_string(); // NOLINT
             lobby->remove_player(player_ip);
-            std::cout << "Player " << player_ip << " left lobby ID " << req->m_lobby_id << "\n";
+            std::cout << "Player left lobby ID " << req->m_lobby_id << "\n";
         }
         return;
     }
@@ -175,7 +175,7 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
     {
         std::lock_guard<std::mutex> lock(m_clients_mutex);
         if (m_connected_clients.insert(endpoint).second) {
-            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+            LOG_INFO("Client connected");
         } else {
             return;
         }
@@ -187,7 +187,7 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
-        LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
+        LOG_INFO("Client disconnected from port {}", endpoint.port());
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
     }
@@ -213,9 +213,7 @@ void NetworkServer::check_client_timeouts() {
 
     // Disconnect timed out clients
     for (const auto& endpoint : timed_out_clients) {
-        LOG_WARNING("Client {}:{} timed out after {} seconds of inactivity",
-                 endpoint.address().to_string(), endpoint.port(),
-                 net::k_client_timeout.count());
+        LOG_WARNING("Client timed out on port {}", endpoint.port());
 
         // Manually trigger disconnect (don't use the lock again)
         m_connected_clients.erase(endpoint);

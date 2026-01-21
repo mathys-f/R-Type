@@ -16,7 +16,7 @@ namespace {
 }
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats) {

@@ -201,7 +201,7 @@ std::uint32_t engn::WorldDelta::get_serialized_size() const {
             }
 
             case DeltaOperation::component_remove: {
-                total_size += entry.component->get_serialized_size();
+                total_size += sizeof(ComponentType);
                 break;
             }
         }

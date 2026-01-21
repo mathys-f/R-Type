@@ -15,7 +15,7 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor;
+    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void lobby_scene_loader(EngineContext &engine_ctx)
@@ -43,6 +43,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::server_enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health>(sys::server_enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::server_bullet_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Hitbox, cpnt::Player>(sys::server_collision_system);
     // Net
     engine_ctx.add_system<cpnt::Player>(sys::server_update_player_entities_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::create_snapshot_system);

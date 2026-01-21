@@ -23,7 +23,14 @@ void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transf
                 pos->y += vel_opt->vy * dt;
 
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                if (pos->x > ctx.window_size.x || pos->x < 0 || pos->y > ctx.window_size.y || pos->y < 0) {
+                // Extended bounds check: allow bullets to travel further off-screen
+                // This gives clients more time to receive and render bullets before destruction
+                constexpr float k_offscreen_margin = 400.0f;
+                if (pos->x > ctx.window_size.x + k_offscreen_margin || 
+                    pos->x < -k_offscreen_margin || 
+                    pos->y > ctx.window_size.y + k_offscreen_margin || 
+                    pos->y < -k_offscreen_margin) {
+                    LOG_INFO("[SERVER] Destroying bullet entity {} (out of bounds)", static_cast<std::uint32_t>(entity));
                     to_kill.push_back(entity);
                 }
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)

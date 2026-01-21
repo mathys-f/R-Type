@@ -141,7 +141,7 @@ static void add_entity(ecs::Registry &registry, const DeltaEntry &entry)
     // All entity created over the network will have the replicated tag
     // It helps make a relation between server entities ids & local ones
     registry.add_component(id, cpnt::Replicated{entry.entity_id});
-    LOG_INFO("New net entity #{}", entry.entity_id);
+    LOG_INFO("[CLIENT] Received entity_add for replicated ID {} -> local entity {}", entry.entity_id, static_cast<std::uint32_t>(id));
 }
 
 static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
@@ -150,7 +150,37 @@ static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
 
     for (const auto &[entity_id, replicated] : ecs::indexed_zipper(registry.get_components<cpnt::Replicated>())) {
         if (replicated != std::nullopt && replicated->tag == replicated_id) {
-            registry.kill_entity(registry.entity_from_index(entity_id));
+            auto entity = registry.entity_from_index(entity_id);
+
+            if (registry.has_component<cpnt::Bullet>(entity)) {
+                auto& positions = registry.get_components<cpnt::Transform>();
+                if (positions[entity_id].has_value()) {
+                    auto& pos = positions[entity_id].value();
+
+                    constexpr float k_explosion_sprite_x = 114.0f;
+                    constexpr float k_explosion_sprite_y = 18.0f;
+                    constexpr float k_explosion_sprite_w = 17.0f;
+                    constexpr float k_explosion_sprite_h = 16.0f;
+                    constexpr float k_explosion_scale = 3.0f;
+                    constexpr float k_explosion_frame_duration = 0.08f;
+                    constexpr int k_explosion_total_frames = 5;
+
+                    auto explosion = registry.spawn_entity();
+                    registry.add_component(explosion, cpnt::Transform{pos.x, pos.y, 0.0f, 0.0f,
+                                                                 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                    registry.add_component(explosion, cpnt::Sprite{{k_explosion_sprite_x, k_explosion_sprite_y,
+                                                               k_explosion_sprite_w, k_explosion_sprite_h},
+                                                              k_explosion_scale,
+                                                              0,
+                                                              "bulletExplosion"});
+                    registry.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                    registry.add_component(explosion,
+                                      cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f,
+                                                      k_explosion_frame_duration, 0, k_explosion_total_frames});
+                }
+            }
+            
+            registry.kill_entity(entity);
             LOG_DEBUG("Kill entity id:{}  repl_id:{}", entity_id, replicated_id);
             return;
         }
@@ -201,6 +231,13 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
             auto it = k_component_adders.find(type);
             if (it != k_component_adders.end()) {
                 it->second(registry, local_entity, serialized);
+                
+                // Log EntityType additions
+                if (type == ComponentType::entity_type) {
+                    cpnt::EntityType temp_entity_type;
+                    temp_entity_type.deserialize(serialized.data);
+                    LOG_INFO("[CLIENT] Added EntityType '{}' to replicated ID {} (local entity {})", temp_entity_type.type_name, replicated_id, static_cast<std::uint32_t>(local_entity));
+                }
 
                 // Init graphics component if an EntityType was added
                 if (type == ComponentType::entity_type) {
@@ -213,7 +250,8 @@ static void add_component(ecs::Registry &registry, const DeltaEntry &entry)
             return;
         }
     }
-    LOG_WARNING("Could not find local entity with replicated id {} for component addition", replicated_id);
+    // Entity doesn't exist - likely destroyed before client received it, silently ignore
+    LOG_DEBUG("[CLIENT] Component update for replicated ID {} ignored (entity not found - likely destroyed)", replicated_id);
 }
 
 #pragma region Archetypes
@@ -276,6 +314,7 @@ static void initialize_archetype(ecs::Registry &registry, ecs::Entity entity, co
         LOG_INFO("Spawning archetype shooter");
         // TODO: Add proper sprite initialization for shooter enemy
     } else if (entity_type.type_name == "bullet") {
+        LOG_INFO("[CLIENT] Initializing bullet archetype for local entity with Sprite component");
         registry.add_component(
             entity, cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                  k_bullet_scale,
