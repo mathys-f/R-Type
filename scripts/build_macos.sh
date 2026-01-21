@@ -20,8 +20,8 @@ cd build
 echo -e "${GREEN}Build directory ready.${RESET}"
 
 # Prompt user for build type
-read -p "$(echo -e "${YELLOW}Build type (Release/Debug) [Debug]: ${RESET}")" build_type
-build_type=${build_type:-Debug}
+read -p "$(echo -e "${YELLOW}Build type (Release/Debug) [Release]: ${RESET}")" build_type
+build_type=${build_type:-Release}
 
 # Validate build type
 if [ "$build_type" != "Release" ] && [ "$build_type" != "Debug" ]; then
