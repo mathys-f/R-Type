@@ -78,15 +78,8 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     }
 
     // Render everything with sprites
-    static int s_frame_counter = 0; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-    s_frame_counter++;
-    constexpr int k_log_interval = 60;
     for (auto [idx, pos_opt, sprite_opt] : ecs::indexed_zipper(positions, sprites)) {
         if (pos_opt && sprite_opt) {
-            // Log bullet rendering every 60 frames (~1 second)
-            if (reg.has_component<cpnt::Bullet>(reg.entity_from_index(idx)) && s_frame_counter % k_log_interval == 0) {
-                LOG_INFO("[CLIENT] Rendering bullet at ({:.1f}, {:.1f})", pos_opt->x, pos_opt->y);
-            }
             float width = sprite_opt->source_rect.width * sprite_opt->scale;
             float height = sprite_opt->source_rect.height * sprite_opt->scale;
 

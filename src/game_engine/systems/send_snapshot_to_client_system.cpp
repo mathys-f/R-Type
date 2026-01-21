@@ -131,11 +131,6 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
 
         WorldDelta world_delta = delta_snapshot_opt.value();
         world_delta.base_snapshot_tick = ctx.get_current_tick();
-        LOG_DEBUG("[SERVER] Sending snapshot delta to {}:{} with {} entries (base tick {})",
-                  endpoint.address().to_string(),
-                  endpoint.port(),
-                  world_delta.entries.size(),
-                  world_delta.base_snapshot_tick);
         std::unique_ptr<std::byte> data(world_delta.serialize());
         net::Packet packet;
         packet.header.m_command = static_cast<std::uint8_t>(net::CommandId::KServerEntityState);

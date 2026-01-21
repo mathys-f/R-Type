@@ -139,14 +139,9 @@ void sys::server_player_control_system(EngineContext& ctx,
                         reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                         reg.add_component(bullet, cpnt::Bullet{});
                         reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                        
-                        LOG_INFO("[SERVER] Created bullet entity {} with Replicated ID {} at position ({}, {})", 
-                                 static_cast<std::uint32_t>(bullet), 
-                                 static_cast<std::uint32_t>(bullet),
-                                 bullet_x,
-                                 bullet_y);
+
                     } else {
-                        LOG_DEBUG("[SERVER] Bullet spawn rejected - position ({}, {}) is off-screen", bullet_x, bullet_y);
+                        // LOG_INFO("[SERVER] Bullet spawn position out of bounds, not spawning bullet");
                     }
                     
                     // Reset cooldown regardless of whether bullet was spawned

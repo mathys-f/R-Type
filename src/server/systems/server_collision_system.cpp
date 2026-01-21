@@ -39,7 +39,6 @@ void sys::server_collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
                     // Check collision
                     if (bullet_right >= enemy_left && bullet_left <= enemy_right &&
                         bullet_bottom >= enemy_top && bullet_top <= enemy_bottom) {
-                        LOG_INFO("[SERVER] Destroying bullet entity {} (hit enemy)", static_cast<std::uint32_t>(reg.entity_from_index(bullet_idx)));
                         bullets_to_kill.push_back(reg.entity_from_index(bullet_idx));
 
                         // Mark entities as dirty for networking

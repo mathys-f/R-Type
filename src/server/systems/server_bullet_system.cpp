@@ -30,7 +30,6 @@ void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transf
                     pos->x < -k_offscreen_margin || 
                     pos->y > ctx.window_size.y + k_offscreen_margin || 
                     pos->y < -k_offscreen_margin) {
-                    LOG_INFO("[SERVER] Destroying bullet entity {} (out of bounds)", static_cast<std::uint32_t>(entity));
                     to_kill.push_back(entity);
                 }
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
