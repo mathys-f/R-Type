@@ -42,6 +42,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     std::uniform_real_distribution<float> dist(k_dist_min, k_dist_max);
 
     registry.register_component<cpnt::Bullet>();
+    registry.register_component<cpnt::BulletShooter>();
     registry.register_component<cpnt::Enemy>();
     registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
@@ -50,7 +51,11 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::MovementPattern>();
     registry.register_component<cpnt::Player>();
     registry.register_component<cpnt::Replicated>();
+    registry.register_component<cpnt::EntityType>();
     registry.register_component<cpnt::Sprite>();
+    registry.register_component<cpnt::Boss>();
+    registry.register_component<cpnt::BossHitbox>();
+    registry.register_component<cpnt::Particle>();
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::Transform>();
@@ -104,6 +109,10 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+    engine_ctx.assets_manager.load_texture("players", "assets/sprites/r-typesheet42.gif");
+    engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+    engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
+    engine_ctx.assets_manager.load_texture("boss", "assets/sprites/r-typesheet30.gif");
 
     // Reset and create network client in engine context
     if (engine_ctx.network_client) {

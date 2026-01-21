@@ -9,11 +9,15 @@
 #include "components/movement_pattern.h"
 #include "components/player.h"
 #include "components/replicated.h"
+#include "components/shooter.h"
 #include "components/sprite.h"
 #include "components/stats.h"
 #include "components/tag.h"
 #include "components/transform.h"
 #include "components/velocity.h"
+#include "components/bullet_shooter.h"
+#include "components/boss.h"
+#include "components/boss_hitbox.h"
 
 using namespace engn;
 
@@ -27,10 +31,14 @@ const std::unordered_map<ComponentType, std::type_index> engn::k_component_type_
     {ComponentType::player, typeid(cpnt::Player)},
     {ComponentType::replicated, typeid(cpnt::Replicated)},
     {ComponentType::movement_pattern, typeid(cpnt::MovementPattern)},
+    {ComponentType::shooter, typeid(cpnt::Shooter)},
     {ComponentType::stats, typeid(cpnt::Stats)},
     {ComponentType::tag, typeid(cpnt::Tag)},
     {ComponentType::transform, typeid(cpnt::Transform)},
-    {ComponentType::velocity, typeid(cpnt::Velocity)}
+    {ComponentType::velocity, typeid(cpnt::Velocity)},
+    {ComponentType::bullet_shooter, typeid(cpnt::BulletShooter)},
+    {ComponentType::boss, typeid(cpnt::Boss)},
+    {ComponentType::boss_hitbox, typeid(cpnt::BossHitbox)}
 };
 
 const std::unordered_map<std::type_index, ComponentType> engn::k_type_index_to_component_type_map = {
@@ -43,8 +51,12 @@ const std::unordered_map<std::type_index, ComponentType> engn::k_type_index_to_c
     {typeid(cpnt::Player), ComponentType::player},
     {typeid(cpnt::Replicated), ComponentType::replicated},
     {typeid(cpnt::MovementPattern), ComponentType::movement_pattern},
+    {typeid(cpnt::Shooter), ComponentType::shooter},
     {typeid(cpnt::Stats), ComponentType::stats},
     {typeid(cpnt::Tag), ComponentType::tag},
     {typeid(cpnt::Transform), ComponentType::transform},
-    {typeid(cpnt::Velocity), ComponentType::velocity}
+    {typeid(cpnt::Velocity), ComponentType::velocity},
+    {typeid(cpnt::BulletShooter), ComponentType::bullet_shooter},
+    {typeid(cpnt::Boss), ComponentType::boss},
+    {typeid(cpnt::BossHitbox), ComponentType::boss_hitbox}
 };
