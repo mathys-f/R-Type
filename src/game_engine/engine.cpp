@@ -65,6 +65,10 @@ void EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
     if (it != m_clients.end()) {
         m_clients.erase(it);
     }
+    {
+        std::lock_guard<std::mutex> lock_b(snapshots_history_mutex);
+        m_snapshots_history.erase(client_endpoint);
+    }
 }
 
 std::vector<asio::ip::udp::endpoint> EngineContext::get_clients() {
@@ -116,31 +120,34 @@ std::size_t EngineContext::get_current_tick() const {
     return m_current_tick;
 }
 
-SnapshotRecord& EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoint) {
+SnapshotRecord EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoint) {
     std::lock_guard<std::mutex> lock(snapshots_history_mutex);
-    static SnapshotRecord s_empty_record; // Need to be static to return reference
+    SnapshotRecord empty_record;
 
     if (m_snapshots_history.empty()) {
-       return s_empty_record;
+       return empty_record;
     }
 
-    auto &history = m_snapshots_history.at(endpoint);
+    auto it = m_snapshots_history.find(endpoint);
+    if (it == m_snapshots_history.end()) {
+        return empty_record;
+    }
 
-    SnapshotRecord &record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    const auto &history = it->second;
+    SnapshotRecord record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
     if (!record.snapshot.entities.empty()) {
         return record;
     }
-    return s_empty_record;
+    return empty_record;
 }
 
-const SnapshotRecord& EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) {
+SnapshotRecord EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) {
     std::lock_guard<std::mutex> lock(snapshots_history_mutex);
-    static SnapshotRecord s_empty_record; // Need to be static to return reference
-
-    s_empty_record.acknowledged = true; // The empty record is sent if the player has never acknowledged anything yet
-    s_empty_record.last_update_tick = 0;
+    SnapshotRecord empty_record;
+    empty_record.acknowledged = true; // The empty record is sent if the player has never acknowledged anything yet
+    empty_record.last_update_tick = 0;
     if (m_snapshots_history.find(endpoint) == m_snapshots_history.end())
-       return s_empty_record;
+       return empty_record;
 
     const auto &history = m_snapshots_history.at(endpoint);
 
@@ -151,7 +158,7 @@ const SnapshotRecord& EngineContext::get_latest_acknowledged_snapshot(asio::ip::
             return record;
         }
     }
-    return s_empty_record;
+    return empty_record;
 }
 
 void EngineContext::record_snapshot(SnapshotRecord &record) {
@@ -162,8 +169,25 @@ void EngineContext::record_snapshot(SnapshotRecord &record) {
 }
 
 std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() {
-    std::lock_guard<std::mutex> lock(snapshots_history_mutex);
     return m_snapshots_history;
+}
+
+bool EngineContext::update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoint, std::uint32_t msg_id) {
+    std::lock_guard<std::mutex> lock(snapshots_history_mutex);
+    auto it = m_snapshots_history.find(endpoint);
+    if (it == m_snapshots_history.end()) {
+        return false;
+    }
+    auto& history = it->second;
+    if (history.empty()) {
+        return false;
+    }
+    auto& record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    if (record.snapshot.entities.empty()) {
+        return false;
+    }
+    record.msg_id = msg_id;
+    return true;
 }
 
 void EngineContext::add_snapshot_delta(WorldDelta &delta) {

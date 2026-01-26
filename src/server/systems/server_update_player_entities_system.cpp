@@ -49,6 +49,10 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
             ctx.player_input_queues[client] = evts::EventQueue<evts::Event>{};
         }
 
+        if (ctx.dead_player_ids.find(player_id) != ctx.dead_player_ids.end()) {
+            continue;
+        }
+
         // Skip if the player entity already exists for this id
         bool already_spawned = false;
         for (const auto& [entity_id, player_opt] : ecs::indexed_zipper(players)) {
@@ -70,8 +74,8 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         constexpr float k_ship_scale = 3.0f;
 
         // NOLINTBEGIN(cppcoreguidelines-narrowing-conversions, cppcoreguidelines-pro-type-union-access)
-        const int k_width = ctx.k_sim_size.x;
-        const int k_height = ctx.k_sim_size.y;
+        const int k_width = static_cast<int>(ctx.window_size.x);
+        const int k_height = static_cast<int>(ctx.window_size.y);
         // NOLINTEND(cppcoreguidelines-narrowing-conversions, cppcoreguidelines-pro-type-union-access)
 
         Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
@@ -107,6 +111,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         auto endpoint = ctx.player_id_to_endpoint[player_id];
         ctx.player_id_to_endpoint.erase(player_id);
         ctx.player_input_queues.erase(endpoint);
+        ctx.dead_player_ids.erase(player_id);
 
         // Remove the player's entity
         for (auto [idx, player_opt] : ecs::indexed_zipper(players)) {

@@ -7,10 +7,11 @@
 using namespace engn;
 
 static void add_entity(ecs::Registry &registry, const DeltaEntry &entry);
-static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry);
+static void remove_entity(EngineContext& ctx, ecs::Registry &registry, const DeltaEntry &entry);
 static void add_component(ecs::Registry &registry, const DeltaEntry &entry); // Also manages modifications
 static void remove_component(ecs::Registry &registry, const DeltaEntry &entry);
 static void apply_player_sprite_variant(ecs::Registry &registry, ecs::Entity entity);
+static void maybe_spawn_death_explosion(ecs::Registry &registry, ecs::Entity entity, int old_hp, int new_hp);
 
 #pragma region Archetypes
 
@@ -62,6 +63,15 @@ constexpr float k_boss_wave_center_x = 1350.0f;
 constexpr float k_boss_wave_center_y = 400.0f;
 constexpr float k_boss_wave_speed = 2000.0f;
 
+// Explosion (large)
+constexpr float k_large_explosion_sprite_x = 0.0f;
+constexpr float k_large_explosion_sprite_y = 99.0f;
+constexpr float k_large_explosion_sprite_w = 65.0f;
+constexpr float k_large_explosion_sprite_h = 64.0f;
+constexpr float k_large_explosion_scale = 2.0f;
+constexpr float k_large_explosion_frame_duration = 0.08f;
+constexpr int k_large_explosion_frames = 5;
+
 // Type-erased component removal function
 using ComponentRemover = std::function<void(ecs::Registry&, ecs::Entity)>;
 
@@ -110,9 +120,21 @@ static std::unordered_map<ComponentType, ComponentAdder> build_component_adders(
             reg.add_component(e, std::move(component));
         }},
         {ComponentType::health, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
+            int old_hp = -1;
+            const auto& healths = reg.get_components<cpnt::Health>();
+            const auto k_index = static_cast<std::size_t>(static_cast<ecs::Entity::IdType>(e));
+            if (k_index < healths.size() && healths[k_index].has_value()) {
+                old_hp = healths[k_index]->hp;
+            }
             cpnt::Health component;
             component.deserialize(sc.data);
             reg.add_component(e, std::move(component));
+            if (old_hp >= 0) {
+                const auto& new_healths = reg.get_components<cpnt::Health>();
+                if (k_index < new_healths.size() && new_healths[k_index].has_value()) {
+                    maybe_spawn_death_explosion(reg, e, old_hp, new_healths[k_index]->hp);
+                }
+            }
         }},
         {ComponentType::hitbox, [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
             cpnt::Hitbox component;
@@ -192,7 +214,7 @@ void sys::handle_snapshots_deltas_system(EngineContext& ctx)
             switch (entry.operation) {
 
                 case (DeltaOperation::entity_add): add_entity(registry, entry); /*LOG_DEBUG("add_entity");*/ break;
-                case (DeltaOperation::entity_remove): remove_entity(registry, entry); /*LOG_DEBUG("remove_entity");*/ break;
+                case (DeltaOperation::entity_remove): remove_entity(ctx, registry, entry); /*LOG_DEBUG("remove_entity");*/ break;
                 case (DeltaOperation::component_add_or_update): add_component(registry, entry); /*LOG_DEBUG("add_component");*/ break;
                 case (DeltaOperation::component_remove): remove_component(registry, entry); /*LOG_DEBUG("remove_component");*/ break;
             }
@@ -219,7 +241,7 @@ static void add_entity(ecs::Registry &registry, const DeltaEntry &entry)
     LOG_INFO("[CLIENT] Received entity_add for replicated ID {} -> local entity {}", entry.entity_id, static_cast<std::uint32_t>(id));
 }
 
-static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
+static void remove_entity(EngineContext& ctx, ecs::Registry &registry, const DeltaEntry &entry)
 {
     auto replicated_id = entry.entity_id;
 
@@ -227,31 +249,38 @@ static void remove_entity(ecs::Registry &registry, const DeltaEntry &entry)
         if (replicated != std::nullopt && replicated->tag == replicated_id) {
             auto entity = registry.entity_from_index(entity_id);
 
-            if (registry.has_component<cpnt::Bullet>(entity)) {
+            if (registry.has_component<cpnt::Bullet>(entity) ||
+                registry.has_component<cpnt::BulletShooter>(entity)) {
                 auto& positions = registry.get_components<cpnt::Transform>();
                 if (positions[entity_id].has_value()) {
                     auto& pos = positions[entity_id].value();
+                    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+                    const bool k_on_screen = pos.x >= 0.0f && pos.x <= ctx.window_size.x &&
+                                             pos.y >= 0.0f && pos.y <= ctx.window_size.y;
+                    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
-                    constexpr float k_explosion_sprite_x = 114.0f;
-                    constexpr float k_explosion_sprite_y = 18.0f;
-                    constexpr float k_explosion_sprite_w = 17.0f;
-                    constexpr float k_explosion_sprite_h = 16.0f;
-                    constexpr float k_explosion_scale = 3.0f;
-                    constexpr float k_explosion_frame_duration = 0.08f;
-                    constexpr int k_explosion_total_frames = 5;
+                    if (k_on_screen) {
+                        constexpr float k_explosion_sprite_x = 114.0f;
+                        constexpr float k_explosion_sprite_y = 18.0f;
+                        constexpr float k_explosion_sprite_w = 17.0f;
+                        constexpr float k_explosion_sprite_h = 16.0f;
+                        constexpr float k_explosion_scale = 3.0f;
+                        constexpr float k_explosion_frame_duration = 0.08f;
+                        constexpr int k_explosion_total_frames = 5;
 
-                    auto explosion = registry.spawn_entity();
-                    registry.add_component(explosion, cpnt::Transform{pos.x, pos.y, 0.0f, 0.0f,
-                                                                 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                    registry.add_component(explosion, cpnt::Sprite{{k_explosion_sprite_x, k_explosion_sprite_y,
-                                                               k_explosion_sprite_w, k_explosion_sprite_h},
-                                                              k_explosion_scale,
-                                                              0,
-                                                              "bulletExplosion"});
-                    registry.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-                    registry.add_component(explosion,
-                                      cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f,
-                                                      k_explosion_frame_duration, 0, k_explosion_total_frames});
+                        auto explosion = registry.spawn_entity();
+                        registry.add_component(explosion, cpnt::Transform{pos.x, pos.y, 0.0f, 0.0f,
+                                                                     0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                        registry.add_component(explosion, cpnt::Sprite{{k_explosion_sprite_x, k_explosion_sprite_y,
+                                                                   k_explosion_sprite_w, k_explosion_sprite_h},
+                                                                  k_explosion_scale,
+                                                                  0,
+                                                                  "bulletExplosion"});
+                        registry.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                        registry.add_component(explosion,
+                                          cpnt::Explosion{cpnt::Explosion::ExplosionType::Small, 0.0f,
+                                                          k_explosion_frame_duration, 0, k_explosion_total_frames});
+                    }
                 }
             }
             
@@ -480,4 +509,45 @@ static void apply_player_sprite_variant(ecs::Registry &registry, ecs::Entity ent
 
     auto& sprite = registry.get_components<cpnt::Sprite>()[entity];
     sprite->source_rect.y = k_player_sprite_row_height * static_cast<float>(players[entity]->id);
+}
+
+static void maybe_spawn_death_explosion(ecs::Registry &registry, ecs::Entity entity, int old_hp, int new_hp)
+{
+    if ((old_hp >= 0 && old_hp <= 0) || new_hp > 0) {
+        return;
+    }
+    if (!registry.has_component<cpnt::Transform>(entity)) {
+        return;
+    }
+
+    const auto k_index = static_cast<std::size_t>(static_cast<ecs::Entity::IdType>(entity));
+    const auto& positions = registry.get_components<cpnt::Transform>();
+    if (k_index >= positions.size() || !positions[k_index].has_value()) {
+        return;
+    }
+
+    bool is_large = registry.has_component<cpnt::Enemy>(entity) ||
+                    registry.has_component<cpnt::Shooter>(entity) ||
+                    registry.has_component<cpnt::Boss>(entity) ||
+                    registry.has_component<cpnt::Player>(entity);
+    if (!is_large) {
+        return;
+    }
+
+    const auto& pos = positions[k_index].value();
+    auto explosion = registry.spawn_entity();
+    registry.add_component(explosion, cpnt::Transform{pos.x, pos.y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+    registry.add_component(explosion, cpnt::Sprite{{k_large_explosion_sprite_x, k_large_explosion_sprite_y,
+                                                    k_large_explosion_sprite_w, k_large_explosion_sprite_h},
+                                                   k_large_explosion_scale,
+                                                   0,
+                                                   "explosion"});
+    registry.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+    registry.add_component(explosion,
+                           cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
+                                           k_large_explosion_frame_duration, 0, k_large_explosion_frames});
+
+    if (registry.has_component<cpnt::Player>(entity)) {
+        registry.remove_component<cpnt::Sprite>(entity);
+    }
 }

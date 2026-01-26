@@ -123,10 +123,10 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
     const auto k_clients = ctx.get_clients();
 
     for (const auto &endpoint : k_clients) {
-        const auto &ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
-        auto &latest_snapshot = ctx.get_latest_snapshot(endpoint);
+        const auto k_ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
+        const auto k_latest_snapshot = ctx.get_latest_snapshot(endpoint);
 
-        auto delta_snapshot_opt = compute_delta(latest_snapshot.snapshot, ack_snapshot.last_update_tick, ctx.registry);
+        auto delta_snapshot_opt = compute_delta(k_latest_snapshot.snapshot, k_ack_snapshot.last_update_tick, ctx.registry);
         if (!delta_snapshot_opt.has_value()) continue;
 
         WorldDelta world_delta = delta_snapshot_opt.value();
@@ -138,6 +138,6 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
         packet.payload = std::vector<std::byte>(data.get(), data.get() + world_delta.get_serialized_size()); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         data.release(); // Prevent freing the data since it's now owned by the packet payload
         std::uint32_t packet_id = ctx.network_session->send(packet, endpoint, true);
-        latest_snapshot.msg_id = packet_id;
+        ctx.update_latest_snapshot_msg_id(endpoint, packet_id);
     }
 }

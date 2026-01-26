@@ -36,6 +36,7 @@ std::uint32_t Session::send(Packet packet, bool reliable) {
 }
 
 std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_started) {
         throw std::logic_error("session not started");
     }
@@ -52,10 +53,12 @@ std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoi
 }
 
 bool Session::is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const {
+    std::lock_guard<std::mutex> lock(m_mutex);
     return m_send_queue.is_acknowledged(id, endpoint);
 }
 
 void Session::poll() {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_started) {
         return;
     }
@@ -86,61 +89,78 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
         return;
     }
 
-    // Track new client connections
-    if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
-        m_connected_endpoints.insert(endpoint);
-        if (on_client_connect) {
-            on_client_connect(endpoint);
+    bool new_connection = false;
+    bool drop_packet = false;
+    PacketCallback callback{};
+    Packet callback_packet{};
+    bool dispatch = false;
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        // Track new client connections
+        if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
+            m_connected_endpoints.insert(endpoint);
+            new_connection = true;
         }
-    }
 
-    m_send_queue.acknowledge(packet.header.m_ack, endpoint);
+        m_send_queue.acknowledge(packet.header.m_ack, endpoint);
 
-    if (packet.payload.size() > m_fragment_payload_size) {
-        return;
-    }
-
-    bool is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
-    const bool k_is_ack_packet = has_flag(packet.header.m_flags, PacketFlag::KAck);
-    const bool k_is_fragment = has_flag(packet.header.m_flags, PacketFlag::KFragment);
-
-    if (is_reliable) {
-        m_receive_window.observe(packet.header.m_sequence);
-        Packet ack_packet{};
-        ack_packet.header.m_command = static_cast<std::uint8_t>(CommandId::KAck);
-        ack_packet.header.m_flags = static_cast<std::uint8_t>(PacketFlag::KAck);
-        ack_packet.header.m_ack = m_receive_window.ack();
-        m_transport->async_send(ack_packet, endpoint);
-    }
-
-    if (k_is_ack_packet && !is_reliable) {
-        return;
-    }
-
-    if (k_is_fragment) {
-        auto assembled = ingest_fragment(std::move(packet));
-        if (!assembled.has_value()) {
+        if (packet.payload.size() > m_fragment_payload_size) {
             schedule_retransmission();
-            return;
+            drop_packet = true;
+        } else {
+            bool is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
+            const bool k_is_ack_packet = has_flag(packet.header.m_flags, PacketFlag::KAck);
+            const bool k_is_fragment = has_flag(packet.header.m_flags, PacketFlag::KFragment);
+
+            if (is_reliable) {
+                m_receive_window.observe(packet.header.m_sequence);
+                Packet ack_packet{};
+                ack_packet.header.m_command = static_cast<std::uint8_t>(CommandId::KAck);
+                ack_packet.header.m_flags = static_cast<std::uint8_t>(PacketFlag::KAck);
+                ack_packet.header.m_ack = m_receive_window.ack();
+                m_transport->async_send(ack_packet, endpoint);
+            }
+
+            if (k_is_ack_packet && !is_reliable) {
+                schedule_retransmission();
+                drop_packet = true;
+            } else {
+                if (k_is_fragment) {
+                    auto assembled = ingest_fragment(std::move(packet));
+                    if (!assembled.has_value()) {
+                        schedule_retransmission();
+                        drop_packet = true;
+                    } else {
+                        packet = std::move(assembled.value());
+                        is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
+                    }
+                }
+
+                if (!drop_packet) {
+                    callback = is_reliable ? m_reliable_callback : m_unreliable_callback;
+                    if (callback) {
+                        callback_packet = std::move(packet);
+                        dispatch = true;
+                    }
+                    schedule_retransmission();
+                }
+            }
         }
-        packet = std::move(assembled.value());
-        is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
     }
 
-    if (is_reliable) {
-        if (m_reliable_callback) {
-            m_reliable_callback(packet, endpoint);
-        }
-    } else {
-        if (m_unreliable_callback) {
-            m_unreliable_callback(packet, endpoint);
-        }
+    if (new_connection && on_client_connect) {
+        on_client_connect(endpoint);
     }
 
-    schedule_retransmission();
+    if (!drop_packet && dispatch && callback) {
+        callback(callback_packet, endpoint);
+    }
 }
 
 void Session::set_fragment_payload_size(std::size_t fragmentPayloadSize) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (fragmentPayloadSize == 0 || fragmentPayloadSize > k_max_payload_size) {
         m_fragment_payload_size = k_max_payload_size;
         return;
@@ -149,6 +169,7 @@ void Session::set_fragment_payload_size(std::size_t fragmentPayloadSize) {
 }
 
 std::size_t Session::fragment_payload_size() const noexcept {
+    std::lock_guard<std::mutex> lock(m_mutex);
     return m_fragment_payload_size;
 }
 

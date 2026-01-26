@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <deque>
 #include <functional>
+#include <mutex>
 #include <optional>
 #include <span>
 #include <unordered_map>
@@ -377,5 +378,6 @@ class Session : public std::enable_shared_from_this<Session> {
     std::size_t m_fragment_payload_size = k_max_payload_size;
     bool m_started = false;
     std::unordered_set<asio::ip::udp::endpoint, EndpointHash> m_connected_endpoints{};
+    mutable std::mutex m_mutex;
 };
 } // namespace net

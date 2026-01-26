@@ -231,6 +231,10 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
         LOG_INFO("Client disconnected from port {}", endpoint.port());
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+            m_engine_ctx.last_input_masks.erase(endpoint);
+        }
     }
 }
 
@@ -260,6 +264,10 @@ void NetworkServer::check_client_timeouts() {
         m_connected_clients.erase(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+            m_engine_ctx.last_input_masks.erase(endpoint);
+        }
     }
 }
 
@@ -297,6 +305,7 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
 
     std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
     auto& player_queue = m_engine_ctx.player_input_queues[from];
+    std::uint8_t& last_mask = m_engine_ctx.last_input_masks[from];
     const auto& controls = m_engine_ctx.controls;
 
     if (move_up) {
@@ -311,7 +320,9 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
     if (move_right) {
         player_queue.push(engn::evts::KeyHold{controls.move_right.primary});
     }
-    if (shoot) {
-        player_queue.push(engn::evts::KeyHold{controls.shoot.primary});
+    const bool k_shoot_pressed = shoot && ((last_mask & k_input_shoot) == 0);
+    if (k_shoot_pressed) {
+        player_queue.push(engn::evts::KeyPressed{controls.shoot.primary});
     }
+    last_mask = input_mask;
 }

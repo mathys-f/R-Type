@@ -67,9 +67,37 @@ void ecs::Registry::remove_entity_components_metadata(EntityType const& e) {
 
 Registry::EntityType Registry::spawn_entity() {
     if (!m_free_entities.empty()) {
-        EntityType e = m_free_entities.back();
-        m_free_entities.pop_back();
-        return e;
+        std::vector<EntityType> deferred;
+        while (!m_free_entities.empty()) {
+            EntityType e = m_free_entities.back();
+            m_free_entities.pop_back();
+
+            const bool k_has_destroy_tombstone = m_entity_destruction_tumbstones.find(e) != m_entity_destruction_tumbstones.end();
+            const bool k_has_component_tombstones =
+                m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end();
+            bool has_metadata = false;
+            for (const auto& [key, version] : m_component_metadata) {
+                if (key.first == e) {
+                    has_metadata = true;
+                    break;
+                }
+            }
+
+            if (k_has_destroy_tombstone || k_has_component_tombstones || has_metadata) {
+                // Defer reuse until tombstones/metadata are cleared to keep snapshots consistent.
+                deferred.push_back(e);
+                continue;
+            }
+
+            for (const auto& deferred_entity : deferred) {
+                m_free_entities.push_back(deferred_entity);
+            }
+            return e;
+        }
+
+        for (const auto& deferred_entity : deferred) {
+            m_free_entities.push_back(deferred_entity);
+        }
     }
     m_entity_creation_tumbstones[EntityType{m_next_entity}] = m_current_version;
     return EntityType{m_next_entity++};
@@ -128,4 +156,3 @@ TagRegistry& Registry::get_tag_registry() noexcept {
 const TagRegistry& Registry::get_tag_registry() const noexcept {
     return tag_registry;
 }
-
