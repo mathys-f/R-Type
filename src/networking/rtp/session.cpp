@@ -84,6 +84,10 @@ const std::vector<std::uint32_t>& Session::failed_sequences() const noexcept {
     return m_failed_cache;
 }
 
+asio::ip::udp::endpoint Session::local_endpoint() const {
+    return m_transport->local_endpoint();
+}
+
 void Session::handle_packet(const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
     if (ec) {
         return;

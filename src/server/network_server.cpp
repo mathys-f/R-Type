@@ -30,7 +30,7 @@ EngineContext &NetworkServer::get_engine() {
 void NetworkServer::start() {
     // Set up connection callbacks
     m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });
+        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
     };
 
     m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
