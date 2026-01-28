@@ -1,6 +1,7 @@
 # Build artifacts
 build/
 .cache/
+CMakeUserPresets.json
 
 # Executables files
 r-type*.exe
