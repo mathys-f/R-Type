@@ -47,8 +47,13 @@ void UdpTransport::async_send(const Packet& packet, const asio::ip::udp::endpoin
 
 void UdpTransport::close() {
     m_running = false;
-    asio::error_code ec;
-    m_socket.close(ec);
+    if (m_socket.is_open()) {
+        m_socket.close();
+    }
+}
+
+asio::ip::udp::endpoint UdpTransport::local_endpoint() const {
+    return m_socket.local_endpoint();
 }
 
 void UdpTransport::do_receive() {

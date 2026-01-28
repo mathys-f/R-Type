@@ -1,129 +1,152 @@
 # R-Type
 
-## What is it ???
+> A robust multiplayer implementation of the classic R-Type game, powered by a custom Entity Component System (ECS) engine.
 
-A multiplayer version of the classic R-Type game made by yours trully, Serveur Robuste's team.
+![Gameplay Screenshot](docs/static/img/gameplay.png)
 
-## Build & Run
+*Gameplay screenshot.*
+
+## 🚀 About The Project
+
+R-Type is a side-scrolling shooter game where players control a spaceship to defeat enemies and obstacles. This project is a multiplayer implementation built from scratch using C++17/20.
+
+It features a custom game engine based on the **ECS (Entity Component System)** architecture, ensuring high performance and modularity. The game uses a **Client-Server** architecture to handle multiplayer interactions, with UDP for real-time game state synchronization.
+
+## ✨ Features
+
+*   **Multiplayer**: Play with up to 4 friends in real-time.
+*   **Custom ECS Engine**: High-performance architecture separating data (Components) from logic (Systems).
+*   **Cross-Platform**: Runs on Linux, Windows, and macOS.
+*   **Networking**: Robust UDP-based networking protocol with lag compensation.
+*   **Audio**: Immersive sound effects and music.
+*   **Customizable Controls**: Remap your keyboard or gamepad inputs.
+*   **Documentation**: Comprehensive developer documentation.
+
+## 🛠️ Build & Run
 
 ### Linux
 
 #### Dependencies
 
-Make sur you have these packages installed:
+Ensure you have the following packages installed:
 
-```
-build-essentials \
-cmake \
-git \
-libx11-dev \
-libxrandr-dev \
-libxinerama-dev \
-libxcursor-dev \
-libxi-dev \
-libgl1-mesa-dev \
-libasound2-dev \
+```bash
+build-essential
+cmake
+git
+libx11-dev
+libxrandr-dev
+libxinerama-dev 
+libxcursor-dev 
+libxi-dev 
+libgl1-mesa-dev 
+libasound2-dev 
 mesa-common-dev
 ```
 
-#### Build
+#### Build & Run
 
-Then you can just use the provided script to build & run both the client & server:
+Use the provided script to build and run both client and server:
 
 ```bash
 ./scripts/build_linux.sh
 ```
 
-Once this script has been ran, you should see both the client & server executable at the root of your project.
+### macOS
 
-If not, you will find them under /build/bin/Debug/r-type_xxx or /build/bin/Release/r-type_xxx depending on what you choose while running the build script.
+#### Prerequisites
 
+*   **Xcode Command Line Tools**: `xcode-select --install`
+*   **CMake**: `brew install cmake`
 
-#### Run
+#### Build & Run
+
+Use the macOS build script:
 
 ```bash
-# Launches the client
-r-type_client
+./scripts/build_macos.sh
 ```
 
-```bash
-# launches the server
-r-type_server -p 8080
-```
-
+This script will compile the project and optionally launch the client and server for you.
 
 ### Windows
 
 #### Prerequisites
 
-1. **MinGW-w64 (W64Devkit)** - Download from [W64Devkit releases](https://github.com/skeeto/w64devkit/releases)
-   - Extract W64Devkit to a directory (e.g., `C:\w64devkit`)
-   - Add the `bin` folder to your PATH (e.g., `C:\w64devkit\bin`)
+1.  **MinGW-w64 (W64Devkit)** - Download from [W64Devkit releases](https://github.com/skeeto/w64devkit/releases)
+2.  **CMake** - Download from [cmake.org](https://cmake.org/download/)
 
-2. **CMake** - Download from [cmake.org](https://cmake.org/download/)
-   - Make sure CMake is added to your PATH during installation
+#### Build & Run
 
-3. **Git** (optional but recommended) - For cloning the repository
-
-#### Verify Installation
-
-Open a terminal (Command Prompt, PowerShell, or W64Devkit shell) and run:
-
-```bash
-gcc --version
-cmake --version
-```
-
-Both commands should display version information if installed correctly.
-
-#### Build
-
-You have two options to build the project:
-
-**Option 1: Using the batch script (Command Prompt/PowerShell)**
-
+**Option 1: Batch script (Command Prompt/PowerShell)**
 ```cmd
 scripts\build_windows.bat
 ```
 
-**Option 2: Using the bash script (Git Bash/W64Devkit shell)**
-
+**Option 2: Bash script (Git Bash/W64Devkit)**
 ```bash
 ./scripts/build_windows.sh
 ```
 
-The script will:
-- Check for MinGW-w64 and CMake
-- Configure the project with CMake
-- Ask you to choose between Debug or Release build
-- Build the project
-- Copy executables to the root directory
-- Optionally launch the client and server
+## 🎮 How to Play
 
-Once the script has run, you should find both executables at the root of your project:
-- `r-type_client.exe`
-- `r-type_server.exe`
+### Controls
 
-If not, they will be in `build\bin\Debug\` or `build\bin\Release\` depending on your build type.
+| Action | Keyboard (Primary) | Keyboard (Secondary) | Gamepad |
+| :--- | :--- | :--- | :--- |
+| **Move Up** | `W` | `Up Arrow` | D-Pad Up |
+| **Move Down** | `S` | `Down Arrow` | D-Pad Down |
+| **Move Left** | `A` | `Left Arrow` | D-Pad Left |
+| **Move Right** | `D` | `Right Arrow` | D-Pad Right |
+| **Shoot** | `Space` | - | Button South (A/X) |
 
-#### Run
+*Controls can be customized in the Settings menu.*
 
-```cmd
-# Launch the server
-r-type_server.exe -p 8080
-```
+### Launching the Game
 
-```cmd
-# Launch the client (in another terminal)
-r-type_client.exe
-```
+1.  **Start the Server**:
+    ```bash
+    ./r-type_server -p 8080
+    ```
+2.  **Start the Client**:
+    ```bash
+    ./r-type_client
+    ```
+3.  **Connect**: In the client, enter the server IP (default localhost) and port (default 8080) to join the lobby.
 
-#### Troubleshooting
+## 📚 Documentation
 
-- **"gcc not found"**: Make sure MinGW-w64's bin directory is in your PATH
-- **"cmake not found"**: Make sure CMake is installed and in your PATH
-- **Build errors**: Try cleaning the build directory and rebuilding:
-  ```cmd
-  rmdir /s /q build
-  scripts\build_windows.bat
-  ```
+The project documentation is built with Docusaurus.
+
+To run the documentation locally:
+
+1.  Navigate to the `docs` folder:
+    ```bash
+    cd docs
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Start the development server:
+    ```bash
+    npm start
+    ```
+    This will open the documentation in your browser at `http://localhost:3000`.
+
+## 📂 Project Structure
+
+*   `src/`: Source code for the game and engine.
+    *   `client/`: Game client specific code (rendering, inputs).
+    *   `server/`: Game server specific code (game loop, authoritative state).
+    *   `ecs/`: Entity Component System implementation.
+    *   `game_engine/`: Core engine systems and components.
+    *   `networking/`: Network protocol implementation.
+*   `assets/`: Game assets (sprites, music, sounds).
+*   `docs/`: Project documentation.
+*   `scripts/`: Build and utility scripts.
+*   `web/`: Web dashboard (Frontend/Backend).
+
+## 👥 Team
+
+Developed by **Serveur Robuste's team**.

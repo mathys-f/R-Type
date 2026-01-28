@@ -157,6 +157,14 @@ struct ReliabilityConfig {
     std::size_t window_size = k_default_window_size;
 };
 
+// Status of a reliable message delivery.
+enum class DeliveryStatus {
+    Pending,      // Message is in queue and within RTO
+    Acknowledged, // Message has been acknowledged
+    TimedOut,     // Message RTO has expired, waiting for retransmission
+    Failed        // Message reached maximum retransmissions
+};
+
 // Queue that manages reliable packet sending with retransmission logic.
 class ReliableSendQueue {
   public:
@@ -190,7 +198,7 @@ class ReliableSendQueue {
      */
     std::vector<std::uint32_t> take_failures();
 
-    [[nodiscard]] bool is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const;
+    [[nodiscard]] DeliveryStatus is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const;
 
   private:
     struct Pending {
@@ -264,6 +272,11 @@ class UdpTransport : public std::enable_shared_from_this<UdpTransport> {
      */
     void close();
 
+    /**
+     * Returns the local endpoint the socket is bound to.
+     */
+    [[nodiscard]] asio::ip::udp::endpoint local_endpoint() const;
+
   private:
     void do_receive();
 
@@ -304,7 +317,7 @@ class Session : public std::enable_shared_from_this<Session> {
     /**
      * Checks if a specific message ID (sequence number) has been acknowledged by a specific endpoint.
      */
-    [[nodiscard]] bool is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
+    [[nodiscard]] DeliveryStatus is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
     /**
      * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
      */
@@ -318,6 +331,11 @@ class Session : public std::enable_shared_from_this<Session> {
      * Returns the list of sequence identifiers that exceeded retry limits.
      */
     [[nodiscard]] const std::vector<std::uint32_t>& failed_sequences() const noexcept;
+
+    /**
+     * Returns the local endpoint the session is bound to.
+     */
+    [[nodiscard]] asio::ip::udp::endpoint local_endpoint() const;
 
     /**
      * Callback invoked when a new client connects (first packet received from endpoint).

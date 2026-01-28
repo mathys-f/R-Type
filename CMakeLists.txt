@@ -162,4 +162,31 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     endif()
 endif()
 
+option(BUILD_TESTING "Build the testing tree." ON)
+option(COVERAGE "Enable coverage reporting" OFF)
+
+if(COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        add_compile_options(-fprofile-arcs -ftest-coverage)
+        add_link_options(--coverage)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        add_compile_options(--coverage)
+        add_link_options(--coverage)
+    endif()
+endif()
+
+if(BUILD_TESTING)
+    enable_testing()
+    CPMAddPackage(
+        NAME googletest
+        GITHUB_REPOSITORY google/googletest
+        GIT_TAG v1.14.0
+        OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt ON"
+    )
+endif()
+
 add_subdirectory(src)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
