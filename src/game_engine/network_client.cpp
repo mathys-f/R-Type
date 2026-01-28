@@ -172,9 +172,9 @@ void NetworkClient::send_input_mask(std::uint8_t mask, std::uint32_t tick) {
     m_session->send(pkt, false);
 }
 
-bool NetworkClient::is_message_acknowledged(std::uint32_t id) const {
+net::DeliveryStatus NetworkClient::is_message_acknowledged(std::uint32_t id) const {
     if (!m_connected.load() || !m_session) {
-        return false;
+        return net::DeliveryStatus::Failed;
     }
     return m_session->is_message_acknowledged(id, m_server_endpoint);
 }

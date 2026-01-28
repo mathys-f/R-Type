@@ -51,7 +51,7 @@ std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoi
     return seq_num;
 }
 
-bool Session::is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const {
+DeliveryStatus Session::is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const {
     return m_send_queue.is_acknowledged(id, endpoint);
 }
 

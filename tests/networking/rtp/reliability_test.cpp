@@ -24,15 +24,15 @@ TEST(ReliabilityTest, QueueAndAck) {
     queue.track(p1, now, ep1);
     queue.track(p2, now, ep1);
 
-    EXPECT_FALSE(queue.is_acknowledged(1, ep1));
-    EXPECT_FALSE(queue.is_acknowledged(2, ep1));
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Pending);
+    EXPECT_EQ(queue.is_acknowledged(2, ep1), DeliveryStatus::Pending);
 
     queue.acknowledge(1, ep1);
-    EXPECT_TRUE(queue.is_acknowledged(1, ep1));
-    EXPECT_FALSE(queue.is_acknowledged(2, ep1));
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Acknowledged);
+    EXPECT_EQ(queue.is_acknowledged(2, ep1), DeliveryStatus::Pending);
 
     queue.acknowledge(2, ep1);
-    EXPECT_TRUE(queue.is_acknowledged(2, ep1));
+    EXPECT_EQ(queue.is_acknowledged(2, ep1), DeliveryStatus::Acknowledged);
 }
 
 TEST(ReliabilityTest, TimeoutAndRetransmission) {
@@ -88,6 +88,36 @@ TEST(ReliabilityTest, MaxRetransmissions) {
     auto failures = queue.take_failures();
     ASSERT_EQ(failures.size(), 1);
     EXPECT_EQ(failures[0], p1.header.m_sequence);
+}
+
+TEST(ReliabilityTest, StatusChecks) {
+    ReliabilityConfig config;
+    config.initial_rto = std::chrono::milliseconds(50);
+    config.max_retransmissions = 2;
+
+    ReliableSendQueue queue(config);
+    Packet p1{};
+    p1.header.m_sequence = queue.next_sequence();
+
+    auto start = std::chrono::steady_clock::now();
+    asio::ip::udp::endpoint ep1;
+
+    queue.track(p1, start, ep1);
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Pending);
+
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Pending);
+
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Pending);
+
+    auto now = start + std::chrono::milliseconds(60);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::TimedOut);
+
+    queue.collect_timeouts(std::chrono::steady_clock::now() + std::chrono::milliseconds(100));
+    queue.collect_timeouts(std::chrono::steady_clock::now() + std::chrono::milliseconds(1000));
+
+    EXPECT_EQ(queue.is_acknowledged(1, ep1), DeliveryStatus::Failed);
 }
 
 TEST(ReliabilityTest, ReceiveWindow) {
