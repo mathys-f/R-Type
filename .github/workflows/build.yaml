@@ -148,6 +148,68 @@ jobs:
           build/bin/${{ matrix.build_type }}/r-type_client.exe
           build/bin/${{ matrix.build_type }}/r-type_server.exe
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup C++ environment
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: gcc
+        cmake: true
+        ninja: true
+
+    - name: Cache CPM dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          build/_deps
+          ~/.cache/CPM
+        key: linux-cpm-tests-${{ hashFiles('CMakeLists.txt', 'src/**/CMakeLists.txt', 'tests/**/CMakeLists.txt') }}
+        restore-keys: |
+          linux-cpm-tests-
+          linux-cpm-
+
+    - name: Install Linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential \
+          libx11-dev \
+          libxrandr-dev \
+          libxinerama-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libgl1-mesa-dev \
+          libasound2-dev \
+          mesa-common-dev
+
+    - name: Create build directory
+      run: mkdir -p build
+
+    - name: Configure CMake with tests enabled
+      timeout-minutes: 15
+      run: |
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -G Ninja \
+          -DCPM_SOURCE_CACHE=~/.cache/CPM \
+          -DCMAKE_VERBOSE_MAKEFILE=OFF \
+          -DBUILD_TESTING=ON
+
+    - name: Build project and tests
+      timeout-minutes: 20
+      run: |
+        cd build
+        cmake --build . --config Debug --parallel 2
+
+    - name: Run unit tests
+      run: |
+        cd build
+        ctest --output-on-failure --verbose
+
   test-linux:
     needs: build-linux
     strategy:

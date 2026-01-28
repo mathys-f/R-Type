@@ -264,6 +264,11 @@ class UdpTransport : public std::enable_shared_from_this<UdpTransport> {
      */
     void close();
 
+    /**
+     * Returns the local endpoint the socket is bound to.
+     */
+    [[nodiscard]] asio::ip::udp::endpoint local_endpoint() const;
+
   private:
     void do_receive();
 
@@ -318,6 +323,11 @@ class Session : public std::enable_shared_from_this<Session> {
      * Returns the list of sequence identifiers that exceeded retry limits.
      */
     [[nodiscard]] const std::vector<std::uint32_t>& failed_sequences() const noexcept;
+
+    /**
+     * Returns the local endpoint the session is bound to.
+     */
+    [[nodiscard]] asio::ip::udp::endpoint local_endpoint() const;
 
     /**
      * Callback invoked when a new client connects (first packet received from endpoint).

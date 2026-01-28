@@ -6,7 +6,7 @@ file(GLOB_RECURSE NETWORKING_SOURCES
 
 target_sources(networking PRIVATE ${NETWORKING_SOURCES})
 
-target_include_directories(networking PRIVATE
+target_include_directories(networking PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

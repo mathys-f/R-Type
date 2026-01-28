@@ -81,75 +81,8 @@ const std::vector<std::uint32_t>& Session::failed_sequences() const noexcept {
     return m_failed_cache;
 }
 
-void Session::handle_packet(const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
-    if (ec) {
-        return;
-    }
-
-    // Track new client connections
-    if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
-        m_connected_endpoints.insert(endpoint);
-        if (on_client_connect) {
-            on_client_connect(endpoint);
-        }
-    }
-
-    m_send_queue.acknowledge(packet.header.m_ack, endpoint);
-
-    if (packet.payload.size() > m_fragment_payload_size) {
-        return;
-    }
-
-    bool is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
-    const bool k_is_ack_packet = has_flag(packet.header.m_flags, PacketFlag::KAck);
-    const bool k_is_fragment = has_flag(packet.header.m_flags, PacketFlag::KFragment);
-
-    if (is_reliable) {
-        m_receive_window.observe(packet.header.m_sequence);
-        Packet ack_packet{};
-        ack_packet.header.m_command = static_cast<std::uint8_t>(CommandId::KAck);
-        ack_packet.header.m_flags = static_cast<std::uint8_t>(PacketFlag::KAck);
-        ack_packet.header.m_ack = m_receive_window.ack();
-        m_transport->async_send(ack_packet, endpoint);
-    }
-
-    if (k_is_ack_packet && !is_reliable) {
-        return;
-    }
-
-    if (k_is_fragment) {
-        auto assembled = ingest_fragment(std::move(packet));
-        if (!assembled.has_value()) {
-            schedule_retransmission();
-            return;
-        }
-        packet = std::move(assembled.value());
-        is_reliable = has_flag(packet.header.m_flags, PacketFlag::KReliable);
-    }
-
-    if (is_reliable) {
-        if (m_reliable_callback) {
-            m_reliable_callback(packet, endpoint);
-        }
-    } else {
-        if (m_unreliable_callback) {
-            m_unreliable_callback(packet, endpoint);
-        }
-    }
-
-    schedule_retransmission();
-}
-
-void Session::set_fragment_payload_size(std::size_t fragmentPayloadSize) {
-    if (fragmentPayloadSize == 0 || fragmentPayloadSize > k_max_payload_size) {
-        m_fragment_payload_size = k_max_payload_size;
-        return;
-    }
-    m_fragment_payload_size = fragmentPayloadSize;
-}
-
-std::size_t Session::fragment_payload_size() const noexcept {
-    return m_fragment_payload_size;
+asio::ip::udp::endpoint Session::local_endpoint() const {
+    return m_transport->local_endpoint();
 }
 
 std::uint32_t Session::send_single_packet(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
@@ -299,6 +232,67 @@ Packet Session::rebuild_packet(FragmentBuffer& buffer) {
     }
 
     return assembled;
+}
+
+void Session::set_fragment_payload_size(std::size_t fragmentPayloadSize) {
+    m_fragment_payload_size = std::min(fragmentPayloadSize, k_max_payload_size);
+}
+
+std::size_t Session::fragment_payload_size() const noexcept {
+    return m_fragment_payload_size;
+}
+
+void Session::handle_packet(const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
+    if (ec) {
+        return;
+    }
+
+    if (packet.header.m_magic != k_magic_number) {
+        return;
+    }
+
+    // Process Acks
+    m_send_queue.acknowledge(packet.header.m_ack, endpoint);
+    
+    // Keep track of connected endpoints
+    if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
+        m_connected_endpoints.insert(endpoint);
+        if (on_client_connect) {
+            on_client_connect(endpoint);
+        }
+    }
+
+    // If it is just an Ack packet, we are done
+    if (packet.header.m_command == static_cast<uint8_t>(CommandId::KAck)) {
+        return;
+    }
+
+    // Update Receive Window
+    if (packet.header.m_sequence != 0) {
+        m_receive_window.observe(packet.header.m_sequence);
+    }
+    
+    // Handle Fragmentation
+    if (has_flag(packet.header.m_flags, PacketFlag::KFragment)) {
+        auto assembled = ingest_fragment(std::move(packet));
+        if (assembled) {
+            if (m_reliable_callback) {
+                 m_reliable_callback(*assembled, endpoint);
+            }
+        }
+        return;
+    }
+
+    // Dispatch
+    if (has_flag(packet.header.m_flags, PacketFlag::KReliable)) {
+        if (m_reliable_callback) {
+            m_reliable_callback(packet, endpoint);
+        }
+    } else {
+        if (m_unreliable_callback) {
+            m_unreliable_callback(packet, endpoint);
+        }
+    }
 }
 
 void Session::schedule_retransmission() {
