@@ -10,7 +10,7 @@ void sys::update_snapshots_system(EngineContext& ctx)
     std::lock_guard<std::mutex> lock(ctx.snapshots_history_mutex);
     for (auto &[endpoint, history] : ctx.get_snapshots_history()) {
         for (auto &record : history) {
-            if (ctx.network_session->is_message_acknowledged(record.msg_id, endpoint) == true)
+            if (ctx.network_session->is_message_acknowledged(record.msg_id, endpoint) == net::DeliveryStatus::Acknowledged)
                 record.acknowledged = true;
         }
     }

@@ -36,7 +36,7 @@ class NetworkClient {
     std::uint32_t send_reliable(const net::Packet& packet);
     void send_unreliable(const net::Packet& packet);
     void send_input_mask(std::uint8_t mask, std::uint32_t tick);
-    bool is_message_acknowledged(std::uint32_t id) const;
+    net::DeliveryStatus is_message_acknowledged(std::uint32_t id) const;
     void disconnect();
     bool is_connected() const {
         return m_connected.load();
