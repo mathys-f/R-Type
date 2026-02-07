@@ -141,7 +141,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             return;
         }
 
-        // 1. Background Panel (Semi-transparent black)
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         auto bg_entity = registry.spawn_entity();
         registry.add_component(bg_entity, cpnt::UITransform{0, 0, 10, 100, 100, 0, 0, 0});
         registry.add_component(bg_entity, cpnt::UIStyle{
@@ -152,7 +152,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         });
         registry.add_component(bg_entity, cpnt::UIInteractable{});
 
-        // 2. Disconnected Text
         auto text_entity = registry.spawn_entity();
         registry.add_component(text_entity, cpnt::UITransform{50, 40, 11, 0, 0, 0.5f, 0.5f, 0});
         registry.add_component(text_entity, cpnt::UIText{"Disconnected from server", 40});
@@ -163,7 +162,6 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             0, 0
         });
 
-        // 3. Back Button
         auto btn_entity = registry.spawn_entity();
         tag_registry.create_and_bind_tag("disconnect_back_button", btn_entity);
         registry.add_component(btn_entity, cpnt::Tag{tag_registry.get_tag_id("disconnect_back_button")});
@@ -178,6 +176,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         });
         registry.add_component(btn_entity, cpnt::UIButton{});
         registry.add_component(btn_entity, cpnt::UIInteractable{});
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     });
 
     const char* player_name = "Player1";
@@ -185,9 +184,9 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
-    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) { 
+    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) {
         if (engine_ctx.network_client) {
-            engine_ctx.network_client->poll(); 
+            engine_ctx.network_client->poll();
         }
     });
 
