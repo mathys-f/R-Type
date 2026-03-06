@@ -194,6 +194,9 @@ class Registry {
     // Last version in which an entity's component has changed/been created
     std::unordered_map<std::pair<EntityType, std::type_index>, Version> m_component_metadata;
 
+    // Inverse index: entity -> list of component types (for fast lookup)
+    std::unordered_map<EntityType, std::vector<std::type_index>> m_entity_to_components;
+
     /// Remove all of an entity's components metadatas entries
     void remove_entity_components_metadata(EntityType const& e);
 };

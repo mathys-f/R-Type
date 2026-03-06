@@ -56,12 +56,12 @@ void ecs::Registry::remove_component_metadata(EntityType const& e, std::type_ind
 }
 
 void ecs::Registry::remove_entity_components_metadata(EntityType const& e) {
-    for (auto it = m_component_metadata.begin(); it != m_component_metadata.end(); ) {
-        if (it->first.first == e) {
-            it = m_component_metadata.erase(it);
-        } else {
-            ++it;
+    auto it = m_entity_to_components.find(e);
+    if (it != m_entity_to_components.end()) {
+        for (const auto& type_idx : it->second) {
+            m_component_metadata.erase({e, type_idx});
         }
+        m_entity_to_components.erase(it);
     }
 }
 
@@ -75,15 +75,9 @@ Registry::EntityType Registry::spawn_entity() {
             const bool k_has_destroy_tombstone = m_entity_destruction_tumbstones.find(e) != m_entity_destruction_tumbstones.end();
             const bool k_has_component_tombstones =
                 m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end();
-            bool has_metadata = false;
-            for (const auto& [key, version] : m_component_metadata) {
-                if (key.first == e) {
-                    has_metadata = true;
-                    break;
-                }
-            }
+            const bool k_has_metadata = m_entity_to_components.find(e) != m_entity_to_components.end();
 
-            if (k_has_destroy_tombstone || k_has_component_tombstones || has_metadata) {
+            if (k_has_destroy_tombstone || k_has_component_tombstones || k_has_metadata) {
                 // Defer reuse until tombstones/metadata are cleared to keep snapshots consistent.
                 deferred.push_back(e);
                 continue;

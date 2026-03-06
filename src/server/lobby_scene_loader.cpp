@@ -33,6 +33,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::MovementPattern>();
     registry.register_component<cpnt::Stats>();
+    registry.register_component<cpnt::Boss>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::EntityType>();
     registry.register_component<cpnt::BossHitbox>();
@@ -52,6 +53,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
         sys::server_shooter_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Shooter, cpnt::Player>(sys::server_shooter_system);
     engine_ctx.add_system<cpnt::Stats>(sys::server_stat_system);
+    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox, cpnt::Enemy, cpnt::Shooter, cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::server_boss_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::create_snapshot_system);
     engine_ctx.add_system<>(sys::update_snapshots_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::send_snapshot_to_client_system);

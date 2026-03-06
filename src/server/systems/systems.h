@@ -62,6 +62,16 @@ void server_shooter_movement_system(EngineContext& ctx,
 
 void server_stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats);
 
+void server_boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss,
+    ecs::SparseArray<cpnt::Transform> const& positions,
+    ecs::SparseArray<cpnt::Stats> const& stats,
+    ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
+    ecs::SparseArray<cpnt::Enemy> const& enemies,
+    ecs::SparseArray<cpnt::Shooter> const& shooters,
+    ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
+    ecs::SparseArray<cpnt::Bullet> const& bullets,
+    ecs::SparseArray<cpnt::Health> const& healths);
+
 } // namespace sys
 
 } // namespace engn

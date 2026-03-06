@@ -11,6 +11,10 @@ void sys::clear_tombstones_system(EngineContext &ctx)
     // LOG_DEBUG("Running clear_tombstones_system");
     if (ctx.get_clients().size() < ctx.k_player_count) return; // We should keep everythinf that has happened if everyone is not connected yet
 
+    // Safety timeout: ignore clients that are more than 1800 ticks behind (30 seconds at 60 FPS)
+    const ecs::Registry::Version k_max_tick_lag = 1800;
+    const ecs::Registry::Version k_current_tick = ctx.get_current_tick();
+
     std::vector<ecs::Registry::EntityType> creation_tombstones_to_delete;
     std::vector<ecs::Registry::EntityType> remove_tombstones_to_delete;
     std::unordered_multimap<ecs::Registry::EntityType, std::type_index> component_destruction_tombstones_to_delete;
@@ -20,7 +24,12 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
+            auto client_ack = ctx.get_latest_acknowledged_snapshot(client).last_update_tick;
+            // Ignore clients that are too far behind (likely disconnected or severely lagging)
+            if (k_current_tick > client_ack && (k_current_tick - client_ack) > k_max_tick_lag) {
+                continue;
+            }
+            if (client_ack < version)
                 should_delete = false;
         }
 
@@ -32,7 +41,12 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
+            auto client_ack = ctx.get_latest_acknowledged_snapshot(client).last_update_tick;
+            // Ignore clients that are too far behind
+            if (k_current_tick > client_ack && (k_current_tick - client_ack) > k_max_tick_lag) {
+                continue;
+            }
+            if (client_ack < version)
                 should_delete = false;
         }
 
@@ -45,7 +59,12 @@ void sys::clear_tombstones_system(EngineContext &ctx)
             bool should_delete = true;
 
             for (const auto &client : ctx.get_clients()) {
-                if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
+                auto client_ack = ctx.get_latest_acknowledged_snapshot(client).last_update_tick;
+                // Ignore clients that are too far behind
+                if (k_current_tick > client_ack && (k_current_tick - client_ack) > k_max_tick_lag) {
+                    continue;
+                }
+                if (client_ack < version)
                     should_delete = false;
             }
 
@@ -58,7 +77,12 @@ void sys::clear_tombstones_system(EngineContext &ctx)
         bool should_delete = true;
 
         for (const auto &client : ctx.get_clients()) {
-            if (ctx.get_latest_acknowledged_snapshot(client).last_update_tick < version)
+            auto client_ack = ctx.get_latest_acknowledged_snapshot(client).last_update_tick;
+            // Ignore clients that are too far behind
+            if (k_current_tick > client_ack && (k_current_tick - client_ack) > k_max_tick_lag) {
+                continue;
+            }
+            if (client_ack < version)
                 should_delete = false;
         }
 
