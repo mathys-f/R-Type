@@ -37,7 +37,7 @@ void sys::server_boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> co
     for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
         if (stats_opt) {
             auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
-            if (stat->level >= k_level_to_appear && stat->boss_active == false) {
+            if (stat->level >= k_level_to_appear && stat->level % k_level_to_appear == 0 && stat->boss_active == false) {
                 stat->boss_active = true;
                 const float k_boss_sprite_x = 27.0f;
                 const float k_boss_sprite_y = 861.0f;
@@ -162,15 +162,6 @@ void sys::server_boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> co
         if (boss_tag_opt && health_opt) {
             if (health_opt->hp <= 0) {
                 entity_to_kill.push_back(reg.entity_from_index(boss_idx));
-                
-                // Reset boss_active flag in stats when boss dies
-                for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(stats)) {
-                    if (stats_opt) {
-                        auto& stat = reg.get_components<cpnt::Stats>()[stats_idx];
-                        stat->boss_active = false;
-                        reg.mark_dirty<cpnt::Stats>(reg.entity_from_index(stats_idx));
-                    }
-                }
             }
         }
     }

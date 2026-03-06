@@ -43,46 +43,29 @@ void sys::server_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
         auto& health = reg.get_components<cpnt::Health>()[idx];
         auto& vel = reg.get_components<cpnt::Velocity>()[idx];
         auto& shot = reg.get_components<cpnt::Shooter>()[idx];
-
-        if (health && health->hp <= 0) {
-            const std::uint32_t k_entity_id = static_cast<std::uint32_t>(entity);
-            if (ctx.dead_shooter_ids.insert(k_entity_id).second) {
-                reg.mark_dirty<cpnt::Health>(entity);
-                continue;
-            }
-            ctx.dead_shooter_ids.erase(k_entity_id);
-            // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-            pos->x =
-                static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
-                                                  static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
-            pos->y = static_cast<float>(
-                GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
-            // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-            health->hp = health->max_hp;
-            reg.mark_dirty<cpnt::Health>(entity);
-            reg.mark_dirty<cpnt::Transform>(entity);
-            continue;
-        }
-
+        
         if (pos && vel_opt) {
             reg.mark_dirty<cpnt::Transform>(entity);
             pos->x += vel_opt->vx;
             pos->y += vel_opt->vy;
 
-            if (pos->x < k_offscreen_left) {
+            if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                pos->x =
-                    static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
-                                                      static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
+                pos->x = static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
+                                                            static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
                 pos->y = static_cast<float>(
                     GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-                reg.mark_dirty<cpnt::Transform>(entity);
+                if (health) {
+                    health->hp = health->max_hp;
+                    reg.mark_dirty<cpnt::Health>(entity);
+                }
+                shot->timer = 0.0f;
             }
         }
 
         shot->timer += dt;
-        if (shot->timer >= k_shoot_interval && pos_opt->x < ctx.window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access)
+        if (shot->timer >= k_shoot_interval && pos->x < ctx.window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access)
             float dx = 0.0f;
             float dy = 0.0f;
             for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, players)) {

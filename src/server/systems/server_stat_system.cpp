@@ -63,6 +63,11 @@ void sys::server_stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> c
         if (stat->score >= stat->point_to_next_level) {
             stat->level += 1;
             stat->point_to_next_level += 500; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+
+            if (stat->level % k_boss_level == 0) {
+                stat->boss_active = false;
+            }
+            
             updated = true;
 
             if (stat->level % k_boss_level != 0) {
