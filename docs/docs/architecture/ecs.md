@@ -233,3 +233,104 @@ Sprite animations, particle effects, etc.
 Dependencies: [`Transform`](#2-transform), [`Hitbox`](#5-hitbox)
 
 Draws hitboxes during debugging.
+
+
+## Use the ECS
+
+### Create components
+
+Add a file in `/src/game_engine/components/` containing the components you want added.
+
+Example:
+
+```
+namespace engn::cpnt {
+    
+    struct Bullet : ISyncComponent {
+        Bullet() = default;
+
+        engn::SerializedComponent serialize() const override;
+        void deserialize(const std::vector<std::byte>& data) override;
+    };
+}
+```
+In this example thecomponent bullet is defined with:
+- The constructor `Bullet()`
+- The functions `serialize()` and `deserialize()`
+
+The two functions `serialize()` and `deserialize()` are used when components need to be synchronised between all the players; for example, the components `Star` would look like this:
+```
+namespace engn::cpnt {
+
+    struct Star {
+        float z;
+    };
+}
+```
+These components don't need to be synchronised between the players.
+
+### Add components to the scene
+
+In the function that creates your scene, create your scene create youre registry with this line:
+
+```auto& my_registry = my_engine_ctx.registry;```
+
+This create a registry called `my_registry`
+
+
+##### Warning
+
+You would need to create your engine in the main function with this line:
+```EngineContext my_engine_ctx;```
+
+You then have access to the engine using `my_engine_ctx`
+
+##### End of warning
+
+
+Then in your function, after creating the registry, add the components to the registry:
+
+```
+my_registry.register_component<cpnt::Bullet>();
+my_registry.register_component<cpnt::Star>();
+```
+
+### Create a system
+
+At this path `/src/game_engine/systems/` you can a this function to create a system called `star_scroll_system`
+
+```
+void sys::star_scroll_system(EngineContext& my_engine_ctx,ecs::SparseArray<cpnt::Transform> const& positions, ecs::SparseArray<cpnt::Star> const& stars) {
+    // Add your Function
+}
+```
+
+### Add a system
+
+After creating youre system you can use this line in youre scene loader to use it:
+
+```my_engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);```
+
+this would add a system called `star_scroll_system` that use the component `Transform` and `Star`.
+
+### Load texture
+
+Loading the textures in the engine is very easy, all you need to do is add this line:
+
+```my_engine_ctx.assets_manager.load_texture("img", "assets/sprites/image.png");```
+
+This would load a texture called `img` using the file stored at this path: `assets/sprites/image.png`, you can then use the texture by calling it when you need it.
+
+### Create an entity
+
+To create an entity use this line:
+
+```auto star = my_registry.spawn_entity();```
+
+This add an entity called `star` to your registry.
+
+Then you need to add components to the entity like this:
+
+```my_engine_ctx.registry.add_component(star, cpnt::Star{42.0f});```
+
+This add the components `Star` to your `mob`, and with how i created my `Star` component i needed to add the float `z` to the component, here equal to `42.0f`.
