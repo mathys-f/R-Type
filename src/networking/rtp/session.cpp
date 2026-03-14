@@ -36,6 +36,7 @@ std::uint32_t Session::send(Packet packet, bool reliable) {
 }
 
 std::uint32_t Session::send(Packet packet, const asio::ip::udp::endpoint& endpoint, bool reliable) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_started) {
         throw std::logic_error("session not started");
     }
@@ -56,15 +57,17 @@ DeliveryStatus Session::is_message_acknowledged(std::uint32_t id, const asio::ip
 }
 
 void Session::poll() {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_started) {
         return;
     }
 
     auto now = std::chrono::steady_clock::now();
     auto due = m_send_queue.collect_timeouts(now);
-    for (Packet& packet : due) {
-        packet.header.m_ack = m_receive_window.ack();
-        m_transport->async_send(packet);
+    for (auto& [packet, ep] : due) {
+        const auto k_wit = m_receive_windows.find(ep);
+        packet.header.m_ack = (k_wit != m_receive_windows.end()) ? k_wit->second.ack() : 0;
+        m_transport->async_send(packet, ep);
     }
     auto failures = m_send_queue.take_failures();
     
@@ -89,16 +92,20 @@ std::uint32_t Session::send_single_packet(Packet packet, const asio::ip::udp::en
     auto now = std::chrono::steady_clock::now();
     std::uint32_t sequence = 0;
 
+    // Use the per-endpoint receive window ACK so each client gets correct acknowledgements.
+    const auto k_wit = m_receive_windows.find(endpoint);
+    const std::uint32_t k_ack = (k_wit != m_receive_windows.end()) ? k_wit->second.ack() : 0;
+
     if (reliable || has_flag(packet.header.m_flags, PacketFlag::KReliable)) {
         packet.header.m_flags = set_flag(packet.header.m_flags, PacketFlag::KReliable);
         packet.header.m_sequence = m_send_queue.next_sequence();
-        packet.header.m_ack = m_receive_window.ack();
+        packet.header.m_ack = k_ack;
         m_send_queue.track(packet, now, endpoint);
         sequence = packet.header.m_sequence;
     } else {
         packet.header.m_flags = clear_flag(packet.header.m_flags, PacketFlag::KReliable);
         packet.header.m_sequence = 0;
-        packet.header.m_ack = m_receive_window.ack();
+        packet.header.m_ack = k_ack;
     }
 
     m_transport->async_send(packet, endpoint);
@@ -139,7 +146,7 @@ std::uint32_t Session::fragment_and_send(Packet packet, const asio::ip::udp::end
     return last_seq;
 }
 
-std::optional<Packet> Session::ingest_fragment(Packet packet) {
+std::optional<Packet> Session::ingest_fragment(Packet packet, const asio::ip::udp::endpoint& endpoint) {
     cleanup_fragment_buffers();
 
     if (packet.header.m_fragment_count == 0 || packet.header.m_fragment_index >= packet.header.m_fragment_count ||
@@ -155,15 +162,16 @@ std::optional<Packet> Session::ingest_fragment(Packet packet) {
         return std::nullopt;
     }
 
-    auto& buffer = m_fragment_buffers[packet.header.m_fragment_id];
+    auto& per_endpoint_buffers = m_fragment_buffers[endpoint];
+    auto& buffer = per_endpoint_buffers[packet.header.m_fragment_id];
     const bool k_new_buffer = buffer.m_parts.empty();
     if (k_new_buffer || buffer.m_parts.size() != packet.header.m_fragment_count) {
-        if (k_new_buffer && m_fragment_buffers.size() >= k_max_inflight_reassemblies) {
-            auto oldest = std::ranges::min_element(m_fragment_buffers, [](const auto& lhs, const auto& rhs) {
+        if (k_new_buffer && per_endpoint_buffers.size() >= k_max_inflight_reassemblies) {
+            auto oldest = std::ranges::min_element(per_endpoint_buffers, [](const auto& lhs, const auto& rhs) {
                 return lhs.second.m_created_at < rhs.second.m_created_at;
             });
-            if (oldest != m_fragment_buffers.end()) {
-                m_fragment_buffers.erase(oldest);
+            if (oldest != per_endpoint_buffers.end()) {
+                per_endpoint_buffers.erase(oldest);
             }
         }
         buffer = FragmentBuffer{};
@@ -182,7 +190,7 @@ std::optional<Packet> Session::ingest_fragment(Packet packet) {
     }
 
     if (buffer.m_total_bytes > k_max_reassembly_bytes) {
-        m_fragment_buffers.erase(packet.header.m_fragment_id);
+        per_endpoint_buffers.erase(packet.header.m_fragment_id);
         return std::nullopt;
     }
 
@@ -191,26 +199,28 @@ std::optional<Packet> Session::ingest_fragment(Packet packet) {
     }
 
     Packet assembled = rebuild_packet(buffer);
-    m_fragment_buffers.erase(packet.header.m_fragment_id);
+    per_endpoint_buffers.erase(packet.header.m_fragment_id);
     return assembled;
 }
 
 void Session::cleanup_fragment_buffers() {
     auto now = std::chrono::steady_clock::now();
-    for (auto it = m_fragment_buffers.begin(); it != m_fragment_buffers.end();) {
-        bool erase = false;
-        if (it->second.m_created_at != std::chrono::steady_clock::time_point{} &&
-            now - it->second.m_created_at >= k_fragment_reassembly_timeout) {
-            erase = true;
-        }
-        if (it->second.m_total_bytes > k_max_reassembly_bytes) {
-            erase = true;
-        }
+    for (auto& [ep, ep_buffers] : m_fragment_buffers) {
+        for (auto it = ep_buffers.begin(); it != ep_buffers.end();) {
+            bool erase = false;
+            if (it->second.m_created_at != std::chrono::steady_clock::time_point{} &&
+                now - it->second.m_created_at >= k_fragment_reassembly_timeout) {
+                erase = true;
+            }
+            if (it->second.m_total_bytes > k_max_reassembly_bytes) {
+                erase = true;
+            }
 
-        if (erase) {
-            it = m_fragment_buffers.erase(it);
-        } else {
-            ++it;
+            if (erase) {
+                it = ep_buffers.erase(it);
+            } else {
+                ++it;
+            }
         }
     }
 }
@@ -267,14 +277,14 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
         return;
     }
 
-    // Update Receive Window
+    // Update Receive Window — per-endpoint to prevent cross-client sequence collision.
     if (packet.header.m_sequence != 0) {
-        m_receive_window.observe(packet.header.m_sequence);
+        m_receive_windows[endpoint].observe(packet.header.m_sequence);
     }
     
     // Handle Fragmentation
     if (has_flag(packet.header.m_flags, PacketFlag::KFragment)) {
-        auto assembled = ingest_fragment(std::move(packet));
+        auto assembled = ingest_fragment(std::move(packet), endpoint);
         if (assembled) {
             if (m_reliable_callback) {
                  m_reliable_callback(*assembled, endpoint);
@@ -314,4 +324,12 @@ void Session::schedule_retransmission() {
         }
     });
 }
+
+void Session::remove_client_state(const asio::ip::udp::endpoint& endpoint) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_receive_windows.erase(endpoint);
+    m_fragment_buffers.erase(endpoint);
+    m_connected_endpoints.erase(endpoint);
+}
+
 } // namespace net

@@ -60,7 +60,7 @@ class LobbyIPC {
     std::unique_ptr<boost::interprocess::message_queue> m_main_to_lobby_queue;
     std::unique_ptr<boost::interprocess::message_queue> m_lobby_to_main_queue;
 
-    static constexpr std::size_t k_max_messages = 10;
+    static constexpr std::size_t k_max_messages = 1000;  // Increased from 10 to handle high-frequency multiplayer updates
     static constexpr std::size_t k_message_size = sizeof(IPCMessage);
 };
 

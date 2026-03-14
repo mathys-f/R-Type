@@ -78,16 +78,21 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     }
 
     // Render everything with sprites
-    for (auto [idx, pos_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, sprites, velocities)) {
+    for (auto [idx, pos_opt, sprite_opt] : ecs::indexed_zipper(positions, sprites)) {
         if (pos_opt && sprite_opt) {
             float width = sprite_opt->source_rect.width * sprite_opt->scale;
             float height = sprite_opt->source_rect.height * sprite_opt->scale;
 
             std::optional<Texture2D> texture = ctx.assets_manager.get_asset<Texture2D>(sprite_opt->texture);
             if (texture.has_value()) {
+                // Optionally get velocity for rotation, but don't require it
+                float rotation = 0.0f;
+                if (idx < velocities.size() && velocities[idx].has_value()) {
+                    rotation = velocities[idx]->vz;
+                }
                 DrawTexturePro(texture.value(), sprite_opt->source_rect,
                                (Rectangle){pos_opt->x, pos_opt->y, width, height},
-                               (Vector2){pos_opt->origin_x, pos_opt->origin_y}, vel_opt ? vel_opt->vz : 0.0f, WHITE);
+                               (Vector2){pos_opt->origin_x, pos_opt->origin_y}, rotation, WHITE);
             }
         }
     }

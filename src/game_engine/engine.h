@@ -11,6 +11,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <mutex>
 #include <unordered_map>
@@ -55,6 +56,10 @@ class EngineContext {
     std::mutex player_input_queues_mutex;
     std::unordered_map<asio::ip::udp::endpoint, evts::EventQueue<evts::Event>> player_input_queues;
     std::unordered_map<std::uint8_t, asio::ip::udp::endpoint> player_id_to_endpoint;
+    std::unordered_map<asio::ip::udp::endpoint, std::uint8_t> last_input_masks;
+    std::unordered_set<std::uint8_t> dead_player_ids;
+    std::unordered_set<std::uint32_t> dead_enemy_ids;
+    std::unordered_set<std::uint32_t> dead_shooter_ids;
     evts::EventQueue<evts::UIEvent> ui_event_queue;
 
     std::unique_ptr<LuaContext> lua_ctx;
@@ -96,12 +101,12 @@ class EngineContext {
 
     std::mutex snapshots_history_mutex;
     void record_snapshot(SnapshotRecord &snapshot);
-    // Mutex 'snapshots_history_mutex' must be locked when using
-    SnapshotRecord &get_latest_snapshot(asio::ip::udp::endpoint endpoint);
-    // Mutex 'snapshots_history_mutex' must be locked when using
-    const SnapshotRecord& get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
+    SnapshotRecord get_latest_snapshot(asio::ip::udp::endpoint endpoint);
+    SnapshotRecord get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
 
+    // Mutex 'snapshots_history_mutex' must be locked when using
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
+    bool update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoint, std::uint32_t msg_id);
 
     void add_snapshot_delta(WorldDelta &delta);
     /// After being run, will send back ACKs to the server and clear the deltas list

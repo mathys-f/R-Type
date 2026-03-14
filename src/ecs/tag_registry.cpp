@@ -94,3 +94,10 @@ std::optional<Entity> TagRegistry::get_entity(const std::string& name) const {
     }
     return get_entity(tag_id);
 }
+
+void TagRegistry::clear() {
+    m_name_to_id.clear();
+    m_id_to_name.clear();
+    m_tag_to_entity.clear();
+    m_next_id = 0;
+}

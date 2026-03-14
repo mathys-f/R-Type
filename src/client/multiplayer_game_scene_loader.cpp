@@ -42,6 +42,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     std::uniform_real_distribution<float> dist(k_dist_min, k_dist_max);
 
     registry.register_component<cpnt::Bullet>();
+    registry.register_component<cpnt::BulletShooter>();
     registry.register_component<cpnt::Enemy>();
     registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
@@ -50,7 +51,11 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::MovementPattern>();
     registry.register_component<cpnt::Player>();
     registry.register_component<cpnt::Replicated>();
+    registry.register_component<cpnt::EntityType>();
     registry.register_component<cpnt::Sprite>();
+    registry.register_component<cpnt::Boss>();
+    registry.register_component<cpnt::BossHitbox>();
+    registry.register_component<cpnt::Particle>();
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::Transform>();
@@ -68,25 +73,29 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::UIText>();
     registry.register_component<cpnt::UITransform>();
 
-    // Net
-    engine_ctx.add_system<>(sys::handle_snapshots_deltas_system);
     // IO
     engine_ctx.add_system<>(sys::fetch_inputs);
+    engine_ctx.add_system<>(sys::resolve_player_input);
     engine_ctx.add_system<>(send_input_system);
+    // Prediction
+    engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity>(sys::predict_local_player_system);
+    // Net
+    engine_ctx.add_system<>(sys::apply_server_updates_system);
     // engine_ctx.add_system<>(sys::log_inputs);
     // UI
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
+    // Client should NOT simulate bullets in multiplayer - server is authoritative
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
 
     // SIM / Prediction
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats>(
-    //     sys::collision_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(
+        sys::collision_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::BulletShooter>(sys::particle_emission_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
     //     sys::player_control_system);
@@ -103,6 +112,10 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+    engine_ctx.assets_manager.load_texture("players", "assets/sprites/r-typesheet42.gif");
+    engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+    engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
+    engine_ctx.assets_manager.load_texture("boss", "assets/sprites/r-typesheet30.gif");
 
     // Reset and create network client in engine context
     if (engine_ctx.network_client) {

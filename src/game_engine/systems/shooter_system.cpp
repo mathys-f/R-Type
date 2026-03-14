@@ -32,6 +32,7 @@ constexpr float k_bullet_height = 8.0f;
 constexpr float k_bullet_sprite_x = 249.0f;
 constexpr float k_bullet_sprite_y = 105.0f;
 constexpr float k_bullet_scale = 2.0f;
+constexpr float k_aim_epsilon = 0.0001f;
 } // namespace
 
 void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
@@ -49,37 +50,32 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
             auto& sprite = reg.get_components<cpnt::Sprite>()[idx];
             auto& vel = reg.get_components<cpnt::Velocity>()[idx];
             auto& shot = reg.get_components<cpnt::Shooter>()[idx];
+            const auto k_entity = reg.entity_from_index(idx);
 
             if (pos && vel_opt) {
                 pos->x += vel_opt->vx;
                 pos->y += vel_opt->vy;
-                // Respawn if off screen or dead
-                if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
-                    if (pos->x > k_offscreen_left) {
-                        auto explosion = reg.spawn_entity();
-                        reg.add_component(explosion,
-                                          cpnt::Transform{pos->x, pos->y, 0.0f, 55.f, 45.f, 0.0f, 1.0f, 1.0f, 1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                        reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
-                                                                   k_large_explosion_h},
-                                                                  k_large_explosion_scale,
-                                                                  0,
-                                                                  "explosion"});
-                        reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-                        reg.add_component(explosion,
-                                          cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
-                                                          k_explosion_frame_duration, 0, k_explosion_frames});
-                    }
+                const bool k_dead = health && health->hp <= 0;
+                if (k_dead) {
+                    auto explosion = reg.spawn_entity();
+                    reg.add_component(explosion,
+                                      cpnt::Transform{pos->x, pos->y, 0.0f, 55.f, 45.f, 0.0f, 1.0f, 1.0f, 1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
+                                                               k_large_explosion_h},
+                                                              k_large_explosion_scale,
+                                                              0,
+                                                              "explosion"});
+                    reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                    reg.add_component(explosion,
+                                      cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
+                                                      k_explosion_frame_duration, 0, k_explosion_frames});
+                    reg.kill_entity(k_entity);
+                    continue;
+                }
 
-                    // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                    pos->x =
-                        static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
-                                                          static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
-                    pos->y = static_cast<float>(
-                        GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
-                    // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-                    if (health) {
-                        health->hp = health->max_hp;
-                    }
+                if (pos->x < k_offscreen_left) {
+                    reg.kill_entity(k_entity);
+                    continue;
                 }
             }
 
@@ -97,6 +93,9 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                     break; // Assuming only one player
                 }
                 float length = sqrt(dx * dx + dy * dy); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                if (length <= k_aim_epsilon) {
+                    continue;
+                }
                 // NOLINTBEGIN(readability-identifier-naming,-warnings-as-errors)
                 float dirX = dx / length;
                 float dirY = dy / length;
