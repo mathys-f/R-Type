@@ -62,7 +62,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 echo %BLUE%Building project with parallel compilation...%RESET%
-cmake --build . -j
+cmake --build . -j 4
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%Build failed.%RESET%
     pause
