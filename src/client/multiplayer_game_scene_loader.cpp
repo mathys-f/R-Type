@@ -125,17 +125,72 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             engine_ctx.add_snapshot_delta(delta);
         }
     });
+    
+    engine_ctx.network_client->set_on_logout([&engine_ctx]() {
+        LOG_INFO("Disconnected from server.");
+        
+        // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+        const float k_width = engine_ctx.window_size.x;
+        const float k_height = engine_ctx.window_size.y;
+        // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+        auto& registry = engine_ctx.registry;
+        auto& tag_registry = registry.get_tag_registry();
+
+        if (tag_registry.get_entity("disconnect_back_button").has_value()) {
+            return;
+        }
+
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        auto bg_entity = registry.spawn_entity();
+        registry.add_component(bg_entity, cpnt::UITransform{0, 0, 10, 100, 100, 0, 0, 0});
+        registry.add_component(bg_entity, cpnt::UIStyle{
+            utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200},
+            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+            0, 0
+        });
+        registry.add_component(bg_entity, cpnt::UIInteractable{});
+
+        auto text_entity = registry.spawn_entity();
+        registry.add_component(text_entity, cpnt::UITransform{50, 40, 11, 0, 0, 0.5f, 0.5f, 0});
+        registry.add_component(text_entity, cpnt::UIText{"Disconnected from server", 40});
+        registry.add_component(text_entity, cpnt::UIStyle{
+            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+            utils::Color{255, 50, 50, 255}, utils::Color{255, 50, 50, 255}, utils::Color{255, 50, 50, 255},
+            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+            0, 0
+        });
+
+        auto btn_entity = registry.spawn_entity();
+        tag_registry.create_and_bind_tag("disconnect_back_button", btn_entity);
+        registry.add_component(btn_entity, cpnt::Tag{tag_registry.get_tag_id("disconnect_back_button")});
+        
+        registry.add_component(btn_entity, cpnt::UITransform{37.5f, 60, 11, 25, 8, 0.5f, 0.5f, 0});
+        registry.add_component(btn_entity, cpnt::UIText{"Back to Menu", 30});
+        registry.add_component(btn_entity, cpnt::UIStyle{
+            utils::Color{50, 50, 50, 255}, utils::Color{70, 70, 70, 255}, utils::Color{30, 30, 30, 255},
+            utils::Color{255, 255, 255, 255}, utils::Color{255, 255, 255, 255}, utils::Color{200, 200, 200, 255},
+            utils::Color{100, 100, 100, 255}, utils::Color{120, 120, 120, 255}, utils::Color{80, 80, 80, 255},
+            0.5f, 2.0f
+        });
+        registry.add_component(btn_entity, cpnt::UIButton{});
+        registry.add_component(btn_entity, cpnt::UIInteractable{});
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    });
 
     const char* player_name = "Player1";
 
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
     engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
 
-    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) { 
+    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) {
         if (engine_ctx.network_client) {
-            engine_ctx.network_client->poll(); 
+            engine_ctx.network_client->poll();
         }
     });
+
+    engine_ctx.add_system<>(handle_disconnect_ui_events);
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();

@@ -60,6 +60,7 @@ class NetworkClient {
     OnPacketCallback m_on_reliable;
     OnPacketCallback m_on_unreliable;
     std::chrono::steady_clock::time_point m_last_heartbeat{};
+    std::chrono::steady_clock::time_point m_last_packet_received_time{};
 };
 
 } // namespace engn
