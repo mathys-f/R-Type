@@ -215,8 +215,8 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
     {
         std::lock_guard<std::mutex> lock(m_clients_mutex);
-        if (m_connected_clients.insert(endpoint).second) {
-            LOG_INFO("Client connected");
+        if (m_connected_clients.insert(endpoint).second) {  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
         } else {
             return;
         }
