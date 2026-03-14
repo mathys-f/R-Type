@@ -229,6 +229,7 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
     LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected from port {}", endpoint.port());
+        m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
         {
@@ -262,6 +263,7 @@ void NetworkServer::check_client_timeouts() {
 
         // Manually trigger disconnect (don't use the lock again)
         m_connected_clients.erase(endpoint);
+        m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
         {

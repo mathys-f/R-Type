@@ -110,8 +110,11 @@ class Registry {
     /// Dump all components stored in the registry for a given entity.
     /// @tparam Entity The entity whose components to retrieve.
     /// @param entity The entity whose components to retrieve.
-    /// @return A const reference to a map of component type_index to storage any which contains all components.
-    const std::unordered_map<std::type_index, std::any>& get_entity_components(Entity entity) const noexcept;
+    /// @return A map of component type_index to any-wrapped component value.
+    ///
+    /// Note: returned by value so each call is independent and thread-safe;
+    /// do not rely on the lifetime of components beyond their SparseArray entries.
+    std::unordered_map<std::type_index, std::any> get_entity_components(Entity entity) const noexcept;
 
 
     /// Get the tag registry (non-const).
@@ -136,6 +139,11 @@ class Registry {
     /// @tparam TComponent The component type to mark as dirty.
     template <typename TComponent>
     void mark_dirty(EntityType const& e);
+
+    /// Reset all entities, components, and metadata to an empty initial state.
+    /// Equivalent to destruction + reconstruction, but safe to call on a live object
+    /// because it does not invalidate the object's own address.
+    void clear();
 
     const std::unordered_map<EntityType, Version>& get_entity_creation_tombstones() const noexcept;
     const std::unordered_map<EntityType, Version>& get_entity_destruction_tombstones() const noexcept;

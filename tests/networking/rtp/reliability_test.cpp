@@ -57,7 +57,7 @@ TEST(ReliabilityTest, TimeoutAndRetransmission) {
 
     timeouts = queue.collect_timeouts(now + std::chrono::milliseconds(60));
     ASSERT_EQ(timeouts.size(), 1);
-    EXPECT_EQ(timeouts[0].header.m_sequence, p1.header.m_sequence);
+    EXPECT_EQ(timeouts[0].first.header.m_sequence, p1.header.m_sequence);
 
     auto failures = queue.take_failures();
     EXPECT_TRUE(failures.empty());

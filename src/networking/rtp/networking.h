@@ -188,7 +188,7 @@ class ReliableSendQueue {
     /**
      * Returns packets that have exceeded their retransmission timeout.
      */
-    std::vector<Packet> collect_timeouts(std::chrono::steady_clock::time_point now);
+    std::vector<std::pair<Packet, asio::ip::udp::endpoint>> collect_timeouts(std::chrono::steady_clock::time_point now);
     /**
      * Reports the amount of time remaining until the next retransmission event.
      */
@@ -348,6 +348,12 @@ class Session : public std::enable_shared_from_this<Session> {
      */
     ConnectionCallback on_client_disconnect;
 
+    /**
+     * Removes all per-endpoint state (receive window, fragment buffers) for a client.
+     * Call this when a client disconnects to free resources.
+     */
+    void remove_client_state(const asio::ip::udp::endpoint& endpoint);
+
   private:
     struct FragmentBuffer {
         PacketHeader m_header{};
@@ -369,7 +375,7 @@ class Session : public std::enable_shared_from_this<Session> {
     /**
      * Ingests a fragment and attempts to reassemble the full packet.
      */
-    std::optional<Packet> ingest_fragment(Packet packet);
+    std::optional<Packet> ingest_fragment(Packet packet, const asio::ip::udp::endpoint& endpoint);
     [[nodiscard]] static Packet rebuild_packet(FragmentBuffer& buffer);
     void cleanup_fragment_buffers();
 
@@ -386,13 +392,16 @@ class Session : public std::enable_shared_from_this<Session> {
     std::shared_ptr<UdpTransport> m_transport;
     ReliabilityConfig m_config{};
     ReliableSendQueue m_send_queue{};
-    ReliableReceiveWindow m_receive_window{};
+    // Per-endpoint receive windows: each remote client tracks its own sequence space.
+    std::unordered_map<asio::ip::udp::endpoint, ReliableReceiveWindow, EndpointHash> m_receive_windows{};
     PacketCallback m_reliable_callback{};
     PacketCallback m_unreliable_callback{};
     asio::steady_timer m_retransmit_timer;
     std::vector<std::uint32_t> m_failed_cache{};
     std::uint16_t m_next_fragment_id = 1;
-    std::unordered_map<std::uint16_t, FragmentBuffer> m_fragment_buffers{};
+    // Per-endpoint fragment reassembly buffers to prevent cross-client interleaving.
+    std::unordered_map<asio::ip::udp::endpoint,
+        std::unordered_map<std::uint16_t, FragmentBuffer>, EndpointHash> m_fragment_buffers{};
     std::size_t m_fragment_payload_size = k_max_payload_size;
     bool m_started = false;
     std::unordered_set<asio::ip::udp::endpoint, EndpointHash> m_connected_endpoints{};

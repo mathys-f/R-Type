@@ -121,11 +121,9 @@ void Registry::process_deferred_kills() {
     m_deferred_kills.clear();
 }
 
-const std::unordered_map<std::type_index, std::any>&
+std::unordered_map<std::type_index, std::any>
 ecs::Registry::get_entity_components(Entity entity) const noexcept {
-    // Use a thread-local static map to store the result and return by reference
-    thread_local std::unordered_map<std::type_index, std::any> s_entity_components;
-    s_entity_components.clear();
+    std::unordered_map<std::type_index, std::any> entity_components;
 
     // Iterate through all registered component types and extract components for this entity
     for (const auto& [type_idx, component_array] : m_components_arrays) {
@@ -135,12 +133,12 @@ ecs::Registry::get_entity_components(Entity entity) const noexcept {
         if (extract_it != m_extract_functions.end() && extract_it->second) {
             auto component = extract_it->second(*this, entity);
             if (component.has_value()) {
-                s_entity_components[type_idx] = std::move(component.value());
+                entity_components[type_idx] = std::move(component.value());
             }
         }
     }
 
-    return s_entity_components;
+    return entity_components;
 }
 
 TagRegistry& Registry::get_tag_registry() noexcept {
@@ -149,4 +147,21 @@ TagRegistry& Registry::get_tag_registry() noexcept {
 
 const TagRegistry& Registry::get_tag_registry() const noexcept {
     return tag_registry;
+}
+
+void Registry::clear() {
+    m_components_arrays.clear();
+    m_erase_functions.clear();
+    m_extract_functions.clear();
+    m_systems.clear();
+    m_next_entity = 0;
+    m_free_entities.clear();
+    m_deferred_kills.clear();
+    m_current_version = 1;
+    m_entity_creation_tumbstones.clear();
+    m_entity_destruction_tumbstones.clear();
+    m_component_destruction_tombstones.clear();
+    m_component_metadata.clear();
+    m_entity_to_components.clear();
+    tag_registry.clear();
 }

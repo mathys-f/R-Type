@@ -41,8 +41,8 @@ void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::en
     }
 }
 
-std::vector<Packet> ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
-    std::vector<Packet> due{};
+std::vector<std::pair<Packet, asio::ip::udp::endpoint>> ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
+    std::vector<std::pair<Packet, asio::ip::udp::endpoint>> due{};
     for (auto it = m_queue.begin(); it != m_queue.end();) {
         Pending& pending = *it;
 
@@ -57,7 +57,7 @@ std::vector<Packet> ReliableSendQueue::collect_timeouts(std::chrono::steady_cloc
             pending.m_last_sent = now;
             ++pending.m_attempts;
             pending.m_rto = std::min(pending.m_rto * 2, m_config.max_rto);
-            due.push_back(pending.m_packet);
+            due.emplace_back(pending.m_packet, pending.m_endpoint);
         }
         ++it;
     }

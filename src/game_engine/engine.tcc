@@ -21,9 +21,11 @@ template <class... TComponents, typename TFunction> void EngineContext::add_syst
 template <class... TComponents, typename TFunction> void EngineContext::add_system(TFunction const& f) {
     (void)std::initializer_list<int>{(registry.register_component<TComponents>(), 0)...};
 
-    auto wrapper = [&f](EngineContext& reg) { f(reg, std::as_const(reg.registry.get_components<TComponents>())...); };
+    // Capture by value so the wrapper owns its own copy; capturing by reference
+    // would create a dangling reference if a temporary was passed to add_system.
+    auto wrapper = [fn = f](EngineContext& reg) { fn(reg, std::as_const(reg.registry.get_components<TComponents>())...); };
 
-    m_systems.emplace_back(wrapper);
+    m_systems.emplace_back(std::move(wrapper));
 }
 
 } // namespace engn

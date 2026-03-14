@@ -9,7 +9,7 @@ using namespace engn;
 void sys::clear_tombstones_system(EngineContext &ctx)
 {
     // LOG_DEBUG("Running clear_tombstones_system");
-    if (ctx.get_clients().size() < ctx.k_player_count) return; // We should keep everythinf that has happened if everyone is not connected yet
+    if (ctx.get_clients().empty()) return; // Nothing to sync if no clients are connected
 
     // Safety timeout: ignore clients that are more than 1800 ticks behind (30 seconds at 60 FPS)
     const ecs::Registry::Version k_max_tick_lag = 1800;

@@ -97,8 +97,7 @@ void EngineContext::set_scene(const std::string &scene_name) {
     }
 
     LOG_DEBUG("Clearing registry...");
-    registry.~Registry();
-    new (&registry) ecs::Registry();
+    registry.clear();
     m_systems.clear();
     LOG_DEBUG("Spawning initial entity {}",
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
