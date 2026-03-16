@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
     setup_signal_handling();
     // Create engine context
     EngineContext engine_ctx;
+    engine_ctx.k_player_count = 100; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 
     // Create lobby manager
     LobbyManager lobby_manager(k_lobby_base_port);
