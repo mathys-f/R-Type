@@ -13,7 +13,7 @@ class AssetsManager {
     using Asset = std::string;
 
     AssetsManager() = default;
-    ~AssetsManager() = default;
+    virtual ~AssetsManager();
     AssetsManager(const AssetsManager&) = delete;
     AssetsManager& operator=(const AssetsManager&) = delete;
     AssetsManager(AssetsManager&&) = delete;

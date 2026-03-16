@@ -40,9 +40,14 @@ void NetworkClient::connect(const std::string& host, std::uint16_t port, const s
         m_session = std::make_shared<net::Session>(m_io, server_endpoint);
 
         // Start listening (capture session in lambdas)
+        std::weak_ptr<net::Session> weak_session = m_session;
         m_session->start(
             // onReliable
-            [this, session = m_session](const net::Packet& pkt, const asio::ip::udp::endpoint&) {
+            [this, weak_session](const net::Packet& pkt, const asio::ip::udp::endpoint&) {
+                auto session = weak_session.lock();
+                if (!session)
+                    return;
+
                 // Parse login response
                 if (auto res = net::handshake::parse_res_login(pkt)) {
                     m_player_id = res->m_player_id;
@@ -131,7 +136,7 @@ void NetworkClient::poll() {
 
     if (m_connected.load()) {
         auto now = std::chrono::steady_clock::now();
-        
+
         if (now - m_last_packet_received_time > k_connection_timeout) {
             std::cerr << "Connection timed out" << std::endl;
             disconnect();
@@ -196,11 +201,11 @@ void NetworkClient::send_heartbeat() {
     if (!m_connected.load() || !m_session) {
         return;
     }
-    
+
     // Create a simple heartbeat packet with no payload
     net::Packet heartbeat{};
     heartbeat.header.m_command = static_cast<std::uint8_t>(net::CommandId::KHeartbeat);
-    
+
     // Send unreliably - it's just a keepalive, if it's lost the next one will arrive
     try {
         m_session->send(heartbeat, false);
@@ -224,6 +229,10 @@ void NetworkClient::disconnect() {
         }
 
         m_connected = false;
+        if (m_session) {
+            m_session->stop();
+            m_session.reset();
+        }
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();

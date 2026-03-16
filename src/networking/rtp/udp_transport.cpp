@@ -48,8 +48,10 @@ void UdpTransport::async_send(const Packet& packet, const asio::ip::udp::endpoin
 void UdpTransport::close() {
     m_running = false;
     if (m_socket.is_open()) {
-        m_socket.close();
+        asio::error_code error_code;
+        m_socket.close(error_code);
     }
+    m_handler = {};
 }
 
 asio::ip::udp::endpoint UdpTransport::local_endpoint() const {
@@ -61,10 +63,11 @@ void UdpTransport::do_receive() {
         return;
     }
 
-    auto self = shared_from_this();
+    std::weak_ptr<UdpTransport> weak_self = shared_from_this();
     m_socket.async_receive_from(asio::buffer(m_buffer), m_sender,
-                                [self](const asio::error_code& error_code, std::size_t bytesTransferred) -> void {
-                                    if (!self->m_running) {
+                                [weak_self](const asio::error_code& error_code, std::size_t bytesTransferred) -> void {
+                                    auto self = weak_self.lock();
+                                    if (!self || !self->m_running) {
                                         return;
                                     }
 

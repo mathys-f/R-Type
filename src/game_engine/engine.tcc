@@ -23,7 +23,9 @@ template <class... TComponents, typename TFunction> void EngineContext::add_syst
 
     // Capture by value so the wrapper owns its own copy; capturing by reference
     // would create a dangling reference if a temporary was passed to add_system.
-    auto wrapper = [fn = f](EngineContext& reg) { fn(reg, std::as_const(reg.registry.get_components<TComponents>())...); };
+    auto wrapper = [fn = f](EngineContext& reg) {
+        fn(reg, std::as_const(reg.registry.get_components<TComponents>())...);
+    };
 
     m_systems.emplace_back(std::move(wrapper));
 }

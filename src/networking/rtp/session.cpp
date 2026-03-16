@@ -13,15 +13,60 @@ Session::Session(asio::io_context& context, const asio::ip::udp::endpoint& remot
     m_transport->set_default_remote(remote);
 }
 
+Session::~Session() {
+    stop();
+}
+
+void Session::set_on_client_connect(ConnectionCallback callback) {
+    m_on_client_connect = std::move(callback);
+}
+
+void Session::set_on_client_disconnect(ConnectionCallback callback) {
+    m_on_client_disconnect = std::move(callback);
+}
+
+void Session::notify_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
+    if (m_on_client_disconnect) {
+        m_on_client_disconnect(endpoint);
+    }
+}
+
 void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
     m_reliable_callback = std::move(onReliable);
     m_unreliable_callback = std::move(onUnreliable);
     m_started = true;
-    auto self = shared_from_this();
-    m_transport->start([self](const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
-        self->handle_packet(ec, std::move(packet), endpoint);
+    std::weak_ptr<Session> weak_self = shared_from_this();
+    m_transport->start([weak_self](const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
+        if (auto self = weak_self.lock()) {
+            self->handle_packet(ec, std::move(packet), endpoint);
+        }
     });
     schedule_retransmission();
+}
+
+void Session::stop() {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_started && !m_transport) {
+        return;
+    }
+
+    m_started = false;
+    asio::error_code error_code;
+    m_retransmit_timer.cancel(error_code);
+
+    if (m_transport) {
+        m_transport->close();
+        m_transport.reset();
+    }
+
+    m_reliable_callback = {};
+    m_unreliable_callback = {};
+    m_on_client_connect = {};
+    m_on_client_disconnect = {};
+    m_receive_windows.clear();
+    m_fragment_buffers.clear();
+    m_connected_endpoints.clear();
+    m_failed_cache.clear();
 }
 
 std::uint32_t Session::send(Packet packet, bool reliable) {
@@ -70,12 +115,12 @@ void Session::poll() {
         m_transport->async_send(packet, ep);
     }
     auto failures = m_send_queue.take_failures();
-    
+
     // Invoke disconnect callback for clients with failed sequences
     // Note: We'd need to track which endpoint each failed sequence belongs to
     // For now, this is a simplified version - you may need to enhance
     // ReliableSendQueue to return endpoint info with failures
-    
+
     m_failed_cache = std::move(failures);
     schedule_retransmission();
 }
@@ -158,22 +203,22 @@ std::optional<Packet> Session::ingest_fragment(Packet packet, const asio::ip::ud
         return std::nullopt;
     }
 
-    if (packet.header.m_fragment_count == 0 || packet.header.m_fragment_index >= packet.header.m_fragment_count) {
-        return std::nullopt;
+    auto& per_endpoint_buffers = m_fragment_buffers[endpoint];
+    auto it = per_endpoint_buffers.find(packet.header.m_fragment_id);
+    const bool k_already_exists = (it != per_endpoint_buffers.end());
+
+    if (!k_already_exists && per_endpoint_buffers.size() >= k_max_inflight_reassemblies) {
+        auto oldest = std::ranges::min_element(per_endpoint_buffers, [](const auto& lhs, const auto& rhs) {
+            return lhs.second.m_created_at < rhs.second.m_created_at;
+        });
+        if (oldest != per_endpoint_buffers.end()) {
+            per_endpoint_buffers.erase(oldest);
+        }
     }
 
-    auto& per_endpoint_buffers = m_fragment_buffers[endpoint];
     auto& buffer = per_endpoint_buffers[packet.header.m_fragment_id];
     const bool k_new_buffer = buffer.m_parts.empty();
     if (k_new_buffer || buffer.m_parts.size() != packet.header.m_fragment_count) {
-        if (k_new_buffer && per_endpoint_buffers.size() >= k_max_inflight_reassemblies) {
-            auto oldest = std::ranges::min_element(per_endpoint_buffers, [](const auto& lhs, const auto& rhs) {
-                return lhs.second.m_created_at < rhs.second.m_created_at;
-            });
-            if (oldest != per_endpoint_buffers.end()) {
-                per_endpoint_buffers.erase(oldest);
-            }
-        }
         buffer = FragmentBuffer{};
         buffer.m_header = packet.header;
         buffer.m_parts.resize(packet.header.m_fragment_count);
@@ -263,12 +308,12 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
 
     // Process Acks
     m_send_queue.acknowledge(packet.header.m_ack, endpoint);
-    
+
     // Keep track of connected endpoints
     if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
         m_connected_endpoints.insert(endpoint);
-        if (on_client_connect) {
-            on_client_connect(endpoint);
+        if (m_on_client_connect) {
+            m_on_client_connect(endpoint);
         }
     }
 
@@ -281,13 +326,13 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
     if (packet.header.m_sequence != 0) {
         m_receive_windows[endpoint].observe(packet.header.m_sequence);
     }
-    
+
     // Handle Fragmentation
     if (has_flag(packet.header.m_flags, PacketFlag::KFragment)) {
         auto assembled = ingest_fragment(std::move(packet), endpoint);
         if (assembled) {
             if (m_reliable_callback) {
-                 m_reliable_callback(*assembled, endpoint);
+                m_reliable_callback(*assembled, endpoint);
             }
         }
         return;
@@ -317,9 +362,12 @@ void Session::schedule_retransmission() {
     }
 
     m_retransmit_timer.expires_after(next_delay.value());
-    auto self = shared_from_this();
-    m_retransmit_timer.async_wait([self](const asio::error_code& ec) -> void {
-        if (!ec) {
+    std::weak_ptr<Session> weak_self = shared_from_this();
+    m_retransmit_timer.async_wait([weak_self](const asio::error_code& ec) -> void {
+        if (ec) {
+            return;
+        }
+        if (auto self = weak_self.lock()) {
             self->poll();
         }
     });

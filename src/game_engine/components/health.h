@@ -1,9 +1,9 @@
 #pragma once
 
+#include "components/i_sync_component.h"
+
 #include <array>
 #include <cstddef>
-
-#include "components/i_sync_component.h"
 
 namespace engn::cpnt {
 

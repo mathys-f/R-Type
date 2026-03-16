@@ -1,20 +1,18 @@
 #include "components/transform.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Transform::Transform(float x, float y, float z,
-                    float origin_x, float origin_y,
-                    float rx, float ry, float rz,
-                    float sx, float sy, float sz)
-    : x(x), y(y), z(z), origin_x(origin_x), origin_y(origin_y),
-      rx(rx), ry(ry), rz(rz), sx(sx), sy(sy), sz(sz) {}
+Transform::Transform(float x, float y, float z, float origin_x, float origin_y, float rx, float ry, float rz, float sx,
+                     float sy, float sz)
+    : x(x), y(y), z(z), origin_x(origin_x), origin_y(origin_y), rx(rx), ry(ry), rz(rz), sx(sx), sy(sy), sz(sz) {}
 
 engn::SerializedComponent Transform::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::transform;
-    std::uint32_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + 
-                      sizeof(rx) + sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
+    serialized.type = engn::ComponentType::Transform;
+    std::uint32_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + sizeof(rx) +
+                         sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
     serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -45,8 +43,8 @@ engn::SerializedComponent Transform::serialize() const {
 }
 
 void Transform::deserialize(const std::vector<std::byte>& data) {
-    std::uint16_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + 
-                         sizeof(rx) + sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
+    std::uint16_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + sizeof(rx) +
+                         sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (data.size() >= size) {

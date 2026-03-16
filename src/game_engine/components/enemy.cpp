@@ -4,7 +4,7 @@ using namespace engn::cpnt;
 
 engn::SerializedComponent Enemy::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::enemy;
+    serialized.type = engn::ComponentType::Enemy;
     serialized.data = {}; // Empty data for tag component
     return serialized;
 }

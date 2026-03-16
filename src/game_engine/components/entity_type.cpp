@@ -1,4 +1,5 @@
 #include "components/entity_type.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
@@ -9,7 +10,7 @@ EntityType::EntityType(std::string&& type_name) : type_name(std::move(type_name)
 
 engn::SerializedComponent EntityType::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::entity_type;
+    serialized.type = engn::ComponentType::EntityType;
 
     // Serialize string length + string data
     std::uint32_t str_length = static_cast<std::uint32_t>(type_name.size());

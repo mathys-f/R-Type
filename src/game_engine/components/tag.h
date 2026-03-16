@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ecs/tag_registry.h"
 #include "components/i_sync_component.h"
+#include "ecs/tag_registry.h"
 
 namespace engn::cpnt {
 

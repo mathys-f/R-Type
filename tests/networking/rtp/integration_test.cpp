@@ -157,6 +157,38 @@ TEST_F(IntegrationTest, Fragmentation) {
     EXPECT_EQ(received_packet.payload[24], std::byte{0xEE});
 }
 
+TEST_F(IntegrationTest, ReassemblyLimit) {
+    auto server = std::make_shared<Session>(m_ctx, asio::ip::udp::endpoint{}, ReliabilityConfig{}, 0);
+    server->start(
+        [](const Packet&, const asio::ip::udp::endpoint&) {},
+        [](const Packet&, const asio::ip::udp::endpoint&) {}
+    );
+
+    asio::ip::udp::endpoint server_ep(asio::ip::address_v4::loopback(), server->local_endpoint().port());
+    asio::ip::udp::socket sock(m_ctx, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0));
+
+    // Send more than k_max_inflight_reassemblies partial fragments
+    for (std::size_t i = 0; i < k_max_inflight_reassemblies + 2; ++i) {
+        Packet p{};
+        p.header.m_magic = k_magic_number;
+        p.header.m_flags = static_cast<std::uint8_t>(PacketFlag::KFragment);
+        p.header.m_fragment_id = static_cast<std::uint16_t>(i + 1);
+        p.header.m_fragment_index = 0;
+        p.header.m_fragment_count = 2; // Expecting 2, but we only send 1
+        p.payload = {std::byte{0x01}};
+        
+        auto buf = p.to_buffer();
+        sock.send_to(asio::buffer(buf), server_ep);
+        
+        // Small delay to ensure they are processed
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        server->poll();
+    }
+    
+    // If it didn't crash, we are good
+    SUCCEED();
+}
+
 TEST_F(IntegrationTest, SessionErrors) {
     auto session = std::make_shared<Session>(m_ctx, asio::ip::udp::endpoint{}, ReliabilityConfig{}, 0);
     Packet p{};

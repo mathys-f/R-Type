@@ -16,7 +16,8 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_game_scene(engn::EngineContext& engine_ctx) {
@@ -71,28 +72,31 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::bullet_shooter_system);
 
     engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,
-        cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(
-        sys::collision_system);
+                          cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(sys::collision_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::BulletShooter>(sys::particle_emission_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::BulletShooter>(
+        sys::particle_emission_system);
     engine_ctx.add_system<>(sys::resolve_player_input);
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
         sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
-        sys::render_system);
+    engine_ctx
+        .add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
+            sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
-    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox,
-                          cpnt::Enemy, cpnt::Shooter, cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::boss_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
+    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox, cpnt::Enemy, cpnt::Shooter,
+                          cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::boss_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(
+        sys::shooter_movement_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(
+        sys::shooter_system);
     engine_ctx.add_system<cpnt::Stats>(sys::stat_system);
 
     // Load assets
@@ -120,8 +124,9 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.registry.add_component(player, cpnt::Sprite{ship_source_rect, k_ship_scale, 0, "players"});
     engine_ctx.registry.add_component(player, cpnt::Health{engine_ctx.k_player_health, engine_ctx.k_player_health});
     engine_ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-    engine_ctx.registry.add_component(
-        player, cpnt::Hitbox{ k_ship_width  * k_ship_scale / 2, k_ship_height * k_ship_scale / 2, ship_source_rect.height / 3, ship_source_rect.width / 3});
+    engine_ctx.registry.add_component(player,
+                                      cpnt::Hitbox{k_ship_width * k_ship_scale / 2, k_ship_height * k_ship_scale / 2,
+                                                   ship_source_rect.height / 3, ship_source_rect.width / 3});
 
     // Create Stats
 
@@ -160,7 +165,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
 
         // Velocity
         engine_ctx.registry.add_component(
-            enemy, cpnt::Velocity{-(engine_ctx.k_enemy_base_speed + randf() * engine_ctx.k_enemy_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+            enemy, cpnt::Velocity{-(engine_ctx.k_enemy_base_speed + randf() * engine_ctx.k_enemy_speed_variance), 0.0f,
+                                  0.0f, 0.0f, 0.0f});
 
         // Other components
         engine_ctx.registry.add_component(enemy, cpnt::Enemy{});
@@ -195,7 +201,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(enemy, std::move(pat));
-        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale, k_enemy_hitbox_height * k_enemy_scale,
+        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale,
+                                                              k_enemy_hitbox_height * k_enemy_scale,
                                                               k_enemy_sprite_width, k_enemy_sprite_height});
     }
 
@@ -208,6 +215,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_shooter_scale = 5.0f;
     constexpr float k_shooter_hitbox_width = 15.0f;
     constexpr float k_shooter_hitbox_height = 18.0f;
+    constexpr float k_shooter_transform_width = 55.0f;
+    constexpr float k_shooter_transform_height = 45.0f;
 
     engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
     engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
@@ -219,20 +228,23 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Position
-        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                                         k_shooter_transform_height, 0, 1, 1, 1});
 
         // Velocity
         engine_ctx.registry.add_component(
-            shooter, cpnt::Velocity{-(engine_ctx.k_shooter_base_speed + randf() * engine_ctx.k_shooter_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+            shooter, cpnt::Velocity{-(engine_ctx.k_shooter_base_speed + randf() * engine_ctx.k_shooter_speed_variance),
+                                    0.0f, 0.0f, 0.0f, 0.0f});
 
         // Other components
         engine_ctx.registry.add_component(shooter, cpnt::Shooter{0});
-        engine_ctx.registry.add_component(
-            shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y, k_shooter_sprite_width, k_shooter_sprite_height},
-                                k_shooter_scale,
-                                0,
-                                "shooter_sprite"});
-        engine_ctx.registry.add_component(shooter, cpnt::Health{engine_ctx.k_shooter_health, engine_ctx.k_shooter_health});
+        engine_ctx.registry.add_component(shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y,
+                                                                 k_shooter_sprite_width, k_shooter_sprite_height},
+                                                                k_shooter_scale,
+                                                                0,
+                                                                "shooter_sprite"});
+        engine_ctx.registry.add_component(shooter,
+                                          cpnt::Health{engine_ctx.k_shooter_health, engine_ctx.k_shooter_health});
 
         // Create a **new MovementPattern instance** for this shooter
         cpnt::MovementPattern pat;
@@ -258,11 +270,11 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(shooter, std::move(pat));
-        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2), k_shooter_hitbox_height * (k_shooter_scale + 2),
-                                                              -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
+        engine_ctx.registry.add_component(shooter,
+                                          cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2),
+                                                       k_shooter_hitbox_height * (k_shooter_scale + 2),
+                                                       -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
     }
-
-
 
     // Spawn Boss
 
@@ -275,33 +287,33 @@ width: 154
 
 height: 203
 */
-    //const float boss_sprite_x = 27.0f;
-    //const float boss_sprite_y = 861.0f;
-    //const float boss_sprite_width = 154.0f;
-    //const float boss_sprite_height = 203.0f;
-    //const float boss_scale = 5.0f;
-    //const float boss_hitbox_head_width = 111.f * boss_scale;
-    //const float boss_hitbox_head_height = 86.f * boss_scale;
-    //const float boss_hitbox_body_width = 76.f * boss_scale;
-    //const float boss_hitbox_body_height = 93.f * boss_scale;
-    //const float boss_hitbox_tail_width = 68.f * boss_scale;
-    //const float boss_hitbox_tail_height = 30.f * boss_scale;
-    //const float boss_hitbox_head_x_offset = 0.f;
-    //const float boss_hitbox_head_y_offset = 0.f;
-    //const float boss_hitbox_body_x_offset = 83.f * boss_scale;
-    //const float boss_hitbox_body_y_offset = 85.f * boss_scale;
-    //const float boss_hitbox_tail_x_offset = 55.f * boss_scale;
-    //const float boss_hitbox_tail_y_offset = 176.f * boss_scale;
-//
-//
-    //auto boss = engine_ctx.registry.spawn_entity();
-    //engine_ctx.registry.add_component(boss, cpnt::Transform{1200.f, 100.f, 0, 0, 0, 0, 1, 1, 1});
-    //engine_ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, false, false, {1350.f, 400.f}, 0.f, 600.f});
-    //engine_ctx.registry.add_component(
+    // const float boss_sprite_x = 27.0f;
+    // const float boss_sprite_y = 861.0f;
+    // const float boss_sprite_width = 154.0f;
+    // const float boss_sprite_height = 203.0f;
+    // const float boss_scale = 5.0f;
+    // const float boss_hitbox_head_width = 111.f * boss_scale;
+    // const float boss_hitbox_head_height = 86.f * boss_scale;
+    // const float boss_hitbox_body_width = 76.f * boss_scale;
+    // const float boss_hitbox_body_height = 93.f * boss_scale;
+    // const float boss_hitbox_tail_width = 68.f * boss_scale;
+    // const float boss_hitbox_tail_height = 30.f * boss_scale;
+    // const float boss_hitbox_head_x_offset = 0.f;
+    // const float boss_hitbox_head_y_offset = 0.f;
+    // const float boss_hitbox_body_x_offset = 83.f * boss_scale;
+    // const float boss_hitbox_body_y_offset = 85.f * boss_scale;
+    // const float boss_hitbox_tail_x_offset = 55.f * boss_scale;
+    // const float boss_hitbox_tail_y_offset = 176.f * boss_scale;
+    //
+    //
+    // auto boss = engine_ctx.registry.spawn_entity();
+    // engine_ctx.registry.add_component(boss, cpnt::Transform{1200.f, 100.f, 0, 0, 0, 0, 1, 1, 1});
+    // engine_ctx.registry.add_component(boss, cpnt::Boss{0.f, 0.f, 0.f, false, false, {1350.f, 400.f}, 0.f, 600.f});
+    // engine_ctx.registry.add_component(
     //    boss, cpnt::Sprite{{27.0f, 861.0f, 154.0f, 203.0f}, boss_scale, 0, "boss"});
-    //engine_ctx.registry.add_component(boss, cpnt::Health{100, 100});
-    //engine_ctx.registry.add_component(boss, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
-    //engine_ctx.registry.add_component(boss, cpnt::BossHitbox{
+    // engine_ctx.registry.add_component(boss, cpnt::Health{100, 100});
+    // engine_ctx.registry.add_component(boss, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
+    // engine_ctx.registry.add_component(boss, cpnt::BossHitbox{
     //    boss_hitbox_head_width, boss_hitbox_head_height, boss_hitbox_head_x_offset, boss_hitbox_head_y_offset,
     //    boss_hitbox_body_width, boss_hitbox_body_height, boss_hitbox_body_x_offset, boss_hitbox_body_y_offset,
     //    boss_hitbox_tail_width, boss_hitbox_tail_height, boss_hitbox_tail_x_offset, boss_hitbox_tail_y_offset

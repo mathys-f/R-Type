@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
-
 #include "components/i_sync_component.h"
+
+#include <cstdint>
 
 namespace engn::cpnt {
 
@@ -15,7 +15,6 @@ struct BossHitbox : ISyncComponent {
 
     float width_3{}, height_3{};
     float offset_x_3{}, offset_y_3{};
-
 
     BossHitbox() = default;
     BossHitbox(float width_1 = 0.0f, float height_1 = 0.0f, float offset_x_1 = 0.0f, float offset_y_1 = 0.0f,

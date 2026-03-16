@@ -23,8 +23,13 @@ std::uint32_t ReliableSendQueue::next_sequence() {
     return k_current;
 }
 
-void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint) {
-    m_queue.push_back(Pending{.m_packet = packet, .m_last_sent = now, .m_attempts = 1, .m_rto = m_config.initial_rto, .m_endpoint = endpoint});
+void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now,
+                              const asio::ip::udp::endpoint& endpoint) {
+    m_queue.push_back(Pending{.m_packet = packet,
+                              .m_last_sent = now,
+                              .m_attempts = 1,
+                              .m_rto = m_config.initial_rto,
+                              .m_endpoint = endpoint});
 }
 
 void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::endpoint& endpoint) {
@@ -41,7 +46,8 @@ void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::en
     }
 }
 
-std::vector<std::pair<Packet, asio::ip::udp::endpoint>> ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
+std::vector<std::pair<Packet, asio::ip::udp::endpoint>>
+ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
     std::vector<std::pair<Packet, asio::ip::udp::endpoint>> due{};
     for (auto it = m_queue.begin(); it != m_queue.end();) {
         Pending& pending = *it;
@@ -89,7 +95,8 @@ std::vector<std::uint32_t> ReliableSendQueue::take_failures() {
     return failures;
 }
 
-DeliveryStatus ReliableSendQueue::is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const {
+DeliveryStatus ReliableSendQueue::is_acknowledged(std::uint32_t sequence,
+                                                  const asio::ip::udp::endpoint& endpoint) const {
     if (sequence == 0) {
         return DeliveryStatus::Failed;
     }
@@ -117,7 +124,6 @@ DeliveryStatus ReliableSendQueue::is_acknowledged(std::uint32_t sequence, const 
 
     return DeliveryStatus::Acknowledged;
 }
-
 
 void ReliableReceiveWindow::observe(std::uint32_t sequence) {
     if (sequence == 0) {

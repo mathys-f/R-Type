@@ -75,8 +75,7 @@ ecs::TagRegistry::TagId tag_id_or_invalid(const ecs::TagRegistry& tags, const ch
 }
 
 void set_navigation_for_tag(EngineContext& ctx, const char* tag, ecs::TagRegistry::TagId up,
-                            ecs::TagRegistry::TagId down, ecs::TagRegistry::TagId left,
-                            ecs::TagRegistry::TagId right) {
+                            ecs::TagRegistry::TagId down, ecs::TagRegistry::TagId left, ecs::TagRegistry::TagId right) {
     auto ent_opt = ctx.registry.get_tag_registry().get_entity(tag);
     if (!ent_opt.has_value())
         return;
@@ -137,9 +136,8 @@ void apply_lobby_list_navigation(EngineContext& ctx, std::size_t lobby_count) {
             continue;
         auto up = (i == 0) ? create : tag_cache[i - 1];
         auto down = (i + 1 < lobby_count) ? tag_cache[i + 1] : back;
-        ctx.registry.add_component(ent_opt.value(),
-                                   cpnt::UINavigation{up, down, ecs::TagRegistry::k_invalid_tag_id,
-                                                      ecs::TagRegistry::k_invalid_tag_id});
+        ctx.registry.add_component(ent_opt.value(), cpnt::UINavigation{up, down, ecs::TagRegistry::k_invalid_tag_id,
+                                                                       ecs::TagRegistry::k_invalid_tag_id});
     }
 }
 
@@ -208,14 +206,9 @@ void update_lobby_list_ui(EngineContext& ctx) {
         // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
         ctx.registry.add_component(
             entity, cpnt::UITransform{
-                k_start_x / k_width* 100.0f, 
-                (k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing)) / k_height * 100.0f,
-                0.0f, 
-                k_lobby_width / k_width* 100.0f, 
-                k_item_height / k_height * 100.0f, 
-                0.0f, 
-                0.0f, 
-                0.0f});
+                        k_start_x / k_width * 100.0f,
+                        (k_start_y + static_cast<float>(i) * (k_item_height + k_item_spacing)) / k_height * 100.0f,
+                        0.0f, k_lobby_width / k_width * 100.0f, k_item_height / k_height * 100.0f, 0.0f, 0.0f, 0.0f});
         // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
 
         std::string lobby_info = lobby.m_lobby_name + " - " + std::to_string(lobby.m_current_players) + "/" +

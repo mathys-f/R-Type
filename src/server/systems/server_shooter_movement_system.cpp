@@ -20,7 +20,8 @@ void sys::server_shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cp
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
 
-    for (auto [idx, pos_opt, pat_opt, vel_opt, shooter_opt] : ecs::indexed_zipper(positions, patterns, velocity, shooters)) {
+    for (auto [idx, pos_opt, pat_opt, vel_opt, shooter_opt] :
+         ecs::indexed_zipper(positions, patterns, velocity, shooters)) {
         if (!pos_opt || !pat_opt || !vel_opt || !shooter_opt) {
             continue;
         }

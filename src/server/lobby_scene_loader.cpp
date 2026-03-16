@@ -1,8 +1,7 @@
-#include "scenes_loaders.h"
-
-#include "game_engine/engine.h"
 #include "game_engine/components/components.h"
+#include "game_engine/engine.h"
 #include "game_engine/systems/systems.h"
+#include "scenes_loaders.h"
 #include "systems/systems.h"
 
 #include <random>
@@ -15,12 +14,12 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
-void lobby_scene_loader(EngineContext &engine_ctx)
-{
-    auto &registry = engine_ctx.registry;
+void lobby_scene_loader(EngineContext& engine_ctx) {
+    auto& registry = engine_ctx.registry;
     // Sim
     registry.register_component<cpnt::Transform>();
     registry.register_component<cpnt::Velocity>();
@@ -51,14 +50,15 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Velocity>(sys::server_player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(
         sys::server_shooter_movement_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Shooter, cpnt::Player>(sys::server_shooter_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Shooter, cpnt::Player>(
+        sys::server_shooter_system);
     engine_ctx.add_system<cpnt::Stats>(sys::server_stat_system);
-    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox, cpnt::Enemy, cpnt::Shooter, cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::server_boss_system);
+    engine_ctx.add_system<cpnt::Boss, cpnt::Transform, cpnt::Stats, cpnt::BossHitbox, cpnt::Enemy, cpnt::Shooter,
+                          cpnt::BulletShooter, cpnt::Bullet, cpnt::Health>(sys::server_boss_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::create_snapshot_system);
     engine_ctx.add_system<>(sys::update_snapshots_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::send_snapshot_to_client_system);
     engine_ctx.add_system<>(sys::clear_tombstones_system);
-
 
     constexpr float k_dist_min = 0.1f;
     constexpr float k_dist_max = 0.8f;
@@ -101,7 +101,8 @@ void lobby_scene_loader(EngineContext &engine_ctx)
 
         // Velocity
         engine_ctx.registry.add_component(
-            enemy, cpnt::Velocity{-(engine_ctx.k_enemy_base_speed + randf() * engine_ctx.k_enemy_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+            enemy, cpnt::Velocity{-(engine_ctx.k_enemy_base_speed + randf() * engine_ctx.k_enemy_speed_variance), 0.0f,
+                                  0.0f, 0.0f, 0.0f});
 
         // Other components
         engine_ctx.registry.add_component(enemy, cpnt::Enemy{});
@@ -131,7 +132,8 @@ void lobby_scene_loader(EngineContext &engine_ctx)
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(enemy, std::move(pat));
-        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale, k_enemy_hitbox_height * k_enemy_scale,
+        engine_ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale,
+                                                              k_enemy_hitbox_height * k_enemy_scale,
                                                               k_enemy_sprite_width, k_enemy_sprite_height});
     }
 
@@ -141,6 +143,8 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     constexpr float k_shooter_scale = 5.0f;
     constexpr float k_shooter_hitbox_width = 15.0f;
     constexpr float k_shooter_hitbox_height = 18.0f;
+    constexpr float k_shooter_transform_width = 55.0f;
+    constexpr float k_shooter_transform_height = 45.0f;
 
     for (size_t i = 0; i < engine_ctx.k_max_shooter; i++) {
         auto shooter = engine_ctx.registry.spawn_entity();
@@ -151,11 +155,14 @@ void lobby_scene_loader(EngineContext &engine_ctx)
         engine_ctx.registry.add_component(shooter, cpnt::Replicated{static_cast<std::uint32_t>(shooter)});
         engine_ctx.registry.add_component(shooter, cpnt::EntityType{"shooter"});
 
-        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                                         k_shooter_transform_height, 0, 1, 1, 1});
         engine_ctx.registry.add_component(
-            shooter, cpnt::Velocity{-(engine_ctx.k_shooter_base_speed + randf() * engine_ctx.k_shooter_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+            shooter, cpnt::Velocity{-(engine_ctx.k_shooter_base_speed + randf() * engine_ctx.k_shooter_speed_variance),
+                                    0.0f, 0.0f, 0.0f, 0.0f});
         engine_ctx.registry.add_component(shooter, cpnt::Shooter{0.0f});
-        engine_ctx.registry.add_component(shooter, cpnt::Health{engine_ctx.k_shooter_health, engine_ctx.k_shooter_health});
+        engine_ctx.registry.add_component(shooter,
+                                          cpnt::Health{engine_ctx.k_shooter_health, engine_ctx.k_shooter_health});
 
         cpnt::MovementPattern pat;
         pat.speed = k_pattern_base_speed + randf() * engine_ctx.k_pattern_speed_variance;
@@ -166,8 +173,9 @@ void lobby_scene_loader(EngineContext &engine_ctx)
         pat.base_y = spawn_y;
 
         engine_ctx.registry.add_component(shooter, std::move(pat));
-        engine_ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2),
-                                                                k_shooter_hitbox_height * (k_shooter_scale + 2),
-                                                                -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
+        engine_ctx.registry.add_component(shooter,
+                                          cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2),
+                                                       k_shooter_hitbox_height * (k_shooter_scale + 2),
+                                                       -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
     }
 }

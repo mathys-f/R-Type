@@ -5,13 +5,12 @@
 
 #include <asio.hpp>
 #include <atomic>
-#include <memory>
-#include <thread>
-#include <unordered_set>
-#include <unordered_map>
-#include <mutex>
-#include <unordered_map>
 #include <chrono>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace engn {
 class EngineContext;
@@ -28,7 +27,7 @@ class NetworkServer {
     NetworkServer(NetworkServer&&) = delete;
     NetworkServer& operator=(NetworkServer&&) = delete;
 
-    engn::EngineContext &get_engine();
+    engn::EngineContext& get_engine();
 
     void start();
     void poll();
@@ -50,6 +49,7 @@ class NetworkServer {
     std::atomic<bool> m_running{false};
     LobbyManager* m_lobby_manager;
     std::unordered_set<asio::ip::udp::endpoint, net::EndpointHash> m_connected_clients;
-    std::unordered_map<asio::ip::udp::endpoint, std::chrono::steady_clock::time_point, net::EndpointHash> m_client_last_activity;
+    std::unordered_map<asio::ip::udp::endpoint, std::chrono::steady_clock::time_point, net::EndpointHash>
+        m_client_last_activity;
     std::mutex m_clients_mutex;
 };

@@ -1,8 +1,8 @@
 #include "api/lua.h"
 #include "components/tag.h"
+#include "components/ui/ui_focusable.h"
 #include "components/ui/ui_input_field.h"
 #include "components/ui/ui_interactable.h"
-#include "components/ui/ui_focusable.h"
 #include "components/ui/ui_style.h"
 #include "components/ui/ui_text.h"
 #include "components/ui/ui_transform.h"
@@ -15,8 +15,7 @@ constexpr float k_input_field_width = 200.0f;
 constexpr float k_input_field_height = 30.0f;
 constexpr int k_input_field_font_size = 16;
 
-void lua::create_ui_input_field(EngineContext& ctx, std::string name,
-                                std::string default_value) {
+void lua::create_ui_input_field(EngineContext& ctx, std::string name, std::string default_value) {
     auto& reg = ctx.registry;
     static float s_i = 0;
 

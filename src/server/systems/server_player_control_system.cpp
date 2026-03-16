@@ -25,11 +25,12 @@ constexpr float k_bullet_speed = 650.0f;
 constexpr float k_bullet_width = 16.0f;
 constexpr float k_bullet_height = 8.0f;
 constexpr float k_bullet_scale = 2.0f;
+constexpr float k_bullet_hitbox_width = 20.0f;
+constexpr float k_bullet_hitbox_height = 20.0f;
 
-void sys::server_player_control_system(EngineContext& ctx,
-    ecs::SparseArray<cpnt::Transform> const& positions,
-    ecs::SparseArray<cpnt::Player> const& players,
-    ecs::SparseArray<cpnt::Velocity> const& velocities) {
+void sys::server_player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                                       ecs::SparseArray<cpnt::Player> const& players,
+                                       ecs::SparseArray<cpnt::Velocity> const& velocities) {
     // LOG_DEBUG("Running server_player_control_system");
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
@@ -60,7 +61,7 @@ void sys::server_player_control_system(EngineContext& ctx,
                         continue; // No input for this player
                     }
 
-                    auto &input_queue = queue_it->second;
+                    auto& input_queue = queue_it->second;
 
                     input_queue.for_each<evts::KeyHold>([&](const evts::KeyHold& key_hold) {
                         if (key_hold.keycode == ctx.controls.move_up.primary) {
@@ -128,11 +129,12 @@ void sys::server_player_control_system(EngineContext& ctx,
                     reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
                     reg.add_component(bullet, cpnt::EntityType{"bullet"});
                     // Then add Transform and other critical components
-                    reg.add_component(bullet, cpnt::Transform{bullet_x, bullet_y,
-                                                              0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
+                    reg.add_component(bullet,
+                                      cpnt::Transform{bullet_x, bullet_y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet{});
-                    reg.add_component(bullet, cpnt::Hitbox{20.0f, 20.0f, k_bullet_width, k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Hitbox{k_bullet_hitbox_width, k_bullet_hitbox_height,
+                                                           k_bullet_width, k_bullet_height});
                 }
             }
         }

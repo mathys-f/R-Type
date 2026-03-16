@@ -180,7 +180,8 @@ class ReliableSendQueue {
     /**
      * Tracks a reliable packet that has just been transmitted.
      */
-    void track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint);
+    void track(const Packet& packet, std::chrono::steady_clock::time_point now,
+               const asio::ip::udp::endpoint& endpoint);
     /**
      * Removes packets covered by the latest acknowledgement identifier from a specific endpoint.
      */
@@ -300,11 +301,20 @@ class Session : public std::enable_shared_from_this<Session> {
      */
     Session(asio::io_context& context, const asio::ip::udp::endpoint& remote, ReliabilityConfig config = {},
             std::uint16_t localPort = 0);
+    ~Session();
+    Session(const Session&) = delete;
+    Session& operator=(const Session&) = delete;
+    Session(Session&&) = delete;
+    Session& operator=(Session&&) = delete;
 
     /**
      * Starts the session by registering callbacks and enabling retransmission timers.
      */
     void start(PacketCallback onReliable, PacketCallback onUnreliable);
+    /**
+     * Stops the session, cancels pending async work, and releases callbacks.
+     */
+    void stop();
     /**
      * Sends a packet to the default remote endpoint.
      * Returns the sequence number of the packet if sent reliably, or 0 otherwise.
@@ -318,7 +328,8 @@ class Session : public std::enable_shared_from_this<Session> {
     /**
      * Checks if a specific message ID (sequence number) has been acknowledged by a specific endpoint.
      */
-    [[nodiscard]] DeliveryStatus is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
+    [[nodiscard]] DeliveryStatus is_message_acknowledged(std::uint32_t id,
+                                                         const asio::ip::udp::endpoint& endpoint) const;
     /**
      * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
      */
@@ -338,15 +349,9 @@ class Session : public std::enable_shared_from_this<Session> {
      */
     [[nodiscard]] asio::ip::udp::endpoint local_endpoint() const;
 
-    /**
-     * Callback invoked when a new client connects (first packet received from endpoint).
-     */
-    ConnectionCallback on_client_connect;
-
-    /**
-     * Callback invoked when a client disconnects (excessive retransmission failures).
-     */
-    ConnectionCallback on_client_disconnect;
+    void set_on_client_connect(ConnectionCallback callback);
+    void set_on_client_disconnect(ConnectionCallback callback);
+    void notify_client_disconnect(const asio::ip::udp::endpoint& endpoint);
 
     /**
      * Removes all per-endpoint state (receive window, fragment buffers) for a client.
@@ -394,14 +399,16 @@ class Session : public std::enable_shared_from_this<Session> {
     ReliableSendQueue m_send_queue{};
     // Per-endpoint receive windows: each remote client tracks its own sequence space.
     std::unordered_map<asio::ip::udp::endpoint, ReliableReceiveWindow, EndpointHash> m_receive_windows{};
+    ConnectionCallback m_on_client_connect{};
+    ConnectionCallback m_on_client_disconnect{};
     PacketCallback m_reliable_callback{};
     PacketCallback m_unreliable_callback{};
     asio::steady_timer m_retransmit_timer;
     std::vector<std::uint32_t> m_failed_cache{};
     std::uint16_t m_next_fragment_id = 1;
     // Per-endpoint fragment reassembly buffers to prevent cross-client interleaving.
-    std::unordered_map<asio::ip::udp::endpoint,
-        std::unordered_map<std::uint16_t, FragmentBuffer>, EndpointHash> m_fragment_buffers{};
+    std::unordered_map<asio::ip::udp::endpoint, std::unordered_map<std::uint16_t, FragmentBuffer>, EndpointHash>
+        m_fragment_buffers{};
     std::size_t m_fragment_payload_size = k_max_payload_size;
     bool m_started = false;
     std::unordered_set<asio::ip::udp::endpoint, EndpointHash> m_connected_endpoints{};

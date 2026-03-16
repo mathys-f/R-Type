@@ -1,16 +1,16 @@
 #pragma once
 
-#include <string>
-
 #include "components/i_sync_component.h"
+
+#include <string>
 
 namespace engn::cpnt {
 
 // Component that marks an entity as replicated over the network.
 struct Replicated : ISyncComponent {
-    std::uint32_t tag;
+    std::uint32_t tag{0};
 
-    size_t last_update_tick = 0;
+    size_t last_update_tick{0};
 
     Replicated() = default;
     Replicated(std::uint32_t tag, size_t last_update_tick = 0);
