@@ -1,9 +1,11 @@
 #include "lobby_ipc.h"
+
 #include "utils/logger.h"
 
-#include "boost/interprocess/ipc/message_queue.hpp"
 #include <chrono>
 #include <thread>
+
+#include "boost/interprocess/ipc/message_queue.hpp"
 
 namespace ipc {
 
@@ -18,12 +20,8 @@ LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
 
     try {
         // NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions)
-        m_main_to_lobby_queue = std::make_unique<bip::message_queue>(
-            bip::create_only,
-            main_to_lobby_name.c_str(),
-            k_max_messages,
-            k_message_size
-        );
+        m_main_to_lobby_queue = std::make_unique<bip::message_queue>(bip::create_only, main_to_lobby_name.c_str(),
+                                                                     k_max_messages, k_message_size);
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Failed to create main_to_lobby queue for lobby {}: {}", m_lobby_id, e.what());
         bip::message_queue::remove(main_to_lobby_name.c_str());
@@ -32,12 +30,8 @@ LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
 
     try {
         // NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions)
-        m_lobby_to_main_queue = std::make_unique<bip::message_queue>(
-            bip::create_only,
-            lobby_to_main_name.c_str(),
-            k_max_messages,
-            k_message_size
-        );
+        m_lobby_to_main_queue = std::make_unique<bip::message_queue>(bip::create_only, lobby_to_main_name.c_str(),
+                                                                     k_max_messages, k_message_size);
     } catch (const bip::interprocess_exception& e) {
         LOG_ERROR("Failed to create lobby_to_main queue for lobby {}: {}", m_lobby_id, e.what());
         m_main_to_lobby_queue.reset();
@@ -49,8 +43,7 @@ LobbyIPC::LobbyIPC(std::uint32_t lobby_id) : m_lobby_id(lobby_id) {
     LOG_INFO("Created IPC message queues for lobby {}", m_lobby_id);
 }
 
-LobbyIPC::~LobbyIPC() {
-}
+LobbyIPC::~LobbyIPC() {}
 
 bool LobbyIPC::try_receive_from_lobby(IPCMessage& msg, unsigned int timeout_ms) {
     namespace bip = boost::interprocess;
@@ -67,8 +60,9 @@ bool LobbyIPC::try_receive_from_lobby(IPCMessage& msg, unsigned int timeout_ms) 
                 if (m_lobby_to_main_queue->try_receive(&msg, k_message_size, recvd_size, priority)) {
                     return true;
                 }
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now() - start).count();
+                auto elapsed =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start)
+                        .count();
                 if (elapsed >= timeout_ms) {
                     return false;
                 }
@@ -112,8 +106,9 @@ bool LobbyIPC::try_receive_from_main(IPCMessage& msg, unsigned int timeout_ms) {
                 if (m_main_to_lobby_queue->try_receive(&msg, k_message_size, recvd_size, priority)) {
                     return true;
                 }
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now() - start).count();
+                auto elapsed =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start)
+                        .count();
                 if (elapsed >= timeout_ms) {
                     return false;
                 }

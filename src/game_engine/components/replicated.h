@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-
 #include "components/i_sync_component.h"
+
+#include <string>
 
 namespace engn::cpnt {
 

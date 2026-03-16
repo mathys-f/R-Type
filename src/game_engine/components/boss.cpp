@@ -1,30 +1,20 @@
 #include "components/boss.h"
-#include <cstring>
 
+#include <cstring>
 
 using namespace engn::cpnt;
 
-Boss::Boss(float time,
-           float cooldown_1,
-           float cooldown_2,
-           bool time_to_roar,
-           bool roar_active,
-           Vector2 center,
-           float radius,
-           float speed)
-    : timer(time),
-      cooldown_1(cooldown_1),
-      cooldown_2(cooldown_2),
-      time_to_roar(time_to_roar),
-      roar_active(roar_active),
-      waveCenter(center),
-      waveRadius(radius),
-      waveSpeed(speed) {}
+Boss::Boss(float time, float cooldown_1, float cooldown_2, bool time_to_roar, bool roar_active, Vector2 center,
+           float radius, float speed)
+    : timer(time), cooldown_1(cooldown_1), cooldown_2(cooldown_2), time_to_roar(time_to_roar), roar_active(roar_active),
+      waveCenter(center), waveRadius(radius), waveSpeed(speed) {}
 
 engn::SerializedComponent Boss::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::boss;
-    const std::uint16_t k_total_size =  sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) + sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) + sizeof(waveSpeed);
+    const std::uint16_t k_total_size = sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) +
+                                       sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) +
+                                       sizeof(waveSpeed);
     serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -49,7 +39,8 @@ engn::SerializedComponent Boss::serialize() const {
 }
 
 void Boss::deserialize(const std::vector<std::byte>& data) {
-    std::uint16_t size = sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) + sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) + sizeof(waveSpeed);
+    std::uint16_t size = sizeof(timer) + sizeof(cooldown_1) + sizeof(cooldown_2) + sizeof(time_to_roar) +
+                         sizeof(roar_active) + sizeof(waveCenter) + sizeof(waveRadius) + sizeof(waveSpeed);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (data.size() >= size) {

@@ -82,7 +82,7 @@ typename SparseArray<TComponent>::ReferenceType Registry::add_component(EntityTy
 
     const auto type_idx = std::type_index(typeid(TComponent));
     m_component_metadata[{to, type_idx}] = m_current_version;
-    
+
     // Maintain inverse index
     auto& comp_list = m_entity_to_components[to];
     if (std::find(comp_list.begin(), comp_list.end(), type_idx) == comp_list.end()) {
@@ -104,7 +104,7 @@ typename SparseArray<TComponent>::ReferenceType Registry::emplace_component(Enti
 
     const auto type_idx = std::type_index(typeid(TComponent));
     m_component_metadata[{to, type_idx}] = m_current_version;
-    
+
     // Maintain inverse index
     auto& comp_list = m_entity_to_components[to];
     if (std::find(comp_list.begin(), comp_list.end(), type_idx) == comp_list.end()) {

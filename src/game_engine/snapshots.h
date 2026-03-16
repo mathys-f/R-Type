@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cstdint>
 #include <any>
-#include <vector>
-#include <unordered_map>
-#include <typeindex>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
+#include <typeindex>
+#include <unordered_map>
+#include <vector>
 
 namespace engn {
 
@@ -38,7 +38,7 @@ struct SerializedComponent {
     // Cannot use std::any here because it does not translate to a contiguous byte array.
     std::vector<std::byte> data;
 
-    std::byte *serialize() const;
+    std::byte* serialize() const;
     static SerializedComponent deserialize(std::byte const* data_ptr);
     std::uint32_t get_serialized_size() const;
 };
@@ -60,27 +60,22 @@ struct SnapshotRecord {
     std::uint32_t last_update_tick;
 };
 
-enum class DeltaOperation : std::uint8_t {
-    entity_add,
-    entity_remove,
-    component_add_or_update,
-    component_remove
-};
+enum class DeltaOperation : std::uint8_t { entity_add, entity_remove, component_add_or_update, component_remove };
 
 struct DeltaEntry {
     DeltaOperation operation;
     std::uint32_t entity_id;
 
-    ComponentType component_type; // Only used for component remove
+    ComponentType component_type;                 // Only used for component remove
     std::optional<SerializedComponent> component; // Only used for component add or update
 };
 
 struct WorldDelta {
-    std::uint32_t base_snapshot_tick = 0;  // Initialize with default value
+    std::uint32_t base_snapshot_tick = 0; // Initialize with default value
     std::vector<DeltaEntry> entries;
 
     std::byte* serialize() const;
-    static WorldDelta deserialize(const std::byte *data_ptr);
+    static WorldDelta deserialize(const std::byte* data_ptr);
     std::uint32_t get_serialized_size() const;
 };
 

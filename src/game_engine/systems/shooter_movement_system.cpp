@@ -15,10 +15,10 @@ constexpr float k_dive_amplitude_multiplier = 2.0f;
 } // namespace
 
 void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                                ecs::SparseArray<cpnt::MovementPattern> const& patterns,
-                                ecs::SparseArray<cpnt::Velocity> const& velocity,
-                                ecs::SparseArray<cpnt::Shooter> const& shooters,
-                                ecs::SparseArray<cpnt::Player> const& player) {
+                                  ecs::SparseArray<cpnt::MovementPattern> const& patterns,
+                                  ecs::SparseArray<cpnt::Velocity> const& velocity,
+                                  ecs::SparseArray<cpnt::Shooter> const& shooters,
+                                  ecs::SparseArray<cpnt::Player> const& player) {
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
 
@@ -51,7 +51,8 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
             delta_y = ppos.y - pos.y;
             break; // Assuming only one player
         }
-        float angle_to_player = std::atan2(delta_y, delta_x) * (180.0f / k_pi); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-        vel.vz = angle_to_player + 180; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        float angle_to_player = std::atan2(delta_y, delta_x) *
+                                (180.0f / k_pi); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        vel.vz = angle_to_player + 180;          // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
     }
 }

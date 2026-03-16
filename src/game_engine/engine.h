@@ -7,28 +7,19 @@
 #include "events/events.h"
 #include "events/ui_events.h"
 #include "lua_context.h"
+#include "network_client.h"
+#include "networking/rtp/networking.h"
+#include "snapshots.h"
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <mutex>
-#include <unordered_map>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
-
-#include "networking/rtp/networking.h"
-
-#include "assets_manager.h"
-#include "ecs/registry.h"
-#include "events/event_queue.h"
-#include "events/events.h"
-#include "events/ui_events.h"
-#include "lua_context.h"
-#include "snapshots.h"
-#include "network_client.h"
 
 #define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
 
@@ -100,7 +91,7 @@ class EngineContext {
     std::vector<asio::ip::udp::endpoint> get_clients();
 
     std::mutex snapshots_history_mutex;
-    void record_snapshot(SnapshotRecord &snapshot);
+    void record_snapshot(SnapshotRecord& snapshot);
     SnapshotRecord get_latest_snapshot(asio::ip::udp::endpoint endpoint);
     SnapshotRecord get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
 
@@ -108,9 +99,9 @@ class EngineContext {
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
     bool update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoint, std::uint32_t msg_id);
 
-    void add_snapshot_delta(WorldDelta &delta);
+    void add_snapshot_delta(WorldDelta& delta);
     /// After being run, will send back ACKs to the server and clear the deltas list
-    void for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func);
+    void for_each_snapshot_delta(std::function<void(EngineContext& ctx, const WorldDelta&)> func);
 
     InputContext input_context = InputContext::Gameplay;
     InputState input_state;
@@ -139,12 +130,12 @@ class EngineContext {
     std::uint16_t server_port;
 
     class BackendAPIClient* backend_api_client = nullptr; // Backend sync (server-side only)
-    std::uint32_t current_lobby_id = 0; // Current lobby ID for backend sync
+    std::uint32_t current_lobby_id = 0;                   // Current lobby ID for backend sync
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
-    void add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader);
-    void set_scene(const std::string &scene_name);
-    const std::string &get_current_scene() const;
+    void add_scene_loader(const std::string& scene_name, std::function<void(EngineContext&)> loader);
+    void set_scene(const std::string& scene_name);
+    const std::string& get_current_scene() const;
 
     std::size_t get_current_tick() const;
 

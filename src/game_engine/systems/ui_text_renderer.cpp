@@ -35,10 +35,10 @@ void sys::ui_text_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt::UITr
         Vector2 string_size =
             MeasureTextEx(GetFontDefault(), text->content.c_str(), static_cast<float>(text->font_size), k_text_spacing);
         Vector2 position;
-        position.x = (transform->x / 100.0f * k_width)
-            + ((transform->w / 100.0f * k_width) - string_size.x) / 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-        position.y = (transform->y / 100.0f * k_height)
-            + ((transform->h / 100.0f * k_height) - string_size.y) / 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+        position.x = (transform->x / 100.0f * k_width) + ((transform->w / 100.0f * k_width) - string_size.x) /
+                                                             2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+        position.y = (transform->y / 100.0f * k_height) + ((transform->h / 100.0f * k_height) - string_size.y) /
+                                                              2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 
         Color text_color{style->text_color.r, style->text_color.g, style->text_color.b, style->text_color.a};
 

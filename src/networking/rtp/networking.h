@@ -180,7 +180,8 @@ class ReliableSendQueue {
     /**
      * Tracks a reliable packet that has just been transmitted.
      */
-    void track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint);
+    void track(const Packet& packet, std::chrono::steady_clock::time_point now,
+               const asio::ip::udp::endpoint& endpoint);
     /**
      * Removes packets covered by the latest acknowledgement identifier from a specific endpoint.
      */
@@ -323,7 +324,8 @@ class Session : public std::enable_shared_from_this<Session> {
     /**
      * Checks if a specific message ID (sequence number) has been acknowledged by a specific endpoint.
      */
-    [[nodiscard]] DeliveryStatus is_message_acknowledged(std::uint32_t id, const asio::ip::udp::endpoint& endpoint) const;
+    [[nodiscard]] DeliveryStatus is_message_acknowledged(std::uint32_t id,
+                                                         const asio::ip::udp::endpoint& endpoint) const;
     /**
      * Updates the fragment payload size to a negotiated value (bounded by k_max_payload_size).
      */
@@ -405,8 +407,8 @@ class Session : public std::enable_shared_from_this<Session> {
     std::vector<std::uint32_t> m_failed_cache{};
     std::uint16_t m_next_fragment_id = 1;
     // Per-endpoint fragment reassembly buffers to prevent cross-client interleaving.
-    std::unordered_map<asio::ip::udp::endpoint,
-        std::unordered_map<std::uint16_t, FragmentBuffer>, EndpointHash> m_fragment_buffers{};
+    std::unordered_map<asio::ip::udp::endpoint, std::unordered_map<std::uint16_t, FragmentBuffer>, EndpointHash>
+        m_fragment_buffers{};
     std::size_t m_fragment_payload_size = k_max_payload_size;
     bool m_started = false;
     std::unordered_set<asio::ip::udp::endpoint, EndpointHash> m_connected_endpoints{};

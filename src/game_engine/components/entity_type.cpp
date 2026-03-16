@@ -1,4 +1,5 @@
 #include "components/entity_type.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;

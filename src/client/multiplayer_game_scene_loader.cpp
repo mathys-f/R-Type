@@ -1,8 +1,8 @@
 #include "game_engine/api/lua.h"
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
-#include "game_engine/systems/systems.h"
 #include "game_engine/network_client.h"
+#include "game_engine/systems/systems.h"
 #include "raylib.h"
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
@@ -18,7 +18,8 @@ constexpr float k_rand_divisor = 1000.0f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
@@ -78,7 +79,8 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::resolve_player_input);
     engine_ctx.add_system<>(send_input_system);
     // Prediction
-    engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity>(sys::predict_local_player_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity>(
+        sys::predict_local_player_system);
     // Net
     engine_ctx.add_system<>(sys::apply_server_updates_system);
     // engine_ctx.add_system<>(sys::log_inputs);
@@ -91,22 +93,26 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
 
     // SIM / Prediction
-    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(
-        sys::collision_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,
+                          cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(sys::collision_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health,
+    // cpnt::Sprite>(sys::enemy_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::BulletShooter>(sys::particle_emission_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet,
+    // cpnt::BulletShooter>(sys::particle_emission_system); engine_ctx.add_system<cpnt::Transform, cpnt::Player,
+    // cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
     //     sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
-        sys::render_system);
+    engine_ctx
+        .add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
+            sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter,
+    // cpnt::Player>(sys::shooter_movement_system); engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health,
+    // cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
@@ -123,25 +129,27 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     }
     engine_ctx.network_client = std::make_shared<engn::NetworkClient>();
 
-    engine_ctx.network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
-        if (success) {
-            LOG_DEBUG("Connected!");
-        } else {
-            LOG_ERROR("Login failed! Cannot start game.");
-            return;
-        }
-    });
+    engine_ctx.network_client->set_on_login(
+        [&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
+            if (success) {
+                LOG_DEBUG("Connected!");
+            } else {
+                LOG_ERROR("Login failed! Cannot start game.");
+                return;
+            }
+        });
 
     engine_ctx.network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
-        if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
+        if (pkt.header.m_command ==
+            static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
         }
     });
-    
+
     engine_ctx.network_client->set_on_logout([&engine_ctx]() {
         LOG_INFO("Disconnected from server.");
-        
+
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         const float k_width = engine_ctx.window_size.x;
         const float k_height = engine_ctx.window_size.y;
@@ -157,36 +165,34 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         auto bg_entity = registry.spawn_entity();
         registry.add_component(bg_entity, cpnt::UITransform{0, 0, 10, 100, 100, 0, 0, 0});
-        registry.add_component(bg_entity, cpnt::UIStyle{
-            utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200},
-            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
-            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
-            0, 0
-        });
+        registry.add_component(bg_entity, cpnt::UIStyle{utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200},
+                                                        utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, 0, 0});
         registry.add_component(bg_entity, cpnt::UIInteractable{});
 
         auto text_entity = registry.spawn_entity();
         registry.add_component(text_entity, cpnt::UITransform{50, 40, 11, 0, 0, 0.5f, 0.5f, 0});
         registry.add_component(text_entity, cpnt::UIText{"Disconnected from server", 40});
-        registry.add_component(text_entity, cpnt::UIStyle{
-            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
-            utils::Color{255, 50, 50, 255}, utils::Color{255, 50, 50, 255}, utils::Color{255, 50, 50, 255},
-            utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
-            0, 0
-        });
+        registry.add_component(text_entity, cpnt::UIStyle{utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                          utils::Color{0, 0, 0, 0}, utils::Color{255, 50, 50, 255},
+                                                          utils::Color{255, 50, 50, 255},
+                                                          utils::Color{255, 50, 50, 255}, utils::Color{0, 0, 0, 0},
+                                                          utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, 0, 0});
 
         auto btn_entity = registry.spawn_entity();
         tag_registry.create_and_bind_tag("disconnect_back_button", btn_entity);
         registry.add_component(btn_entity, cpnt::Tag{tag_registry.get_tag_id("disconnect_back_button")});
-        
+
         registry.add_component(btn_entity, cpnt::UITransform{37.5f, 60, 11, 25, 8, 0.5f, 0.5f, 0});
         registry.add_component(btn_entity, cpnt::UIText{"Back to Menu", 30});
-        registry.add_component(btn_entity, cpnt::UIStyle{
-            utils::Color{50, 50, 50, 255}, utils::Color{70, 70, 70, 255}, utils::Color{30, 30, 30, 255},
-            utils::Color{255, 255, 255, 255}, utils::Color{255, 255, 255, 255}, utils::Color{200, 200, 200, 255},
-            utils::Color{100, 100, 100, 255}, utils::Color{120, 120, 120, 255}, utils::Color{80, 80, 80, 255},
-            0.5f, 2.0f
-        });
+        registry.add_component(btn_entity,
+                               cpnt::UIStyle{utils::Color{50, 50, 50, 255}, utils::Color{70, 70, 70, 255},
+                                             utils::Color{30, 30, 30, 255}, utils::Color{255, 255, 255, 255},
+                                             utils::Color{255, 255, 255, 255}, utils::Color{200, 200, 200, 255},
+                                             utils::Color{100, 100, 100, 255}, utils::Color{120, 120, 120, 255},
+                                             utils::Color{80, 80, 80, 255}, 0.5f, 2.0f});
         registry.add_component(btn_entity, cpnt::UIButton{});
         registry.add_component(btn_entity, cpnt::UIInteractable{});
         // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

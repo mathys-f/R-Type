@@ -1,16 +1,18 @@
 #include "components/stats.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active) : score(score), dmg(dmg), kills(kills),
-                                                                                  level(level), point_to_next_level(point_to_next_level), 
-                                                                                  boss_active(boss_active) {}
+Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active)
+    : score(score), dmg(dmg), kills(kills), level(level), point_to_next_level(point_to_next_level),
+      boss_active(boss_active) {}
 
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::stats;
-    const std::uint16_t k_total_size = sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level) + sizeof(boss_active);
+    const std::uint16_t k_total_size =
+        sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level) + sizeof(boss_active);
     serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)

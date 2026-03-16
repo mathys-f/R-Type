@@ -8,21 +8,22 @@
 using namespace engn;
 
 namespace {
-    constexpr int k_rand_range = 1000;
-    constexpr float k_rand_divisor = 1000.0f;
-    constexpr int k_new_charger_enemies = 1;
-    constexpr int k_new_shooter_enemies = 1;
-    constexpr int k_boss_level = 4;
-}
+constexpr int k_rand_range = 1000;
+constexpr float k_rand_divisor = 1000.0f;
+constexpr int k_new_charger_enemies = 1;
+constexpr int k_new_shooter_enemies = 1;
+constexpr int k_boss_level = 4;
+} // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT (clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT (clang-analyzer-security.insecureAPI.rand)
 }
 
 void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats) {
     auto& reg = ctx.registry;
 
-    const int k_width = static_cast<int>(ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
+    const int k_width = static_cast<int>(ctx.window_size.x);  // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height = static_cast<int>(ctx.window_size.y); // NOLINT(cppcoreguidelines-pro-type-union-access)
     constexpr float k_dist_min = 0.1f;
     constexpr float k_dist_max = 0.8f;
@@ -64,15 +65,16 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
 
                     // Velocity
                     ctx.registry.add_component(
-                        enemy, cpnt::Velocity{-(ctx.k_enemy_base_speed + randf() * ctx.k_enemy_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
+                        enemy, cpnt::Velocity{-(ctx.k_enemy_base_speed + randf() * ctx.k_enemy_speed_variance), 0.0f,
+                                              0.0f, 0.0f, 0.0f});
 
                     // Other components
                     ctx.registry.add_component(enemy, cpnt::Enemy{});
-                    ctx.registry.add_component(
-                        enemy, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y, k_enemy_sprite_width, k_enemy_sprite_height},
-                                            k_enemy_scale,
-                                            0,
-                                            "enemy_ship"});
+                    ctx.registry.add_component(enemy, cpnt::Sprite{{k_enemy_sprite_x, k_enemy_sprite_y,
+                                                                    k_enemy_sprite_width, k_enemy_sprite_height},
+                                                                   k_enemy_scale,
+                                                                   0,
+                                                                   "enemy_ship"});
                     ctx.registry.add_component(enemy, cpnt::Health{ctx.k_enemy_health, ctx.k_enemy_health});
 
                     // Create a **new MovementPattern instance** for this enemy
@@ -99,11 +101,12 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                     pat.base_y = spawn_y;
 
                     ctx.registry.add_component(enemy, std::move(pat));
-                    ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale, k_enemy_hitbox_height * k_enemy_scale,
-                                                                          k_enemy_sprite_width, k_enemy_sprite_height});
+                    ctx.registry.add_component(enemy, cpnt::Hitbox{k_enemy_hitbox_width * k_enemy_scale,
+                                                                   k_enemy_hitbox_height * k_enemy_scale,
+                                                                   k_enemy_sprite_width, k_enemy_sprite_height});
                 }
                 // Create shooters
-            
+
                 constexpr float k_shooter_sprite_x = 87.0f;
                 constexpr float k_shooter_sprite_y = 67.0f;
                 constexpr float k_shooter_sprite_width = 22.0f;
@@ -111,29 +114,33 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                 constexpr float k_shooter_scale = 5.0f;
                 constexpr float k_shooter_hitbox_width = 15.0f;
                 constexpr float k_shooter_hitbox_height = 18.0f;
-            
+
                 for (size_t i = 0; i < k_new_shooter_enemies; i++) {
                     auto shooter = ctx.registry.spawn_entity();
-            
+
                     float spawn_y = (float)GetRandomValue(ctx.k_spawn_margin, k_height - ctx.k_spawn_margin);
                     float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
-            
+
                     // Position
-                    ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1, 1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-            
+                    ctx.registry.add_component(
+                        shooter,
+                        engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1,
+                                              1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+
                     // Velocity
                     ctx.registry.add_component(
-                        shooter, cpnt::Velocity{-(ctx.k_shooter_base_speed + randf() * ctx.k_shooter_speed_variance), 0.0f, 0.0f, 0.0f, 0.0f});
-            
+                        shooter, cpnt::Velocity{-(ctx.k_shooter_base_speed + randf() * ctx.k_shooter_speed_variance),
+                                                0.0f, 0.0f, 0.0f, 0.0f});
+
                     // Other components
                     ctx.registry.add_component(shooter, cpnt::Shooter{0});
-                    ctx.registry.add_component(
-                        shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y, k_shooter_sprite_width, k_shooter_sprite_height},
-                                            k_shooter_scale,
-                                            0,
-                                            "shooter_sprite"});
+                    ctx.registry.add_component(shooter, cpnt::Sprite{{k_shooter_sprite_x, k_shooter_sprite_y,
+                                                                      k_shooter_sprite_width, k_shooter_sprite_height},
+                                                                     k_shooter_scale,
+                                                                     0,
+                                                                     "shooter_sprite"});
                     ctx.registry.add_component(shooter, cpnt::Health{ctx.k_shooter_health, ctx.k_shooter_health});
-            
+
                     // Create a **new MovementPattern instance** for this shooter
                     cpnt::MovementPattern pat;
                     pat.speed = k_pattern_base_speed + randf() * ctx.k_pattern_speed_variance;
@@ -156,18 +163,20 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                             break;
                     }
                     pat.base_y = spawn_y;
-            
+
                     ctx.registry.add_component(shooter, std::move(pat));
-                    ctx.registry.add_component(shooter, cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2), k_shooter_hitbox_height * (k_shooter_scale + 2),
-                                                                          -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
+                    ctx.registry.add_component(shooter,
+                                               cpnt::Hitbox{k_shooter_hitbox_width * (k_shooter_scale + 2),
+                                                            k_shooter_hitbox_height * (k_shooter_scale + 2),
+                                                            -k_shooter_sprite_width * 2, -k_shooter_sprite_height * 3});
                 }
             }
             // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
-            //DrawText(TextFormat("Score: %d", stat->score), 10, 10, 20, WHITE);
-            //DrawText(TextFormat("Enemies killed: %d", stat->kills), 10, 40, 20, WHITE);
-            //DrawText(TextFormat("Level: %d", stat->level), 10, 70, 20, WHITE);
-            //DrawText(TextFormat("Points to next level: %d", stat->point_to_next_level), 10, 100, 20, WHITE);
+            // DrawText(TextFormat("Score: %d", stat->score), 10, 10, 20, WHITE);
+            // DrawText(TextFormat("Enemies killed: %d", stat->kills), 10, 40, 20, WHITE);
+            // DrawText(TextFormat("Level: %d", stat->level), 10, 70, 20, WHITE);
+            // DrawText(TextFormat("Points to next level: %d", stat->point_to_next_level), 10, 100, 20, WHITE);
             // NOLINTEND(cppcoreguidelines-pro-type-vararg,-warnings-as-errors)
             // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
         }

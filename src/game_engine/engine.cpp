@@ -16,7 +16,7 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx);
 
 EngineContext::EngineContext() : server_port(0), m_current_scene("") {
     m_snapshots_history.reserve(4); // Reserve for 4 players
-    for (auto &snapshot: m_snapshots_history)
+    for (auto& snapshot : m_snapshots_history)
         snapshot.second.reserve(SNAPSHOT_HISTORY_SIZE); // Make sure enough space for snapshots hystory
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
@@ -50,9 +50,7 @@ void EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
     std::lock_guard<std::mutex> lock(clients_mutex);
     std::lock_guard<std::mutex> lock_b(snapshots_history_mutex);
     if (std::find(m_clients.begin(), m_clients.end(), client_endpoint) != m_clients.end()) {
-        LOG_WARNING("Client {}:{} already connected",
-            client_endpoint.address().to_string(),
-            client_endpoint.port());
+        LOG_WARNING("Client {}:{} already connected", client_endpoint.address().to_string(), client_endpoint.port());
         return;
     }
     m_clients.push_back(client_endpoint);
@@ -76,11 +74,11 @@ std::vector<asio::ip::udp::endpoint> EngineContext::get_clients() {
     return m_clients;
 }
 
-void EngineContext::add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader) {
+void EngineContext::add_scene_loader(const std::string& scene_name, std::function<void(EngineContext&)> loader) {
     m_scenes_loaders[scene_name] = loader;
 }
 
-void EngineContext::set_scene(const std::string &scene_name) {
+void EngineContext::set_scene(const std::string& scene_name) {
     if (scene_name == m_current_scene) {
         LOG_INFO("Reloading scene {}", scene_name);
     } else if (m_scenes_loaders[scene_name] == nullptr) {
@@ -103,15 +101,14 @@ void EngineContext::set_scene(const std::string &scene_name) {
               static_cast<std::size_t>(registry.spawn_entity())); // ensure entity 0 is reserved
     LOG_DEBUG("Loading scene {}...", scene_name);
     m_scenes_loaders[scene_name](*this);
-    if ((scene_name == "main_menu") ||
-        (m_current_scene == "main_menu" && scene_name == "singleplayer_game")) {
+    if ((scene_name == "main_menu") || (m_current_scene == "main_menu" && scene_name == "singleplayer_game")) {
         change_music = true;
     }
     m_current_scene = scene_name;
     LOG_INFO("Scene {} loaded", scene_name);
 }
 
-const std::string &EngineContext::get_current_scene() const {
+const std::string& EngineContext::get_current_scene() const {
     return m_current_scene;
 }
 
@@ -124,7 +121,7 @@ SnapshotRecord EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoi
     SnapshotRecord empty_record;
 
     if (m_snapshots_history.empty()) {
-       return empty_record;
+        return empty_record;
     }
 
     auto it = m_snapshots_history.find(endpoint);
@@ -132,7 +129,7 @@ SnapshotRecord EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoi
         return empty_record;
     }
 
-    const auto &history = it->second;
+    const auto& history = it->second;
     SnapshotRecord record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
     if (!record.snapshot.entities.empty()) {
         return record;
@@ -146,12 +143,12 @@ SnapshotRecord EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::en
     empty_record.acknowledged = true; // The empty record is sent if the player has never acknowledged anything yet
     empty_record.last_update_tick = 0;
     if (m_snapshots_history.find(endpoint) == m_snapshots_history.end())
-       return empty_record;
+        return empty_record;
 
-    const auto &history = m_snapshots_history.at(endpoint);
+    const auto& history = m_snapshots_history.at(endpoint);
 
     for (std::size_t tick = m_current_tick; tick > 0; tick--) {
-        const SnapshotRecord &record = history[tick % SNAPSHOT_HISTORY_SIZE];
+        const SnapshotRecord& record = history[tick % SNAPSHOT_HISTORY_SIZE];
 
         if (record.acknowledged) {
             return record;
@@ -160,10 +157,10 @@ SnapshotRecord EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::en
     return empty_record;
 }
 
-void EngineContext::record_snapshot(SnapshotRecord &record) {
+void EngineContext::record_snapshot(SnapshotRecord& record) {
     std::lock_guard<std::mutex> lock(snapshots_history_mutex);
     record.last_update_tick = m_current_tick;
-    for (auto &history : m_snapshots_history)
+    for (auto& history : m_snapshots_history)
         std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
 }
 
@@ -189,14 +186,14 @@ bool EngineContext::update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoi
     return true;
 }
 
-void EngineContext::add_snapshot_delta(WorldDelta &delta) {
+void EngineContext::add_snapshot_delta(WorldDelta& delta) {
     std::lock_guard<std::mutex> lock(m_snapshots_delta_mutex);
     m_snapshots_delta.push_back(delta);
 }
 
-void EngineContext::for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func) {
+void EngineContext::for_each_snapshot_delta(std::function<void(EngineContext& ctx, const WorldDelta&)> func) {
     std::lock_guard<std::mutex> lock(m_snapshots_delta_mutex);
-    for (const auto &delta : m_snapshots_delta) {
+    for (const auto& delta : m_snapshots_delta) {
         func(*this, delta);
     }
     m_snapshots_delta.clear();

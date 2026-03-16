@@ -23,14 +23,16 @@ NetworkServer::~NetworkServer() {
     stop();
 }
 
-EngineContext &NetworkServer::get_engine() {
+EngineContext& NetworkServer::get_engine() {
     return m_engine_ctx;
 }
 
 void NetworkServer::start() {
     // Set up connection callbacks
     m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+        m_io.post([this, endpoint]() {
+            handle_client_connect(endpoint);
+        }); // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
     };
 
     m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
@@ -41,7 +43,7 @@ void NetworkServer::start() {
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Update client activity timestamp whenever we receive a packet
             update_client_activity(from);
-            
+
             if (auto login_req = net::handshake::parse_req_login(pkt)) {
                 std::uint32_t assigned_id = 0;
                 bool id_available = false;
@@ -56,7 +58,8 @@ void NetworkServer::start() {
                     }
                     if (!id_available) {
                         for (std::uint8_t id = 0; id < m_engine_ctx.k_player_count; ++id) {
-                            if (m_engine_ctx.player_id_to_endpoint.find(id) == m_engine_ctx.player_id_to_endpoint.end()) {
+                            if (m_engine_ctx.player_id_to_endpoint.find(id) ==
+                                m_engine_ctx.player_id_to_endpoint.end()) {
                                 assigned_id = id;
                                 id_available = true;
                                 m_engine_ctx.player_id_to_endpoint[id] = from;
@@ -68,20 +71,18 @@ void NetworkServer::start() {
 
                 const std::uint16_t k_requested = login_req->m_preferred_fragment_size;
                 const std::uint16_t k_effective =
-                    (k_requested == 0) ? static_cast<std::uint16_t>(net::k_max_payload_size)
-                                       : static_cast<std::uint16_t>(std::min<std::size_t>(k_requested, net::k_max_payload_size));
+                    (k_requested == 0)
+                        ? static_cast<std::uint16_t>(net::k_max_payload_size)
+                        : static_cast<std::uint16_t>(std::min<std::size_t>(k_requested, net::k_max_payload_size));
                 m_session->set_fragment_payload_size(k_effective);
 
                 net::handshake::ResLogin resp_payload{
-                    .m_success = id_available,
-                    .m_player_id = assigned_id,
-                    .m_effective_fragment_size = k_effective
-                };
+                    .m_success = id_available, .m_player_id = assigned_id, .m_effective_fragment_size = k_effective};
                 net::Packet resp = net::handshake::make_res_login(resp_payload);
                 m_session->send(resp, from, true);
                 if (!id_available) {
-                    LOG_WARNING("Rejecting login from {}:{} - no available player slots",
-                                from.address().to_string(), from.port());
+                    LOG_WARNING("Rejecting login from {}:{} - no available player slots", from.address().to_string(),
+                                from.port());
                 }
                 return;
             }
@@ -218,8 +219,9 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
     {
         std::lock_guard<std::mutex> lock(m_clients_mutex);
-        if (m_connected_clients.insert(endpoint).second) {  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
-            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());  // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+        if (m_connected_clients.insert(endpoint).second) { // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(),
+                     endpoint.port()); // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
         } else {
             return;
         }

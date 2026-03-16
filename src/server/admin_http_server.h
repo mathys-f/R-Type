@@ -7,19 +7,21 @@
 #endif
 
 #include "lobby_manager.h"
+
 #include <httplib.h>
+
+#include <atomic>
 #include <memory>
 #include <thread>
-#include <atomic>
 
 // HTTP Status Codes
 namespace http {
-    constexpr int k_status_ok = 200;
-    constexpr int k_status_created = 201;
-    constexpr int k_status_bad_request = 400;
-    constexpr int k_status_not_found = 404;
-    constexpr int k_status_internal_error = 500;
-}
+constexpr int k_status_ok = 200;
+constexpr int k_status_created = 201;
+constexpr int k_status_bad_request = 400;
+constexpr int k_status_not_found = 404;
+constexpr int k_status_internal_error = 500;
+} // namespace http
 
 /**
  * Simple HTTP server for admin commands
@@ -37,7 +39,9 @@ class AdminHTTPServer {
 
     void start();
     void stop();
-    bool is_running() const { return m_running; }
+    bool is_running() const {
+        return m_running;
+    }
 
   private:
     void run_server();

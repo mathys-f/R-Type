@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <cstddef>
-
 #include "snapshots.h"
+
+#include <cstddef>
+#include <vector>
 
 namespace engn::cpnt {
 

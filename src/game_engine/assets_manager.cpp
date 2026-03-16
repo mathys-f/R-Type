@@ -67,4 +67,3 @@ void AssetsManager::unload_asset(const std::string& asset_id) {
         m_assets.erase(it);
     }
 }
-

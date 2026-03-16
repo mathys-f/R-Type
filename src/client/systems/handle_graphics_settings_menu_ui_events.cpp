@@ -40,9 +40,8 @@ void handle_graphics_settings_menu_ui_events(engn::EngineContext& engine_ctx) {
     const evts::ControllerButtonPressed* pad_evt =
         engine_ctx.input_event_queue.get_last<evts::ControllerButtonPressed>();
     const bool k_escape_pressed = key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape;
-    const bool k_pause_pressed =
-        pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
-                    pad_evt->button == evts::ControllerButton::ControllerButtonBack);
+    const bool k_pause_pressed = pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
+                                             pad_evt->button == evts::ControllerButton::ControllerButtonBack);
     if (k_escape_pressed || k_pause_pressed) {
         if (engine_ctx.settings_return_scene != "") {
             engine_ctx.set_scene(engine_ctx.settings_return_scene);
@@ -117,12 +116,12 @@ static void update_graphics_text(EngineContext& ctx) {
         ctx.k_scroll_speed = k_scroll_speed_min;
     if (ctx.k_scroll_speed > k_scroll_speed_max)
         ctx.k_scroll_speed = k_scroll_speed_max;
-    
+
     if (ctx.k_particles < k_particles_min)
         ctx.k_particles = k_particles_min;
     if (ctx.k_particles > k_particles_max)
         ctx.k_particles = k_particles_max;
-    
+
     if (ctx.k_stars < k_stars_min)
         ctx.k_stars = k_stars_min;
     if (ctx.k_stars > k_stars_max)

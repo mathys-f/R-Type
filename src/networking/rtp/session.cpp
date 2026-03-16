@@ -101,12 +101,12 @@ void Session::poll() {
         m_transport->async_send(packet, ep);
     }
     auto failures = m_send_queue.take_failures();
-    
+
     // Invoke disconnect callback for clients with failed sequences
     // Note: We'd need to track which endpoint each failed sequence belongs to
     // For now, this is a simplified version - you may need to enhance
     // ReliableSendQueue to return endpoint info with failures
-    
+
     m_failed_cache = std::move(failures);
     schedule_retransmission();
 }
@@ -294,7 +294,7 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
 
     // Process Acks
     m_send_queue.acknowledge(packet.header.m_ack, endpoint);
-    
+
     // Keep track of connected endpoints
     if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
         m_connected_endpoints.insert(endpoint);
@@ -312,13 +312,13 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
     if (packet.header.m_sequence != 0) {
         m_receive_windows[endpoint].observe(packet.header.m_sequence);
     }
-    
+
     // Handle Fragmentation
     if (has_flag(packet.header.m_flags, PacketFlag::KFragment)) {
         auto assembled = ingest_fragment(std::move(packet), endpoint);
         if (assembled) {
             if (m_reliable_callback) {
-                 m_reliable_callback(*assembled, endpoint);
+                m_reliable_callback(*assembled, endpoint);
             }
         }
         return;

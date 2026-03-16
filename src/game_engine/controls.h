@@ -13,10 +13,7 @@ struct InputState {
     bool using_gamepad = false;
 };
 
-enum class InputContext {
-    Gameplay = 0,
-    Menu
-};
+enum class InputContext { Gameplay = 0, Menu };
 
 struct ControlBinding {
     evts::KeyboardKeyCode primary = evts::KeyboardKeyCode::KeyUnknown;
@@ -44,23 +41,9 @@ struct GamepadControlScheme {
     GamepadControlBinding shoot;
 };
 
-enum class ControlAction {
-    None = 0,
-    MoveUp,
-    MoveDown,
-    MoveLeft,
-    MoveRight,
-    Shoot
-};
+enum class ControlAction { None = 0, MoveUp, MoveDown, MoveLeft, MoveRight, Shoot };
 
-enum class GamepadControlAction {
-    None = 0,
-    MoveUp,
-    MoveDown,
-    MoveLeft,
-    MoveRight,
-    Shoot
-};
+enum class GamepadControlAction { None = 0, MoveUp, MoveDown, MoveLeft, MoveRight, Shoot };
 
 inline ControlScheme make_default_controls() {
     ControlScheme scheme;

@@ -1,24 +1,23 @@
+#include "admin_http_server.h"
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
 #include "lobby_manager.h"
 #include "network_server.h"
-#include "admin_http_server.h"
 #include "scenes_loaders.h"
 
 #include <chrono>
 #include <cmath>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <optional>
 #include <thread>
-#include <csignal>
 
 using namespace engn;
 
 bool g_running = true; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-
 
 void signal_handler(int signal) {
     if (signal == SIGINT) {
@@ -43,11 +42,11 @@ int main(int argc, char** argv) {
     std::uint16_t port = k_default_port;
     bool is_lobby = false;
     std::uint32_t lobby_id = 0;
-    
+
     for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "-p") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             port = static_cast<std::uint16_t>(
-                std::stoi(argv[i + 1])); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                std::stoi(argv[i + 1]));                 // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         } else if (std::string(argv[i]) == "-islobby") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             is_lobby = true;
         } else if (std::string(argv[i]) == "-lobby-id") { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)

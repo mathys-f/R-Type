@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../networking/lobby/lobby_messages.h"
-#include "network_server.h"
-#include "lobby_ipc.h"
 #include "backend_api_client.h"
+#include "lobby_ipc.h"
+#include "network_server.h"
 
 #include <asio.hpp>
 #include <atomic>
@@ -15,10 +15,10 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    using process_handle_t = HANDLE;
+using process_handle_t = HANDLE;
 #else
     #include <sys/types.h>
-    using process_handle_t = pid_t;
+using process_handle_t = pid_t;
 #endif
 
 namespace engn {
@@ -43,10 +43,10 @@ class GameLobby {
 
     void start();
     void stop();
-    
+
     // Check if process is still alive
     bool is_process_alive() const;
-    
+
     // Process IPC messages from lobby
     void process_ipc_messages();
 
@@ -73,14 +73,14 @@ class GameLobby {
     bool is_running() const {
         return m_running.load();
     }
-    
+
     process_handle_t get_process_handle() const {
         return m_process_handle;
     }
-    
+
     // Static function to run lobby in child process (public for Windows lobby mode)
-    static void run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, 
-        std::uint16_t port, std::uint8_t max_players);
+    static void run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, std::uint16_t port,
+                                           std::uint8_t max_players);
 
   private:
     void fork_and_run_lobby_process();
@@ -124,17 +124,14 @@ class LobbyManager {
 
     // Clean up empty lobbies
     void cleanup_empty_lobbies();
-    
+
     // Sync player counts to backend database
     void sync_player_counts();
-    
+
     // Backend API integration helpers
-    std::optional<std::uint32_t> add_player_session(
-        std::uint32_t lobby_id,
-        const std::string& player_name,
-        std::optional<std::uint32_t> account_id = std::nullopt,
-        const std::string& ip_address = ""
-    );
+    std::optional<std::uint32_t> add_player_session(std::uint32_t lobby_id, const std::string& player_name,
+                                                    std::optional<std::uint32_t> account_id = std::nullopt,
+                                                    const std::string& ip_address = "");
 
   private:
     std::uint16_t allocate_port();

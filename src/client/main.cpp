@@ -63,7 +63,6 @@ static void update_window_size(EngineContext& engine_ctx) {
     engine_ctx.window_size.y = static_cast<float>(GetScreenHeight());
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-
 }
 
 int main(void) {
@@ -112,7 +111,7 @@ int main(void) {
             engine_ctx.delta_time = GetFrameTime();
 
             // Handle music change
-            const std::string &scene_name = engine_ctx.get_current_scene();
+            const std::string& scene_name = engine_ctx.get_current_scene();
             if (scene_name == "" && engine_ctx.change_music) {
                 engine_ctx.change_music = false;
                 StopMusicStream(music.value());
@@ -135,7 +134,7 @@ int main(void) {
             // Run all systems
             engine_ctx.run_systems();
 
-            if (GetKeyPressed() == KEY_F5){
+            if (GetKeyPressed() == KEY_F5) {
                 engine_ctx.set_scene(engine_ctx.get_current_scene());
             }
 

@@ -1,4 +1,5 @@
 #include "components/shooter.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;

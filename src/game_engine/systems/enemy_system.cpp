@@ -46,15 +46,14 @@ void sys::enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> con
                     auto explosion = reg.spawn_entity();
                     reg.add_component(explosion,
                                       cpnt::Transform{pos->x, pos->y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
-                    reg.add_component(explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w,
-                                                               k_large_explosion_h},
-                                                              k_large_explosion_scale,
-                                                              0,
-                                                              "explosion"});
+                    reg.add_component(
+                        explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w, k_large_explosion_h},
+                                                k_large_explosion_scale,
+                                                0,
+                                                "explosion"});
                     reg.add_component(explosion, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-                    reg.add_component(explosion,
-                                      cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
-                                                      k_explosion_frame_duration, 0, k_explosion_frames});
+                    reg.add_component(explosion, cpnt::Explosion{cpnt::Explosion::ExplosionType::Large, 0.0f,
+                                                                 k_explosion_frame_duration, 0, k_explosion_frames});
                     reg.kill_entity(k_entity);
                     continue;
                 }

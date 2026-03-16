@@ -1,38 +1,39 @@
 #include "lobby_manager.h"
-#include "scenes_loaders.h"
 
-#include "game_engine/engine.h"
-#include "utils/logger.h"
-#include "lobby_ipc.h"
 #include "backend_api_client.h"
+#include "game_engine/engine.h"
+#include "lobby_ipc.h"
+#include "scenes_loaders.h"
+#include "utils/logger.h"
 
 #include <chrono>
 
 #ifdef _WIN32
     #include <windows.h>
 #else
-    #include <unistd.h>
-    #include <sys/wait.h>
     #include <signal.h>
+    #include <sys/wait.h>
+    #include <unistd.h>
 #endif
 
 namespace {
-    constexpr int k_shutdown_wait_ms = 100;
-    constexpr int k_heartbeat_interval_ticks = 60;
-    constexpr std::uint16_t k_backend_port = 8081;
-}
+constexpr int k_shutdown_wait_ms = 100;
+constexpr int k_heartbeat_interval_ticks = 60;
+constexpr std::uint16_t k_backend_port = 8081;
+} // namespace
 
 // GameLobby implementation
 GameLobby::GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players,
                      std::uint16_t port)
-    : m_lobby_id(lobby_id), m_lobby_name(lobby_name), m_max_players(max_players), m_port(port),
-      m_current_players(0), m_process_handle(
+    : m_lobby_id(lobby_id), m_lobby_name(lobby_name), m_max_players(max_players), m_port(port), m_current_players(0),
+      m_process_handle(
 #ifdef _WIN32
           NULL
 #else
           -1
 #endif
-      ) {}
+      ) {
+}
 
 GameLobby::~GameLobby() {
     stop();
@@ -121,11 +122,10 @@ void GameLobby::fork_and_run_lobby_process() {
     char exe_path[MAX_PATH];
     GetModuleFileNameA(NULL, exe_path, MAX_PATH);
 
-    std::string cmd_line = std::string(exe_path) + " -islobby -lobby-id " +
-                           std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
+    std::string cmd_line =
+        std::string(exe_path) + " -islobby -lobby-id " + std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
 
-    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE,
-                        0, NULL, NULL, &si, &pi)) {
+    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
         LOG_ERROR("Failed to create process for lobby {}: {}", m_lobby_id, GetLastError());
         m_running = false;
         throw std::runtime_error("CreateProcess failed");
@@ -153,8 +153,8 @@ void GameLobby::fork_and_run_lobby_process() {
 #endif
 }
 
-void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name,
-                                           std::uint16_t port, std::uint8_t max_players) {
+void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, std::uint16_t port,
+                                           std::uint8_t max_players) {
     try {
         LOG_INFO("Lobby '{}' process started (PID: {})", lobby_name,
 #ifdef _WIN32
@@ -276,7 +276,8 @@ void GameLobby::add_player(const std::string& player_ip) {
     if (it == m_players.end()) {
         m_players.push_back(player_ip);
         m_current_players = static_cast<std::uint8_t>(m_players.size());
-        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(), m_max_players);
+        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name,
+                 m_current_players.load(), m_max_players);
     } else {
         LOG_INFO("Player {} reconnected to lobby '{}'", player_ip, m_lobby_name);
     }

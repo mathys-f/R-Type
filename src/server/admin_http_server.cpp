@@ -1,11 +1,14 @@
 #include "admin_http_server.h"
+
 #include "utils/logger.h"
+
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
 AdminHTTPServer::AdminHTTPServer(LobbyManager* lobby_manager, std::uint16_t port)
-    : m_lobby_manager(lobby_manager), m_port(port), m_server(std::make_unique<httplib::Server>()), m_server_thread(nullptr) {
+    : m_lobby_manager(lobby_manager), m_port(port), m_server(std::make_unique<httplib::Server>()),
+      m_server_thread(nullptr) {
     setup_routes();
 }
 
@@ -25,7 +28,7 @@ void AdminHTTPServer::setup_routes() {
     m_server->Post("/admin/lobby/stop", [this](const httplib::Request& req, httplib::Response& res) {
         try {
             auto request_json = json::parse(req.body);
-            
+
             if (!request_json.contains("lobby_id")) {
                 json error = {{"success", false}, {"error", "Missing lobby_id"}};
                 res.set_content(error.dump(), "application/json");
@@ -34,7 +37,7 @@ void AdminHTTPServer::setup_routes() {
             }
 
             std::uint32_t lobby_id = request_json["lobby_id"].get<std::uint32_t>();
-            
+
             // Check if lobby exists
             auto lobby = m_lobby_manager->get_lobby(lobby_id);
             if (!lobby) {
@@ -67,7 +70,7 @@ void AdminHTTPServer::setup_routes() {
     m_server->Post("/admin/lobby/create", [this](const httplib::Request& req, httplib::Response& res) {
         try {
             auto request_json = json::parse(req.body);
-            
+
             if (!request_json.contains("name") || !request_json.contains("max_players")) {
                 json error = {{"success", false}, {"error", "Missing name or max_players"}};
                 res.set_content(error.dump(), "application/json");
@@ -77,16 +80,12 @@ void AdminHTTPServer::setup_routes() {
 
             std::string name = request_json["name"].get<std::string>();
             std::uint8_t max_players = request_json["max_players"].get<std::uint8_t>();
-            
+
             // Create the lobby
             std::uint32_t lobby_id = m_lobby_manager->create_lobby(name, max_players);
             LOG_INFO("Admin command: Created lobby '{}' with ID {} via HTTP", name, lobby_id);
 
-            json response = {
-                {"success", true},
-                {"lobby_id", lobby_id},
-                {"message", "Lobby created successfully"}
-            };
+            json response = {{"success", true}, {"lobby_id", lobby_id}, {"message", "Lobby created successfully"}};
             res.set_content(response.dump(), "application/json");
             res.status = http::k_status_created;
 

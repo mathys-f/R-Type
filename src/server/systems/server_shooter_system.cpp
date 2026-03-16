@@ -1,8 +1,8 @@
 #include "components/components.h"
 #include "ecs/zipper.h"
 #include "engine.h"
-#include "systems/systems.h"
 #include "raylib.h"
+#include "systems/systems.h"
 
 #include <cmath>
 #include <limits>
@@ -43,7 +43,7 @@ void sys::server_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
         auto& health = reg.get_components<cpnt::Health>()[idx];
         auto& vel = reg.get_components<cpnt::Velocity>()[idx];
         auto& shot = reg.get_components<cpnt::Shooter>()[idx];
-        
+
         if (pos && vel_opt) {
             reg.mark_dirty<cpnt::Transform>(entity);
             pos->x += vel_opt->vx;
@@ -52,7 +52,7 @@ void sys::server_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
             if (pos->x < k_offscreen_left || (health && health->hp <= 0)) {
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
                 pos->x = static_cast<float>(GetRandomValue(static_cast<int>(ctx.window_size.x),
-                                                            static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
+                                                           static_cast<int>(ctx.window_size.x * k_spawn_multiplier)));
                 pos->y = static_cast<float>(
                     GetRandomValue(k_spawn_margin, static_cast<int>(ctx.window_size.y) - k_spawn_margin));
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
@@ -65,7 +65,8 @@ void sys::server_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
         }
 
         shot->timer += dt;
-        if (shot->timer >= k_shoot_interval && pos->x < ctx.window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access)
+        if (shot->timer >= k_shoot_interval &&
+            pos->x < ctx.window_size.x) { // NOLINT(cppcoreguidelines-pro-type-union-access)
             float dx = 0.0f;
             float dy = 0.0f;
             for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, players)) {
@@ -87,8 +88,8 @@ void sys::server_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Trans
 
                 auto bullet = reg.spawn_entity();
                 reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
-                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, k_bullet_origin_x, k_bullet_origin_y, 0.0f,
-                                                          1.0f, 1.0f, 1.0f});
+                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, k_bullet_origin_x, k_bullet_origin_y,
+                                                          0.0f, 1.0f, 1.0f, 1.0f});
                 reg.add_component(bullet, cpnt::Velocity{k_vx, k_vy, vel->vz + k_rotation_offset, 0.0f, 0.0f, 0.0f});
                 reg.add_component(bullet, cpnt::BulletShooter{});
                 reg.add_component(bullet, cpnt::Hitbox{k_bullet_width, k_bullet_height, 0.0f, 0.0f});

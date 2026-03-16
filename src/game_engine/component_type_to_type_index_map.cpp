@@ -1,6 +1,7 @@
-#include "snapshots.h"
-
+#include "components/boss.h"
+#include "components/boss_hitbox.h"
 #include "components/bullet.h"
+#include "components/bullet_shooter.h"
 #include "components/controllable.h"
 #include "components/enemy.h"
 #include "components/entity_type.h"
@@ -15,9 +16,7 @@
 #include "components/tag.h"
 #include "components/transform.h"
 #include "components/velocity.h"
-#include "components/bullet_shooter.h"
-#include "components/boss.h"
-#include "components/boss_hitbox.h"
+#include "snapshots.h"
 
 using namespace engn;
 
@@ -38,8 +37,7 @@ const std::unordered_map<ComponentType, std::type_index> engn::k_component_type_
     {ComponentType::velocity, typeid(cpnt::Velocity)},
     {ComponentType::bullet_shooter, typeid(cpnt::BulletShooter)},
     {ComponentType::boss, typeid(cpnt::Boss)},
-    {ComponentType::boss_hitbox, typeid(cpnt::BossHitbox)}
-};
+    {ComponentType::boss_hitbox, typeid(cpnt::BossHitbox)}};
 
 const std::unordered_map<std::type_index, ComponentType> engn::k_type_index_to_component_type_map = {
     {typeid(cpnt::Bullet), ComponentType::bullet},
@@ -58,5 +56,4 @@ const std::unordered_map<std::type_index, ComponentType> engn::k_type_index_to_c
     {typeid(cpnt::Velocity), ComponentType::velocity},
     {typeid(cpnt::BulletShooter), ComponentType::bullet_shooter},
     {typeid(cpnt::Boss), ComponentType::boss},
-    {typeid(cpnt::BossHitbox), ComponentType::boss_hitbox}
-};
+    {typeid(cpnt::BossHitbox), ComponentType::boss_hitbox}};

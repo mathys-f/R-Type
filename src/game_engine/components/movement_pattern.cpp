@@ -1,17 +1,18 @@
 #include "components/movement_pattern.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-MovementPattern::MovementPattern(PatternType type, float speed, float amplitude,
-                               float frequency, float timer, float base_y)
-    : type(type), speed(speed), amplitude(amplitude),
-      frequency(frequency), timer(timer), base_y(base_y) {}
+MovementPattern::MovementPattern(PatternType type, float speed, float amplitude, float frequency, float timer,
+                                 float base_y)
+    : type(type), speed(speed), amplitude(amplitude), frequency(frequency), timer(timer), base_y(base_y) {}
 
 engn::SerializedComponent MovementPattern::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::movement_pattern;
-    std::uint32_t size = sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
+    std::uint32_t size =
+        sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
     serialized.data.resize(size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -32,7 +33,8 @@ engn::SerializedComponent MovementPattern::serialize() const {
 }
 
 void MovementPattern::deserialize(const std::vector<std::byte>& data) {
-    std::uint16_t size = sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
+    std::uint16_t size =
+        sizeof(type) + sizeof(speed) + sizeof(amplitude) + sizeof(frequency) + sizeof(timer) + sizeof(base_y);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (data.size() >= size) {

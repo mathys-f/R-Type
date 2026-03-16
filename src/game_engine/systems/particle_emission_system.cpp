@@ -22,7 +22,8 @@ constexpr float k_particle_lifetime = 0.5f;
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
@@ -50,7 +51,9 @@ void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tr
                 float speed = randf() * k_particle_speed_multiplier + k_particle_speed_base;
                 reg.add_component(
                     particle, cpnt::Velocity{std::cos(angle) * speed, std::sin(angle) * speed, 0.0f, 0.0f, 0.0f, 0.0f});
-                reg.add_component(particle, cpnt::Particle{0.0f, k_particle_lifetime, 0, 0, 255}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                reg.add_component(
+                    particle, cpnt::Particle{0.0f, k_particle_lifetime, 0, 0,
+                                             255}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             }
         }
     }
@@ -72,7 +75,9 @@ void sys::particle_emission_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tr
                 float speed = randf() * k_particle_speed_multiplier + k_particle_speed_base;
                 reg.add_component(
                     particle, cpnt::Velocity{std::cos(angle) * speed, std::sin(angle) * speed, 0.0f, 0.0f, 0.0f, 0.0f});
-                reg.add_component(particle, cpnt::Particle{0.0f, k_particle_lifetime, 255, 0, 0}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                reg.add_component(
+                    particle, cpnt::Particle{0.0f, k_particle_lifetime, 255, 0,
+                                             0}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
             }
         }
     }

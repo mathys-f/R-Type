@@ -15,8 +15,8 @@ struct MovementPattern : ISyncComponent {
     float base_y{};
 
     MovementPattern() = default;
-    MovementPattern(PatternType type, float speed, float amplitude = 0.0f, 
-                   float frequency = 0.0f, float timer = 0.0f, float base_y = 0.0f);
+    MovementPattern(PatternType type, float speed, float amplitude = 0.0f, float frequency = 0.0f, float timer = 0.0f,
+                    float base_y = 0.0f);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
