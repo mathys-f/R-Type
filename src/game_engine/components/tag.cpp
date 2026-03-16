@@ -8,7 +8,7 @@ Tag::Tag(ecs::TagRegistry::TagId id) : id(id) {}
 
 engn::SerializedComponent Tag::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::tag;
+    serialized.type = engn::ComponentType::Tag;
     std::uint32_t size = sizeof(id);
     serialized.data.resize(size);
 

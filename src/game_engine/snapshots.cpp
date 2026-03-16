@@ -109,12 +109,12 @@ std::byte* engn::WorldDelta::serialize() const {
         ptr += sizeof(std::uint32_t);
 
         switch (entry.operation) {
-            case DeltaOperation::entity_add:
+            case DeltaOperation::EntityAdd:
                 break;
-            case DeltaOperation::entity_remove:
+            case DeltaOperation::EntityRemove:
                 break;
 
-            case DeltaOperation::component_add_or_update: {
+            case DeltaOperation::ComponentAddOrUpdate: {
                 SerializedComponent component = entry.component.value();
 
                 std::byte* component_data = component.serialize();
@@ -125,7 +125,7 @@ std::byte* engn::WorldDelta::serialize() const {
                 break;
             }
 
-            case DeltaOperation::component_remove: {
+            case DeltaOperation::ComponentRemove: {
                 std::memcpy(ptr, &entry.component_type, sizeof(ComponentType));
                 ptr += sizeof(ComponentType);
                 break;
@@ -164,18 +164,18 @@ WorldDelta engn::WorldDelta::deserialize(const std::byte* data_ptr) {
         ptr += sizeof(std::uint32_t);
 
         switch (entry.operation) {
-            case DeltaOperation::entity_add:
+            case DeltaOperation::EntityAdd:
                 break;
-            case DeltaOperation::entity_remove:
+            case DeltaOperation::EntityRemove:
                 break;
 
-            case DeltaOperation::component_add_or_update: {
+            case DeltaOperation::ComponentAddOrUpdate: {
                 entry.component = SerializedComponent::deserialize(ptr);
                 ptr += entry.component->get_serialized_size();
                 break;
             }
 
-            case DeltaOperation::component_remove: {
+            case DeltaOperation::ComponentRemove: {
                 std::memcpy(&entry.component_type, ptr, sizeof(ComponentType));
                 ptr += sizeof(ComponentType);
                 break;
@@ -198,17 +198,17 @@ std::uint32_t engn::WorldDelta::get_serialized_size() const {
         total_size += sizeof(std::uint32_t); // entity_id
 
         switch (entry.operation) {
-            case DeltaOperation::entity_add:
+            case DeltaOperation::EntityAdd:
                 break;
-            case DeltaOperation::entity_remove:
+            case DeltaOperation::EntityRemove:
                 break;
 
-            case DeltaOperation::component_add_or_update: {
+            case DeltaOperation::ComponentAddOrUpdate: {
                 total_size += entry.component->get_serialized_size();
                 break;
             }
 
-            case DeltaOperation::component_remove: {
+            case DeltaOperation::ComponentRemove: {
                 total_size += sizeof(ComponentType);
                 break;
             }

@@ -29,15 +29,15 @@ EngineContext& NetworkServer::get_engine() {
 
 void NetworkServer::start() {
     // Set up connection callbacks
-    m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
+    m_session->set_on_client_connect([this](const asio::ip::udp::endpoint& endpoint) {
         m_io.post([this, endpoint]() {
             handle_client_connect(endpoint);
         }); // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
-    };
+    });
 
-    m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
+    m_session->set_on_client_disconnect([this](const asio::ip::udp::endpoint& endpoint) {
         m_io.post([this, endpoint]() { handle_client_disconnect(endpoint); });
-    };
+    });
 
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
@@ -81,7 +81,7 @@ void NetworkServer::start() {
                 net::Packet resp = net::handshake::make_res_login(resp_payload);
                 m_session->send(resp, from, true);
                 if (!id_available) {
-                    LOG_WARNING("Rejecting login from {}:{} - no available player slots", from.address().to_string(),
+                    LOG_WARNING("Rejecting login from {}:{} - no available Player slots", from.address().to_string(),
                                 from.port());
                 }
                 return;
@@ -90,10 +90,7 @@ void NetworkServer::start() {
             // Handle logout requests
             if (auto logout_req = net::handshake::parse_req_logout(pkt)) {
                 LOG_INFO("Client logout request from port {}", from.port());
-                // Trigger disconnect callback
-                if (m_session->on_client_disconnect) {
-                    m_session->on_client_disconnect(from);
-                }
+                m_session->notify_client_disconnect(from);
                 return;
             }
 
@@ -107,7 +104,7 @@ void NetworkServer::start() {
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Update client activity for unreliable packets too
             update_client_activity(from);
-            // Handle unreliable packets here (player input, etc.)
+            // Handle unreliable packets here (Player input, etc.)
             if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KClientInput)) {
                 handle_client_input(pkt, from);
             }

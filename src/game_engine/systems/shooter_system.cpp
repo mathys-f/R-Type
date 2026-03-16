@@ -33,6 +33,11 @@ constexpr float k_bullet_sprite_x = 249.0f;
 constexpr float k_bullet_sprite_y = 105.0f;
 constexpr float k_bullet_scale = 2.0f;
 constexpr float k_aim_epsilon = 0.0001f;
+constexpr float k_destroyed_shooter_width = 55.0f;
+constexpr float k_destroyed_shooter_height = 45.0f;
+constexpr float k_bullet_half_width = k_bullet_width / 2.0f;
+constexpr float k_bullet_half_height = k_bullet_height / 2.0f;
+constexpr float k_bullet_rotation_offset = 180.0f;
 } // namespace
 
 void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
@@ -59,10 +64,8 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                 const bool k_dead = health && health->hp <= 0;
                 if (k_dead) {
                     auto explosion = reg.spawn_entity();
-                    reg.add_component(
-                        explosion,
-                        cpnt::Transform{pos->x, pos->y, 0.0f, 55.f, 45.f, 0.0f, 1.0f, 1.0f,
-                                        1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(explosion, cpnt::Transform{pos->x, pos->y, 0.0f, k_destroyed_shooter_width,
+                                                                 k_destroyed_shooter_height, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(
                         explosion, cpnt::Sprite{{0.0f, k_large_explosion_y, k_large_explosion_w, k_large_explosion_h},
                                                 k_large_explosion_scale,
@@ -108,16 +111,11 @@ void sys::shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> c
                 float vy = dirY * speed;
                 // NOLINTEND(readability-identifier-naming,-warnings-as-errors)
                 auto bullet = reg.spawn_entity();
-                reg.add_component(
-                    bullet, cpnt::Transform{pos->x, pos->y, 0.0f, 16.f / 2, 8.0f / 2, 0.0f, 1.0f, 1.0f,
-                                            1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                reg.add_component(
-                    bullet, cpnt::Velocity{vx, vy, vel->vz + 180.0f, 0.0f, 0.0f,
-                                           0.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                reg.add_component(bullet, cpnt::Transform{pos->x, pos->y, 0.0f, k_bullet_half_width,
+                                                          k_bullet_half_height, 0.0f, 1.0f, 1.0f, 1.0f});
+                reg.add_component(bullet, cpnt::Velocity{vx, vy, vel->vz + k_bullet_rotation_offset, 0.0f, 0.0f, 0.0f});
                 reg.add_component(bullet, cpnt::BulletShooter{});
-                reg.add_component(
-                    bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f,
-                                         0.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                reg.add_component(bullet, cpnt::Hitbox{k_bullet_width, k_bullet_height, 0.f, 0.f});
                 reg.add_component(bullet,
                                   cpnt::Sprite{{k_bullet_sprite_x, k_bullet_sprite_y, k_bullet_width, k_bullet_height},
                                                k_bullet_scale,

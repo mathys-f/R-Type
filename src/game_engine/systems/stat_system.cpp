@@ -114,6 +114,8 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                 constexpr float k_shooter_scale = 5.0f;
                 constexpr float k_shooter_hitbox_width = 15.0f;
                 constexpr float k_shooter_hitbox_height = 18.0f;
+                constexpr float k_shooter_transform_width = 55.0f;
+                constexpr float k_shooter_transform_height = 45.0f;
 
                 for (size_t i = 0; i < k_new_shooter_enemies; i++) {
                     auto shooter = ctx.registry.spawn_entity();
@@ -122,10 +124,9 @@ void sys::stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& s
                     float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
                     // Position
-                    ctx.registry.add_component(
-                        shooter,
-                        engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1,
-                                              1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    ctx.registry.add_component(shooter,
+                                               engn::cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                                     k_shooter_transform_height, 0, 1, 1, 1});
 
                     // Velocity
                     ctx.registry.add_component(

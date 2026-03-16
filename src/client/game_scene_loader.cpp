@@ -72,7 +72,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
     engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::bullet_shooter_system);
 
     engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,
                           cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(sys::collision_system);
@@ -215,6 +215,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_shooter_scale = 5.0f;
     constexpr float k_shooter_hitbox_width = 15.0f;
     constexpr float k_shooter_hitbox_height = 18.0f;
+    constexpr float k_shooter_transform_width = 55.0f;
+    constexpr float k_shooter_transform_height = 45.0f;
 
     engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
     engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
@@ -226,9 +228,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
         float spawn_x = (float)GetRandomValue(k_width, k_width * 2);
 
         // Position
-        engine_ctx.registry.add_component(
-            shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1,
-                                           1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                                         k_shooter_transform_height, 0, 1, 1, 1});
 
         // Velocity
         engine_ctx.registry.add_component(

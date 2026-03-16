@@ -80,13 +80,13 @@ typename SparseArray<TComponent>::ReferenceType Registry::add_component(EntityTy
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(to));
 
-    const auto type_idx = std::type_index(typeid(TComponent));
-    m_component_metadata[{to, type_idx}] = m_current_version;
+    const auto k_type_idx = std::type_index(typeid(TComponent));
+    m_component_metadata[{to, k_type_idx}] = m_current_version;
 
     // Maintain inverse index
     auto& comp_list = m_entity_to_components[to];
-    if (std::find(comp_list.begin(), comp_list.end(), type_idx) == comp_list.end()) {
-        comp_list.push_back(type_idx);
+    if (std::find(comp_list.begin(), comp_list.end(), k_type_idx) == comp_list.end()) {
+        comp_list.push_back(k_type_idx);
     }
 
     return arr.insert_at(idx, std::forward<TComponent>(c));
@@ -102,13 +102,13 @@ typename SparseArray<TComponent>::ReferenceType Registry::emplace_component(Enti
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(to));
 
-    const auto type_idx = std::type_index(typeid(TComponent));
-    m_component_metadata[{to, type_idx}] = m_current_version;
+    const auto k_type_idx = std::type_index(typeid(TComponent));
+    m_component_metadata[{to, k_type_idx}] = m_current_version;
 
     // Maintain inverse index
     auto& comp_list = m_entity_to_components[to];
-    if (std::find(comp_list.begin(), comp_list.end(), type_idx) == comp_list.end()) {
-        comp_list.push_back(type_idx);
+    if (std::find(comp_list.begin(), comp_list.end(), k_type_idx) == comp_list.end()) {
+        comp_list.push_back(k_type_idx);
     }
 
     return arr.emplace_at(idx, std::forward<TParams>(p)...);
@@ -121,14 +121,14 @@ template <typename TComponent> void Registry::remove_component(EntityType const&
     auto& arr = get_components<TComponent>();
     auto idx = static_cast<typename SparseArray<TComponent>::SizeType>(static_cast<Entity::IdType>(from));
 
-    const auto type_idx = std::type_index(typeid(TComponent));
-    m_component_destruction_tombstones[from][type_idx] = m_current_version;
+    const auto k_type_idx = std::type_index(typeid(TComponent));
+    m_component_destruction_tombstones[from][k_type_idx] = m_current_version;
 
     // Update inverse index
     auto it = m_entity_to_components.find(from);
     if (it != m_entity_to_components.end()) {
         auto& comp_list = it->second;
-        comp_list.erase(std::remove(comp_list.begin(), comp_list.end(), type_idx), comp_list.end());
+        comp_list.erase(std::remove(comp_list.begin(), comp_list.end(), k_type_idx), comp_list.end());
         if (comp_list.empty()) {
             m_entity_to_components.erase(it);
         }

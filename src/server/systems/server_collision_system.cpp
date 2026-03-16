@@ -77,14 +77,14 @@ void sys::server_collision_system(
 
                     if (CheckCollisionRecs(player_rect, enemy_rect)) {
 
-                        // Damage the enemy (match solo behavior)
+                        // Damage the Enemy (match solo behavior)
                         auto& enemy_health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (enemy_health) {
                             enemy_health->hp = 0;
                             reg.mark_dirty<cpnt::Health>(reg.entity_from_index(enemy_idx));
                         }
 
-                        // Damage the player
+                        // Damage the Player
                         auto& player_health = reg.get_components<cpnt::Health>()[player_idx];
                         if (player_health) {
                             player_health->hp -= k_collision_damage;
@@ -106,7 +106,7 @@ void sys::server_collision_system(
         }
     }
 
-    // Shooter bullet - Player collision
+    // Shooter Bullet - Player collision
     for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets_shooter)) {
         if (!bullet_pos_opt || !bullet_tag_opt) {
             continue;

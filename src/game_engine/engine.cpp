@@ -17,7 +17,7 @@ static void expose_cpp_api(sol::state& lua, EngineContext& ctx);
 EngineContext::EngineContext() : server_port(0), m_current_scene("") {
     m_snapshots_history.reserve(4); // Reserve for 4 players
     for (auto& snapshot : m_snapshots_history)
-        snapshot.second.reserve(SNAPSHOT_HISTORY_SIZE); // Make sure enough space for snapshots hystory
+        snapshot.second.reserve(k_snapshot_history_size); // Make sure enough space for snapshots hystory
     lua_ctx = std::make_unique<LuaContext>();
     lua::expose_components(lua_ctx->get_lua_state());
     expose_cpp_api(lua_ctx->get_lua_state(), *this);
@@ -54,7 +54,7 @@ void EngineContext::add_client(asio::ip::udp::endpoint client_endpoint) {
         return;
     }
     m_clients.push_back(client_endpoint);
-    m_snapshots_history[client_endpoint] = std::vector<SnapshotRecord>(SNAPSHOT_HISTORY_SIZE);
+    m_snapshots_history[client_endpoint] = std::vector<SnapshotRecord>(k_snapshot_history_size);
 }
 
 void EngineContext::remove_client(asio::ip::udp::endpoint client_endpoint) {
@@ -130,7 +130,7 @@ SnapshotRecord EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoi
     }
 
     const auto& history = it->second;
-    SnapshotRecord record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    SnapshotRecord record = history[m_current_tick % k_snapshot_history_size];
     if (!record.snapshot.entities.empty()) {
         return record;
     }
@@ -140,7 +140,7 @@ SnapshotRecord EngineContext::get_latest_snapshot(asio::ip::udp::endpoint endpoi
 SnapshotRecord EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint) {
     std::lock_guard<std::mutex> lock(snapshots_history_mutex);
     SnapshotRecord empty_record;
-    empty_record.acknowledged = true; // The empty record is sent if the player has never acknowledged anything yet
+    empty_record.acknowledged = true; // The empty record is sent if the Player has never acknowledged anything yet
     empty_record.last_update_tick = 0;
     if (m_snapshots_history.find(endpoint) == m_snapshots_history.end())
         return empty_record;
@@ -148,7 +148,7 @@ SnapshotRecord EngineContext::get_latest_acknowledged_snapshot(asio::ip::udp::en
     const auto& history = m_snapshots_history.at(endpoint);
 
     for (std::size_t tick = m_current_tick; tick > 0; tick--) {
-        const SnapshotRecord& record = history[tick % SNAPSHOT_HISTORY_SIZE];
+        const SnapshotRecord& record = history[tick % k_snapshot_history_size];
 
         if (record.acknowledged) {
             return record;
@@ -161,7 +161,7 @@ void EngineContext::record_snapshot(SnapshotRecord& record) {
     std::lock_guard<std::mutex> lock(snapshots_history_mutex);
     record.last_update_tick = m_current_tick;
     for (auto& history : m_snapshots_history)
-        std::get<1>(history)[m_current_tick % SNAPSHOT_HISTORY_SIZE] = record;
+        std::get<1>(history)[m_current_tick % k_snapshot_history_size] = record;
 }
 
 std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& engn::EngineContext::get_snapshots_history() {
@@ -178,7 +178,7 @@ bool EngineContext::update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoi
     if (history.empty()) {
         return false;
     }
-    auto& record = history[m_current_tick % SNAPSHOT_HISTORY_SIZE];
+    auto& record = history[m_current_tick % k_snapshot_history_size];
     if (record.snapshot.entities.empty()) {
         return false;
     }

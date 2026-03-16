@@ -30,6 +30,8 @@ constexpr float k_shooter_sprite_height = 18.0f;
 constexpr float k_shooter_scale = 5.0f;
 constexpr float k_shooter_hitbox_width = 15.0f;
 constexpr float k_shooter_hitbox_height = 18.0f;
+constexpr float k_shooter_transform_width = 55.0f;
+constexpr float k_shooter_transform_height = 45.0f;
 constexpr float k_shooter_hitbox_scale_extra = 2.0f;
 constexpr float k_shooter_hitbox_offset_multiplier = 2.0f;
 constexpr float k_shooter_hitbox_offset_height_multiplier = 3.0f;
@@ -127,10 +129,8 @@ void sys::server_stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> c
 
                     reg.add_component(shooter, cpnt::Replicated{static_cast<std::uint32_t>(shooter)});
                     reg.add_component(shooter, cpnt::EntityType{"shooter"});
-                    reg.add_component(
-                        shooter,
-                        cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1,
-                                        1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(shooter, cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                               k_shooter_transform_height, 0, 1, 1, 1});
                     reg.add_component(
                         shooter, cpnt::Velocity{-(ctx.k_shooter_base_speed + randf() * ctx.k_shooter_speed_variance),
                                                 0.0f, 0.0f, 0.0f, 0.0f});

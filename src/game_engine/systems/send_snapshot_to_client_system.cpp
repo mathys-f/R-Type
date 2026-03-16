@@ -15,13 +15,13 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot, ec
     if (latest_ack_version == 0) {
         for (const auto& entity_snapshot : snapshot.entities) {
             DeltaEntry entity_entry;
-            entity_entry.operation = DeltaOperation::entity_add;
+            entity_entry.operation = DeltaOperation::EntityAdd;
             entity_entry.entity_id = entity_snapshot.entity_id;
             delta.entries.push_back(entity_entry);
 
             for (const auto& component : entity_snapshot.components) {
                 DeltaEntry comp_entry;
-                comp_entry.operation = DeltaOperation::component_add_or_update;
+                comp_entry.operation = DeltaOperation::ComponentAddOrUpdate;
                 comp_entry.entity_id = entity_snapshot.entity_id;
                 comp_entry.component = component;
                 delta.entries.push_back(comp_entry);
@@ -39,7 +39,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot, ec
             continue;
 
         DeltaEntry entry;
-        entry.operation = DeltaOperation::entity_add;
+        entry.operation = DeltaOperation::EntityAdd;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
     }
@@ -87,7 +87,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot, ec
         }
 
         DeltaEntry entry;
-        entry.operation = DeltaOperation::component_add_or_update;
+        entry.operation = DeltaOperation::ComponentAddOrUpdate;
         entry.entity_id = static_cast<std::uint32_t>(entity.value());
         entry.component = *comp_lookup->second;
         delta.entries.push_back(entry);
@@ -100,7 +100,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot, ec
                 continue;
 
             DeltaEntry entry;
-            entry.operation = DeltaOperation::component_remove;
+            entry.operation = DeltaOperation::ComponentRemove;
             entry.entity_id = static_cast<std::uint32_t>(id.value());
             entry.component_type = k_type_index_to_component_type_map.at(component);
             delta.entries.push_back(entry);
@@ -113,7 +113,7 @@ static std::optional<WorldDelta> compute_delta(WorldSnapshot const& snapshot, ec
             continue;
 
         DeltaEntry entry;
-        entry.operation = DeltaOperation::entity_remove;
+        entry.operation = DeltaOperation::EntityRemove;
         entry.entity_id = static_cast<std::uint32_t>(id.value());
         delta.entries.push_back(entry);
     }

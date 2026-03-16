@@ -60,7 +60,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
     //     }
     // }
 
-    // Get bullet entities
+    // Get Bullet entities
     for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets)) {
         if (bullet_pos_opt && bullet_tag_opt) {
             // Check against all enemies
@@ -119,8 +119,8 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                                              player_hitbox_opt->height};
 
                     if (CheckCollisionRecs(player_rect, enemy_rect)) {
-                        // Handle player hit logic here
-                        // For simplicity, just reduce enemy health
+                        // Handle Player hit logic here
+                        // For simplicity, just reduce Enemy Health
                         auto& health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (health) {
                             health->hp = 0;
@@ -128,7 +128,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_collision_damage; // Reduce player health
+                            health_player->hp -= k_collision_damage; // Reduce Player Health
                         }
                     }
                 }
@@ -136,7 +136,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
         }
     }
 
-    // Shooter bullet - Player collision
+    // Shooter Bullet - Player collision
     for (auto [bullet_idx, bullet_pos_opt, bullet_shot_tag_opt] : ecs::indexed_zipper(positions, bullets_shooter)) {
         if (!bullet_shot_tag_opt)
             continue;
@@ -167,7 +167,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_bullet_damage; // Reduce player health
+                            health_player->hp -= k_bullet_damage; // Reduce Player Health
                         }
                         break;
                     }
@@ -240,7 +240,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_collision_damage; // Reduce player health
+                            health_player->hp -= k_collision_damage; // Reduce Player Health
                         }
                     }
                 }

@@ -21,6 +21,7 @@ constexpr int k_status_created = 201;
 constexpr int k_status_bad_request = 400;
 constexpr int k_status_not_found = 404;
 constexpr int k_status_internal_error = 500;
+constexpr std::uint16_t k_default_admin_port = 8082;
 } // namespace http
 
 /**
@@ -29,7 +30,7 @@ constexpr int k_status_internal_error = 500;
  */
 class AdminHTTPServer {
   public:
-    explicit AdminHTTPServer(LobbyManager* lobby_manager, std::uint16_t port = 8082);
+    explicit AdminHTTPServer(LobbyManager* lobby_manager, std::uint16_t port = http::k_default_admin_port);
     ~AdminHTTPServer();
 
     AdminHTTPServer(const AdminHTTPServer&) = delete;

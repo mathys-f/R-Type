@@ -25,6 +25,8 @@ constexpr float k_bullet_speed = 650.0f;
 constexpr float k_bullet_width = 16.0f;
 constexpr float k_bullet_height = 8.0f;
 constexpr float k_bullet_scale = 2.0f;
+constexpr float k_bullet_hitbox_width = 20.0f;
+constexpr float k_bullet_hitbox_height = 20.0f;
 
 void sys::server_player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                                        ecs::SparseArray<cpnt::Player> const& players,
@@ -131,11 +133,8 @@ void sys::server_player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt
                                       cpnt::Transform{bullet_x, bullet_y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{k_bullet_speed, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::Bullet{});
-                    reg.add_component(
-                        bullet,
-                        cpnt::Hitbox{
-                            20.0f, 20.0f, k_bullet_width,
-                            k_bullet_height}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Hitbox{k_bullet_hitbox_width, k_bullet_hitbox_height,
+                                                           k_bullet_width, k_bullet_height});
                 }
             }
         }

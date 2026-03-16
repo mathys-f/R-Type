@@ -27,9 +27,9 @@ void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UII
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet> const& bullets);
 
-void BulletShooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                          ecs::SparseArray<cpnt::Velocity> const& velocities,
-                          ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
+void bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                           ecs::SparseArray<cpnt::Velocity> const& velocities,
+                           ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
 
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,

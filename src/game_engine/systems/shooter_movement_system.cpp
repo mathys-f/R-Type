@@ -40,7 +40,7 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
 
         vel.vx = -(pat.speed * dt); // consistent motion
 
-        // Rotate shooter to face player
+        // Rotate Shooter to face Player
         float delta_x = 0.0f;
         float delta_y = 0.0f;
         for (auto [pidx, ppos_opt, pplay_opt] : ecs::indexed_zipper(positions, player)) {
@@ -49,7 +49,7 @@ void sys::shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Tra
             auto& ppos = reg.get_components<cpnt::Transform>()[pidx].value();
             delta_x = ppos.x - pos.x;
             delta_y = ppos.y - pos.y;
-            break; // Assuming only one player
+            break; // Assuming only one Player
         }
         float angle_to_player = std::atan2(delta_y, delta_x) *
                                 (180.0f / k_pi); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)

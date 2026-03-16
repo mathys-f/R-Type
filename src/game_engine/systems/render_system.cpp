@@ -101,9 +101,12 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     //  Render boss wave effect
     for (auto [boss_idx, boss_opt] : ecs::indexed_zipper(bosses)) {
         if (boss_opt && boss_opt->roar_active) {
-            float radius = boss_opt->waveRadius;
-            int center_x = (int)boss_opt->waveCenter.x;
-            int center_y = (int)boss_opt->waveCenter.y;
+            constexpr int k_front_ring_thickness = 10;
+            constexpr int k_middle_ring_thickness = 3;
+            constexpr int k_back_ring_thickness = 2;
+            float radius = boss_opt->wave_radius;
+            int center_x = (int)boss_opt->wave_center.x;
+            int center_y = (int)boss_opt->wave_center.y;
 
             // Draw multiple trailing rings with decreasing thickness and alpha
             const int k_num_rings = 8;
@@ -122,17 +125,15 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
                     alpha = alpha * alpha;        // Quadratic falloff for smoother fade
 
                     // Calculate thickness (thicker at the front)
-                    int thickness = (i == 0)   ? 10
-                                    : (i <= 2) ? 3
-                                               : 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    int thickness = (i == 0)   ? k_front_ring_thickness
+                                    : (i <= 2) ? k_middle_ring_thickness
+                                               : k_back_ring_thickness;
 
                     Color ring_color = Fade(WHITE, alpha);
 
                     // Draw multiple lines for thickness
                     for (int t = 0; t < thickness; t++) {
-                        DrawCircleLines(
-                            center_x, center_y, ring_radius + t,
-                            ring_color); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                        DrawCircleLines(center_x, center_y, ring_radius + static_cast<float>(t), ring_color);
                     }
                 }
             }

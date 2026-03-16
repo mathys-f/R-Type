@@ -20,7 +20,7 @@ namespace engn {
 
 BackendAPIClient::BackendAPIClient(const std::string& host, std::uint16_t port) : m_host(host), m_port(port) {}
 
-std::optional<json> BackendAPIClient::post_request(const std::string& endpoint, const json& body) {
+std::optional<Json> BackendAPIClient::post_request(const std::string& endpoint, const Json& body) {
     try {
         httplib::Client cli(m_host, m_port);
         cli.set_connection_timeout(k_http_timeout_seconds, 0);
@@ -40,7 +40,7 @@ std::optional<json> BackendAPIClient::post_request(const std::string& endpoint, 
             return std::nullopt;
         }
 
-        return json::parse(res->body);
+        return Json::parse(res->body);
     } catch (const std::exception& e) {
         m_last_error = std::string("Exception: ") + e.what();
         LOG_ERROR("Backend API exception: {}", m_last_error);
@@ -49,7 +49,7 @@ std::optional<json> BackendAPIClient::post_request(const std::string& endpoint, 
 }
 
 std::optional<std::uint32_t> BackendAPIClient::create_lobby(const std::string& name, std::uint8_t max_players) {
-    json body;
+    Json body;
     body["name"] = name;
     body["max_players"] = max_players;
 
@@ -87,7 +87,7 @@ std::optional<std::uint32_t> BackendAPIClient::add_player_session(std::uint32_t 
                                                                   const std::string& player_name,
                                                                   std::optional<std::uint32_t> account_id,
                                                                   std::optional<std::string> ip_address) {
-    json body;
+    Json body;
     body["lobbyId"] = lobby_id;
     body["playerName"] = player_name;
     if (account_id.has_value()) {
@@ -106,13 +106,13 @@ std::optional<std::uint32_t> BackendAPIClient::add_player_session(std::uint32_t 
         const auto& json_res = res.value();
         if (json_res.contains("success") && !json_res["success"].get<bool>()) {
             m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
-            LOG_ERROR("Failed to add player session: {}", m_last_error);
+            LOG_ERROR("Failed to add Player session: {}", m_last_error);
             return std::nullopt;
         }
 
         if (json_res.contains("session") && json_res["session"].contains("id")) {
             std::uint32_t session_id = json_res["session"]["id"].get<std::uint32_t>();
-            LOG_INFO("Added player session to backend: Session ID {}", session_id);
+            LOG_INFO("Added Player session to backend: Session ID {}", session_id);
             return session_id;
         }
 
@@ -127,7 +127,7 @@ std::optional<std::uint32_t> BackendAPIClient::add_player_session(std::uint32_t 
 
 bool BackendAPIClient::update_player_score(std::uint32_t session_id, std::uint32_t kills, std::uint32_t deaths,
                                            std::uint32_t score) {
-    json body;
+    Json body;
     body["sessionId"] = session_id;
     body["kills"] = kills;
     body["deaths"] = deaths;
@@ -142,7 +142,7 @@ bool BackendAPIClient::update_player_score(std::uint32_t session_id, std::uint32
         const auto& json_res = res.value();
         bool success = json_res.contains("success") ? json_res["success"].get<bool>() : false;
         if (success) {
-            LOG_DEBUG("Updated player score: Session {} - K:{} D:{} S:{}", session_id, kills, deaths, score);
+            LOG_DEBUG("Updated Player score: Session {} - K:{} D:{} S:{}", session_id, kills, deaths, score);
         } else {
             m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
             LOG_WARNING("Failed to update score: {}", m_last_error);
@@ -156,7 +156,7 @@ bool BackendAPIClient::update_player_score(std::uint32_t session_id, std::uint32
 }
 
 bool BackendAPIClient::finalize_match(std::uint32_t lobby_id) {
-    json body;
+    Json body;
     body["lobbyId"] = lobby_id;
 
     auto res = post_request("/api/game/match/finalize", body);
@@ -182,7 +182,7 @@ bool BackendAPIClient::finalize_match(std::uint32_t lobby_id) {
 }
 
 bool BackendAPIClient::update_lobby_player_count(std::uint32_t lobby_id, std::uint8_t player_count) {
-    json body;
+    Json body;
     body["lobbyId"] = lobby_id;
     body["playerCount"] = player_count;
 

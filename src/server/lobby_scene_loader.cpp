@@ -143,6 +143,8 @@ void lobby_scene_loader(EngineContext& engine_ctx) {
     constexpr float k_shooter_scale = 5.0f;
     constexpr float k_shooter_hitbox_width = 15.0f;
     constexpr float k_shooter_hitbox_height = 18.0f;
+    constexpr float k_shooter_transform_width = 55.0f;
+    constexpr float k_shooter_transform_height = 45.0f;
 
     for (size_t i = 0; i < engine_ctx.k_max_shooter; i++) {
         auto shooter = engine_ctx.registry.spawn_entity();
@@ -153,9 +155,8 @@ void lobby_scene_loader(EngineContext& engine_ctx) {
         engine_ctx.registry.add_component(shooter, cpnt::Replicated{static_cast<std::uint32_t>(shooter)});
         engine_ctx.registry.add_component(shooter, cpnt::EntityType{"shooter"});
 
-        engine_ctx.registry.add_component(
-            shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, 55.f, 45.f, 0, 1, 1,
-                                           1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+        engine_ctx.registry.add_component(shooter, engn::cpnt::Transform{spawn_x, spawn_y, 0, k_shooter_transform_width,
+                                                                         k_shooter_transform_height, 0, 1, 1, 1});
         engine_ctx.registry.add_component(
             shooter, cpnt::Velocity{-(engine_ctx.k_shooter_base_speed + randf() * engine_ctx.k_shooter_speed_variance),
                                     0.0f, 0.0f, 0.0f, 0.0f});

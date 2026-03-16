@@ -15,10 +15,10 @@
 
 #ifdef _WIN32
     #include <windows.h>
-using process_handle_t = HANDLE;
+using ProcessHandleT = HANDLE;
 #else
     #include <sys/types.h>
-using process_handle_t = pid_t;
+using ProcessHandleT = pid_t;
 #endif
 
 namespace engn {
@@ -74,7 +74,7 @@ class GameLobby {
         return m_running.load();
     }
 
-    process_handle_t get_process_handle() const {
+    ProcessHandleT get_process_handle() const {
         return m_process_handle;
     }
 
@@ -91,7 +91,7 @@ class GameLobby {
     std::atomic<std::uint8_t> m_current_players{0};
     std::uint16_t m_port;
 
-    process_handle_t m_process_handle;
+    ProcessHandleT m_process_handle;
     std::atomic<bool> m_running{false};
     std::unique_ptr<ipc::LobbyIPC> m_ipc;
 
@@ -125,7 +125,7 @@ class LobbyManager {
     // Clean up empty lobbies
     void cleanup_empty_lobbies();
 
-    // Sync player counts to backend database
+    // Sync Player counts to backend database
     void sync_player_counts();
 
     // Backend API integration helpers

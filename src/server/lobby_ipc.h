@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -7,6 +8,8 @@
 #include "boost/interprocess/ipc/message_queue.hpp"
 
 namespace ipc {
+
+inline constexpr std::size_t k_extra_data_size = 64;
 
 // IPC message types
 enum class MessageType : std::uint8_t {
@@ -18,12 +21,12 @@ enum class MessageType : std::uint8_t {
 
 // IPC message structure (fixed size for message queue)
 struct IPCMessage {
-    MessageType type;
-    std::uint32_t lobby_id;
-    std::uint32_t data; // Generic data field (e.g., player count)
-    char extra[64];     // Extra string data if needed
+    MessageType type{MessageType::HEARTBEAT};
+    std::uint32_t lobby_id{0};
+    std::uint32_t data{0}; // Generic data field (e.g., Player count)
+    std::array<char, k_extra_data_size> extra{};
 
-    IPCMessage() : type(MessageType::HEARTBEAT), lobby_id(0), data(0), extra{0} {}
+    IPCMessage() = default;
 };
 
 // LobbyIPC manages bidirectional communication between main server and lobby processes

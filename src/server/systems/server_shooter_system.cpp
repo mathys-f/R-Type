@@ -16,7 +16,7 @@ constexpr float k_spawn_multiplier = 1.5f;
 constexpr float k_shoot_interval = 1.0f;
 constexpr float k_rotation_offset = 180.0f;
 
-// Bullet (shooter)
+// Bullet (Shooter)
 constexpr float k_bullet_speed = 400.0f;
 constexpr float k_bullet_width = 16.0f;
 constexpr float k_bullet_height = 8.0f;

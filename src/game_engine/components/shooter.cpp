@@ -8,7 +8,7 @@ Shooter::Shooter(float time) : timer(time) {}
 
 engn::SerializedComponent Shooter::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::shooter;
+    serialized.type = engn::ComponentType::Shooter;
     std::uint32_t total_size = sizeof(timer);
     serialized.data.resize(total_size);
 

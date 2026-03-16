@@ -90,7 +90,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     engine_ctx.add_system<>(sys::ui_press);
     // Client should NOT simulate bullets in multiplayer - server is authoritative
     // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::bullet_shooter_system);
 
     // SIM / Prediction
     engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,

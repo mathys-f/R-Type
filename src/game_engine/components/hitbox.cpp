@@ -9,7 +9,7 @@ Hitbox::Hitbox(float width, float height, float offset_x, float offset_y)
 
 engn::SerializedComponent Hitbox::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::hitbox;
+    serialized.type = engn::ComponentType::Hitbox;
     std::uint32_t size = sizeof(width) + sizeof(height) + sizeof(offset_x) + sizeof(offset_y);
     serialized.data.resize(size);
 

@@ -17,6 +17,20 @@ Session::~Session() {
     stop();
 }
 
+void Session::set_on_client_connect(ConnectionCallback callback) {
+    m_on_client_connect = std::move(callback);
+}
+
+void Session::set_on_client_disconnect(ConnectionCallback callback) {
+    m_on_client_disconnect = std::move(callback);
+}
+
+void Session::notify_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
+    if (m_on_client_disconnect) {
+        m_on_client_disconnect(endpoint);
+    }
+}
+
 void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
     m_reliable_callback = std::move(onReliable);
     m_unreliable_callback = std::move(onUnreliable);
@@ -47,8 +61,8 @@ void Session::stop() {
 
     m_reliable_callback = {};
     m_unreliable_callback = {};
-    on_client_connect = {};
-    on_client_disconnect = {};
+    m_on_client_connect = {};
+    m_on_client_disconnect = {};
     m_receive_windows.clear();
     m_fragment_buffers.clear();
     m_connected_endpoints.clear();
@@ -298,8 +312,8 @@ void Session::handle_packet(const asio::error_code& ec, Packet packet, const asi
     // Keep track of connected endpoints
     if (m_connected_endpoints.find(endpoint) == m_connected_endpoints.end()) {
         m_connected_endpoints.insert(endpoint);
-        if (on_client_connect) {
-            on_client_connect(endpoint);
+        if (m_on_client_connect) {
+            m_on_client_connect(endpoint);
         }
     }
 

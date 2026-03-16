@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
     // Main server loop (headless)
     constexpr int k_cleanup_interval = 60; // Cleanup every 60 ticks (~1 second)
-    constexpr int k_sync_interval = 180;   // Sync player counts every 180 ticks (~3 seconds)
+    constexpr int k_sync_interval = 180;   // Sync Player counts every 180 ticks (~3 seconds)
     int tick_count = 0;
     int sync_count = 0;
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
             tick_count = 0;
         }
 
-        // Periodically sync player counts to database
+        // Periodically sync Player counts to database
         if (++sync_count >= k_sync_interval) {
             lobby_manager.sync_player_counts();
             sync_count = 0;

@@ -19,7 +19,7 @@ constexpr float k_enemy_sprite_width = 21.0f;
 constexpr float k_enemy_sprite_height = 23.0f;
 constexpr float k_enemy_scale = 5.0f;
 
-// Create player's entity (match solo)
+// Create Player's entity (match solo)
 constexpr float k_ship_sprite_x = 34.0f;
 constexpr float k_ship_sprite_y = 0.0f;
 constexpr float k_ship_width = 33.0f;
@@ -79,26 +79,26 @@ using ComponentAdder = std::function<void(ecs::Registry&, ecs::Entity, const Ser
 // Build a map from ComponentType to removal functions
 static std::unordered_map<ComponentType, ComponentRemover> build_component_removers() {
     return {
-        {ComponentType::bullet, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Bullet>(e); }},
-        {ComponentType::enemy, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Enemy>(e); }},
-        {ComponentType::entity_type,
+        {ComponentType::Bullet, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Bullet>(e); }},
+        {ComponentType::Enemy, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Enemy>(e); }},
+        {ComponentType::EntityType,
          [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::EntityType>(e); }},
-        {ComponentType::health, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Health>(e); }},
-        {ComponentType::hitbox, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Hitbox>(e); }},
-        {ComponentType::movement_pattern,
+        {ComponentType::Health, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Health>(e); }},
+        {ComponentType::Hitbox, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Hitbox>(e); }},
+        {ComponentType::MovementPattern,
          [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::MovementPattern>(e); }},
-        {ComponentType::player, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Player>(e); }},
-        {ComponentType::replicated,
+        {ComponentType::Player, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Player>(e); }},
+        {ComponentType::Replicated,
          [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Replicated>(e); }},
-        {ComponentType::stats, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Stats>(e); }},
-        {ComponentType::tag, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Tag>(e); }},
-        {ComponentType::transform, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Transform>(e); }},
-        {ComponentType::velocity, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Velocity>(e); }},
-        {ComponentType::shooter, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Shooter>(e); }},
-        {ComponentType::bullet_shooter,
+        {ComponentType::Stats, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Stats>(e); }},
+        {ComponentType::Tag, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Tag>(e); }},
+        {ComponentType::Transform, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Transform>(e); }},
+        {ComponentType::Velocity, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Velocity>(e); }},
+        {ComponentType::Shooter, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Shooter>(e); }},
+        {ComponentType::BulletShooter,
          [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::BulletShooter>(e); }},
-        {ComponentType::boss, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Boss>(e); }},
-        {ComponentType::boss_hitbox,
+        {ComponentType::Boss, [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::Boss>(e); }},
+        {ComponentType::BossHitbox,
          [](ecs::Registry& reg, ecs::Entity e) { reg.remove_component<cpnt::BossHitbox>(e); }},
     };
 }
@@ -106,25 +106,25 @@ static std::unordered_map<ComponentType, ComponentRemover> build_component_remov
 // Build a map from ComponentType to adder functions
 static std::unordered_map<ComponentType, ComponentAdder> build_component_adders() {
     return {
-        {ComponentType::bullet,
+        {ComponentType::Bullet,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Bullet component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::enemy,
+        {ComponentType::Enemy,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Enemy component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::entity_type,
+        {ComponentType::EntityType,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::EntityType component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::health,
+        {ComponentType::Health,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              int old_hp = -1;
              const auto& healths = reg.get_components<cpnt::Health>();
@@ -142,74 +142,74 @@ static std::unordered_map<ComponentType, ComponentAdder> build_component_adders(
                  }
              }
          }},
-        {ComponentType::hitbox,
+        {ComponentType::Hitbox,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Hitbox component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::movement_pattern,
+        {ComponentType::MovementPattern,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::MovementPattern component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::player,
+        {ComponentType::Player,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Player component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::replicated,
+        {ComponentType::Replicated,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Replicated component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::stats,
+        {ComponentType::Stats,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Stats component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::tag,
+        {ComponentType::Tag,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Tag component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::transform,
+        {ComponentType::Transform,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Transform component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::velocity,
+        {ComponentType::Velocity,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Velocity component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::shooter,
+        {ComponentType::Shooter,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Shooter component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::bullet_shooter,
+        {ComponentType::BulletShooter,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::BulletShooter component;
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::boss,
+        {ComponentType::Boss,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::Boss component{
                  0.0f, 0.0f, 0.0f, false, false, {k_boss_wave_center_x, k_boss_wave_center_y}, 0.0f, k_boss_wave_speed};
              component.deserialize(sc.data);
              reg.add_component(e, std::move(component));
          }},
-        {ComponentType::boss_hitbox,
+        {ComponentType::BossHitbox,
          [](ecs::Registry& reg, ecs::Entity e, const SerializedComponent& sc) {
              cpnt::BossHitbox component{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
              component.deserialize(sc.data);
@@ -230,16 +230,16 @@ void sys::handle_snapshots_deltas_system(EngineContext& ctx) {
         for (const DeltaEntry& entry : delta.entries) {
             switch (entry.operation) {
 
-                case (DeltaOperation::entity_add):
+                case (DeltaOperation::EntityAdd):
                     add_entity(registry, entry); /*LOG_DEBUG("add_entity");*/
                     break;
-                case (DeltaOperation::entity_remove):
+                case (DeltaOperation::EntityRemove):
                     remove_entity(ctx, registry, entry); /*LOG_DEBUG("remove_entity");*/
                     break;
-                case (DeltaOperation::component_add_or_update):
+                case (DeltaOperation::ComponentAddOrUpdate):
                     add_component(registry, entry); /*LOG_DEBUG("add_component");*/
                     break;
-                case (DeltaOperation::component_remove):
+                case (DeltaOperation::ComponentRemove):
                     remove_component(registry, entry); /*LOG_DEBUG("remove_component");*/
                     break;
             }
@@ -373,7 +373,7 @@ static void add_component(ecs::Registry& registry, const DeltaEntry& entry) {
         it->second(registry, local_entity, serialized);
 
         // Log EntityType additions
-        if (type == ComponentType::entity_type) {
+        if (type == ComponentType::EntityType) {
             cpnt::EntityType temp_entity_type;
             temp_entity_type.deserialize(serialized.data);
             LOG_INFO("[CLIENT] Added EntityType '{}' to replicated ID {} (local entity {})", temp_entity_type.type_name,
@@ -385,13 +385,13 @@ static void add_component(ecs::Registry& registry, const DeltaEntry& entry) {
         }
 
         // Init graphics component if an EntityType was added
-        if (type == ComponentType::entity_type) {
+        if (type == ComponentType::EntityType) {
             initialize_archetype(registry, local_entity, entry);
         }
-        if (type == ComponentType::player) {
+        if (type == ComponentType::Player) {
             apply_player_sprite_variant(registry, local_entity);
         }
-        if (type == ComponentType::shooter && !registry.has_component<cpnt::EntityType>(local_entity)) {
+        if (type == ComponentType::Shooter && !registry.has_component<cpnt::EntityType>(local_entity)) {
             ensure_transform(registry, local_entity, "shooter");
             ensure_velocity(registry, local_entity, "shooter");
             if (!registry.has_component<cpnt::Sprite>(local_entity)) {
@@ -403,7 +403,7 @@ static void add_component(ecs::Registry& registry, const DeltaEntry& entry) {
                 LOG_INFO("[CLIENT] Shooter sprite added for entity {}", static_cast<std::uint32_t>(local_entity));
             }
         }
-        if (type == ComponentType::bullet_shooter) {
+        if (type == ComponentType::BulletShooter) {
             ensure_transform(registry, local_entity, "bullet_shooter");
             ensure_velocity(registry, local_entity, "bullet_shooter");
             if (!registry.has_component<cpnt::Sprite>(local_entity)) {
@@ -412,11 +412,11 @@ static void add_component(ecs::Registry& registry, const DeltaEntry& entry) {
                                                                   k_shooter_bullet_scale,
                                                                   0,
                                                                   "shooter_bullet"});
-                LOG_INFO("[CLIENT] Shooter bullet sprite added for entity {}",
+                LOG_INFO("[CLIENT] Shooter Bullet sprite added for entity {}",
                          static_cast<std::uint32_t>(local_entity));
             }
         }
-        if (type == ComponentType::boss) {
+        if (type == ComponentType::Boss) {
             ensure_transform(registry, local_entity, "boss");
             ensure_velocity(registry, local_entity, "boss");
             if (!registry.has_component<cpnt::Sprite>(local_entity)) {

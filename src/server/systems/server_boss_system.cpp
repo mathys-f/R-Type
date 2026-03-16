@@ -62,10 +62,11 @@ void sys::server_boss_system(
 
                 auto boss_entity = ctx.registry.spawn_entity();
                 ctx.registry.add_component(boss_entity, cpnt::Replicated{static_cast<std::uint32_t>(boss_entity)});
-                ctx.registry.add_component(boss_entity,
-                                           cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1,
-                                                           1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors,
-                                                                // cppcoreguidelines-pro-type-union-access)
+                ctx.registry.add_component(
+                    boss_entity,
+                    cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1,
+                                    1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors,
+                                         // cppcoreguidelines-pro-type-union-access)
                 ctx.registry.add_component(
                     boss_entity,
                     cpnt::Boss{0.f,
@@ -101,14 +102,14 @@ void sys::server_boss_system(
                         boss_comp->time_to_roar = false;
                         if (!boss_comp->roar_active) {
                             boss_comp->roar_active = true;
-                            boss_comp->waveRadius = 0.0f;
+                            boss_comp->wave_radius = 0.0f;
                         }
 
                         // UPDATE wave radius
                         if (boss_comp->roar_active) {
-                            boss_comp->waveRadius += boss_comp->waveSpeed * ctx.delta_time;
+                            boss_comp->wave_radius += boss_comp->wave_speed * ctx.delta_time;
 
-                            if (boss_comp->waveRadius > k_max_dist) {
+                            if (boss_comp->wave_radius > k_max_dist) {
                                 boss_comp->roar_active = false;
                             }
                         }
@@ -119,19 +120,19 @@ void sys::server_boss_system(
                             if (pos_opt && (charg_opt || shot_opt || bul_shot_opt || bul_opt)) {
                                 auto& pos = reg.get_components<cpnt::Transform>()[pos_idx];
 
-                                float dist_x = pos->x - boss_comp->waveCenter.x;
-                                float dist_y = pos->y - boss_comp->waveCenter.y;
+                                float dist_x = pos->x - boss_comp->wave_center.x;
+                                float dist_y = pos->y - boss_comp->wave_center.y;
                                 float distance = sqrtf(dist_x * dist_x + dist_y * dist_y);
 
-                                if (distance >= boss_comp->waveRadius - k_roar_thickness &&
-                                    distance <= boss_comp->waveRadius) {
+                                if (distance >= boss_comp->wave_radius - k_roar_thickness &&
+                                    distance <= boss_comp->wave_radius) {
                                     entity_to_kill.push_back(reg.entity_from_index(pos_idx));
                                 }
                             }
                         }
 
                         // Cleanup: kill any remaining enemies/bullets when wave is complete
-                        if (boss_comp->waveRadius > k_max_dist) {
+                        if (boss_comp->wave_radius > k_max_dist) {
                             boss_comp->roar_active = false;
 
                             auto& positions_cleanup = reg.get_components<cpnt::Transform>();
@@ -164,7 +165,7 @@ void sys::server_boss_system(
                                 }
                             }
 
-                            // Kill all shooter bullets
+                            // Kill all Shooter bullets
                             for (auto [idx, pos_opt, bul_shot_opt] :
                                  ecs::indexed_zipper(positions_cleanup, bullets_shooter_cleanup)) {
                                 if (pos_opt && bul_shot_opt) {
@@ -206,7 +207,7 @@ void sys::server_boss_system(
 
             bool boss_updated = false;
 
-            // Attack 1: Semi-circle bullet spray from boss position
+            // Attack 1: Semi-circle Bullet spray from boss position
             if (boss_comp->cooldown_1 <= 0.0f) {
                 boss_comp->cooldown_1 = k_cooldown_1_duration;
                 boss_updated = true;

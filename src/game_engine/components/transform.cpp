@@ -10,7 +10,7 @@ Transform::Transform(float x, float y, float z, float origin_x, float origin_y, 
 
 engn::SerializedComponent Transform::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::transform;
+    serialized.type = engn::ComponentType::Transform;
     std::uint32_t size = sizeof(x) + sizeof(y) + sizeof(z) + sizeof(origin_x) + sizeof(origin_y) + sizeof(rx) +
                          sizeof(ry) + sizeof(rz) + sizeof(sx) + sizeof(sy) + sizeof(sz);
     serialized.data.resize(size);
