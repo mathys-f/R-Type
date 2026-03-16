@@ -127,6 +127,7 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
 {
     // LOG_DEBUG("Running send_snapshot_to_client_system");
     const auto k_clients = ctx.get_clients();
+    std::lock_guard<std::mutex>(ctx.clients_mutex) lock;
 
     for (const auto &endpoint : k_clients) {
         const auto k_ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);
