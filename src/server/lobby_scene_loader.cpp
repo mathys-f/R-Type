@@ -58,6 +58,7 @@ void lobby_scene_loader(EngineContext &engine_ctx)
     engine_ctx.add_system<>(sys::update_snapshots_system);
     engine_ctx.add_system<cpnt::Replicated>(sys::send_snapshot_to_client_system);
     engine_ctx.add_system<>(sys::clear_tombstones_system);
+    engine_ctx.add_system<cpnt::Player, cpnt::Stats, cpnt::Health>(sys::server_end_game_system);
 
 
     constexpr float k_dist_min = 0.1f;
