@@ -158,22 +158,22 @@ std::optional<Packet> Session::ingest_fragment(Packet packet, const asio::ip::ud
         return std::nullopt;
     }
 
-    if (packet.header.m_fragment_count == 0 || packet.header.m_fragment_index >= packet.header.m_fragment_count) {
-        return std::nullopt;
+    auto& per_endpoint_buffers = m_fragment_buffers[endpoint];
+    auto it = per_endpoint_buffers.find(packet.header.m_fragment_id);
+    const bool k_already_exists = (it != per_endpoint_buffers.end());
+
+    if (!k_already_exists && per_endpoint_buffers.size() >= k_max_inflight_reassemblies) {
+        auto oldest = std::ranges::min_element(per_endpoint_buffers, [](const auto& lhs, const auto& rhs) {
+            return lhs.second.m_created_at < rhs.second.m_created_at;
+        });
+        if (oldest != per_endpoint_buffers.end()) {
+            per_endpoint_buffers.erase(oldest);
+        }
     }
 
-    auto& per_endpoint_buffers = m_fragment_buffers[endpoint];
     auto& buffer = per_endpoint_buffers[packet.header.m_fragment_id];
     const bool k_new_buffer = buffer.m_parts.empty();
     if (k_new_buffer || buffer.m_parts.size() != packet.header.m_fragment_count) {
-        if (k_new_buffer && per_endpoint_buffers.size() >= k_max_inflight_reassemblies) {
-            auto oldest = std::ranges::min_element(per_endpoint_buffers, [](const auto& lhs, const auto& rhs) {
-                return lhs.second.m_created_at < rhs.second.m_created_at;
-            });
-            if (oldest != per_endpoint_buffers.end()) {
-                per_endpoint_buffers.erase(oldest);
-            }
-        }
         buffer = FragmentBuffer{};
         buffer.m_header = packet.header;
         buffer.m_parts.resize(packet.header.m_fragment_count);
