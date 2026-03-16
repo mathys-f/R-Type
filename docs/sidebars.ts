@@ -32,7 +32,9 @@ const sidebars: SidebarsConfig = {
   networkingSidebar: [
     "networking/rfc",
     "networking/flowcharts",
-    "networking/implementation-details"
+    "networking/implementation-details",
+    "networking/r-type-net",
+    "networking/game-snapshot",
   ],
   contributingSidebar: [
     "contributing/contributing",
