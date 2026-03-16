@@ -5,6 +5,20 @@
 
 using namespace engn;
 
+AssetsManager::~AssetsManager() {
+    for (auto& [asset_id, asset_ptr] : m_assets) {
+        std::any& asset = *asset_ptr;
+        if (asset.type() == typeid(Texture2D)) {
+            UnloadTexture(std::any_cast<Texture2D>(asset));
+        } else if (asset.type() == typeid(Music)) {
+            UnloadMusicStream(std::any_cast<Music>(asset));
+        } else if (asset.type() == typeid(Sound)) {
+            UnloadSound(std::any_cast<Sound>(asset));
+        }
+    }
+    m_assets.clear();
+}
+
 bool AssetsManager::load_music(const std::string& asset_id, const std::string& file_path) {
     Music music = LoadMusicStream(file_path.c_str());
     if (music.stream.buffer == nullptr) {
@@ -33,6 +47,7 @@ bool AssetsManager::load_texture(const std::string& asset_id, const std::string&
     }
     if (m_assets.find(asset_id) != m_assets.end()) {
         LOG_WARNING("Overwriting existing asset with id '{}'", asset_id);
+        unload_asset(asset_id);
     }
     m_assets[asset_id] = std::make_unique<std::any>(std::move(texture));
     return true;
@@ -41,8 +56,15 @@ bool AssetsManager::load_texture(const std::string& asset_id, const std::string&
 void AssetsManager::unload_asset(const std::string& asset_id) {
     auto it = m_assets.find(asset_id);
     if (it != m_assets.end()) {
+        std::any& asset = *it->second;
+        if (asset.type() == typeid(Texture2D)) {
+            UnloadTexture(std::any_cast<Texture2D>(asset));
+        } else if (asset.type() == typeid(Music)) {
+            UnloadMusicStream(std::any_cast<Music>(asset));
+        } else if (asset.type() == typeid(Sound)) {
+            UnloadSound(std::any_cast<Sound>(asset));
+        }
         m_assets.erase(it);
-    } else {
-        // LOG_WARNING("Attempted to unload non-existing asset with id '{}'", asset_id);
     }
 }
+

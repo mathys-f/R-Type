@@ -17,9 +17,11 @@ void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
     m_reliable_callback = std::move(onReliable);
     m_unreliable_callback = std::move(onUnreliable);
     m_started = true;
-    auto self = shared_from_this();
-    m_transport->start([self](const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
-        self->handle_packet(ec, std::move(packet), endpoint);
+    std::weak_ptr<Session> weak_self = shared_from_this();
+    m_transport->start([weak_self](const asio::error_code& ec, Packet packet, const asio::ip::udp::endpoint& endpoint) {
+        if (auto self = weak_self.lock()) {
+            self->handle_packet(ec, std::move(packet), endpoint);
+        }
     });
     schedule_retransmission();
 }
