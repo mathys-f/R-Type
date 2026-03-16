@@ -35,6 +35,7 @@ constexpr float k_boss_sprite_height = 203.0f;
 constexpr int k_boss_attack_1_bullet_count = 12;
 constexpr int k_boss_attack_2_bullet_count = 25;
 constexpr float k_boss_attack_2_spacing = 100.0f;
+constexpr float k_boss_attack_2_center_divisor = 2.0f;
 constexpr float k_boss_projectile_half_width = 8.0f;
 constexpr float k_boss_projectile_half_height = 4.0f;
 constexpr float k_boss_projectile_hitbox_width = 16.0f;
@@ -364,7 +365,8 @@ void sys::boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& bo
                 constexpr int k_num_bullets = k_boss_attack_2_bullet_count;
                 constexpr float k_spacing = k_boss_attack_2_spacing;
 
-                float start_y = (static_cast<float>(k_height) - (static_cast<float>(k_num_bullets) * k_spacing)) / 2.0f;
+                float start_y = (static_cast<float>(k_height) - (static_cast<float>(k_num_bullets) * k_spacing)) /
+                                k_boss_attack_2_center_divisor;
 
                 for (int i = 0; i < k_num_bullets; i++) {
                     float spawn_x = static_cast<float>(k_width) - 1.0f; // Just off right edge

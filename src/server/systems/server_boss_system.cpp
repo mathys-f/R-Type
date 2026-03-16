@@ -11,6 +11,25 @@ constexpr int k_level_to_appear = 4;
 constexpr float k_roar_thickness = 20.0f;
 constexpr float k_cooldown_1_duration = 3.0f;
 constexpr float k_cooldown_2_duration = 5.0f;
+constexpr float k_boss_initial_x_offset = 400.0f;
+constexpr float k_boss_spawn_x_offset = 400.0f;
+constexpr float k_boss_spawn_y_offset = 550.0f;
+constexpr float k_boss_initial_y = 0.0f;
+constexpr int k_boss_health = 100;
+constexpr float k_boss_default_wave_speed = 600.0f;
+constexpr float k_boss_sprite_x = 27.0f;
+constexpr float k_boss_sprite_y = 861.0f;
+constexpr float k_boss_sprite_width = 154.0f;
+constexpr float k_boss_sprite_height = 203.0f;
+constexpr int k_boss_attack_1_bullet_count = 12;
+constexpr int k_boss_attack_2_bullet_count = 25;
+constexpr float k_boss_attack_2_spacing = 100.0f;
+constexpr float k_boss_attack_2_center_divisor = 2.0f;
+constexpr float k_boss_projectile_half_width = 8.0f;
+constexpr float k_boss_projectile_half_height = 4.0f;
+constexpr float k_boss_projectile_hitbox_width = 16.0f;
+constexpr float k_boss_projectile_hitbox_height = 8.0f;
+constexpr float k_boss_projectile_rotation = 180.0f;
 
 constexpr float k_bullet_sprite_x = 249.f;
 constexpr float k_bullet_sprite_y = 105.0f;
@@ -42,10 +61,6 @@ void sys::server_boss_system(
             if (stat->level >= k_level_to_appear && stat->level % k_level_to_appear == 0 &&
                 stat->boss_active == false) {
                 stat->boss_active = true;
-                const float k_boss_sprite_x = 27.0f;
-                const float k_boss_sprite_y = 861.0f;
-                const float k_boss_sprite_width = 154.0f;
-                const float k_boss_sprite_height = 203.0f;
                 const float k_boss_scale = 5.0f;
                 const float k_boss_hitbox_head_width = 111.f * k_boss_scale;
                 const float k_boss_hitbox_head_height = 86.f * k_boss_scale;
@@ -62,24 +77,13 @@ void sys::server_boss_system(
 
                 auto boss_entity = ctx.registry.spawn_entity();
                 ctx.registry.add_component(boss_entity, cpnt::Replicated{static_cast<std::uint32_t>(boss_entity)});
-                ctx.registry.add_component(
-                    boss_entity,
-                    cpnt::Transform{ctx.window_size.x - 400.f, 0.f, 0, 0, 0, 0, 1, 1,
-                                    1}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors,
-                                         // cppcoreguidelines-pro-type-union-access)
-                ctx.registry.add_component(
-                    boss_entity,
-                    cpnt::Boss{0.f,
-                               0.f,
-                               0.f,
-                               true,
-                               false,
-                               {1350.f, 400.f},
-                               0.f,
-                               600.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                ctx.registry.add_component(
-                    boss_entity,
-                    cpnt::Health{100, 100}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                ctx.registry.add_component(boss_entity,
+                                           cpnt::Transform{static_cast<float>(k_width) - k_boss_initial_x_offset,
+                                                           k_boss_initial_y, 0, 0, 0, 0, 1, 1, 1});
+                ctx.registry.add_component(boss_entity,
+                                           cpnt::Boss{0.f, 0.f, 0.f, true, false, cpnt::k_default_wave_center, 0.f,
+                                                      k_boss_default_wave_speed});
+                ctx.registry.add_component(boss_entity, cpnt::Health{k_boss_health, k_boss_health});
                 ctx.registry.add_component(boss_entity, cpnt::Velocity{0.f, 0.f, 0.f, 0.f, 0.f, 0.f});
                 ctx.registry.add_component(boss_entity,
                                            cpnt::BossHitbox{k_boss_hitbox_head_width, k_boss_hitbox_head_height,
@@ -213,19 +217,17 @@ void sys::server_boss_system(
                 boss_updated = true;
 
                 // Spawn point (adjust based on your boss sprite)
-                float spawn_x = pos->x + 400.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                float spawn_y = pos->y + 550.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                float spawn_x = pos->x + k_boss_spawn_x_offset;
+                float spawn_y = pos->y + k_boss_spawn_y_offset;
 
                 // Create semi-circle of bullets (180 degrees, facing left/down)
-                constexpr int k_num_bullets = 12;
+                constexpr int k_num_bullets = k_boss_attack_1_bullet_count;
                 constexpr float k_start_angle = 90.0f; // degrees
                 constexpr float k_end_angle = 270.0f;
 
                 for (int i = 0; i < k_num_bullets; i++) {
-                    float angle =
-                        k_start_angle +
-                        (k_end_angle - k_start_angle) * i /
-                            (k_num_bullets - 1); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                    const float k_progress = static_cast<float>(i) / static_cast<float>(k_num_bullets - 1);
+                    float angle = k_start_angle + (k_end_angle - k_start_angle) * k_progress;
                     float rad = angle * DEG2RAD;
 
                     float vx = cosf(rad) * k_bullet_speed;
@@ -233,15 +235,12 @@ void sys::server_boss_system(
 
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
-                    reg.add_component(
-                        bullet,
-                        cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f,
-                                        1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, k_boss_projectile_half_width,
+                                                              k_boss_projectile_half_height, 0.0f, 1.0f, 1.0f, 1.0f});
                     reg.add_component(bullet, cpnt::Velocity{vx, vy, angle, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::BulletShooter{});
-                    reg.add_component(
-                        bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f,
-                                             0.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Hitbox{k_boss_projectile_hitbox_width,
+                                                           k_boss_projectile_hitbox_height, 0.f, 0.f});
                 }
             }
 
@@ -256,38 +255,27 @@ void sys::server_boss_system(
                     static_cast<int>(ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
 
                 // Spawn bullets along right edge
-                constexpr int k_num_bullets = 25;
-                constexpr float k_spacing = 100.0f; // Vertical spacing between bullets
+                constexpr int k_num_bullets = k_boss_attack_2_bullet_count;
+                constexpr float k_spacing = k_boss_attack_2_spacing;
 
-                float start_y =
-                    (k_height_int - (k_num_bullets * k_spacing)) /
-                    2.0f; // Center vertically // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors,
-                          // cppcoreguidelines-avoid-magic-numbers)
+                float start_y = (static_cast<float>(k_height_int) - (static_cast<float>(k_num_bullets) * k_spacing)) /
+                                k_boss_attack_2_center_divisor;
 
                 for (int i = 0; i < k_num_bullets; i++) {
-                    float spawn_x =
-                        k_width_int - 1.0f; // Just off right edge //
-                                            // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
-                    float spawn_y =
-                        start_y + i * k_spacing; // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                    float spawn_x = static_cast<float>(k_width_int) - 1.0f;
+                    float spawn_y = start_y + static_cast<float>(i) * k_spacing;
 
                     float vx = -k_bullet_speed; // Move left
                     float vy = 0.0f;
 
                     auto bullet = reg.spawn_entity();
                     reg.add_component(bullet, cpnt::Replicated{static_cast<std::uint32_t>(bullet)});
-                    reg.add_component(
-                        bullet,
-                        cpnt::Transform{spawn_x, spawn_y, 0.0f, 8.0f, 4.0f, 0.0f, 1.0f, 1.0f,
-                                        1.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                    reg.add_component(
-                        bullet,
-                        cpnt::Velocity{vx, vy, 180.0f, 0.0f, 0.0f,
-                                       0.0f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Transform{spawn_x, spawn_y, 0.0f, k_boss_projectile_half_width,
+                                                              k_boss_projectile_half_height, 0.0f, 1.0f, 1.0f, 1.0f});
+                    reg.add_component(bullet, cpnt::Velocity{vx, vy, k_boss_projectile_rotation, 0.0f, 0.0f, 0.0f});
                     reg.add_component(bullet, cpnt::BulletShooter{});
-                    reg.add_component(
-                        bullet, cpnt::Hitbox{16.0f, 8.0f, 0.f,
-                                             0.f}); // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
+                    reg.add_component(bullet, cpnt::Hitbox{k_boss_projectile_hitbox_width,
+                                                           k_boss_projectile_hitbox_height, 0.f, 0.f});
                 }
             }
 

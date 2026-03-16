@@ -270,8 +270,7 @@ void GameLobby::process_ipc_messages() {
             case ipc::MessageType::HEARTBEAT:
                 LOG_DEBUG("Received heartbeat from lobby {}", msg.lobby_id);
                 break;
-            case ipc::MessageType::PLAYERCOUNT:
-            {
+            case ipc::MessageType::PLAYERCOUNT: {
                 std::uint8_t new_count = static_cast<std::uint8_t>(msg.data);
                 m_current_players = new_count;
                 LOG_DEBUG("Lobby {} player count updated: {}", msg.lobby_id, msg.data);
@@ -297,7 +296,8 @@ void GameLobby::add_player(const std::string& player_ip) {
     if (it == m_players.end()) {
         m_players.push_back(player_ip);
         m_current_players++;
-        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(), m_max_players);
+        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name,
+                 m_current_players.load(), m_max_players);
     } else {
         LOG_INFO("Player {} reconnected to lobby '{}'", player_ip, m_lobby_name);
     }

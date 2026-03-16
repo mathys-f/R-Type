@@ -239,7 +239,8 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
             m_engine_ctx.last_input_masks.erase(endpoint);
 
             if (m_lobby_manager) {
-                for (auto it = m_engine_ctx.player_id_to_endpoint.begin(); it != m_engine_ctx.player_id_to_endpoint.end();) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin();
+                     it != m_engine_ctx.player_id_to_endpoint.end();) {
                     if (it->second == endpoint) {
                         it = m_engine_ctx.player_id_to_endpoint.erase(it);
                     } else {
@@ -283,7 +284,8 @@ void NetworkServer::check_client_timeouts() {
             m_engine_ctx.last_input_masks.erase(endpoint);
 
             if (m_lobby_manager) {
-                for (auto it = m_engine_ctx.player_id_to_endpoint.begin(); it != m_engine_ctx.player_id_to_endpoint.end();) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin();
+                     it != m_engine_ctx.player_id_to_endpoint.end();) {
                     if (it->second == endpoint) {
                         it = m_engine_ctx.player_id_to_endpoint.erase(it);
                     } else {
