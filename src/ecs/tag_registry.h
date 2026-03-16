@@ -37,6 +37,9 @@ class TagRegistry {
     std::optional<Entity> get_entity(const std::string& name) const;
     std::optional<Entity> get_entity(TagId tag_id) const;
 
+    /// Reset all tags and entity bindings to the initial empty state.
+    void clear();
+
   private:
     std::unordered_map<std::string, TagId> m_name_to_id;
     std::unordered_map<TagId, std::string> m_id_to_name;

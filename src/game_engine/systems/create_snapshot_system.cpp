@@ -37,7 +37,9 @@ static std::unordered_map<std::type_index, Extractor> build_sync_extractors() {
         {typeid(cpnt::Velocity), extract_sync_component<cpnt::Velocity>},
         {typeid(cpnt::Shooter), extract_sync_component<cpnt::Shooter>},
         {typeid(cpnt::BulletShooter), extract_sync_component<cpnt::BulletShooter>},
-        {typeid(cpnt::EntityType), extract_sync_component<cpnt::EntityType>}
+        {typeid(cpnt::EntityType), extract_sync_component<cpnt::EntityType>},
+        {typeid(cpnt::Boss), extract_sync_component<cpnt::Boss>},
+        {typeid(cpnt::BossHitbox), extract_sync_component<cpnt::BossHitbox>}
     };
 }
 

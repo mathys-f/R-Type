@@ -48,8 +48,8 @@ fi
 # Run CMake to configure and build the project
 echo -e "${BLUE}Configuring project...${RESET}"
 cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-echo -e "${BLUE}Building project...${RESET}"
-cmake --build .
+echo -e "${BLUE}Building project with parallel compilation...${RESET}"
+cmake --build . -j 4
 echo -e "${GREEN}Build succeeded${RESET}"
 
 # Copy binaries to parent directory

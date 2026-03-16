@@ -20,8 +20,8 @@ cd build
 echo -e "${GREEN}Build directory ready.${RESET}"
 
 # Prompt user for build type
-read -p "$(echo -e "${YELLOW}Build type (Release/Debug) [Debug]: ${RESET}")" build_type
-build_type=${build_type:-Debug}
+read -p "$(echo -e "${YELLOW}Build type (Release/Debug) [Release]: ${RESET}")" build_type
+build_type=${build_type:-Release}
 
 # Validate build type
 if [ "$build_type" != "Release" ] && [ "$build_type" != "Debug" ]; then
@@ -33,7 +33,7 @@ fi
 echo -e "${BLUE}Configuring project...${RESET}"
 cmake .. -DCMAKE_BUILD_TYPE=$build_type
 echo -e "${BLUE}Building project...${RESET}"
-cmake --build . -j
+cmake --build . -j 4
 echo -e "${GREEN}Build succeeded${RESET}"
 
 # Copy binaries to parent directory
