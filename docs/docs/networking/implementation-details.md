@@ -1,5 +1,5 @@
 ---
-title: Implementation Details
+title: API Reference
 id: implementation-details
 ---
 
