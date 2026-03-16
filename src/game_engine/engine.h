@@ -92,7 +92,7 @@ class EngineContext {
     std::shared_ptr<net::Session> network_session; // TO REMOVE
     std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
 
-    const std::size_t k_player_count = 4;
+    std::size_t k_player_count = 4;
     std::mutex clients_mutex;
     void add_client(asio::ip::udp::endpoint client_endpoint);
     void remove_client(asio::ip::udp::endpoint client_endpoint);
