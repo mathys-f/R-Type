@@ -228,6 +228,10 @@ void NetworkClient::disconnect() {
         }
 
         m_connected = false;
+        if (m_session) {
+            m_session->stop();
+            m_session.reset();
+        }
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();

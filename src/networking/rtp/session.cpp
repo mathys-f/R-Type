@@ -13,6 +13,10 @@ Session::Session(asio::io_context& context, const asio::ip::udp::endpoint& remot
     m_transport->set_default_remote(remote);
 }
 
+Session::~Session() {
+    stop();
+}
+
 void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
     m_reliable_callback = std::move(onReliable);
     m_unreliable_callback = std::move(onUnreliable);
@@ -24,6 +28,31 @@ void Session::start(PacketCallback onReliable, PacketCallback onUnreliable) {
         }
     });
     schedule_retransmission();
+}
+
+void Session::stop() {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_started && !m_transport) {
+        return;
+    }
+
+    m_started = false;
+    asio::error_code error_code;
+    m_retransmit_timer.cancel(error_code);
+
+    if (m_transport) {
+        m_transport->close();
+        m_transport.reset();
+    }
+
+    m_reliable_callback = {};
+    m_unreliable_callback = {};
+    on_client_connect = {};
+    on_client_disconnect = {};
+    m_receive_windows.clear();
+    m_fragment_buffers.clear();
+    m_connected_endpoints.clear();
+    m_failed_cache.clear();
 }
 
 std::uint32_t Session::send(Packet packet, bool reliable) {
@@ -319,9 +348,12 @@ void Session::schedule_retransmission() {
     }
 
     m_retransmit_timer.expires_after(next_delay.value());
-    auto self = shared_from_this();
-    m_retransmit_timer.async_wait([self](const asio::error_code& ec) -> void {
-        if (!ec) {
+    std::weak_ptr<Session> weak_self = shared_from_this();
+    m_retransmit_timer.async_wait([weak_self](const asio::error_code& ec) -> void {
+        if (ec) {
+            return;
+        }
+        if (auto self = weak_self.lock()) {
             self->poll();
         }
     });

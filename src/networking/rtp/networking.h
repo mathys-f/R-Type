@@ -300,11 +300,16 @@ class Session : public std::enable_shared_from_this<Session> {
      */
     Session(asio::io_context& context, const asio::ip::udp::endpoint& remote, ReliabilityConfig config = {},
             std::uint16_t localPort = 0);
+    ~Session();
 
     /**
      * Starts the session by registering callbacks and enabling retransmission timers.
      */
     void start(PacketCallback onReliable, PacketCallback onUnreliable);
+    /**
+     * Stops the session, cancels pending async work, and releases callbacks.
+     */
+    void stop();
     /**
      * Sends a packet to the default remote endpoint.
      * Returns the sequence number of the packet if sent reliably, or 0 otherwise.

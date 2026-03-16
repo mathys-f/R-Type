@@ -127,6 +127,9 @@ void NetworkServer::poll() {
 
 void NetworkServer::stop() {
     if (m_running.exchange(false)) {
+        if (m_session) {
+            m_session->stop();
+        }
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();
