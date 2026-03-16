@@ -280,7 +280,7 @@ auto& my_registry = my_engine_ctx.registry;
 This create a registry called `my_registry`
 
 
-:::danger
+:::info
 
 You would need to create your engine in the main function with this line:
 ```EngineContext my_engine_ctx;```
