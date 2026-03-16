@@ -41,7 +41,7 @@ void NetworkServer::start() {
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Update client activity timestamp whenever we receive a packet
             update_client_activity(from);
-            
+
             if (auto login_req = net::handshake::parse_req_login(pkt)) {
                 std::uint32_t assigned_id = 0;
                 bool id_available = false;
@@ -235,6 +235,16 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
         {
             std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
             m_engine_ctx.last_input_masks.erase(endpoint);
+
+            if (m_lobby_manager) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin(); it != m_engine_ctx.player_id_to_endpoint.end();) {
+                    if (it->second == endpoint) {
+                        it = m_engine_ctx.player_id_to_endpoint.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
         }
     }
 }
@@ -269,6 +279,16 @@ void NetworkServer::check_client_timeouts() {
         {
             std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
             m_engine_ctx.last_input_masks.erase(endpoint);
+
+            if (m_lobby_manager) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin(); it != m_engine_ctx.player_id_to_endpoint.end();) {
+                    if (it->second == endpoint) {
+                        it = m_engine_ctx.player_id_to_endpoint.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
         }
     }
 }

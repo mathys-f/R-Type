@@ -183,6 +183,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         constexpr int k_tick_ms = 16;
         bool running = true;
         int heartbeat_counter = 0;
+        int last_player_count = -1;
 
         while (running) {
             server->get_engine().delta_time = k_tick_ms / 1000.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
@@ -205,6 +206,19 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 ipc.send_to_main(heartbeat);
                 heartbeat_counter = 0;
             }
+
+            // Update player count via IPC if it changed
+            int current_player_count = static_cast<int>(server->get_engine().get_clients().size());
+            if (current_player_count != last_player_count) {
+                ipc::IPCMessage count_msg;
+                count_msg.type = ipc::MessageType::PLAYERCOUNT;
+                count_msg.lobby_id = lobby_id;
+                count_msg.data = static_cast<std::uint64_t>(current_player_count);
+                ipc.send_to_main(count_msg);
+                last_player_count = current_player_count;
+                LOG_INFO("Lobby {} player count updated to {}", lobby_id, current_player_count);
+            }
+
             server->poll();
             server->get_engine().run_systems();
             server->get_engine().registry.process_deferred_kills();
@@ -257,9 +271,16 @@ void GameLobby::process_ipc_messages() {
                 LOG_DEBUG("Received heartbeat from lobby {}", msg.lobby_id);
                 break;
             case ipc::MessageType::PLAYERCOUNT:
-                m_current_players = static_cast<std::uint8_t>(msg.data);
+            {
+                std::uint8_t new_count = static_cast<std::uint8_t>(msg.data);
+                m_current_players = new_count;
                 LOG_DEBUG("Lobby {} player count updated: {}", msg.lobby_id, msg.data);
+                if (new_count == 0) {
+                    std::lock_guard<std::mutex> lock(m_players_mutex);
+                    m_players.clear();
+                }
                 break;
+            }
             case ipc::MessageType::SHUTDOWNACK:
                 LOG_INFO("Lobby {} acknowledged shutdown", msg.lobby_id);
                 break;
@@ -275,7 +296,7 @@ void GameLobby::add_player(const std::string& player_ip) {
     auto it = std::find(m_players.begin(), m_players.end(), player_ip);
     if (it == m_players.end()) {
         m_players.push_back(player_ip);
-        m_current_players = static_cast<std::uint8_t>(m_players.size());
+        m_current_players++;
         LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(), m_max_players);
     } else {
         LOG_INFO("Player {} reconnected to lobby '{}'", player_ip, m_lobby_name);
@@ -287,7 +308,9 @@ void GameLobby::remove_player(const std::string& player_ip) {
     auto it = std::find(m_players.begin(), m_players.end(), player_ip);
     if (it != m_players.end()) {
         m_players.erase(it);
-        m_current_players = static_cast<std::uint8_t>(m_players.size());
+        if (m_current_players > 0) {
+            m_current_players--;
+        }
         LOG_INFO("Player {} left lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(),
                  m_max_players);
     }
