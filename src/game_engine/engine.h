@@ -89,7 +89,7 @@ class EngineContext {
     int k_pattern_amplitude_max = 10;
     int k_player_health = 100;
 
-    std::shared_ptr<net::Session> network_session; // TO REMOVE
+    std::shared_ptr<net::Session> network_session;
     std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
 
     std::size_t k_player_count = 4;
