@@ -263,7 +263,7 @@ namespace engn::cpnt {
 In this example thecomponent bullet is defined with:
 - The constructor `Bullet()`
 - The functions `serialize()` and `deserialize()`
-- Inherit the `cpnt` class
+- Inherit the `ISyncComponent` class
 
 The two functions `serialize()` and `deserialize()` are used when components need to be synchronised between all the players; for example, the components `Star` would look like this:
 ```cpp
