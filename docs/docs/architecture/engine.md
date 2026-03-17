@@ -29,6 +29,14 @@ Then you can use it like this to change between all your scene:
 engine_ctx.set_scene("main_menu");
 ```
 
+A scene loader function should look like this:
+
+```cpp
+void load_game_scene(engn::EngineContext& engine_ctx) {
+    // Your scene
+}
+```
+
 ### Load texture
 
 Loading the textures in the engine is very easy, all you need to do is add this line:
