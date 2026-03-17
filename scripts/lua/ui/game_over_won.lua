@@ -167,14 +167,6 @@ Create_ui_text("score_value", { content = "000000", font_size = 36 })
 Set_ui_style("score_value", styles.stat_value)
 Set_ui_transform("score_value", { x = 28, y = 41, z = 3, w = 44, h = 6, anchor_x = 0, anchor_y = 0, rotation = 0 })
 
-Create_ui_text("dmg_label", { content = "DAMAGE", font_size = 18 })
-Set_ui_style("dmg_label", styles.stat_label)
-Set_ui_transform("dmg_label", { x = 28, y = 47.5, z = 3, w = 20, h = 3, anchor_x = 0, anchor_y = 0, rotation = 0 })
-
-Create_ui_text("dmg_value", { content = "0", font_size = 24 })
-Set_ui_style("dmg_value", styles.stat_value)
-Set_ui_transform("dmg_value", { x = 54, y = 47.5, z = 3, w = 18, h = 3, anchor_x = 0, anchor_y = 0, rotation = 0 })
-
 Create_ui_text("kills_label", { content = "KILLS", font_size = 18 })
 Set_ui_style("kills_label", styles.stat_label)
 Set_ui_transform("kills_label", { x = 28, y = 51.5, z = 3, w = 20, h = 3, anchor_x = 0, anchor_y = 0, rotation = 0 })

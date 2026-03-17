@@ -81,7 +81,6 @@ void load_game_over_scene(engn::EngineContext& engine_ctx) {
     std::ostringstream score_stream;
     score_stream << std::setw(k_score_padding) << std::setfill('0') << engine_ctx.game_over_stats.score;
     set_text_if_exists(engine_ctx, "score_value", score_stream.str());
-    set_text_if_exists(engine_ctx, "dmg_value", std::to_string(engine_ctx.game_over_stats.dmg));
     set_text_if_exists(engine_ctx, "kills_value", std::to_string(engine_ctx.game_over_stats.kills));
     set_text_if_exists(engine_ctx, "level_value", std::to_string(engine_ctx.game_over_stats.level));
 
