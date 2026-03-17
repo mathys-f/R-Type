@@ -15,7 +15,7 @@ Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, 
 
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::stats;
+    serialized.type = engn::ComponentType::Stats;
     const std::uint16_t k_total_size = kSerializedSize;
     serialized.data.resize(k_total_size);
 
