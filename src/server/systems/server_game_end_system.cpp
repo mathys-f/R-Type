@@ -16,21 +16,28 @@ void sys::server_end_game_system(EngineContext &ctx,
     auto k_clients = ctx.get_clients();
     std::lock_guard<std::mutex> lock(ctx.clients_mutex);
 
-    if (k_clients.empty()) return; // Waiting for clients
-    if (players.size() == 0) return; // Game not rally started yet
+    if (k_clients.empty()) {
+        if (s_packets_sent.empty()) {
+            return; // Waiting for clients
+        } else {
+            // No clients connected but endgame has already been attained once
+            LOG_INFO("No clients connected but endgame msg has already been sent, stopping lobby");
+            ctx.should_quit = true;
+            return;
+        }
+    }
 
+    if (players.size() == 0) return; // Game not rally started yet
 
     for (const auto &[id, player, health] : ecs::indexed_zipper(players, healths)) {
         if (player.has_value() && health.has_value()) {
             if (health->hp > 0) {
-                LOG_DEBUG("A player is still alive");
                 return;
             }
         }
     }
 
     if (s_packets_sent.empty()) {
-        LOG_INFO("Clients connected but no players left (everyone is dead)");
         // Clients connected but no players left (everyone is dead)
         for (auto &endpoint : k_clients) {
             net::Packet paquet = create_end_packet(stats);
@@ -40,7 +47,6 @@ void sys::server_end_game_system(EngineContext &ctx,
             s_packets_sent[endpoint] = id;
         }
     } else if (!s_packets_sent.empty()) {
-        LOG_INFO("Game end packet already sent, waiting for answer");
         // Game end packet already sent, waiting for answer
 
         for (auto &[endpoint, id] : s_packets_sent) {
@@ -51,7 +57,6 @@ void sys::server_end_game_system(EngineContext &ctx,
             net::DeliveryStatus status = ctx.network_session->is_message_acknowledged(id, endpoint);
 
             if (status == net::DeliveryStatus::Pending) {
-                LOG_DEBUG("Waiting for answer from at least one client");
                 return; // Don't stop the server if a client is not aware of the endgame info
             }
 
@@ -68,7 +73,7 @@ void sys::server_end_game_system(EngineContext &ctx,
             }
         }
         // Right now, the code checked that all clients have received the endgame info.
-        LOG_INFO("Right now, the code checked that all clients have received the endgame info.");
+        LOG_INFO("All clients have received endgame msg, shutting down lobby.");
         ctx.should_quit = true; // Time to stop the server !
     }
 }

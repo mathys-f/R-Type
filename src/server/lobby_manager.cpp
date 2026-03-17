@@ -135,11 +135,8 @@ void GameLobby::fork_and_run_lobby_process() {
     CloseHandle(pi.hThread);
 #else
     // Unix implementation using fork
-    std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
-    LOG_DEBUG("Forking !");
     pid_t pid = fork();
 
-    LOG_DEBUG("Forked !");
     if (pid < 0) {
         LOG_ERROR("Failed to fork process for lobby {}", m_lobby_id);
         m_running = false;
@@ -148,7 +145,6 @@ void GameLobby::fork_and_run_lobby_process() {
 
     if (pid == 0) {
         // Child process
-        LOG_DEBUG("Running child !");
         run_lobby_in_child_process(m_lobby_id, m_lobby_name, m_port, m_max_players);
         _exit(0);
     }
@@ -185,17 +181,16 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         LOG_INFO("Lobby '{}' game server running on port {}", lobby_name, port);
 
         constexpr int k_tick_ms = 16;
-        bool running = true;
         int heartbeat_counter = 0;
         int last_player_count = -1;
 
-        while (running) {
+        while (!lobby_engine_ctx.should_quit) {
             server->get_engine().delta_time = k_tick_ms / 1000.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
             ipc::IPCMessage msg;
             if (ipc.try_receive_from_main(msg, 0)) {
                 if (msg.type == ipc::MessageType::SHUTDOWNREQ) {
                     LOG_INFO("Lobby {} received shutdown request", lobby_id);
-                    running = false;
+                    lobby_engine_ctx.should_quit = true;
 
                     ipc::IPCMessage ack;
                     ack.type = ipc::MessageType::SHUTDOWNACK;
@@ -203,6 +198,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                     ipc.send_to_main(ack);
                 }
             }
+
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
