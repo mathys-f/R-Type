@@ -13,26 +13,24 @@ void sys::server_end_game_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Health> const &healths)
 {
     static std::unordered_map<asio::ip::udp::endpoint, std::uint32_t> s_packets_sent;
-    bool game_ended = true;
     auto k_clients = ctx.get_clients();
     std::lock_guard<std::mutex> lock(ctx.clients_mutex);
 
-    if (k_clients.empty()) {LOG_DEBUG("Waiting for clients"); return;} // Waiting for clients
-    if (players.size() == 0) {LOG_DEBUG("No playable characters presents"); return;}; // Game not rally started yet
+    if (k_clients.empty()) return; // Waiting for clients
+    if (players.size() == 0) return; // Game not rally started yet
 
 
     for (const auto &[id, player, health] : ecs::indexed_zipper(players, healths)) {
         if (player.has_value() && health.has_value()) {
             if (health->hp > 0) {
-                game_ended = false;
-                
+                LOG_DEBUG("A player is still alive");
+                return;
             }
         }
     }
 
-    if (!game_ended) {LOG_DEBUG("Players still alive"); return;}; // Players are still alive
-
     if (s_packets_sent.empty()) {
+        LOG_INFO("Clients connected but no players left (everyone is dead)");
         // Clients connected but no players left (everyone is dead)
         for (auto &endpoint : k_clients) {
             net::Packet paquet = create_end_packet(stats);
@@ -42,6 +40,7 @@ void sys::server_end_game_system(EngineContext &ctx,
             s_packets_sent[endpoint] = id;
         }
     } else if (!s_packets_sent.empty()) {
+        LOG_INFO("Game end packet already sent, waiting for answer");
         // Game end packet already sent, waiting for answer
 
         for (auto &[endpoint, id] : s_packets_sent) {
@@ -69,6 +68,7 @@ void sys::server_end_game_system(EngineContext &ctx,
             }
         }
         // Right now, the code checked that all clients have received the endgame info.
+        LOG_INFO("Right now, the code checked that all clients have received the endgame info.");
         ctx.should_quit = true; // Time to stop the server !
     }
 }
@@ -80,10 +80,14 @@ static net::Packet create_end_packet(ecs::SparseArray<cpnt::Stats> const &stats)
 
     paquet.header.m_command = static_cast<std::uint8_t>(net::CommandId::kGameEnded);
 
-    if (stats.size() == 0 || !stats[0].has_value()) {
+    for (const auto &[stat] : ecs::zipper(stats)) {
+        if (stat.has_value()) {
+            score = stat->score;
+        }
+    }
+
+    if (score == 0) {
         LOG_WARNING("Could not get endgame score, defaulting to 0: Stats component not found");
-    } else {
-        score = stats[0]->score;
     }
 
     paquet.header.m_payload_size = sizeof(int);
