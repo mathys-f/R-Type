@@ -76,8 +76,15 @@ void load_game_over_scene(engn::EngineContext& engine_ctx) {
         sys::render_system);
 
     std::ostringstream score_stream;
-    score_stream << std::setw(k_score_padding) << std::setfill('0') << engine_ctx.game_over_score;
+    score_stream << std::setw(k_score_padding) << std::setfill('0') << engine_ctx.game_over_stats.score;
     set_text_if_exists(engine_ctx, "score_value", score_stream.str());
+
+    if (engine_ctx.game_over_boss_kills_to_win > 0) {
+        std::ostringstream boss_stream;
+        boss_stream << "Bosses defeated " << engine_ctx.game_over_stats.boss_killed << " / "
+                    << engine_ctx.game_over_boss_kills_to_win;
+        set_text_if_exists(engine_ctx, "continue_hint", boss_stream.str());
+    }
 
     const int k_width = static_cast<int>(engine_ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height =

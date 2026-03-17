@@ -1,22 +1,22 @@
 #include "components/stats.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active, bool boss_killed)
-        : score(score),
-            dmg(dmg),
-            kills(kills),
-            level(level),
-            point_to_next_level(point_to_next_level),
-            boss_active(boss_active),
-            boss_killed(boss_killed) {}
+Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active, int boss_killed)
+    : score(score),
+      dmg(dmg),
+      kills(kills),
+      level(level),
+      point_to_next_level(point_to_next_level),
+      boss_active(boss_active),
+      boss_killed(boss_killed) {}
 
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::stats;
-        const std::uint16_t k_total_size = sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level)
-                + sizeof(boss_active) + sizeof(boss_killed);
+    const std::uint16_t k_total_size = kSerializedSize;
     serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -39,8 +39,7 @@ engn::SerializedComponent Stats::serialize() const {
 }
 
 void Stats::deserialize(const std::vector<std::byte>& data) {
-    const std::uint16_t k_size = sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level)
-        + sizeof(boss_active) + sizeof(boss_killed);
+    const std::uint16_t k_size = kSerializedSize;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (data.size() >= k_size) {

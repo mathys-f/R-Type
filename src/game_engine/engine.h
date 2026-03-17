@@ -1,6 +1,7 @@
 #pragma once
 
 #include "assets_manager.h"
+#include "components/stats.h"
 #include "controls.h"
 #include "ecs/registry.h"
 #include "events/event_queue.h"
@@ -136,8 +137,11 @@ class EngineContext {
     bool change_music = false;
 
     std::atomic<bool> pending_game_over = false;
-    std::atomic<int> pending_game_over_score = 0;
-    int game_over_score = 0;
+    std::mutex game_over_payload_mutex;
+    cpnt::Stats pending_game_over_stats;
+    int pending_game_over_boss_kills_to_win = 0;
+    cpnt::Stats game_over_stats;
+    int game_over_boss_kills_to_win = 0;
     std::string game_over_retry_scene = "main_menu";
 
     std::string server_ip;

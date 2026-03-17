@@ -3,9 +3,13 @@
 
 #include "ecs/zipper.h"
 
+#include <cstring>
+
 using namespace engn;
 
-static net::Packet create_end_packet(ecs::SparseArray<cpnt::Stats> const &stats);
+constexpr int k_boss_kill_to_win = 2;
+
+static net::Packet create_end_packet(const cpnt::Stats& stats, int boss_kill_to_win);
 
 void sys::server_end_game_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Player> const &players,
@@ -14,7 +18,18 @@ void sys::server_end_game_system(EngineContext &ctx,
 {
     static std::unordered_map<asio::ip::udp::endpoint, std::uint32_t> s_packets_sent;
     auto k_clients = ctx.get_clients();
-    std::lock_guard<std::mutex> lock(ctx.clients_mutex);
+    const cpnt::Stats* run_stats = nullptr;
+
+    for (const auto &[stat] : ecs::zipper(stats)) {
+        if (stat.has_value()) {
+            run_stats = &stat.value();
+            break;
+        }
+    }
+
+    if (run_stats == nullptr) {
+        return;
+    }
 
     if (k_clients.empty()) {
         if (s_packets_sent.empty()) {
@@ -29,18 +44,26 @@ void sys::server_end_game_system(EngineContext &ctx,
 
     if (players.size() == 0) return; // Game not rally started yet
 
+    const bool k_boss_goal_reached = run_stats->boss_killed >= k_boss_kill_to_win;
+    bool all_players_dead = true;
+
     for (const auto &[id, player, health] : ecs::indexed_zipper(players, healths)) {
         if (player.has_value() && health.has_value()) {
             if (health->hp > 0) {
-                return;
+                all_players_dead = false;
+                break;
             }
         }
     }
 
+    if (!all_players_dead && !k_boss_goal_reached) {
+        return;
+    }
+
     if (s_packets_sent.empty()) {
-        // Clients connected but no players left (everyone is dead)
+        // Clients connected and an endgame condition has been reached.
         for (auto &endpoint : k_clients) {
-            net::Packet paquet = create_end_packet(stats);
+            net::Packet paquet = create_end_packet(*run_stats, k_boss_kill_to_win);
 
             uint32_t id = ctx.network_session->send(paquet, endpoint, true);
             // Needs to be reliable to know when to stop server
@@ -64,7 +87,7 @@ void sys::server_end_game_system(EngineContext &ctx,
                 LOG_WARNING("Failed to send final results to a client ({}), retrying",
                     (status == net::DeliveryStatus::TimedOut ? "Timed Out" : "Failed"));
 
-                net::Packet paquet = create_end_packet(stats);
+                net::Packet paquet = create_end_packet(*run_stats, k_boss_kill_to_win);
                 uint32_t id = ctx.network_session->send(paquet, endpoint, true);
                 // Needs to be reliable to know when to stop server
                 s_packets_sent[endpoint] = id;
@@ -78,26 +101,20 @@ void sys::server_end_game_system(EngineContext &ctx,
     }
 }
 
-static net::Packet create_end_packet(ecs::SparseArray<cpnt::Stats> const &stats)
+static net::Packet create_end_packet(const cpnt::Stats& stats, int boss_kill_to_win)
 {
     net::Packet paquet;
-    int score = 0;
+    const SerializedComponent k_serialized_stats = stats.serialize();
+    const std::size_t k_payload_size = k_serialized_stats.data.size() + sizeof(boss_kill_to_win);
 
     paquet.header.m_command = static_cast<std::uint8_t>(net::CommandId::kGameEnded);
+    paquet.header.m_payload_size = static_cast<std::uint16_t>(k_payload_size);
+    paquet.payload = k_serialized_stats.data;
+    paquet.payload.resize(k_payload_size);
 
-    for (const auto &[stat] : ecs::zipper(stats)) {
-        if (stat.has_value()) {
-            score = stat->score;
-        }
-    }
-
-    if (score == 0) {
-        LOG_WARNING("Could not get endgame score, defaulting to 0: Stats component not found");
-    }
-
-    paquet.header.m_payload_size = sizeof(int);
-    auto *score_bytes = reinterpret_cast<std::byte *>(&score); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-    paquet.payload = std::vector<std::byte>(score_bytes, score_bytes + sizeof(int)); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::memcpy(paquet.payload.data() + k_serialized_stats.data.size(), &boss_kill_to_win, sizeof(boss_kill_to_win));
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     return paquet;
 }

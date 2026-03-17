@@ -162,6 +162,13 @@ void sys::server_boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> co
         if (boss_tag_opt && health_opt) {
             if (health_opt->hp <= 0) {
                 entity_to_kill.push_back(reg.entity_from_index(boss_idx));
+                auto& all_stats = reg.get_components<cpnt::Stats>();
+                for (auto [stats_idx, stats_opt] : ecs::indexed_zipper(all_stats)) {
+                    if (stats_opt) {
+                        all_stats[stats_idx]->boss_killed++;
+                        reg.mark_dirty<cpnt::Stats>(reg.entity_from_index(stats_idx));
+                    }
+                }
             }
         }
     }

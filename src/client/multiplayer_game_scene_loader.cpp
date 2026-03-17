@@ -16,6 +16,22 @@ using namespace engn;
 namespace {
 constexpr int k_rand_range = 1000;
 constexpr float k_rand_divisor = 1000.0f;
+
+bool parse_game_end_payload(const std::vector<std::byte>& payload, cpnt::Stats& stats, int& boss_kills_to_win) {
+    constexpr std::size_t k_payload_size = cpnt::Stats::kSerializedSize + sizeof(int);
+
+    if (payload.size() < k_payload_size) {
+        return false;
+    }
+
+    std::vector<std::byte> stats_payload(payload.begin(), payload.begin() + cpnt::Stats::kSerializedSize);
+    stats.deserialize(stats_payload);
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::memcpy(&boss_kills_to_win, payload.data() + cpnt::Stats::kSerializedSize, sizeof(boss_kills_to_win));
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return true;
+}
 } // namespace
 
 static float randf() {
@@ -38,6 +54,13 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
 
     engine_ctx.game_over_retry_scene = "lobby";
     engine_ctx.pending_game_over.store(false);
+    {
+        std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+        engine_ctx.pending_game_over_stats = cpnt::Stats{};
+        engine_ctx.pending_game_over_boss_kills_to_win = 0;
+        engine_ctx.game_over_stats = cpnt::Stats{};
+        engine_ctx.game_over_boss_kills_to_win = 0;
+    }
 
     auto& registry = engine_ctx.registry;
 
@@ -141,14 +164,19 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
         } else if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::kGameEnded)) {
-            if (pkt.payload.size() < sizeof(int)) {
+            cpnt::Stats final_stats;
+            int boss_kills_to_win = 0;
+
+            if (!parse_game_end_payload(pkt.payload, final_stats, boss_kills_to_win)) {
                 LOG_WARNING("Received malformed game over packet: payload too small ({})", pkt.payload.size());
                 return;
             }
 
-            int score = 0;
-            std::memcpy(&score, pkt.payload.data(), sizeof(score));
-            engine_ctx.pending_game_over_score.store(score);
+            {
+                std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+                engine_ctx.pending_game_over_stats = final_stats;
+                engine_ctx.pending_game_over_boss_kills_to_win = boss_kills_to_win;
+            }
             engine_ctx.pending_game_over.store(true);
         }
     });
@@ -218,12 +246,15 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     });
 
     engine_ctx.add_system<>([](engn::EngineContext& ctx) {
-        if (!ctx.pending_game_over.load()) {
+        if (!ctx.pending_game_over.exchange(false)) {
             return;
         }
 
-        ctx.game_over_score = ctx.pending_game_over_score.load();
-        ctx.pending_game_over.store(false);
+        {
+            std::lock_guard<std::mutex> lock(ctx.game_over_payload_mutex);
+            ctx.game_over_stats = ctx.pending_game_over_stats;
+            ctx.game_over_boss_kills_to_win = ctx.pending_game_over_boss_kills_to_win;
+        }
         ctx.set_scene("game_over");
     });
 

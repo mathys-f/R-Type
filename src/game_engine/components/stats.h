@@ -2,6 +2,8 @@
 
 #include "components/i_sync_component.h"
 
+#include <cstddef>
+
 namespace engn::cpnt {
 
 struct Stats : ISyncComponent {
@@ -11,11 +13,13 @@ struct Stats : ISyncComponent {
     int level{};
     int point_to_next_level{};
     bool boss_active{};
-    bool boss_killed{};
+    int boss_killed{};
+
+    static constexpr std::size_t kSerializedSize = sizeof(int) * 6 + sizeof(bool);
 
     Stats() = default;
     Stats(int score, int dmg, int kills, int level = 1, int point_to_next_level = 2500, bool boss_active = false,
-        bool boss_killed = false);
+        int boss_killed = 0);
 
     engn::SerializedComponent serialize() const override;
     void deserialize(const std::vector<std::byte>& data) override;
