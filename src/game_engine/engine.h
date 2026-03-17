@@ -135,6 +135,11 @@ class EngineContext {
 
     bool change_music = false;
 
+    std::atomic<bool> pending_game_over = false;
+    std::atomic<int> pending_game_over_score = 0;
+    int game_over_score = 0;
+    std::string game_over_retry_scene = "main_menu";
+
     std::string server_ip;
     std::uint16_t server_port;
 

@@ -23,6 +23,8 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
     constexpr float k_dist_min = 0.1f;
     constexpr float k_dist_max = 0.8f;
     engine_ctx.input_context = InputContext::Gameplay;
+    engine_ctx.game_over_retry_scene = "singleplayer_game";
+    engine_ctx.pending_game_over.store(false);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
     const int k_width = static_cast<int>(engine_ctx.window_size.x);

@@ -7,6 +7,7 @@
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
 
+#include <cstring>
 #include <iostream>
 #include <random>
 
@@ -34,6 +35,9 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     const int k_width = static_cast<int>(engine_ctx.window_size.x);
     const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+    engine_ctx.game_over_retry_scene = "lobby";
+    engine_ctx.pending_game_over.store(false);
 
     auto& registry = engine_ctx.registry;
 
@@ -136,6 +140,16 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
+        } else if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::kGameEnded)) {
+            if (pkt.payload.size() < sizeof(int)) {
+                LOG_WARNING("Received malformed game over packet: payload too small ({})", pkt.payload.size());
+                return;
+            }
+
+            int score = 0;
+            std::memcpy(&score, pkt.payload.data(), sizeof(score));
+            engine_ctx.pending_game_over_score.store(score);
+            engine_ctx.pending_game_over.store(true);
         }
     });
     
@@ -201,6 +215,16 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         if (engine_ctx.network_client) {
             engine_ctx.network_client->poll();
         }
+    });
+
+    engine_ctx.add_system<>([](engn::EngineContext& ctx) {
+        if (!ctx.pending_game_over.load()) {
+            return;
+        }
+
+        ctx.game_over_score = ctx.pending_game_over_score.load();
+        ctx.pending_game_over.store(false);
+        ctx.set_scene("game_over");
     });
 
     engine_ctx.add_system<>(handle_disconnect_ui_events);
