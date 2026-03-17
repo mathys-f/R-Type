@@ -12,11 +12,13 @@ ecs::Registry::Version ecs::Registry::get_current_version() const noexcept {
     return m_current_version;
 }
 
-const std::unordered_map<Registry::EntityType, Registry::Version>& ecs::Registry::get_entity_creation_tombstones() const noexcept {
+const std::unordered_map<Registry::EntityType, Registry::Version>&
+ecs::Registry::get_entity_creation_tombstones() const noexcept {
     return m_entity_creation_tumbstones;
 }
 
-const std::unordered_map<Registry::EntityType, Registry::Version>& ecs::Registry::get_entity_destruction_tombstones() const noexcept {
+const std::unordered_map<Registry::EntityType, Registry::Version>&
+ecs::Registry::get_entity_destruction_tombstones() const noexcept {
     return m_entity_destruction_tumbstones;
 }
 
@@ -43,8 +45,9 @@ void ecs::Registry::remove_entity_destruction_tombstone(EntityType const& e) {
 }
 
 void ecs::Registry::remove_component_destruction_tombstone(EntityType const& e, std::type_index const& ti) {
-    if (m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end()
-        && m_component_destruction_tombstones.find(e)->second.find(ti) != m_component_destruction_tombstones.find(e)->second.end()) {
+    if (m_component_destruction_tombstones.find(e) != m_component_destruction_tombstones.end() &&
+        m_component_destruction_tombstones.find(e)->second.find(ti) !=
+            m_component_destruction_tombstones.find(e)->second.end()) {
         m_component_destruction_tombstones.find(e)->second.erase(ti);
         remove_component_metadata(e, ti);
     }
@@ -124,8 +127,7 @@ void Registry::process_deferred_kills() {
     m_deferred_kills.clear();
 }
 
-std::unordered_map<std::type_index, std::any>
-ecs::Registry::get_entity_components(Entity entity) const noexcept {
+std::unordered_map<std::type_index, std::any> ecs::Registry::get_entity_components(Entity entity) const noexcept {
     std::unordered_map<std::type_index, std::any> entity_components;
 
     // Iterate through all registered component types and extract components for this entity

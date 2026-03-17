@@ -1,21 +1,22 @@
 #include "components/boss_hitbox.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-BossHitbox::BossHitbox(float width_1, float height_1, float offset_x_1, float offset_y_1, 
-                       float width_2, float height_2, float offset_x_2, float offset_y_2,
-                       float width_3, float height_3, float offset_x_3, float offset_y_3)
-    : width_1(width_1), height_1(height_1), offset_x_1(offset_x_1), offset_y_1(offset_y_1),
-      width_2(width_2), height_2(height_2), offset_x_2(offset_x_2), offset_y_2(offset_y_2),
-      width_3(width_3), height_3(height_3), offset_x_3(offset_x_3), offset_y_3(offset_y_3) {}
+BossHitbox::BossHitbox(float width_1, float height_1, float offset_x_1, float offset_y_1, float width_2, float height_2,
+                       float offset_x_2, float offset_y_2, float width_3, float height_3, float offset_x_3,
+                       float offset_y_3)
+    : width_1(width_1), height_1(height_1), offset_x_1(offset_x_1), offset_y_1(offset_y_1), width_2(width_2),
+      height_2(height_2), offset_x_2(offset_x_2), offset_y_2(offset_y_2), width_3(width_3), height_3(height_3),
+      offset_x_3(offset_x_3), offset_y_3(offset_y_3) {}
 
 engn::SerializedComponent BossHitbox::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::boss_hitbox;
+    serialized.type = engn::ComponentType::BossHitbox;
     const std::uint16_t k_total_size = sizeof(width_1) + sizeof(height_1) + sizeof(offset_x_1) + sizeof(offset_y_1) +
-                      sizeof(width_2) + sizeof(height_2) + sizeof(offset_x_2) + sizeof(offset_y_2) +
-                      sizeof(width_3) + sizeof(height_3) + sizeof(offset_x_3) + sizeof(offset_y_3);
+                                       sizeof(width_2) + sizeof(height_2) + sizeof(offset_x_2) + sizeof(offset_y_2) +
+                                       sizeof(width_3) + sizeof(height_3) + sizeof(offset_x_3) + sizeof(offset_y_3);
     serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)

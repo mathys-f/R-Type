@@ -8,32 +8,45 @@
 #include "events/events.h"
 #include "events/ui_events.h"
 #include "lua_context.h"
+#include "network_client.h"
+#include "networking/rtp/networking.h"
+#include "snapshots.h"
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <mutex>
-#include <unordered_map>
 
 #include "glm/vec2.hpp"
 #include "sol/sol.hpp"
 
-#include "networking/rtp/networking.h"
-
-#include "assets_manager.h"
-#include "ecs/registry.h"
-#include "events/event_queue.h"
-#include "events/events.h"
-#include "events/ui_events.h"
-#include "lua_context.h"
-#include "snapshots.h"
-#include "network_client.h"
-
-#define SNAPSHOT_HISTORY_SIZE 96 // 3 secs at 32 tps
-
 namespace engn {
+
+inline constexpr std::size_t k_snapshot_history_size = 96; // 3 secs at 32 tps
+inline constexpr float k_default_window_width = 1080.0f;
+inline constexpr float k_default_window_height = 720.0f;
+inline constexpr float k_default_sim_width = 1920.0f;
+inline constexpr float k_default_sim_height = 1080.0f;
+inline constexpr std::size_t k_default_scroll_speed = 5;
+inline constexpr std::size_t k_default_particle_count = 3;
+inline constexpr std::size_t k_default_star_count = 1000;
+inline constexpr std::size_t k_default_max_charger = 5;
+inline constexpr std::size_t k_default_max_shooter = 2;
+inline constexpr float k_default_shooter_base_speed = 3.0f;
+inline constexpr float k_default_shooter_speed_variance = 5.0f;
+inline constexpr int k_default_shooter_health = 3;
+inline constexpr int k_default_spawn_margin = 100;
+inline constexpr float k_default_enemy_base_speed = 3.0f;
+inline constexpr float k_default_enemy_speed_variance = 5.0f;
+inline constexpr int k_default_enemy_health = 3;
+inline constexpr float k_default_pattern_speed_variance = 3.0f;
+inline constexpr int k_default_pattern_amplitude_max = 10;
+inline constexpr int k_default_player_health = 100;
+inline constexpr int k_default_master_volume = 100;
+inline constexpr int k_default_music_volume = 100;
+inline constexpr int k_default_sfx_volume = 100;
 
 class EngineContext {
   public:
@@ -53,7 +66,7 @@ class EngineContext {
 
     // Single event queue for local/client input
     evts::EventQueue<evts::Event> input_event_queue;
-    // Per-player event queues for server (indexed by player IP address)
+    // Per-Player event queues for server (indexed by Player IP address)
     std::mutex player_input_queues_mutex;
     std::unordered_map<asio::ip::udp::endpoint, evts::EventQueue<evts::Event>> player_input_queues;
     std::unordered_map<std::uint8_t, asio::ip::udp::endpoint> player_id_to_endpoint;
@@ -66,29 +79,29 @@ class EngineContext {
     std::unique_ptr<LuaContext> lua_ctx;
     AssetsManager assets_manager;
 
-    glm::vec2 window_size{1080.0f, 720.0f};
-    glm::vec2 k_sim_size{1920.0f, 1080.0f};
+    glm::vec2 window_size{k_default_window_width, k_default_window_height};
+    glm::vec2 k_sim_size{k_default_sim_width, k_default_sim_height};
 
     const size_t k_max_bullets = 200;
 
     // Graphics settings (modifiable at runtime via pause menu)
-    size_t k_scroll_speed = 5;
-    size_t k_particles = 3;
-    size_t k_stars = 1000;
+    size_t k_scroll_speed = k_default_scroll_speed;
+    size_t k_particles = k_default_particle_count;
+    size_t k_stars = k_default_star_count;
 
     // Difficulty settings (adjustable in main menu)
-    size_t k_max_charger = 5;
-    size_t k_max_shooter = 2;
-    float k_shooter_base_speed = 3.0f;
-    float k_shooter_speed_variance = 5.0f;
-    int k_shooter_health = 3;
-    int k_spawn_margin = 100;
-    float k_enemy_base_speed = 3.0f;
-    float k_enemy_speed_variance = 5.0f;
-    int k_enemy_health = 3;
-    float k_pattern_speed_variance = 3.0f;
-    int k_pattern_amplitude_max = 10;
-    int k_player_health = 100;
+    size_t k_max_charger = k_default_max_charger;
+    size_t k_max_shooter = k_default_max_shooter;
+    float k_shooter_base_speed = k_default_shooter_base_speed;
+    float k_shooter_speed_variance = k_default_shooter_speed_variance;
+    int k_shooter_health = k_default_shooter_health;
+    int k_spawn_margin = k_default_spawn_margin;
+    float k_enemy_base_speed = k_default_enemy_base_speed;
+    float k_enemy_speed_variance = k_default_enemy_speed_variance;
+    int k_enemy_health = k_default_enemy_health;
+    float k_pattern_speed_variance = k_default_pattern_speed_variance;
+    int k_pattern_amplitude_max = k_default_pattern_amplitude_max;
+    int k_player_health = k_default_player_health;
 
     std::shared_ptr<net::Session> network_session;
     std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
@@ -101,7 +114,7 @@ class EngineContext {
     std::vector<asio::ip::udp::endpoint> get_clients();
 
     std::mutex snapshots_history_mutex;
-    void record_snapshot(SnapshotRecord &snapshot);
+    void record_snapshot(SnapshotRecord& snapshot);
     SnapshotRecord get_latest_snapshot(asio::ip::udp::endpoint endpoint);
     SnapshotRecord get_latest_acknowledged_snapshot(asio::ip::udp::endpoint endpoint);
 
@@ -109,9 +122,9 @@ class EngineContext {
     std::unordered_map<asio::ip::udp::endpoint, std::vector<SnapshotRecord>>& get_snapshots_history();
     bool update_latest_snapshot_msg_id(asio::ip::udp::endpoint endpoint, std::uint32_t msg_id);
 
-    void add_snapshot_delta(WorldDelta &delta);
+    void add_snapshot_delta(WorldDelta& delta);
     /// After being run, will send back ACKs to the server and clear the deltas list
-    void for_each_snapshot_delta(std::function<void(EngineContext &ctx, const WorldDelta&)> func);
+    void for_each_snapshot_delta(std::function<void(EngineContext& ctx, const WorldDelta&)> func);
 
     InputContext input_context = InputContext::Gameplay;
     InputState input_state;
@@ -124,12 +137,12 @@ class EngineContext {
     bool confirm_enter_rebind = false;
     bool skip_next_gamepad_rebind_input = false;
     std::string settings_return_scene = "";
-    int master_volume = 100;
-    int music_volume = 100;
-    int sfx_volume = 100;
-    int last_master_volume = 100;
-    int last_music_volume = 100;
-    int last_sfx_volume = 100;
+    int master_volume = k_default_master_volume;
+    int music_volume = k_default_music_volume;
+    int sfx_volume = k_default_sfx_volume;
+    int last_master_volume = k_default_master_volume;
+    int last_music_volume = k_default_music_volume;
+    int last_sfx_volume = k_default_sfx_volume;
     bool master_muted = false;
     bool music_muted = false;
     bool sfx_muted = false;
@@ -148,12 +161,12 @@ class EngineContext {
     std::uint16_t server_port;
 
     class BackendAPIClient* backend_api_client = nullptr; // Backend sync (server-side only)
-    std::uint32_t current_lobby_id = 0; // Current lobby ID for backend sync
+    std::uint32_t current_lobby_id = 0;                   // Current lobby ID for backend sync
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
-    void add_scene_loader(const std::string &scene_name, std::function<void(EngineContext&)> loader);
-    void set_scene(const std::string &scene_name);
-    const std::string &get_current_scene() const;
+    void add_scene_loader(const std::string& scene_name, std::function<void(EngineContext&)> loader);
+    void set_scene(const std::string& scene_name);
+    const std::string& get_current_scene() const;
 
     std::size_t get_current_tick() const;
 

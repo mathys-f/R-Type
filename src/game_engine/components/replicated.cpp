@@ -1,14 +1,14 @@
 #include "components/replicated.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Replicated::Replicated(std::uint32_t tag, size_t last_update_tick)
-    : tag(tag), last_update_tick(last_update_tick) {}
+Replicated::Replicated(std::uint32_t tag, size_t last_update_tick) : tag(tag), last_update_tick(last_update_tick) {}
 
 engn::SerializedComponent Replicated::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::replicated;
+    serialized.type = engn::ComponentType::Replicated;
     std::uint32_t size = sizeof(tag) + sizeof(last_update_tick);
     serialized.data.resize(size);
 

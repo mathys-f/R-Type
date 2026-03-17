@@ -1,22 +1,20 @@
+#include "ecs/zipper.h"
+#include "game_engine/engine.h"
 #include "systems/systems.h"
 
 #include <mutex>
 
-#include "ecs/zipper.h"
-#include "game_engine/engine.h"
-
 using namespace engn;
 
-/// Create & deletes player entities based on connected clients
-/// Also manages player ID assignments
-void sys::server_update_player_entities_system(EngineContext &ctx,
-    ecs::SparseArray<cpnt::Player> const& players) {
+/// Create & deletes Player entities based on connected clients
+/// Also manages Player ID assignments
+void sys::server_update_player_entities_system(EngineContext& ctx, ecs::SparseArray<cpnt::Player> const& players) {
     std::lock_guard<std::mutex> lock_a(ctx.player_input_queues_mutex);
-    auto &reg = ctx.registry;
+    auto& reg = ctx.registry;
     auto clients = ctx.get_clients();
 
-    // Create new player for each client who doesn't have one yet
-    for (const auto &client : clients) {
+    // Create new Player for each client who doesn't have one yet
+    for (const auto& client : clients) {
         std::uint8_t player_id = 0;
         bool found_id = false;
 
@@ -29,7 +27,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
             }
         }
 
-        // Otherwise find the next available player ID
+        // Otherwise find the next available Player ID
         if (!found_id) {
             for (std::uint8_t id = 0; id < ctx.k_player_count; ++id) {
                 if (ctx.player_id_to_endpoint.find(id) == ctx.player_id_to_endpoint.end()) {
@@ -53,7 +51,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
             continue;
         }
 
-        // Skip if the player entity already exists for this id
+        // Skip if the Player entity already exists for this id
         bool already_spawned = false;
         for (const auto& [entity_id, player_opt] : ecs::indexed_zipper(players)) {
             if (player_opt && player_opt->id == player_id) {
@@ -66,7 +64,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
             continue;
         }
 
-        // Create player's entity
+        // Create Player's entity
         constexpr float k_ship_sprite_x = 166.0f;
         constexpr float k_ship_sprite_y = 0.0f;
         constexpr float k_ship_width = 33.0f;
@@ -80,28 +78,22 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
 
         Rectangle ship_source_rect = {k_ship_sprite_x, k_ship_sprite_y, k_ship_width, k_ship_height};
 
-
         auto player = ctx.registry.spawn_entity();
-        ctx.registry.add_component(
-            player, cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
+        ctx.registry.add_component(player,
+                                   cpnt::Transform{(float)k_width / 2, (float)k_height / 2, 0, 0, 0, 0, 0, 0, 1, 1, 1});
         cpnt::Player player_cpnt;
         player_cpnt.id = player_id;
         ctx.registry.add_component(player, std::move(player_cpnt));
         ctx.registry.add_component(player, cpnt::Health{ctx.k_player_health, ctx.k_player_health});
         ctx.registry.add_component(player, cpnt::Velocity{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
         ctx.registry.add_component(player,
-            cpnt::Hitbox{ k_ship_width  * k_ship_scale / 2,
-            k_ship_height * k_ship_scale / 2,
-            ship_source_rect.height / 3,
-            ship_source_rect.width / 3}
-        );
+                                   cpnt::Hitbox{k_ship_width * k_ship_scale / 2, k_ship_height * k_ship_scale / 2,
+                                                ship_source_rect.height / 3, ship_source_rect.width / 3});
         ctx.registry.add_component(player, cpnt::Replicated{static_cast<std::uint32_t>(player)});
         ctx.registry.add_component(player, cpnt::EntityType{"player"});
     }
 
-
-
-    // Remove player entities for disconnected clients
+    // Remove Player entities for disconnected clients
     std::vector<std::uint8_t> disconnected_player_ids;
     for (const auto& [player_id, endpoint] : ctx.player_id_to_endpoint)
         if (std::find(clients.begin(), clients.end(), endpoint) == clients.end())
@@ -113,7 +105,7 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
         ctx.player_input_queues.erase(endpoint);
         ctx.dead_player_ids.erase(player_id);
 
-        // Remove the player's entity
+        // Remove the Player's entity
         for (auto [idx, player_opt] : ecs::indexed_zipper(players)) {
             if (player_opt && player_opt->id == player_id) {
                 auto entity = reg.entity_from_index(idx);
@@ -122,5 +114,4 @@ void sys::server_update_player_entities_system(EngineContext &ctx,
             }
         }
     }
-
 }

@@ -53,9 +53,8 @@ void handle_difficulty_settings_menu_ui_events(engn::EngineContext& engine_ctx) 
     const evts::ControllerButtonPressed* pad_evt =
         engine_ctx.input_event_queue.get_last<evts::ControllerButtonPressed>();
     const bool k_escape_pressed = key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape;
-    const bool k_pause_pressed =
-        pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
-                    pad_evt->button == evts::ControllerButton::ControllerButtonBack);
+    const bool k_pause_pressed = pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
+                                             pad_evt->button == evts::ControllerButton::ControllerButtonBack);
     if (k_escape_pressed || k_pause_pressed) {
         engine_ctx.set_scene("main_menu");
         return;
@@ -128,22 +127,22 @@ static void update_difficulty_text(EngineContext& ctx) {
         ctx.k_max_shooter = k_max_shooter_min;
     if (ctx.k_max_shooter > k_max_shooter_max)
         ctx.k_max_shooter = k_max_shooter_max;
-    
+
     if (ctx.k_max_charger < k_max_charger_min)
         ctx.k_max_charger = k_max_charger_min;
     if (ctx.k_max_charger > k_max_charger_max)
         ctx.k_max_charger = k_max_charger_max;
-    
+
     if (ctx.k_enemy_health < k_enemy_health_min)
         ctx.k_enemy_health = k_enemy_health_min;
     if (ctx.k_enemy_health > k_enemy_health_max)
         ctx.k_enemy_health = k_enemy_health_max;
-    
+
     if (ctx.k_enemy_base_speed < k_enemy_speed_min)
         ctx.k_enemy_base_speed = k_enemy_speed_min;
     if (ctx.k_enemy_base_speed > k_enemy_speed_max)
         ctx.k_enemy_base_speed = k_enemy_speed_max;
-    
+
     if (ctx.k_player_health < k_player_health_min)
         ctx.k_player_health = k_player_health_min;
     if (ctx.k_player_health > k_player_health_max)
@@ -162,37 +161,37 @@ static void update_difficulty_text(EngineContext& ctx) {
 }
 
 static void apply_preset_easy(EngineContext& ctx) {
-    ctx.k_max_charger = 3; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_max_shooter = 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_base_speed = 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_charger = 3;               // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_shooter = 2;               // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_base_speed = 2.0f;     // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_speed_variance = 3.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_health = 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_base_speed = 2.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_speed_variance = 3.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_health = 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_player_health = 150; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_health = 2;            // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_base_speed = 2.0f;       // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_speed_variance = 3.0f;   // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_health = 2;              // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_player_health = 150;           // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 }
 
 static void apply_preset_normal(EngineContext& ctx) {
-    ctx.k_max_charger = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_max_shooter = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_base_speed = 3.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_charger = 5;               // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_shooter = 5;               // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_base_speed = 3.0f;     // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_speed_variance = 5.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_health = 3; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_base_speed = 3.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_speed_variance = 5.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_health = 3; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_player_health = 100; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_health = 3;            // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_base_speed = 3.0f;       // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_speed_variance = 5.0f;   // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_health = 3;              // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_player_health = 100;           // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 }
 
 static void apply_preset_hard(EngineContext& ctx) {
-    ctx.k_max_charger = 8; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_max_shooter = 10; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_base_speed = 5.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_charger = 8;               // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_max_shooter = 10;              // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_base_speed = 5.0f;     // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     ctx.k_shooter_speed_variance = 7.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_shooter_health = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_base_speed = 5.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_speed_variance = 7.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_enemy_health = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    ctx.k_player_health = 50; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_shooter_health = 5;            // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_base_speed = 5.0f;       // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_speed_variance = 7.0f;   // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_enemy_health = 5;              // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    ctx.k_player_health = 50;            // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 }

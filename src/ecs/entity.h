@@ -56,8 +56,7 @@ class Entity {
 } // namespace ecs
 
 // Hash specialization for Entity to make it usable in std::unordered_map
-template <>
-struct std::hash<ecs::Entity> {
+template <> struct std::hash<ecs::Entity> {
     std::size_t operator()(const ecs::Entity& entity) const noexcept {
         return std::hash<ecs::Entity::IdType>{}(entity.value());
     }

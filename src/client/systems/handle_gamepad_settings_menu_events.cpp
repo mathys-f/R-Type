@@ -17,11 +17,12 @@ void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
 
     bool switched_scene = false;
     bool any_button_clicked = false;
-    evts.for_each<evts::UIButtonClicked>([&engine_ctx, &switched_scene, &any_button_clicked](const evts::UIButtonClicked& evt) {
-        any_button_clicked = true;
-        if (handle_ui_button_clicked(engine_ctx, evt))
-            switched_scene = true;
-    });
+    evts.for_each<evts::UIButtonClicked>(
+        [&engine_ctx, &switched_scene, &any_button_clicked](const evts::UIButtonClicked& evt) {
+            any_button_clicked = true;
+            if (handle_ui_button_clicked(engine_ctx, evt))
+                switched_scene = true;
+        });
     if (switched_scene)
         return;
 
@@ -29,9 +30,8 @@ void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
     const evts::ControllerButtonPressed* pad_evt =
         engine_ctx.input_event_queue.get_last<evts::ControllerButtonPressed>();
     const bool k_escape_pressed = key_evt && key_evt->keycode == evts::KeyboardKeyCode::KeyEscape;
-    const bool k_pause_pressed =
-        pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
-                    pad_evt->button == evts::ControllerButton::ControllerButtonBack);
+    const bool k_pause_pressed = pad_evt && (pad_evt->button == evts::ControllerButton::ControllerButtonStart ||
+                                             pad_evt->button == evts::ControllerButton::ControllerButtonBack);
     if (k_escape_pressed || k_pause_pressed) {
         if (engine_ctx.settings_return_scene != "") {
             engine_ctx.pending_gamepad_rebind = GamepadControlAction::None;
@@ -75,8 +75,7 @@ void handle_gamepad_settings_menu_events(engn::EngineContext& engine_ctx) {
         }
     }
 
-    const evts::MouseButtonReleased* mouse_evt =
-        engine_ctx.input_event_queue.get_last<evts::MouseButtonReleased>();
+    const evts::MouseButtonReleased* mouse_evt = engine_ctx.input_event_queue.get_last<evts::MouseButtonReleased>();
     if (mouse_evt && mouse_evt->button == evts::MouseButton::MouseButtonLeft && !any_button_clicked) {
         engine_ctx.confirm_gamepad_reset = false;
     }
@@ -162,24 +161,42 @@ static bool handle_ui_button_clicked(EngineContext& ctx, const evts::UIButtonCli
 
 static const char* button_to_label(evts::ControllerButton button) {
     switch (button) {
-        case evts::ControllerButton::ControllerButtonSouth: return "South";
-        case evts::ControllerButton::ControllerButtonEast: return "East";
-        case evts::ControllerButton::ControllerButtonWest: return "West";
-        case evts::ControllerButton::ControllerButtonNorth: return "North";
-        case evts::ControllerButton::ControllerButtonLeftShoulder: return "LB";
-        case evts::ControllerButton::ControllerButtonRightShoulder: return "RB";
-        case evts::ControllerButton::ControllerButtonLeftTrigger: return "LT";
-        case evts::ControllerButton::ControllerButtonRightTrigger: return "RT";
-        case evts::ControllerButton::ControllerButtonBack: return "Back";
-        case evts::ControllerButton::ControllerButtonStart: return "Start";
-        case evts::ControllerButton::ControllerButtonHome: return "Home";
-        case evts::ControllerButton::ControllerButtonDpadUp: return "Dpad Up";
-        case evts::ControllerButton::ControllerButtonDpadDown: return "Dpad Down";
-        case evts::ControllerButton::ControllerButtonDpadLeft: return "Dpad Left";
-        case evts::ControllerButton::ControllerButtonDpadRight: return "Dpad Right";
-        case evts::ControllerButton::ControllerButtonLeftStick: return "L3";
-        case evts::ControllerButton::ControllerButtonRightStick: return "R3";
-        case evts::ControllerButton::ControllerButtonUnknown: return "Unbound";
+        case evts::ControllerButton::ControllerButtonSouth:
+            return "South";
+        case evts::ControllerButton::ControllerButtonEast:
+            return "East";
+        case evts::ControllerButton::ControllerButtonWest:
+            return "West";
+        case evts::ControllerButton::ControllerButtonNorth:
+            return "North";
+        case evts::ControllerButton::ControllerButtonLeftShoulder:
+            return "LB";
+        case evts::ControllerButton::ControllerButtonRightShoulder:
+            return "RB";
+        case evts::ControllerButton::ControllerButtonLeftTrigger:
+            return "LT";
+        case evts::ControllerButton::ControllerButtonRightTrigger:
+            return "RT";
+        case evts::ControllerButton::ControllerButtonBack:
+            return "Back";
+        case evts::ControllerButton::ControllerButtonStart:
+            return "Start";
+        case evts::ControllerButton::ControllerButtonHome:
+            return "Home";
+        case evts::ControllerButton::ControllerButtonDpadUp:
+            return "Dpad Up";
+        case evts::ControllerButton::ControllerButtonDpadDown:
+            return "Dpad Down";
+        case evts::ControllerButton::ControllerButtonDpadLeft:
+            return "Dpad Left";
+        case evts::ControllerButton::ControllerButtonDpadRight:
+            return "Dpad Right";
+        case evts::ControllerButton::ControllerButtonLeftStick:
+            return "L3";
+        case evts::ControllerButton::ControllerButtonRightStick:
+            return "R3";
+        case evts::ControllerButton::ControllerButtonUnknown:
+            return "Unbound";
     }
     return "Unbound";
 }
@@ -215,18 +232,25 @@ static void sync_settings_texts(EngineContext& ctx) {
     set_text_if_exists(ctx, "gamepad_mapping_move_up", format_binding("Move Up", ctx.gamepad_controls.move_up));
     set_text_if_exists(ctx, "gamepad_mapping_move_down", format_binding("Move Down", ctx.gamepad_controls.move_down));
     set_text_if_exists(ctx, "gamepad_mapping_move_left", format_binding("Move Left", ctx.gamepad_controls.move_left));
-    set_text_if_exists(ctx, "gamepad_mapping_move_right", format_binding("Move Right", ctx.gamepad_controls.move_right));
+    set_text_if_exists(ctx, "gamepad_mapping_move_right",
+                       format_binding("Move Right", ctx.gamepad_controls.move_right));
     set_text_if_exists(ctx, "gamepad_mapping_shoot", format_binding("Shoot", ctx.gamepad_controls.shoot));
 }
 
 static const char* action_to_label(GamepadControlAction action) {
     switch (action) {
-        case GamepadControlAction::MoveUp: return "Move Up";
-        case GamepadControlAction::MoveDown: return "Move Down";
-        case GamepadControlAction::MoveLeft: return "Move Left";
-        case GamepadControlAction::MoveRight: return "Move Right";
-        case GamepadControlAction::Shoot: return "Shoot";
-        case GamepadControlAction::None: return "";
+        case GamepadControlAction::MoveUp:
+            return "Move Up";
+        case GamepadControlAction::MoveDown:
+            return "Move Down";
+        case GamepadControlAction::MoveLeft:
+            return "Move Left";
+        case GamepadControlAction::MoveRight:
+            return "Move Right";
+        case GamepadControlAction::Shoot:
+            return "Shoot";
+        case GamepadControlAction::None:
+            return "";
     }
     return "";
 }

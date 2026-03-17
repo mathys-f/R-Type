@@ -28,7 +28,7 @@ struct ReqLogout {
 // Build a REQ_LOGIN packet containing username, protocol version and preferred fragment size.
 Packet make_req_login(const ReqLogin& req);
 
-// Build a RES_LOGIN packet containing success, player id and the negotiated fragment size.
+// Build a RES_LOGIN packet containing success, Player id and the negotiated fragment size.
 Packet make_res_login(const ResLogin& res);
 
 // Build a REQ_LOGOUT packet to notify server of disconnect

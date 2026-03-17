@@ -6,6 +6,8 @@
 
 namespace engn::cpnt {
 
+inline constexpr int k_default_point_to_next_level = 2500;
+
 struct Stats : ISyncComponent {
     int score{};
     int dmg{};
