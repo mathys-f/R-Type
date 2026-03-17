@@ -257,6 +257,7 @@ namespace engn::cpnt {
 In this example thecomponent bullet is defined with:
 - The constructor `Bullet()`
 - The functions `serialize()` and `deserialize()`
+- Inherit the `cpnt` class
 
 The two functions `serialize()` and `deserialize()` are used when components need to be synchronised between all the players; for example, the components `Star` would look like this:
 ```cpp
@@ -268,6 +269,54 @@ namespace engn::cpnt {
 }
 ```
 These components don't need to be synchronised between the players.
+
+Here is how you should defines the `serialize()` and `deserialize()` function:
+
+```cpp
+engn::SerializedComponent Bullet::serialize() const {
+    engn::SerializedComponent serialized;
+    serialized.type = engn::ComponentType::bullet;
+    serialized.data = {};
+    return serialized;
+}
+
+void Bullet::deserialize(const std::vector<std::byte>& data) {
+
+}
+```
+
+:::info
+
+For other components that have variable stored in them you should defines them like this:
+For a components `Health` with variable `hp` and `max_hp`
+
+```cpp
+engn::SerializedComponent Health::serialize() const {
+    engn::SerializedComponent serialized;
+    serialized.type = engn::ComponentType::health;
+    std::uint32_t size = sizeof(hp) + sizeof(max_hp);
+    serialized.data.resize(size);
+
+    std::size_t offset = 0;
+    std::memcpy(serialized.data.data() + offset, &hp, sizeof(hp));
+    offset += sizeof(hp);
+    std::memcpy(serialized.data.data() + offset, &max_hp, sizeof(max_hp));
+    return serialized;
+}
+
+void Health::deserialize(const std::vector<std::byte>& data) {
+    std::uint16_t size = sizeof(hp) + sizeof(max_hp);
+
+    if (data.size() >= size) {
+        std::size_t offset = 0;
+        std::memcpy(&hp, data.data() + offset, sizeof(hp));
+        offset += sizeof(hp);
+        std::memcpy(&max_hp, data.data() + offset, sizeof(max_hp));
+    }
+}
+```
+
+:::
 
 ### Add components to the scene
 
