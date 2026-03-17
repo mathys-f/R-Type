@@ -326,7 +326,7 @@ void Health::deserialize(const std::vector<std::byte>& data) {
 
 ### Add components to the scene
 
-In the function that creates your scene, create your scene create youre registry with this line:
+In each scene loader the registry is reset, so you need to use this line to have access to a new registry.
 
 ```cpp 
 auto& my_registry = my_engine_ctx.registry;
