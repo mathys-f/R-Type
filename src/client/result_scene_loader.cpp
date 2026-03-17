@@ -14,7 +14,8 @@
 using namespace engn;
 
 namespace {
-const std::string k_script_file = "scripts/lua/ui/game_over.lua";
+const std::string k_lost_script_file = "scripts/lua/ui/game_over_lost.lua";
+const std::string k_won_script_file = "scripts/lua/ui/game_over_won.lua";
 constexpr int k_rand_range = 1000;
 constexpr float k_rand_divisor = 1000.0f;
 constexpr int k_score_padding = 6;
@@ -42,6 +43,8 @@ static void set_text_if_exists(EngineContext& ctx, const char* tag, const std::s
 void load_game_over_scene(engn::EngineContext& engine_ctx) {
     auto& reg = engine_ctx.registry;
     engine_ctx.input_context = InputContext::Menu;
+    const bool k_has_boss_target = engine_ctx.game_over_boss_kills_to_win > 0;
+    const bool k_won_game = k_has_boss_target && engine_ctx.game_over_stats.boss_killed >= engine_ctx.game_over_boss_kills_to_win;
 
     reg.register_component<cpnt::Transform>();
     reg.register_component<cpnt::Sprite>();
@@ -61,7 +64,7 @@ void load_game_over_scene(engn::EngineContext& engine_ctx) {
     reg.register_component<cpnt::Star>();
     reg.register_component<cpnt::Stats>();
 
-    engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_script_file);
+    engn::lua::load_lua_script_from_file(engine_ctx.lua_ctx->get_lua_state(), k_won_game ? k_won_script_file : k_lost_script_file);
 
     engine_ctx.add_system<>(sys::fetch_inputs);
     // engine_ctx.add_system<>(sys::log_inputs);
@@ -78,13 +81,19 @@ void load_game_over_scene(engn::EngineContext& engine_ctx) {
     std::ostringstream score_stream;
     score_stream << std::setw(k_score_padding) << std::setfill('0') << engine_ctx.game_over_stats.score;
     set_text_if_exists(engine_ctx, "score_value", score_stream.str());
+    set_text_if_exists(engine_ctx, "dmg_value", std::to_string(engine_ctx.game_over_stats.dmg));
+    set_text_if_exists(engine_ctx, "kills_value", std::to_string(engine_ctx.game_over_stats.kills));
+    set_text_if_exists(engine_ctx, "level_value", std::to_string(engine_ctx.game_over_stats.level));
 
-    if (engine_ctx.game_over_boss_kills_to_win > 0) {
-        std::ostringstream boss_stream;
-        boss_stream << "Bosses defeated " << engine_ctx.game_over_stats.boss_killed << " / "
-                    << engine_ctx.game_over_boss_kills_to_win;
-        set_text_if_exists(engine_ctx, "continue_hint", boss_stream.str());
+    std::ostringstream boss_stream;
+    if (k_has_boss_target) {
+        boss_stream << engine_ctx.game_over_stats.boss_killed << " / " << engine_ctx.game_over_boss_kills_to_win;
+    } else {
+        boss_stream << engine_ctx.game_over_stats.boss_killed << " / 0";
     }
+    set_text_if_exists(engine_ctx, "boss_killed_value", boss_stream.str());
+
+    set_text_if_exists(engine_ctx, "continue_hint", k_won_game ? "Victory condition reached" : "Run ended before boss objective");
 
     const int k_width = static_cast<int>(engine_ctx.window_size.x); // NOLINT(cppcoreguidelines-pro-type-union-access)
     const int k_height =
