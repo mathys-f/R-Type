@@ -224,6 +224,7 @@ Packet make_req_join_lobby(const ReqJoinLobby& req) {
     packet.header.m_flags = 0;
 
     append_u32_le(packet.payload, req.m_lobby_id);
+    append_string(packet.payload, req.m_player_name, k_max_player_name_len);
 
     return packet;
 }
@@ -238,8 +239,25 @@ std::optional<ReqJoinLobby> parse_req_join_lobby(const Packet& packet) {
         return std::nullopt;
     }
 
+    std::size_t offset = 0;
     ReqJoinLobby result{};
-    result.m_lobby_id = read_u32_le(buf, 0);
+    result.m_lobby_id = read_u32_le(buf, offset);
+    offset += 4;
+
+    // Backward compatible: old clients send only lobby_id.
+    if (offset < buf.size()) {
+        std::uint8_t name_len = read_u8(buf, offset);
+        offset++;
+
+        if (offset + name_len > buf.size()) {
+            return std::nullopt;
+        }
+
+        result.m_player_name.reserve(name_len);
+        for (std::size_t i = 0; i < name_len; ++i) {
+            result.m_player_name.push_back(static_cast<char>(static_cast<unsigned char>(buf[offset + i])));
+        }
+    }
 
     return result;
 }
