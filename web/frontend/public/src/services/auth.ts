@@ -14,8 +14,13 @@ export type LeaderboardEntry = {
 	score: number;
 };
 
-type RegisterPayload = { email: string; password: string; username: string };
-type LoginPayload = { email: string; password: string };
+export type GlobalLeaderboardEntry = {
+	playerName: string;
+	matchesPlayed: number;
+	kills: number;
+	deaths: number;
+	score: number;
+};
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
@@ -36,20 +41,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	return data as T;
 }
 
-export async function registerAccount(payload: RegisterPayload) {
-	return request<{ token: string; user: { username: string } }>('/api/auth/register', {
-		method: 'POST',
-		body: JSON.stringify(payload),
-	});
-}
-
-export async function loginAccount(payload: LoginPayload) {
-	return request<{ token: string; user: { username: string } }>('/api/auth/login', {
-		method: 'POST',
-		body: JSON.stringify(payload),
-	});
-}
-
 export async function getLobbies(): Promise<Lobby[]> {
 	const res = await request<{ lobbies: Lobby[] }>('/api/game/lobbies');
 	return res.lobbies || [];
@@ -57,6 +48,13 @@ export async function getLobbies(): Promise<Lobby[]> {
 
 export async function getLobbyLeaderboard(lobbyId: number): Promise<LeaderboardEntry[]> {
 	const res = await request<{ leaderboard: LeaderboardEntry[] }>(`/api/game/lobby/${lobbyId}/leaderboard`);
+	return res.leaderboard || [];
+}
+
+export async function getGlobalLeaderboard(limit = 20): Promise<GlobalLeaderboardEntry[]> {
+	const res = await request<{ leaderboard: GlobalLeaderboardEntry[] }>(
+		`/api/game/leaderboard/global?limit=${limit}`,
+	);
 	return res.leaderboard || [];
 }
 
