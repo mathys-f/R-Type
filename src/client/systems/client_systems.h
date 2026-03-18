@@ -21,3 +21,4 @@ void send_input_system(engn::EngineContext& ctx);
 void handle_graphics_settings_menu_ui_events(engn::EngineContext& ctx);
 void handle_difficulty_settings_menu_ui_events(engn::EngineContext& ctx);
 void handle_disconnect_ui_events(engn::EngineContext& ctx);
+void handle_game_over_ui_events(engn::EngineContext& ctx);

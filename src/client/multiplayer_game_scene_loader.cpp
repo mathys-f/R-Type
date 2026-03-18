@@ -7,6 +7,7 @@
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
 
+#include <cstring>
 #include <iostream>
 #include <random>
 
@@ -15,6 +16,22 @@ using namespace engn;
 namespace {
 constexpr int k_rand_range = 1000;
 constexpr float k_rand_divisor = 1000.0f;
+
+bool parse_game_end_payload(const std::vector<std::byte>& payload, cpnt::Stats& stats, int& boss_kills_to_win) {
+    constexpr std::size_t k_payload_size = cpnt::Stats::kSerializedSize + sizeof(int);
+
+    if (payload.size() < k_payload_size) {
+        return false;
+    }
+
+    std::vector<std::byte> stats_payload(payload.begin(), payload.begin() + cpnt::Stats::kSerializedSize);
+    stats.deserialize(stats_payload);
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::memcpy(&boss_kills_to_win, payload.data() + cpnt::Stats::kSerializedSize, sizeof(boss_kills_to_win));
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return true;
+}
 } // namespace
 
 static float randf() {
@@ -35,6 +52,16 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     const int k_width = static_cast<int>(engine_ctx.window_size.x);
     const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+    engine_ctx.game_over_retry_scene = "lobby";
+    engine_ctx.pending_game_over.store(false);
+    {
+        std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+        engine_ctx.pending_game_over_stats = cpnt::Stats{};
+        engine_ctx.pending_game_over_boss_kills_to_win = 0;
+        engine_ctx.game_over_stats = cpnt::Stats{};
+        engine_ctx.game_over_boss_kills_to_win = 0;
+    }
 
     auto& registry = engine_ctx.registry;
 
@@ -144,6 +171,21 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
             static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
+        } else if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::kGameEnded)) {
+            cpnt::Stats final_stats;
+            int boss_kills_to_win = 0;
+
+            if (!parse_game_end_payload(pkt.payload, final_stats, boss_kills_to_win)) {
+                LOG_WARNING("Received malformed game over packet: payload too small ({})", pkt.payload.size());
+                return;
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+                engine_ctx.pending_game_over_stats = final_stats;
+                engine_ctx.pending_game_over_boss_kills_to_win = boss_kills_to_win;
+            }
+            engine_ctx.pending_game_over.store(true);
         }
     });
 
@@ -207,6 +249,19 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         if (engine_ctx.network_client) {
             engine_ctx.network_client->poll();
         }
+    });
+
+    engine_ctx.add_system<>([](engn::EngineContext& ctx) {
+        if (!ctx.pending_game_over.exchange(false)) {
+            return;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(ctx.game_over_payload_mutex);
+            ctx.game_over_stats = ctx.pending_game_over_stats;
+            ctx.game_over_boss_kills_to_win = ctx.pending_game_over_boss_kills_to_win;
+        }
+        ctx.set_scene("game_over");
     });
 
     engine_ctx.add_system<>(handle_disconnect_ui_events);

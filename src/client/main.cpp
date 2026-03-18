@@ -100,6 +100,7 @@ int main(void) {
     engine_ctx.add_scene_loader("gamepad_settings", load_gamepad_settings_menu_scene);
     engine_ctx.add_scene_loader("graphics_settings", load_graphics_settings_scene);
     engine_ctx.add_scene_loader("difficulty_settings", load_difficulty_settings_scene);
+    engine_ctx.add_scene_loader("game_over", load_game_over_scene);
     engine_ctx.set_scene("main_menu"); // Game menu scene
 
     {

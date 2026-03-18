@@ -59,6 +59,11 @@ void server_boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& 
                         ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
                         ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Health> const& healths);
 
+void server_end_game_system(EngineContext &ctx,
+    ecs::SparseArray<cpnt::Player> const &players,
+    ecs::SparseArray<cpnt::Stats> const &stats,
+    ecs::SparseArray<cpnt::Health> const &healths);
+
 } // namespace sys
 
 } // namespace engn

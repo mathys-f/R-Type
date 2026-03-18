@@ -128,6 +128,7 @@ void sys::send_snapshot_to_client_system(EngineContext& ctx,
                                          ecs::SparseArray<cpnt::Replicated> const& replicated_components) {
     // LOG_DEBUG("Running send_snapshot_to_client_system");
     const auto k_clients = ctx.get_clients();
+    std::lock_guard<std::mutex> lock(ctx.clients_mutex);
 
     for (const auto& endpoint : k_clients) {
         const auto k_ack_snapshot = ctx.get_latest_acknowledged_snapshot(endpoint);

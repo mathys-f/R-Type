@@ -1,6 +1,7 @@
 #pragma once
 
 #include "assets_manager.h"
+#include "components/stats.h"
 #include "controls.h"
 #include "ecs/registry.h"
 #include "events/event_queue.h"
@@ -102,7 +103,7 @@ class EngineContext {
     int k_pattern_amplitude_max = k_default_pattern_amplitude_max;
     int k_player_health = k_default_player_health;
 
-    std::shared_ptr<net::Session> network_session; // TO REMOVE
+    std::shared_ptr<net::Session> network_session;
     std::shared_ptr<NetworkClient> network_client; // High level network client wrapper around the session
 
     std::size_t k_player_count = 4;
@@ -147,6 +148,14 @@ class EngineContext {
     bool sfx_muted = false;
 
     bool change_music = false;
+
+    std::atomic<bool> pending_game_over = false;
+    std::mutex game_over_payload_mutex;
+    cpnt::Stats pending_game_over_stats;
+    int pending_game_over_boss_kills_to_win = 0;
+    cpnt::Stats game_over_stats;
+    int game_over_boss_kills_to_win = 0;
+    std::string game_over_retry_scene = "main_menu";
 
     std::string server_ip;
     std::uint16_t server_port;

@@ -4,15 +4,19 @@
 
 using namespace engn::cpnt;
 
-Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active)
-    : score(score), dmg(dmg), kills(kills), level(level), point_to_next_level(point_to_next_level),
-      boss_active(boss_active) {}
+Stats::Stats(int score, int dmg, int kills, int level, int point_to_next_level, bool boss_active, int boss_killed)
+    : score(score),
+      dmg(dmg),
+      kills(kills),
+      level(level),
+      point_to_next_level(point_to_next_level),
+      boss_active(boss_active),
+      boss_killed(boss_killed) {}
 
 engn::SerializedComponent Stats::serialize() const {
     engn::SerializedComponent serialized;
     serialized.type = engn::ComponentType::Stats;
-    const std::uint16_t k_total_size =
-        sizeof(score) + sizeof(dmg) + sizeof(kills) + sizeof(level) + sizeof(point_to_next_level) + sizeof(boss_active);
+    const std::uint16_t k_total_size = kSerializedSize;
     serialized.data.resize(k_total_size);
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -28,12 +32,14 @@ engn::SerializedComponent Stats::serialize() const {
     std::memcpy(serialized.data.data() + offset, &point_to_next_level, sizeof(point_to_next_level));
     offset += sizeof(point_to_next_level);
     std::memcpy(serialized.data.data() + offset, &boss_active, sizeof(boss_active));
+    offset += sizeof(boss_active);
+    std::memcpy(serialized.data.data() + offset, &boss_killed, sizeof(boss_killed));
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return serialized;
 }
 
 void Stats::deserialize(const std::vector<std::byte>& data) {
-    std::uint16_t k_size = sizeof(score) + sizeof(dmg) + sizeof(kills);
+    const std::uint16_t k_size = kSerializedSize;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (data.size() >= k_size) {
@@ -49,6 +55,8 @@ void Stats::deserialize(const std::vector<std::byte>& data) {
         std::memcpy(&point_to_next_level, data.data() + offset, sizeof(point_to_next_level));
         offset += sizeof(point_to_next_level);
         std::memcpy(&boss_active, data.data() + offset, sizeof(boss_active));
+        offset += sizeof(boss_active);
+        std::memcpy(&boss_killed, data.data() + offset, sizeof(boss_killed));
     }
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
