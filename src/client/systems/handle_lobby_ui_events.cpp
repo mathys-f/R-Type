@@ -3,11 +3,14 @@
 #include "game_engine/components/ui/ui_navigation.h"
 #include "game_engine/engine.h"
 #include "game_engine/network_client.h"
+#include "networking/handshake/handshake.h"
 #include "networking/lobby/lobby_messages.h"
 #include "systems/client_systems.h"
 #include "utils/color.h"
 #include "utils/logger.h"
 
+#include <algorithm>
+#include <cctype>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -17,11 +20,11 @@ using namespace engn;
 
 // Store lobby list and network client state
 namespace {
-constexpr std::size_t k_max_lobby_items_to_display = 5;
+constexpr std::size_t k_max_lobby_items_to_display = 4;
 constexpr std::size_t k_max_lobby_items_in_list = 10;
 constexpr float k_item_height = 50.0f;
 constexpr float k_item_spacing = 5.0f;
-constexpr float k_start_y = 360.0f;
+constexpr float k_start_y = 405.0f;
 constexpr float k_start_x = 60.0f;
 constexpr float k_lobby_width = 960.0f;
 constexpr int k_text_font_size = 24;
@@ -47,6 +50,7 @@ struct LobbyState {
     bool waiting_for_response = false;
     std::string status_message = "Not connected";
     std::string server_ip;
+    std::string player_name;
     std::uint16_t server_port_main = 0;
 
     std::optional<net::lobby::ResLobbyList> pending_lobby_list;
@@ -86,20 +90,22 @@ void apply_base_lobby_navigation(EngineContext& ctx) {
     const auto& tags = ctx.registry.get_tag_registry();
     auto ip = tag_id_or_invalid(tags, "lobby_server_ip");
     auto port = tag_id_or_invalid(tags, "lobby_server_port");
+    auto player_name = tag_id_or_invalid(tags, "lobby_player_name");
     auto connect = tag_id_or_invalid(tags, "connect_to_server_button");
     auto refresh = tag_id_or_invalid(tags, "refresh_lobbies_button");
     auto name_input = tag_id_or_invalid(tags, "lobby_name_input");
     auto create = tag_id_or_invalid(tags, "create_lobby_button");
     auto back = tag_id_or_invalid(tags, "back_button");
 
-    set_navigation_for_tag(ctx, "lobby_server_ip", ecs::TagRegistry::k_invalid_tag_id, name_input,
+    set_navigation_for_tag(ctx, "lobby_server_ip", ecs::TagRegistry::k_invalid_tag_id, player_name,
                            ecs::TagRegistry::k_invalid_tag_id, port);
-    set_navigation_for_tag(ctx, "lobby_server_port", ecs::TagRegistry::k_invalid_tag_id, name_input, ip, connect);
-    set_navigation_for_tag(ctx, "connect_to_server_button", ecs::TagRegistry::k_invalid_tag_id, name_input, port,
+    set_navigation_for_tag(ctx, "lobby_server_port", ecs::TagRegistry::k_invalid_tag_id, player_name, ip, connect);
+    set_navigation_for_tag(ctx, "lobby_player_name", ip, name_input, ecs::TagRegistry::k_invalid_tag_id, connect);
+    set_navigation_for_tag(ctx, "connect_to_server_button", player_name, name_input, port,
                            refresh);
-    set_navigation_for_tag(ctx, "refresh_lobbies_button", ecs::TagRegistry::k_invalid_tag_id, create, connect,
+    set_navigation_for_tag(ctx, "refresh_lobbies_button", connect, create, connect,
                            ecs::TagRegistry::k_invalid_tag_id);
-    set_navigation_for_tag(ctx, "lobby_name_input", ip, back, ecs::TagRegistry::k_invalid_tag_id, create);
+    set_navigation_for_tag(ctx, "lobby_name_input", player_name, back, ecs::TagRegistry::k_invalid_tag_id, create);
     set_navigation_for_tag(ctx, "create_lobby_button", refresh, back, name_input, ecs::TagRegistry::k_invalid_tag_id);
     set_navigation_for_tag(ctx, "back_button", create, ip, ecs::TagRegistry::k_invalid_tag_id,
                            ecs::TagRegistry::k_invalid_tag_id);
@@ -120,7 +126,7 @@ void apply_lobby_list_navigation(EngineContext& ctx, std::size_t lobby_count) {
     ecs::TagRegistry::TagId first = tag_cache[0];
     ecs::TagRegistry::TagId last = tag_cache[lobby_count - 1];
 
-    set_navigation_for_tag(ctx, "lobby_name_input", tag_id_or_invalid(tags, "lobby_server_ip"), first,
+    set_navigation_for_tag(ctx, "lobby_name_input", tag_id_or_invalid(tags, "lobby_player_name"), first,
                            ecs::TagRegistry::k_invalid_tag_id, create);
     set_navigation_for_tag(ctx, "create_lobby_button", tag_id_or_invalid(tags, "refresh_lobbies_button"), first,
                            name_input, ecs::TagRegistry::k_invalid_tag_id);
@@ -251,22 +257,42 @@ void update_lobby_list_ui(EngineContext& ctx) {
 void handle_connect_button(EngineContext& ctx) {
     auto ip_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_server_ip");
     auto port_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_server_port");
+    auto name_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_player_name");
 
-    if (!ip_ent_opt.has_value() || !port_ent_opt.has_value()) {
+    if (!ip_ent_opt.has_value() || !port_ent_opt.has_value() || !name_ent_opt.has_value()) {
         update_status_text(ctx, "Error: Input fields not found");
         return;
     }
 
     const auto& ip_input = ctx.registry.get_components<cpnt::UIText>()[ip_ent_opt.value()];
     const auto& port_input = ctx.registry.get_components<cpnt::UIText>()[port_ent_opt.value()];
+    const auto& player_name_input = ctx.registry.get_components<cpnt::UIText>()[name_ent_opt.value()];
 
-    if (!ip_input.has_value() || !port_input.has_value()) {
+    if (!ip_input.has_value() || !port_input.has_value() || !player_name_input.has_value()) {
         update_status_text(ctx, "Error: Input fields not found");
         return;
     }
 
     std::string server_ip = ip_input->content;
     std::string port_str = port_input->content;
+    std::string player_name = player_name_input->content;
+    player_name.erase(player_name.begin(),
+                      std::ranges::find_if(player_name, [](unsigned char ch) { return !std::isspace(ch); }));
+    player_name.erase(
+        std::find_if(player_name.rbegin(), player_name.rend(), [](unsigned char ch) { return !std::isspace(ch); })
+            .base(),
+        player_name.end());
+
+    if (player_name.empty()) {
+        update_status_text(ctx, "Please enter a username before connecting");
+        return;
+    }
+
+    if (player_name.size() > net::handshake::k_max_username_len) {
+        update_status_text(ctx, "Username is too long (max 32 characters)");
+        return;
+    }
+
     uint16_t server_port = static_cast<uint16_t>(std::stoi(port_str));
 
     // Create network client and connect
@@ -274,6 +300,10 @@ void handle_connect_button(EngineContext& ctx) {
         auto& state = get_lobby_state();
         state.server_ip = server_ip;
         state.server_port_main = server_port;
+        state.player_name = player_name;
+        
+        // Store player username in engine context for later use (multiplayer game scene)
+        ctx.current_player_username = player_name;
 
         ctx.network_client = std::make_shared<engn::NetworkClient>();
 
@@ -311,7 +341,7 @@ void handle_connect_button(EngineContext& ctx) {
             }
         });
 
-        ctx.network_client->connect(server_ip, server_port, "LobbyBrowser");
+        ctx.network_client->connect(server_ip, server_port, player_name);
         update_status_text(ctx, "Connecting to " + server_ip + ":" + port_str + "...");
     } catch (const std::exception& e) {
         update_status_text(ctx, std::string("Connection error: ") + e.what());
@@ -396,6 +426,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
 
     net::lobby::ReqJoinLobby req{};
     req.m_lobby_id = lobby.m_lobby_id;
+    req.m_player_name = get_lobby_state().player_name;
     ctx.network_client->send_reliable(net::lobby::make_req_join_lobby(req));
     get_lobby_state().waiting_for_response = true;
 }
@@ -468,7 +499,16 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                 engine_ctx.server_port = join_res->m_port;
                 engine_ctx.set_scene("multiplayer_game"); // Multiplayer game scene
             } else {
-                update_status_text(engine_ctx, "Failed to join lobby: " + join_res->m_error_message);
+                const auto& error_msg = join_res->m_error_message;
+                constexpr std::size_t k_ban_prefix_length = 8;
+                if (error_msg == "Banned") {
+                    update_status_text(engine_ctx, "This username is banned");
+                } else if (error_msg.rfind("Banned: ", 0) == 0) {
+                    update_status_text(engine_ctx,
+                                       "This username is banned: " + error_msg.substr(k_ban_prefix_length));
+                } else {
+                    update_status_text(engine_ctx, "Failed to join lobby: " + error_msg);
+                }
             }
             get_lobby_state().waiting_for_response = false;
         }
