@@ -19,6 +19,11 @@ namespace engn {
  */
 class BackendAPIClient {
   public:
+  struct BanCheckResult {
+    bool m_is_banned = false;
+    std::string m_reason;
+  };
+
     /**
      * Initialize the API client with backend host and port
      * @param host Backend server hostname or IP (e.g., "localhost" or "127.0.0.1")
@@ -70,6 +75,13 @@ class BackendAPIClient {
      * @return true on success, false on failure
      */
     bool update_lobby_player_count(std::uint32_t lobby_id, std::uint8_t player_count);
+
+    /**
+     * Check if a player is banned by username.
+     * @param player_name Player username to verify
+     * @return Ban check result on success, std::nullopt on request failure
+     */
+    std::optional<BanCheckResult> check_player_ban(const std::string& player_name);
 
     /**
      * Get the last error message
