@@ -2,7 +2,7 @@ export type AdminStats = {
 	active_lobbies: number;
 	active_players: number;
 	banned_count: number;
-	total_accounts: number;
+	total_matches: number;
 };
 
 export type AdminLobby = {
@@ -74,10 +74,6 @@ export async function fetchPlayers(token: string): Promise<AdminPlayer[]> {
 export async function fetchBanned(token: string): Promise<BannedPlayer[]> {
 	const res = await request<{ banned: BannedPlayer[] }>('/api/admin/banned', token);
 	return res.banned || [];
-}
-
-export async function kickPlayer(token: string, sessionId: number) {
-	return request('/api/admin/kick/' + sessionId, token, { method: 'POST' });
 }
 
 export async function stopLobby(token: string, lobbyId: number) {
