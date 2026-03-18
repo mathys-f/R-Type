@@ -417,6 +417,42 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
         return;
     }
 
+    auto name_ent_opt = ctx.registry.get_tag_registry().get_entity("lobby_player_name");
+    if (!name_ent_opt.has_value()) {
+        update_status_text(ctx, "Error: Username input not found");
+        return;
+    }
+
+    const auto& player_name_input = ctx.registry.get_components<cpnt::UIText>()[name_ent_opt.value()];
+    if (!player_name_input.has_value()) {
+        update_status_text(ctx, "Error: Username input not found");
+        return;
+    }
+
+    std::string player_name = player_name_input->content;
+    player_name.erase(player_name.begin(),
+                      std::ranges::find_if(player_name, [](unsigned char ch) { return !std::isspace(ch); }));
+    player_name.erase(
+        std::find_if(player_name.rbegin(), player_name.rend(), [](unsigned char ch) { return !std::isspace(ch); })
+            .base(),
+        player_name.end());
+
+    if (player_name.empty()) {
+        update_status_text(ctx, "Please enter a username before joining");
+        return;
+    }
+
+    if (player_name.size() > net::handshake::k_max_username_len) {
+        update_status_text(ctx, "Username is too long (max 32 characters)");
+        return;
+    }
+
+    {
+        auto& state = get_lobby_state();
+        state.player_name = player_name;
+    }
+    ctx.current_player_username = player_name;
+
     const auto& lobby = lobbies[static_cast<std::size_t>(lobby_index)];
     {
         auto& s = get_lobby_state();
@@ -426,7 +462,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
 
     net::lobby::ReqJoinLobby req{};
     req.m_lobby_id = lobby.m_lobby_id;
-    req.m_player_name = get_lobby_state().player_name;
+    req.m_player_name = player_name;
     ctx.network_client->send_reliable(net::lobby::make_req_join_lobby(req));
     get_lobby_state().waiting_for_response = true;
 }
