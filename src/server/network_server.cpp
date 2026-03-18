@@ -123,8 +123,9 @@ void NetworkServer::start() {
 
             // Handle logout requests
             if (auto logout_req = net::handshake::parse_req_logout(pkt)) {
+                (void)logout_req;
                 LOG_INFO("Client logout request from port {}", from.port());
-                m_session->notify_client_disconnect(from);
+                handle_client_disconnect(from);
                 return;
             }
 
@@ -295,7 +296,6 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
         LOG_INFO("Client disconnected from port {}", endpoint.port());
         m_session->remove_client_state(endpoint);
