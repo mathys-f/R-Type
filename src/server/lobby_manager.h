@@ -133,6 +133,8 @@ class LobbyManager {
                                                     std::optional<std::uint32_t> account_id = std::nullopt,
                                                     const std::string& ip_address = "");
 
+    std::optional<engn::BackendAPIClient::BanCheckResult> check_player_ban(const std::string& player_name);
+
   private:
     std::uint16_t allocate_port();
 
