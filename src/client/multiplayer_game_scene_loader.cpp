@@ -240,10 +240,11 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
         // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     });
 
-    const char* player_name = "Player1";
+    // Use actual player name from engine context
+    const auto& player_name = engine_ctx.current_player_username;
 
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
-    engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
+    engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name.c_str());
 
     engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) {
         if (engine_ctx.network_client) {
