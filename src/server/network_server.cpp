@@ -85,6 +85,35 @@ void NetworkServer::start() {
                     .m_success = id_available, .m_player_id = assigned_id, .m_effective_fragment_size = k_effective};
                 net::Packet resp = net::handshake::make_res_login(resp_payload);
                 m_session->send(resp, from, true);
+
+                if (id_available) {
+                    std::lock_guard<std::mutex> lock(m_clients_mutex);
+                    m_client_usernames[from] = login_req->m_username;
+                }
+
+                {
+                    std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+                    m_engine_ctx.player_usernames[from] = login_req->m_username;
+                }
+
+                if (id_available && m_engine_ctx.backend_api_client != nullptr && m_engine_ctx.current_lobby_id != 0) {
+                    std::string player_ip = from.address().to_string(); // NOLINT
+                    auto session_id = m_engine_ctx.backend_api_client->add_player_session(
+                        m_engine_ctx.current_lobby_id, login_req->m_username, {}, player_ip);
+
+                    if (session_id.has_value()) {
+                        {
+                            std::lock_guard<std::mutex> lock(m_clients_mutex);
+                            m_client_session_ids[from] = session_id.value();
+                        }
+                        std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+                        m_engine_ctx.backend_session_ids[from] = session_id.value();
+                    } else {
+                        LOG_WARNING("Failed to create backend session for '{}' in lobby {}", login_req->m_username,
+                                    m_engine_ctx.current_lobby_id);
+                    }
+                }
+
                 if (!id_available) {
                     LOG_WARNING("Rejecting login from {}:{} - no available Player slots", from.address().to_string(),
                                 from.port());
@@ -189,13 +218,40 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
         net::lobby::ResJoinLobby res;
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
 
+        std::string player_name = req->m_player_name;
+        if (player_name.empty()) {
+            std::lock_guard<std::mutex> lock(m_clients_mutex);
+            auto it = m_client_usernames.find(from);
+            if (it != m_client_usernames.end()) {
+                player_name = it->second;
+            }
+        }
+
+        if (player_name.empty()) {
+            res.m_success = false;
+            res.m_error_message = "Username required";
+            m_session->send(net::lobby::make_res_join_lobby(res), from, true);
+            return;
+        }
+
+        if (m_lobby_manager) {
+            auto ban_status = m_lobby_manager->check_player_ban(player_name);
+            if (ban_status.has_value() && ban_status->m_is_banned) {
+                res.m_success = false;
+                res.m_error_message = ban_status->m_reason.empty() ? "Banned" : ("Banned: " + ban_status->m_reason);
+                m_session->send(net::lobby::make_res_join_lobby(res), from, true);
+                return;
+            }
+        }
+
         if (lobby) {
             if (lobby->can_join()) {
                 std::string player_ip = from.address().to_string(); // NOLINT
                 lobby->add_player(player_ip);
+
                 res.m_success = true;
                 res.m_port = lobby->get_port();
-                std::cout << "Player joined lobby ID " << req->m_lobby_id << "\n";
+                std::cout << "Player '" << player_name << "' joined lobby ID " << req->m_lobby_id << "\n";
             } else if (lobby->is_full()) {
                 res.m_success = false;
                 res.m_error_message = "Lobby is full";
@@ -245,6 +301,13 @@ void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endp
         m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        m_client_usernames.erase(endpoint);
+        m_client_session_ids.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+            m_engine_ctx.backend_session_ids.erase(endpoint);
+            m_engine_ctx.player_usernames.erase(endpoint);
+        }
         {
             std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
             m_engine_ctx.last_input_masks.erase(endpoint);
@@ -290,6 +353,13 @@ void NetworkServer::check_client_timeouts() {
         m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        m_client_usernames.erase(endpoint);
+        m_client_session_ids.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+            m_engine_ctx.backend_session_ids.erase(endpoint);
+            m_engine_ctx.player_usernames.erase(endpoint);
+        }
         {
             std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
             m_engine_ctx.last_input_masks.erase(endpoint);
