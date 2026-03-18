@@ -372,8 +372,12 @@ void LobbyManager::remove_lobby(std::uint32_t lobby_id) {
     auto it = m_lobbies.find(lobby_id);
     if (it != m_lobbies.end()) {
         // Finalize match data before destroying lobby
-        if (m_api_client && m_api_client->finalize_match(lobby_id)) {
-            LOG_INFO("Finalized match data for lobby {}", lobby_id);
+        if (m_api_client) {
+            if (m_api_client->finalize_match(lobby_id)) {
+                LOG_INFO("Finalized match data for lobby {}", lobby_id);
+            } else {
+                LOG_WARNING("Failed to finalize match data for lobby {}: {}", lobby_id, m_api_client->get_last_error());
+            }
         }
 
         it->second->stop();
@@ -430,6 +434,16 @@ void LobbyManager::cleanup_empty_lobbies() {
     for (std::uint32_t id : to_remove) {
         auto it = m_lobbies.find(id);
         if (it != m_lobbies.end()) {
+            // This path handles lobbies whose process died or stayed empty.
+            // Finalize backend state here as well so lobby/session rows are cleaned.
+            if (m_api_client) {
+                if (m_api_client->finalize_match(id)) {
+                    LOG_INFO("Finalized match data for cleaned lobby {}", id);
+                } else {
+                    LOG_WARNING("Failed to finalize cleaned lobby {}: {}", id, m_api_client->get_last_error());
+                }
+            }
+
             it->second->stop();
             m_lobbies.erase(it);
             m_empty_ticks.erase(id);
@@ -456,6 +470,29 @@ void LobbyManager::sync_player_counts() {
         std::uint8_t player_count = lobby->get_current_players();
         m_api_client->update_lobby_player_count(id, player_count);
     }
+}
+
+std::optional<std::uint32_t> LobbyManager::add_player_session(std::uint32_t lobby_id, const std::string& player_name,
+                                                              std::optional<std::uint32_t> account_id,
+                                                              const std::string& ip_address) {
+    if (!m_api_client) {
+        return std::nullopt;
+    }
+
+    std::optional<std::string> ip_opt = std::nullopt;
+    if (!ip_address.empty()) {
+        ip_opt = ip_address;
+    }
+
+    return m_api_client->add_player_session(lobby_id, player_name, account_id, ip_opt);
+}
+
+std::optional<engn::BackendAPIClient::BanCheckResult> LobbyManager::check_player_ban(const std::string& player_name) {
+    if (!m_api_client) {
+        return std::nullopt;
+    }
+
+    return m_api_client->check_player_ban(player_name);
 }
 
 std::uint16_t LobbyManager::allocate_port() {
