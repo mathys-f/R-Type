@@ -6,7 +6,7 @@ import {
     ActiveSession,
     PlayerScore,
     EventLog,
-    Account
+    MatchHistory
 } from '../model/indexModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -258,7 +258,7 @@ const getServerStats = async (req, res) => {
         const totalLobbies = await ActiveLobby.count();
         const totalPlayers = await ActiveSession.count();
         const totalBanned = await BannedPlayer.count();
-        const totalAccounts = await Account.count();
+        const totalMatches = await MatchHistory.count();
 
         res.status(200).json({
             success: true,
@@ -266,7 +266,7 @@ const getServerStats = async (req, res) => {
                 active_lobbies: totalLobbies,
                 active_players: totalPlayers,
                 banned_count: totalBanned,
-                total_accounts: totalAccounts
+                total_matches: totalMatches
             }
         });
     } catch (error) {
