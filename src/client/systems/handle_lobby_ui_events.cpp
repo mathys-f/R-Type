@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -63,6 +64,9 @@ struct LobbyState {
 
     // Cache tag ids for lobby items to avoid recreate errors
     std::vector<ecs::TagRegistry::TagId> lobby_item_tags;
+
+    // Index of the first visible lobby item in the full list
+    std::size_t visible_lobby_start_index = 0;
 };
 
 LobbyState& get_lobby_state() {
@@ -175,6 +179,47 @@ void clear_lobby_list_ui(EngineContext& ctx) {
     }
 }
 
+bool apply_lobby_scroll_input(EngineContext& ctx) {
+    auto& state = get_lobby_state();
+    std::vector<net::lobby::LobbyInfo> lobbies;
+    {
+        std::lock_guard<std::mutex> lock(state.mutex);
+        lobbies = state.available_lobbies;
+    }
+
+    if (lobbies.size() <= k_max_lobby_items_to_display)
+        return false;
+
+    float total_scroll = 0.0f;
+    ctx.input_event_queue.for_each<evts::MouseScrolled>(
+        [&total_scroll](const evts::MouseScrolled& evt) { total_scroll += evt.offset_y; });
+
+    if (total_scroll == 0.0f)
+        return false;
+
+    const std::size_t max_start = lobbies.size() - k_max_lobby_items_to_display;
+    std::size_t current_start = state.visible_lobby_start_index;
+
+    // Wheel down (negative Y) moves down the list; wheel up moves up.
+    const int scroll_steps = static_cast<int>(std::round(std::abs(total_scroll)));
+    if (scroll_steps <= 0)
+        return false;
+
+    if (total_scroll < 0.0f) {
+        const std::size_t step = static_cast<std::size_t>(scroll_steps);
+        current_start = std::min(current_start + step, max_start);
+    } else {
+        const std::size_t step = static_cast<std::size_t>(scroll_steps);
+        current_start = (current_start > step) ? (current_start - step) : 0;
+    }
+
+    if (current_start == state.visible_lobby_start_index)
+        return false;
+
+    state.visible_lobby_start_index = current_start;
+    return true;
+}
+
 void update_lobby_list_ui(EngineContext& ctx) {
     clear_lobby_list_ui(ctx);
 
@@ -185,9 +230,20 @@ void update_lobby_list_ui(EngineContext& ctx) {
         lobbies = s.available_lobbies;
     }
 
-    std::size_t lobby_count = std::min(lobbies.size(), k_max_lobby_items_to_display);
+    auto& state = get_lobby_state();
+    std::size_t max_start = 0;
+    if (lobbies.size() > k_max_lobby_items_to_display) {
+        max_start = lobbies.size() - k_max_lobby_items_to_display;
+    }
+    if (state.visible_lobby_start_index > max_start) {
+        state.visible_lobby_start_index = max_start;
+    }
+
+    const std::size_t first_visible = state.visible_lobby_start_index;
+    std::size_t lobby_count = std::min(lobbies.size() - first_visible, k_max_lobby_items_to_display);
     for (size_t i = 0; i < lobby_count; i++) {
-        const auto& lobby = lobbies[i];
+        const std::size_t lobby_index = first_visible + i;
+        const auto& lobby = lobbies[lobby_index];
         std::string lobby_tag = "lobby_item_" + std::to_string(i);
 
         // Create or reuse tag binding from cache
@@ -409,7 +465,13 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
         lobbies = s.available_lobbies;
     }
 
-    if (lobby_index < 0 || lobby_index >= static_cast<int>(lobbies.size())) {
+    if (lobby_index < 0) {
+        return;
+    }
+
+    const auto visible_index = static_cast<std::size_t>(lobby_index);
+    const auto absolute_index = get_lobby_state().visible_lobby_start_index + visible_index;
+    if (absolute_index >= lobbies.size()) {
         return;
     }
 
@@ -454,7 +516,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
     }
     ctx.current_player_username = player_name;
 
-    const auto& lobby = lobbies[static_cast<std::size_t>(lobby_index)];
+    const auto& lobby = lobbies[absolute_index];
     {
         auto& s = get_lobby_state();
         std::lock_guard<std::mutex> lock(s.mutex);
@@ -511,6 +573,7 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
                 auto& s = get_lobby_state();
                 std::lock_guard<std::mutex> lock(s.mutex);
                 s.available_lobbies = lobby_list->m_lobbies;
+                s.visible_lobby_start_index = 0;
             }
             update_lobby_list_ui(engine_ctx);
             get_lobby_state().waiting_for_response = false;
@@ -549,6 +612,10 @@ void handle_lobby_ui_events(engn::EngineContext& engine_ctx) {
             }
             get_lobby_state().waiting_for_response = false;
         }
+    }
+
+    if (apply_lobby_scroll_input(engine_ctx)) {
+        update_lobby_list_ui(engine_ctx);
     }
 
     const auto& evts = engine_ctx.ui_event_queue;
