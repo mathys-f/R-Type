@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
     "architecture/overview",
     "architecture/ecs",
     "architecture/engine",
+    "architecture/ui",
   ],
   gameplaySidebar: [
     "gameplay/game-design",

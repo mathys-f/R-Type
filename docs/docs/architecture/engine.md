@@ -13,7 +13,7 @@ EngineContext my_engine_ctx;
 
 You will use the object a lot of time during the creation of your project
 
-### Load scenes
+## Load scenes
 
 To add scene to your engine use this line:
 
@@ -37,7 +37,7 @@ void load_game_scene(engn::EngineContext& engine_ctx) {
 }
 ```
 
-### Load texture
+## Load texture
 
 Loading the textures in the engine is very easy, all you need to do is add this line:
 
