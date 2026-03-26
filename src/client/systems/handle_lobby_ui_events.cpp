@@ -197,20 +197,20 @@ bool apply_lobby_scroll_input(EngineContext& ctx) {
     if (total_scroll == 0.0f)
         return false;
 
-    const std::size_t max_start = lobbies.size() - k_max_lobby_items_to_display;
+    const std::size_t k_max_start = lobbies.size() - k_max_lobby_items_to_display;
     std::size_t current_start = state.visible_lobby_start_index;
 
     // Wheel down (negative Y) moves down the list; wheel up moves up.
-    const int scroll_steps = static_cast<int>(std::round(std::abs(total_scroll)));
-    if (scroll_steps <= 0)
+    const int k_scroll_steps = static_cast<int>(std::round(std::abs(total_scroll)));
+    if (k_scroll_steps <= 0)
         return false;
 
     if (total_scroll < 0.0f) {
-        const std::size_t step = static_cast<std::size_t>(scroll_steps);
-        current_start = std::min(current_start + step, max_start);
+        const std::size_t k_step = static_cast<std::size_t>(k_scroll_steps);
+        current_start = std::min(current_start + k_step, k_max_start);
     } else {
-        const std::size_t step = static_cast<std::size_t>(scroll_steps);
-        current_start = (current_start > step) ? (current_start - step) : 0;
+        const std::size_t k_step = static_cast<std::size_t>(k_scroll_steps);
+        current_start = (current_start > k_step) ? (current_start - k_step) : 0;
     }
 
     if (current_start == state.visible_lobby_start_index)
@@ -231,19 +231,19 @@ void update_lobby_list_ui(EngineContext& ctx) {
     }
 
     auto& state = get_lobby_state();
-    std::size_t max_start = 0;
+    std::size_t k_max_start = 0;
     if (lobbies.size() > k_max_lobby_items_to_display) {
-        max_start = lobbies.size() - k_max_lobby_items_to_display;
+        k_max_start = lobbies.size() - k_max_lobby_items_to_display;
     }
-    if (state.visible_lobby_start_index > max_start) {
-        state.visible_lobby_start_index = max_start;
+    if (state.visible_lobby_start_index > k_max_start) {
+        state.visible_lobby_start_index = k_max_start;
     }
 
-    const std::size_t first_visible = state.visible_lobby_start_index;
-    std::size_t lobby_count = std::min(lobbies.size() - first_visible, k_max_lobby_items_to_display);
+    const std::size_t k_first_visible = state.visible_lobby_start_index;
+    std::size_t lobby_count = std::min(lobbies.size() - k_first_visible, k_max_lobby_items_to_display);
     for (size_t i = 0; i < lobby_count; i++) {
-        const std::size_t lobby_index = first_visible + i;
-        const auto& lobby = lobbies[lobby_index];
+        const std::size_t k_lobby_index = k_first_visible + i;
+        const auto& lobby = lobbies[k_lobby_index];
         std::string lobby_tag = "lobby_item_" + std::to_string(i);
 
         // Create or reuse tag binding from cache
@@ -469,9 +469,9 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
         return;
     }
 
-    const auto visible_index = static_cast<std::size_t>(lobby_index);
-    const auto absolute_index = get_lobby_state().visible_lobby_start_index + visible_index;
-    if (absolute_index >= lobbies.size()) {
+    const auto k_visible_index = static_cast<std::size_t>(lobby_index);
+    const auto k_absolute_index = get_lobby_state().visible_lobby_start_index + k_visible_index;
+    if (k_absolute_index >= lobbies.size()) {
         return;
     }
 
@@ -516,7 +516,7 @@ void handle_lobby_item_clicked(EngineContext& ctx, int lobby_index) {
     }
     ctx.current_player_username = player_name;
 
-    const auto& lobby = lobbies[absolute_index];
+    const auto& lobby = lobbies[k_absolute_index];
     {
         auto& s = get_lobby_state();
         std::lock_guard<std::mutex> lock(s.mutex);
