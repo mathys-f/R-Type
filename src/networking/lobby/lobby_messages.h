@@ -9,6 +9,7 @@
 namespace net::lobby {
 
 constexpr std::size_t k_max_lobby_name_len = 64;
+constexpr std::size_t k_max_player_name_len = 32;
 constexpr std::size_t k_max_lobbies_per_list = 32;
 constexpr std::uint8_t k_max_players_per_lobby = 4;
 
@@ -48,6 +49,7 @@ struct ResCreateLobby {
 // Request to join an existing lobby
 struct ReqJoinLobby {
     std::uint32_t m_lobby_id = 0;
+    std::string m_player_name;
 };
 
 // Response after joining a lobby

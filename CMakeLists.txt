@@ -177,7 +177,7 @@ elseif(TARGET lua::lua AND NOT TARGET lua)
     add_library(lua ALIAS lua::lua)
 endif()
 
-add_compile_definitions(SOL_ALL_SAFETIES_ON)
+add_compile_definitions(SOL_ALL_SAFETIES_ON SOL_NO_LUA_HPP=1)
 
 CPMAddPackage(
     NAME sol2

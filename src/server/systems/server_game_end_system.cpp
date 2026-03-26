@@ -1,8 +1,11 @@
 #include "systems/systems.h"
+
+#include "../backend_api_client.h"
 #include "engine.h"
 
 #include "ecs/zipper.h"
 
+#include <algorithm>
 #include <cstring>
 
 using namespace engn;
@@ -17,6 +20,7 @@ void sys::server_end_game_system(EngineContext &ctx,
     ecs::SparseArray<cpnt::Health> const &healths)
 {
     static std::unordered_map<asio::ip::udp::endpoint, std::uint32_t> s_packets_sent;
+    static bool s_stats_uploaded = false;
     auto k_clients = ctx.get_clients();
     const cpnt::Stats* run_stats = nullptr;
 
@@ -58,6 +62,27 @@ void sys::server_end_game_system(EngineContext &ctx,
 
     if (!all_players_dead && !k_boss_goal_reached) {
         return;
+    }
+
+    if (!s_stats_uploaded && ctx.backend_api_client != nullptr && ctx.current_lobby_id != 0) {
+        const auto k_kills = static_cast<std::uint32_t>(std::max(run_stats->kills, 0));
+        const auto k_score = static_cast<std::uint32_t>(std::max(run_stats->score, 0));
+        constexpr std::uint32_t k_default_deaths = 0;
+
+        std::lock_guard<std::mutex> lock(ctx.backend_session_mutex);
+        for (const auto& endpoint : k_clients) {
+            auto session_it = ctx.backend_session_ids.find(endpoint);
+            if (session_it == ctx.backend_session_ids.end()) {
+                continue;
+            }
+
+            if (!ctx.backend_api_client->update_player_score(session_it->second, k_kills, k_default_deaths,
+                                                             k_score)) {
+                LOG_WARNING("Failed to upload endgame stats for session {}", session_it->second);
+            }
+        }
+
+        s_stats_uploaded = true;
     }
 
     if (s_packets_sent.empty()) {

@@ -180,6 +180,45 @@ Set_ui_transform("refresh_lobbies_button", {
     rotation = 0
 })
 
+-- Player name input (required before joining)
+Create_ui_text("player_name_label", {
+    content = "Username:",
+    font_size = 24
+})
+
+Set_ui_style("player_name_label", styles.title)
+
+Set_ui_transform("player_name_label", {
+    x = 66.67,
+    y = 33.33,
+    z = 0,
+    w = 13.0,
+    h = 5.56,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
+Create_ui_input_field("lobby_player_name", "Pilot")
+
+Set_ui_style("lobby_player_name", styles.main_menu)
+
+Set_ui_text("lobby_player_name", {
+    content = "Pilot",
+    font_size = 24
+})
+
+Set_ui_transform("lobby_player_name", {
+    x = 66.67,
+    y = 40.28,
+    z = 0,
+    w = 28.7,
+    h = 5.56,
+    anchor_x = 0,
+    anchor_y = 0,
+    rotation = 0
+})
+
 -- Create lobby section
 Create_ui_text("create_lobby_label", {
     content = "Create New Lobby:",
@@ -190,7 +229,7 @@ Set_ui_style("create_lobby_label", styles.title)
 
 Set_ui_transform("create_lobby_label", {
     x = 4.63,
-    y = 26.39,
+    y = 33.33,
     z = 0,
     w = 27.78,
     h = 5.56,
@@ -211,7 +250,7 @@ Set_ui_text("lobby_name_input", {
 
 Set_ui_transform("lobby_name_input", {
     x = 4.63,
-    y = 33.33,
+    y = 40.28,
     z = 0,
     w = 27.78,
     h = 5.56,
@@ -232,7 +271,7 @@ Set_ui_style("create_lobby_button", styles.main_menu)
 
 Set_ui_transform("create_lobby_button", {
     x = 34.26,
-    y = 33.33,
+    y = 40.28,
     z = 0,
     w = 18.52,
     h = 5.56,
@@ -251,7 +290,7 @@ Set_ui_style("available_lobbies_label", styles.title)
 
 Set_ui_transform("available_lobbies_label", {
     x = 4.63,
-    y = 41.67,
+    y = 48.61,
     z = 0,
     w = 27.78,
     h = 5.56,
@@ -282,10 +321,10 @@ Set_ui_style("lobby_list_bg", {
 
 Set_ui_transform("lobby_list_bg", {
     x = 4.63,
-    y = 48.61,
+    y = 55.56,
     z = 0,
     w = 90.74,
-    h = 38.89,
+    h = 31.94,
     anchor_x = 0,
     anchor_y = 0,
     rotation = 0
@@ -333,8 +372,9 @@ Set_ui_transform("back_button", {
 
 Set_ui_navigation("lobby_server_ip", { right = "lobby_server_port", down = "lobby_name_input" })
 Set_ui_navigation("lobby_server_port", { left = "lobby_server_ip", right = "connect_to_server_button", down = "lobby_name_input" })
+Set_ui_navigation("lobby_player_name", { up = "refresh_lobbies_button", left = "create_lobby_button", down = "back_button" })
 Set_ui_navigation("connect_to_server_button", { left = "lobby_server_port", right = "refresh_lobbies_button", down = "create_lobby_button" })
-Set_ui_navigation("refresh_lobbies_button", { left = "connect_to_server_button", down = "create_lobby_button" })
+Set_ui_navigation("refresh_lobbies_button", { left = "connect_to_server_button", down = "lobby_player_name" })
 Set_ui_navigation("lobby_name_input", { up = "lobby_server_ip", right = "create_lobby_button", down = "back_button" })
-Set_ui_navigation("create_lobby_button", { up = "refresh_lobbies_button", left = "lobby_name_input", down = "back_button" })
+Set_ui_navigation("create_lobby_button", { up = "connect_to_server_button", left = "lobby_name_input", right = "lobby_player_name", down = "back_button" })
 Set_ui_navigation("back_button", { up = "create_lobby_button", down = "lobby_server_ip" })

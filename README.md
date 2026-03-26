@@ -134,6 +134,61 @@ To run the documentation locally:
     ```
     This will open the documentation in your browser at `http://localhost:3000`.
 
+## 🌐 Web Setup
+
+The web stack includes:
+
+*   **Backend API** (Node.js/Express): `http://localhost:8081`
+*   **Public Frontend** (React/Vite): `http://localhost:3000`
+*   **Admin Frontend** (React/Vite): `http://localhost:3001`
+*   **PostgreSQL**: `localhost:5432`
+
+### Option 1: Run with Docker Compose (recommended)
+
+From the project root:
+
+```bash
+docker-compose up --build
+```
+
+Stop services:
+
+```bash
+docker-compose down
+```
+
+### Option 2: Run locally (without Docker)
+
+1.  **Start PostgreSQL** and create/import the `r-type` database using `r-type.sql`.
+2.  **Run backend**:
+    ```bash
+    cd web/backend
+    npm install
+    npm run dev
+    ```
+    Configure environment variables in `web/backend/.env`:
+    *   `POSTGRES_URL`
+    *   `JWT_SECRET`
+    *   `CORS_ORIGIN`
+    *   `GAME_SERVER_URL`
+3.  **Run public frontend**:
+    ```bash
+    cd web/frontend/public
+    npm install
+    npm run dev
+    ```
+4.  **Run admin frontend**:
+    ```bash
+    cd web/frontend/admin
+    npm install
+    npm run dev
+    ```
+
+### Web Notes
+
+*   Backend CORS should include both frontend origins (`http://localhost:3000` and `http://localhost:3001`).
+*   If you run the C++ game server with the web backend, ensure `GAME_SERVER_URL` points to the reachable server address (for example port `8082`).
+
 ## 📂 Project Structure
 
 *   `src/`: Source code for the game and engine.

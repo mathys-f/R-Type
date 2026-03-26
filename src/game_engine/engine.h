@@ -71,6 +71,9 @@ class EngineContext {
     std::unordered_map<asio::ip::udp::endpoint, evts::EventQueue<evts::Event>> player_input_queues;
     std::unordered_map<std::uint8_t, asio::ip::udp::endpoint> player_id_to_endpoint;
     std::unordered_map<asio::ip::udp::endpoint, std::uint8_t> last_input_masks;
+    std::mutex backend_session_mutex;
+    std::unordered_map<asio::ip::udp::endpoint, std::uint32_t> backend_session_ids;
+    std::unordered_map<asio::ip::udp::endpoint, std::string> player_usernames;
     std::unordered_set<std::uint8_t> dead_player_ids;
     std::unordered_set<std::uint32_t> dead_enemy_ids;
     std::unordered_set<std::uint32_t> dead_shooter_ids;
@@ -159,6 +162,7 @@ class EngineContext {
 
     std::string server_ip;
     std::uint16_t server_port;
+    std::string current_player_username; // Current client's player username
 
     class BackendAPIClient* backend_api_client = nullptr; // Backend sync (server-side only)
     std::uint32_t current_lobby_id = 0;                   // Current lobby ID for backend sync

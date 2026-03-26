@@ -128,6 +128,19 @@ local styles = {
 		border_color_pressed =      {r = 160, g = 185, b = 170, a = 255},
 		border_radius = 0.5,
 		border_thickness = 4
+	},
+	dummy_button = {
+		background_color =          {r = 0,   g = 0,   b = 0,   a = 0},
+		background_color_hovered =  {r = 0,   g = 0,   b = 0,   a = 0},
+		background_color_pressed =  {r = 0,   g = 0,   b = 0,   a = 0},
+		text_color =                {r = 0,   g = 0,   b = 0,   a = 0},
+		text_color_hovered =        {r = 0,   g = 0,   b = 0,   a = 0},
+		text_color_pressed =        {r = 0,   g = 0,   b = 0,   a = 0},
+		border_color =              {r = 0,   g = 0,   b = 0,   a = 0},
+		border_color_hovered =      {r = 0,   g = 0,   b = 0,   a = 0},
+		border_color_pressed =      {r = 0,   g = 0,   b = 0,   a = 0},
+		border_radius = 0,
+		border_thickness = 0
 	}
 }
 
@@ -195,21 +208,27 @@ Create_ui_text("continue_hint", { content = "Choose your next move", font_size =
 Set_ui_style("continue_hint", styles.subtitle)
 Set_ui_transform("continue_hint", { x = 24, y = 68.5, z = 3, w = 40, h = 4, anchor_x = 0, anchor_y = 0, rotation = 0 })
 
+Create_ui_button("start_guard_button")
+Set_ui_text("start_guard_button", { content = "", font_size = 1 })
+Set_ui_style("start_guard_button", styles.dummy_button)
+Set_ui_transform("start_guard_button", { x = 0, y = 0, z = 0, w = 0, h = 0, anchor_x = 0, anchor_y = 0, rotation = 0 })
+
 Create_ui_button("retry_button")
-Set_ui_text("retry_button", { content = "Retry", font_size = 28 })
+Set_ui_text("retry_button", { content = "Retry", font_size = 26 })
 Set_ui_style("retry_button", styles.primary_button)
-Set_ui_transform("retry_button", { x = 24, y = 74, z = 3, w = 22, h = 7, anchor_x = 0, anchor_y = 0, rotation = 0 })
+Set_ui_transform("retry_button", { x = 29, y = 74, z = 3, w = 18, h = 6.2, anchor_x = 0, anchor_y = 0, rotation = 0 })
 
 Create_ui_button("main_menu_button")
-Set_ui_text("main_menu_button", { content = "Main Menu", font_size = 28 })
+Set_ui_text("main_menu_button", { content = "Main Menu", font_size = 26 })
 Set_ui_style("main_menu_button", styles.secondary_button)
-Set_ui_transform("main_menu_button", { x = 48, y = 74, z = 3, w = 28, h = 7, anchor_x = 0, anchor_y = 0, rotation = 0 })
+Set_ui_transform("main_menu_button", { x = 51, y = 74, z = 3, w = 22, h = 6.2, anchor_x = 0, anchor_y = 0, rotation = 0 })
 
 Create_ui_button("exit_button")
-Set_ui_text("exit_button", { content = "Exit", font_size = 24 })
+Set_ui_text("exit_button", { content = "Exit", font_size = 22 })
 Set_ui_style("exit_button", styles.secondary_button)
-Set_ui_transform("exit_button", { x = 24, y = 83, z = 3, w = 52, h = 6, anchor_x = 0, anchor_y = 0, rotation = 0 })
+Set_ui_transform("exit_button", { x = 30, y = 83, z = 3, w = 42, h = 5.2, anchor_x = 0, anchor_y = 0, rotation = 0 })
 
+Set_ui_navigation("start_guard_button", { up = "retry_button", down = "retry_button", left = "retry_button", right = "retry_button" })
 Set_ui_navigation("retry_button", { up = "exit_button", right = "main_menu_button", down = "exit_button" })
 Set_ui_navigation("main_menu_button", { left = "retry_button", up = "exit_button", down = "exit_button" })
 Set_ui_navigation("exit_button", { up = "main_menu_button", down = "retry_button" })

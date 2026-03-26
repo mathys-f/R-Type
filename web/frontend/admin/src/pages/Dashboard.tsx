@@ -5,7 +5,6 @@ import {
 	fetchLobbies,
 	fetchPlayers,
 	fetchBanned,
-	kickPlayer,
 	stopLobby,
 	createLobby,
 	banPlayer,
@@ -93,16 +92,6 @@ const Dashboard = () => {
 			loadData();
 		}
 	}, [token]);
-
-	const handleKick = async (sessionId: number) => {
-		if (!token) return;
-		try {
-			await kickPlayer(token, sessionId);
-			loadData();
-		} catch (err: any) {
-			setError(err.message || 'Kick failed');
-		}
-	};
 
 	const handleStopLobby = async (lobbyId: number) => {
 		if (!token) return;
@@ -217,7 +206,7 @@ const Dashboard = () => {
 							<StatCard label="Active Lobbies" value={stats.active_lobbies} />
 							<StatCard label="Active Players" value={stats.active_players} />
 							<StatCard label="Banned Players" value={stats.banned_count} />
-							<StatCard label="Total Accounts" value={stats.total_accounts} />
+							<StatCard label="Total Matches" value={stats.total_matches} />
 						</>
 					)}
 				</section>
@@ -286,14 +275,13 @@ const Dashboard = () => {
 					</div>
 
 					<div className="rounded-xl bg-slate-900/60 p-5 shadow-lg ring-1 ring-slate-800">
-						<div className="mb-4 flex items-center justify-between">
-							<h2 className="text-lg font-semibold">Sessions</h2>
-							<span className="text-xs text-slate-400">Kick suspicious players.</span>
+						<div className="mb-4">
+							<h2 className="text-lg font-semibold">Active Players</h2>
 						</div>
 						<div className="space-y-3">
 							{players.length === 0 && <p className="text-sm text-slate-300">No active players.</p>}
 							{players.map((player) => (
-								<div key={player.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900 px-4 py-3">
+								<div key={player.id} className="rounded-lg border border-slate-800 bg-slate-900 px-4 py-3">
 									<div>
 										<p className="text-sm font-semibold text-indigo-200">{player.player_name}</p>
 										<p className="text-xs text-slate-400">Session #{player.id} · Lobby {player.lobby_id}</p>
@@ -301,12 +289,6 @@ const Dashboard = () => {
 											<p className="text-xs text-slate-500">K {player.PlayerScores[0].kills} / D {player.PlayerScores[0].deaths} / S {player.PlayerScores[0].score}</p>
 										)}
 									</div>
-									<button
-										className="rounded-md border border-amber-400 px-3 py-1 text-xs text-amber-100 hover:bg-amber-500/10"
-										onClick={() => handleKick(player.id)}
-									>
-										Kick
-									</button>
 								</div>
 							))}
 						</div>

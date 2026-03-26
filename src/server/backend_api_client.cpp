@@ -18,7 +18,8 @@ constexpr int k_http_timeout_seconds = 2;
 
 namespace engn {
 
-BackendAPIClient::BackendAPIClient(const std::string& host, std::uint16_t port) : m_host(host), m_port(port) {}
+BackendAPIClient::BackendAPIClient(const std::string& host, std::uint16_t port) : m_host(host), m_port(port) {
+}
 
 std::optional<Json> BackendAPIClient::post_request(const std::string& endpoint, const Json& body) {
     try {
@@ -26,7 +27,9 @@ std::optional<Json> BackendAPIClient::post_request(const std::string& endpoint, 
         cli.set_connection_timeout(k_http_timeout_seconds, 0);
         cli.set_read_timeout(k_http_timeout_seconds, 0);
 
-        auto res = cli.Post(endpoint, body.dump(), "application/json");
+        httplib::Headers headers;
+
+        auto res = cli.Post(endpoint, headers, body.dump(), "application/json");
 
         if (!res) {
             m_last_error = "HTTP request failed: no response from backend";
@@ -198,6 +201,37 @@ bool BackendAPIClient::update_lobby_player_count(std::uint32_t lobby_id, std::ui
     } catch (const std::exception& e) {
         m_last_error = std::string("JSON parsing error: ") + e.what();
         return false;
+    }
+}
+
+std::optional<BackendAPIClient::BanCheckResult> BackendAPIClient::check_player_ban(const std::string& player_name) {
+    Json body;
+    body["playerName"] = player_name;
+
+    auto res = post_request("/api/game/session/check-ban", body);
+    if (!res.has_value()) {
+        return std::nullopt;
+    }
+
+    try {
+        const auto& json_res = res.value();
+        if (!json_res.contains("success") || !json_res["success"].get<bool>()) {
+            m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
+            return std::nullopt;
+        }
+
+        BanCheckResult result{};
+        result.m_is_banned = json_res.contains("banned") ? json_res["banned"].get<bool>() : false;
+
+        if (result.m_is_banned && json_res.contains("reason") && json_res["reason"].is_string()) {
+            result.m_reason = json_res["reason"].get<std::string>();
+        }
+
+        return result;
+    } catch (const std::exception& e) {
+        m_last_error = std::string("JSON parsing error: ") + e.what();
+        LOG_ERROR("Backend response parsing failed: {}", m_last_error);
+        return std::nullopt;
     }
 }
 

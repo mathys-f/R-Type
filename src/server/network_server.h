@@ -11,6 +11,7 @@
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
+#include <string>
 
 namespace engn {
 class EngineContext;
@@ -51,5 +52,7 @@ class NetworkServer {
     std::unordered_set<asio::ip::udp::endpoint, net::EndpointHash> m_connected_clients;
     std::unordered_map<asio::ip::udp::endpoint, std::chrono::steady_clock::time_point, net::EndpointHash>
         m_client_last_activity;
+    std::unordered_map<asio::ip::udp::endpoint, std::string, net::EndpointHash> m_client_usernames;
+    std::unordered_map<asio::ip::udp::endpoint, std::uint32_t, net::EndpointHash> m_client_session_ids;
     std::mutex m_clients_mutex;
 };
