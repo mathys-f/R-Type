@@ -1,0 +1,16 @@
+[requires]
+raylib/5.5
+glm/1.0.1
+lua/5.4.6
+sol2/3.5.0
+asio/1.30.2
+cpp-httplib/0.15.3
+nlohmann_json/3.11.3
+boost/1.84.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

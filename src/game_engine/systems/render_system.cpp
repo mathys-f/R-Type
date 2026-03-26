@@ -9,14 +9,15 @@ using namespace engn;
 namespace {
 constexpr float k_particle_radius = 3.0f;
 constexpr int k_alpha_max = 255;
-    constexpr int k_level_to_appear = 0;
-    constexpr int k_stars_cycle = 5;
+constexpr int k_level_to_appear = 0;
+constexpr int k_stars_cycle = 5;
 } // namespace
 
 void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Star> const& stars,
-                        ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Particle> const& particles,
-                        ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::Boss> const& bosses) {
+                        ecs::SparseArray<cpnt::Velocity> const& velocities,
+                        ecs::SparseArray<cpnt::Particle> const& particles, ecs::SparseArray<cpnt::Stats> const& stats,
+                        ecs::SparseArray<cpnt::Boss> const& bosses) {
 
     auto& reg = ctx.registry;
     Color stars_color = WHITE;
@@ -60,9 +61,9 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     for (auto [idx, pos_opt, particle_opt] : ecs::indexed_zipper(positions, particles)) {
         if (pos_opt && particle_opt) {
             float alpha = 1.0f - (particle_opt->lifetime / particle_opt->max_lifetime);
-            DrawCircleV(
-                (Vector2){pos_opt->x, pos_opt->y}, k_particle_radius * alpha,
-                (Color){particle_opt->red, particle_opt->green, particle_opt->blue, static_cast<unsigned char>(alpha * k_alpha_max)});
+            DrawCircleV((Vector2){pos_opt->x, pos_opt->y}, k_particle_radius * alpha,
+                        (Color){particle_opt->red, particle_opt->green, particle_opt->blue,
+                                static_cast<unsigned char>(alpha * k_alpha_max)});
 
             // Update lifetime
             auto& particles_arr = reg.get_components<cpnt::Particle>();
@@ -78,16 +79,21 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     }
 
     // Render everything with sprites
-    for (auto [idx, pos_opt, sprite_opt, vel_opt] : ecs::indexed_zipper(positions, sprites, velocities)) {
+    for (auto [idx, pos_opt, sprite_opt] : ecs::indexed_zipper(positions, sprites)) {
         if (pos_opt && sprite_opt) {
             float width = sprite_opt->source_rect.width * sprite_opt->scale;
             float height = sprite_opt->source_rect.height * sprite_opt->scale;
 
             std::optional<Texture2D> texture = ctx.assets_manager.get_asset<Texture2D>(sprite_opt->texture);
             if (texture.has_value()) {
+                // Optionally get velocity for rotation, but don't require it
+                float rotation = 0.0f;
+                if (idx < velocities.size() && velocities[idx].has_value()) {
+                    rotation = velocities[idx]->vz;
+                }
                 DrawTexturePro(texture.value(), sprite_opt->source_rect,
                                (Rectangle){pos_opt->x, pos_opt->y, width, height},
-                               (Vector2){pos_opt->origin_x, pos_opt->origin_y}, vel_opt ? vel_opt->vz : 0.0f, WHITE);
+                               (Vector2){pos_opt->origin_x, pos_opt->origin_y}, rotation, WHITE);
             }
         }
     }
@@ -95,30 +101,39 @@ void sys::render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> co
     //  Render boss wave effect
     for (auto [boss_idx, boss_opt] : ecs::indexed_zipper(bosses)) {
         if (boss_opt && boss_opt->roar_active) {
-            float radius = boss_opt->waveRadius;
-            int center_x = (int)boss_opt->waveCenter.x;
-            int center_y = (int)boss_opt->waveCenter.y;
-            
+            constexpr int k_front_ring_thickness = 10;
+            constexpr int k_middle_ring_thickness = 3;
+            constexpr int k_back_ring_thickness = 2;
+            float radius = boss_opt->wave_radius;
+            int center_x = (int)boss_opt->wave_center.x;
+            int center_y = (int)boss_opt->wave_center.y;
+
             // Draw multiple trailing rings with decreasing thickness and alpha
             const int k_num_rings = 8;
             const float k_ring_spacing = 15.0f;
-            
+
             for (int i = k_num_rings - 1; i >= 0; i--) {
-                float ring_radius = radius - (i * k_ring_spacing);  // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
-                
+                float ring_radius =
+                    radius -
+                    (i * k_ring_spacing); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+
                 if (ring_radius > 0) {
                     // Calculate alpha fade (older rings are more transparent)
-                    float alpha = 1.0f - (i / (float)k_num_rings); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
-                    alpha = alpha * alpha; // Quadratic falloff for smoother fade
-                    
+                    float alpha =
+                        1.0f -
+                        (i / (float)k_num_rings); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                    alpha = alpha * alpha;        // Quadratic falloff for smoother fade
+
                     // Calculate thickness (thicker at the front)
-                    int thickness = (i == 0) ? 10 : (i <= 2) ? 3 : 2; // NOLINT(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-                    
+                    int thickness = (i == 0)   ? k_front_ring_thickness
+                                    : (i <= 2) ? k_middle_ring_thickness
+                                               : k_back_ring_thickness;
+
                     Color ring_color = Fade(WHITE, alpha);
-                    
+
                     // Draw multiple lines for thickness
                     for (int t = 0; t < thickness; t++) {
-                        DrawCircleLines(center_x, center_y, ring_radius + t, ring_color); // NOLINT(cppcoreguidelines-narrowing-conversions,-warnings-as-errors)
+                        DrawCircleLines(center_x, center_y, ring_radius + static_cast<float>(t), ring_color);
                     }
                 }
             }

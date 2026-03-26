@@ -1,38 +1,39 @@
 #include "lobby_manager.h"
-#include "scenes_loaders.h"
 
-#include "game_engine/engine.h"
-#include "utils/logger.h"
-#include "lobby_ipc.h"
 #include "backend_api_client.h"
+#include "game_engine/engine.h"
+#include "lobby_ipc.h"
+#include "scenes_loaders.h"
+#include "utils/logger.h"
 
 #include <chrono>
 
 #ifdef _WIN32
     #include <windows.h>
 #else
-    #include <unistd.h>
-    #include <sys/wait.h>
     #include <signal.h>
+    #include <sys/wait.h>
+    #include <unistd.h>
 #endif
 
 namespace {
-    constexpr int k_shutdown_wait_ms = 100;
-    constexpr int k_heartbeat_interval_ticks = 60;
-    constexpr std::uint16_t k_backend_port = 8081;
-}
+constexpr int k_shutdown_wait_ms = 100;
+constexpr int k_heartbeat_interval_ticks = 60;
+constexpr std::uint16_t k_backend_port = 8081;
+} // namespace
 
 // GameLobby implementation
 GameLobby::GameLobby(std::uint32_t lobby_id, const std::string& lobby_name, std::uint8_t max_players,
                      std::uint16_t port)
-    : m_lobby_id(lobby_id), m_lobby_name(lobby_name), m_max_players(max_players), m_port(port),
-      m_current_players(0), m_process_handle(
+    : m_lobby_id(lobby_id), m_lobby_name(lobby_name), m_max_players(max_players), m_port(port), m_current_players(0),
+      m_process_handle(
 #ifdef _WIN32
           NULL
 #else
           -1
 #endif
-      ) {}
+      ) {
+}
 
 GameLobby::~GameLobby() {
     stop();
@@ -121,11 +122,10 @@ void GameLobby::fork_and_run_lobby_process() {
     char exe_path[MAX_PATH];
     GetModuleFileNameA(NULL, exe_path, MAX_PATH);
 
-    std::string cmd_line = std::string(exe_path) + " -islobby -lobby-id " +
-                           std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
+    std::string cmd_line =
+        std::string(exe_path) + " -islobby -lobby-id " + std::to_string(m_lobby_id) + " -p " + std::to_string(m_port);
 
-    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE,
-                        0, NULL, NULL, &si, &pi)) {
+    if (!CreateProcessA(NULL, const_cast<char*>(cmd_line.c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
         LOG_ERROR("Failed to create process for lobby {}: {}", m_lobby_id, GetLastError());
         m_running = false;
         throw std::runtime_error("CreateProcess failed");
@@ -153,8 +153,8 @@ void GameLobby::fork_and_run_lobby_process() {
 #endif
 }
 
-void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name,
-                                           std::uint16_t port, std::uint8_t max_players) {
+void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::string& lobby_name, std::uint16_t port,
+                                           std::uint8_t max_players) {
     try {
         LOG_INFO("Lobby '{}' process started (PID: {})", lobby_name,
 #ifdef _WIN32
@@ -181,16 +181,16 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
         LOG_INFO("Lobby '{}' game server running on port {}", lobby_name, port);
 
         constexpr int k_tick_ms = 16;
-        bool running = true;
         int heartbeat_counter = 0;
+        int last_player_count = -1;
 
-        while (running) {
+        while (!lobby_engine_ctx.should_quit) {
             server->get_engine().delta_time = k_tick_ms / 1000.0f; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
             ipc::IPCMessage msg;
             if (ipc.try_receive_from_main(msg, 0)) {
                 if (msg.type == ipc::MessageType::SHUTDOWNREQ) {
                     LOG_INFO("Lobby {} received shutdown request", lobby_id);
-                    running = false;
+                    lobby_engine_ctx.should_quit = true;
 
                     ipc::IPCMessage ack;
                     ack.type = ipc::MessageType::SHUTDOWNACK;
@@ -198,6 +198,7 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                     ipc.send_to_main(ack);
                 }
             }
+
             if (++heartbeat_counter >= k_heartbeat_interval_ticks) {
                 ipc::IPCMessage heartbeat;
                 heartbeat.type = ipc::MessageType::HEARTBEAT;
@@ -205,8 +206,22 @@ void GameLobby::run_lobby_in_child_process(std::uint32_t lobby_id, const std::st
                 ipc.send_to_main(heartbeat);
                 heartbeat_counter = 0;
             }
+
+            // Update player count via IPC if it changed
+            int current_player_count = static_cast<int>(server->get_engine().get_clients().size());
+            if (current_player_count != last_player_count) {
+                ipc::IPCMessage count_msg;
+                count_msg.type = ipc::MessageType::PLAYERCOUNT;
+                count_msg.lobby_id = lobby_id;
+                count_msg.data = static_cast<std::uint64_t>(current_player_count);
+                ipc.send_to_main(count_msg);
+                last_player_count = current_player_count;
+                LOG_INFO("Lobby {} player count updated to {}", lobby_id, current_player_count);
+            }
+
             server->poll();
             server->get_engine().run_systems();
+            server->get_engine().registry.process_deferred_kills();
             std::this_thread::sleep_for(std::chrono::milliseconds(k_tick_ms));
         }
 
@@ -255,10 +270,16 @@ void GameLobby::process_ipc_messages() {
             case ipc::MessageType::HEARTBEAT:
                 LOG_DEBUG("Received heartbeat from lobby {}", msg.lobby_id);
                 break;
-            case ipc::MessageType::PLAYERCOUNT:
-                m_current_players = static_cast<std::uint8_t>(msg.data);
+            case ipc::MessageType::PLAYERCOUNT: {
+                std::uint8_t new_count = static_cast<std::uint8_t>(msg.data);
+                m_current_players = new_count;
                 LOG_DEBUG("Lobby {} player count updated: {}", msg.lobby_id, msg.data);
+                if (new_count == 0) {
+                    std::lock_guard<std::mutex> lock(m_players_mutex);
+                    m_players.clear();
+                }
                 break;
+            }
             case ipc::MessageType::SHUTDOWNACK:
                 LOG_INFO("Lobby {} acknowledged shutdown", msg.lobby_id);
                 break;
@@ -274,8 +295,9 @@ void GameLobby::add_player(const std::string& player_ip) {
     auto it = std::find(m_players.begin(), m_players.end(), player_ip);
     if (it == m_players.end()) {
         m_players.push_back(player_ip);
-        m_current_players = static_cast<std::uint8_t>(m_players.size());
-        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(), m_max_players);
+        m_current_players++;
+        LOG_INFO("Player {} joined lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name,
+                 m_current_players.load(), m_max_players);
     } else {
         LOG_INFO("Player {} reconnected to lobby '{}'", player_ip, m_lobby_name);
     }
@@ -286,7 +308,9 @@ void GameLobby::remove_player(const std::string& player_ip) {
     auto it = std::find(m_players.begin(), m_players.end(), player_ip);
     if (it != m_players.end()) {
         m_players.erase(it);
-        m_current_players = static_cast<std::uint8_t>(m_players.size());
+        if (m_current_players > 0) {
+            m_current_players--;
+        }
         LOG_INFO("Player {} left lobby '{}'. Current players: {}/{}", player_ip, m_lobby_name, m_current_players.load(),
                  m_max_players);
     }
@@ -348,8 +372,12 @@ void LobbyManager::remove_lobby(std::uint32_t lobby_id) {
     auto it = m_lobbies.find(lobby_id);
     if (it != m_lobbies.end()) {
         // Finalize match data before destroying lobby
-        if (m_api_client && m_api_client->finalize_match(lobby_id)) {
-            LOG_INFO("Finalized match data for lobby {}", lobby_id);
+        if (m_api_client) {
+            if (m_api_client->finalize_match(lobby_id)) {
+                LOG_INFO("Finalized match data for lobby {}", lobby_id);
+            } else {
+                LOG_WARNING("Failed to finalize match data for lobby {}: {}", lobby_id, m_api_client->get_last_error());
+            }
         }
 
         it->second->stop();
@@ -406,6 +434,16 @@ void LobbyManager::cleanup_empty_lobbies() {
     for (std::uint32_t id : to_remove) {
         auto it = m_lobbies.find(id);
         if (it != m_lobbies.end()) {
+            // This path handles lobbies whose process died or stayed empty.
+            // Finalize backend state here as well so lobby/session rows are cleaned.
+            if (m_api_client) {
+                if (m_api_client->finalize_match(id)) {
+                    LOG_INFO("Finalized match data for cleaned lobby {}", id);
+                } else {
+                    LOG_WARNING("Failed to finalize cleaned lobby {}: {}", id, m_api_client->get_last_error());
+                }
+            }
+
             it->second->stop();
             m_lobbies.erase(it);
             m_empty_ticks.erase(id);
@@ -432,6 +470,29 @@ void LobbyManager::sync_player_counts() {
         std::uint8_t player_count = lobby->get_current_players();
         m_api_client->update_lobby_player_count(id, player_count);
     }
+}
+
+std::optional<std::uint32_t> LobbyManager::add_player_session(std::uint32_t lobby_id, const std::string& player_name,
+                                                              std::optional<std::uint32_t> account_id,
+                                                              const std::string& ip_address) {
+    if (!m_api_client) {
+        return std::nullopt;
+    }
+
+    std::optional<std::string> ip_opt = std::nullopt;
+    if (!ip_address.empty()) {
+        ip_opt = ip_address;
+    }
+
+    return m_api_client->add_player_session(lobby_id, player_name, account_id, ip_opt);
+}
+
+std::optional<engn::BackendAPIClient::BanCheckResult> LobbyManager::check_player_ban(const std::string& player_name) {
+    if (!m_api_client) {
+        return std::nullopt;
+    }
+
+    return m_api_client->check_player_ban(player_name);
 }
 
 std::uint16_t LobbyManager::allocate_port() {

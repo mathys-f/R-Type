@@ -20,12 +20,8 @@ void sys::ui_background_renderer(EngineContext& ctx, const ecs::SparseArray<cpnt
         if (!transform.has_value() || !style.has_value())
             continue;
 
-        Rectangle rect{
-            transform->x / 100.0f * k_width,
-            transform->y / 100.0f * k_height,
-            transform->w / 100.0f * k_width,
-            transform->h / 100.0f * k_height
-        };
+        Rectangle rect{transform->x / 100.0f * k_width, transform->y / 100.0f * k_height,
+                       transform->w / 100.0f * k_width, transform->h / 100.0f * k_height};
         Color rect_color{style->background_color.r, style->background_color.g, style->background_color.b,
                          style->background_color.a};
         Color border_color{style->border_color.r, style->border_color.g, style->border_color.b, style->border_color.a};

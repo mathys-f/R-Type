@@ -22,7 +22,8 @@ constexpr float k_bullet_damage = 10;
 void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                            ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                            ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
-                           ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
+                           ecs::SparseArray<cpnt::Hitbox> const& hitboxes,
+                           ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
                            ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats,
                            ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes) {
     std::vector<ecs::Entity> bullets_to_kill;
@@ -33,33 +34,33 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
     // Debug - show hitboxes
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,-warnings-as-errors)
-    //for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
+    // for (auto [idx, pos_opt, hitbox_opt] : ecs::indexed_zipper(positions, hitboxes)) {
     //    if (pos_opt && hitbox_opt) {
     //        Rectangle rect = {pos_opt->x + hitbox_opt->offset_x, pos_opt->y + hitbox_opt->offset_y,
     //                          hitbox_opt->width, hitbox_opt->height};
     //        DrawRectangleLinesEx(rect, 2.0f, GREEN);
     //    }
     //}
-//
+    //
     //// Debug - show boss hitboxes
-    //for (auto [idx, pos_opt, boss_hitbox_opt] : ecs::indexed_zipper(positions, boss_hitboxes)) {
-    //    if (pos_opt && boss_hitbox_opt) {
-    //        Rectangle rect_1 = {pos_opt->x + boss_hitbox_opt->offset_x_1,
-    //                            pos_opt->y + boss_hitbox_opt->offset_y_1,
-    //                            boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
-    //        Rectangle rect_2 = {pos_opt->x + boss_hitbox_opt->offset_x_2,
-    //                            pos_opt->y + boss_hitbox_opt->offset_y_2,
-    //                            boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
-    //        Rectangle rect_3 = {pos_opt->x + boss_hitbox_opt->offset_x_3,
-    //                            pos_opt->y + boss_hitbox_opt->offset_y_3,
-    //                            boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
-    //        DrawRectangleLinesEx(rect_1, 2.0f, BLUE);
-    //        DrawRectangleLinesEx(rect_2, 2.0f, BLUE);
-    //        DrawRectangleLinesEx(rect_3, 2.0f, BLUE);
-    //    }
-    //}
+    // for (auto [idx, pos_opt, boss_hitbox_opt] : ecs::indexed_zipper(positions, boss_hitboxes)) {
+    //     if (pos_opt && boss_hitbox_opt) {
+    //         Rectangle rect_1 = {pos_opt->x + boss_hitbox_opt->offset_x_1,
+    //                             pos_opt->y + boss_hitbox_opt->offset_y_1,
+    //                             boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
+    //         Rectangle rect_2 = {pos_opt->x + boss_hitbox_opt->offset_x_2,
+    //                             pos_opt->y + boss_hitbox_opt->offset_y_2,
+    //                             boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
+    //         Rectangle rect_3 = {pos_opt->x + boss_hitbox_opt->offset_x_3,
+    //                             pos_opt->y + boss_hitbox_opt->offset_y_3,
+    //                             boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
+    //         DrawRectangleLinesEx(rect_1, 2.0f, BLUE);
+    //         DrawRectangleLinesEx(rect_2, 2.0f, BLUE);
+    //         DrawRectangleLinesEx(rect_3, 2.0f, BLUE);
+    //     }
+    // }
 
-    // Get bullet entities
+    // Get Bullet entities
     for (auto [bullet_idx, bullet_pos_opt, bullet_tag_opt] : ecs::indexed_zipper(positions, bullets)) {
         if (bullet_pos_opt && bullet_tag_opt) {
             // Check against all enemies
@@ -118,8 +119,8 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                                              player_hitbox_opt->height};
 
                     if (CheckCollisionRecs(player_rect, enemy_rect)) {
-                        // Handle player hit logic here
-                        // For simplicity, just reduce enemy health
+                        // Handle Player hit logic here
+                        // For simplicity, just reduce Enemy Health
                         auto& health = reg.get_components<cpnt::Health>()[enemy_idx];
                         if (health) {
                             health->hp = 0;
@@ -127,7 +128,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_collision_damage; // Reduce player health
+                            health_player->hp -= k_collision_damage; // Reduce Player Health
                         }
                     }
                 }
@@ -135,7 +136,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
         }
     }
 
-    // Shooter bullet - Player collision
+    // Shooter Bullet - Player collision
     for (auto [bullet_idx, bullet_pos_opt, bullet_shot_tag_opt] : ecs::indexed_zipper(positions, bullets_shooter)) {
         if (!bullet_shot_tag_opt)
             continue;
@@ -166,7 +167,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_bullet_damage; // Reduce player health
+                            health_player->hp -= k_bullet_damage; // Reduce Player Health
                         }
                         break;
                     }
@@ -182,8 +183,8 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                  ecs::indexed_zipper(positions, shooters, healths, hitboxes)) {
                 if (shooter_pos_opt && shooter_tag_opt && health_opt && health_opt->hp > 0 && shooter_hitbox_opt) {
                     Rectangle shooter_rect = {shooter_pos_opt->x + shooter_hitbox_opt->offset_x,
-                                             shooter_pos_opt->y + shooter_hitbox_opt->offset_y, shooter_hitbox_opt->width,
-                                             shooter_hitbox_opt->height};
+                                              shooter_pos_opt->y + shooter_hitbox_opt->offset_y,
+                                              shooter_hitbox_opt->width, shooter_hitbox_opt->height};
                     Vector2 bullet_pos = {bullet_pos_opt->x, bullet_pos_opt->y};
 
                     if (CheckCollisionCircleRec(bullet_pos, k_bullet_radius, shooter_rect)) {
@@ -239,7 +240,7 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
                         auto& health_player = reg.get_components<cpnt::Health>()[player_idx];
                         if (health_player) {
-                            health_player->hp -= k_collision_damage; // Reduce player health
+                            health_player->hp -= k_collision_damage; // Reduce Player Health
                         }
                     }
                 }
@@ -255,14 +256,14 @@ void sys::collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
                  ecs::indexed_zipper(positions, healths, boss_hitboxes)) {
                 if (boss_pos_opt && health_opt && health_opt->hp > 0 && boss_hitbox_opt) {
                     Rectangle rect_1 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_1,
-                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_1,
-                                        boss_hitbox_opt->width_1, boss_hitbox_opt->height_1};
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_1, boss_hitbox_opt->width_1,
+                                        boss_hitbox_opt->height_1};
                     Rectangle rect_2 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_2,
-                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_2,
-                                        boss_hitbox_opt->width_2, boss_hitbox_opt->height_2};
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_2, boss_hitbox_opt->width_2,
+                                        boss_hitbox_opt->height_2};
                     Rectangle rect_3 = {boss_pos_opt->x + boss_hitbox_opt->offset_x_3,
-                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_3,
-                                        boss_hitbox_opt->width_3, boss_hitbox_opt->height_3};
+                                        boss_pos_opt->y + boss_hitbox_opt->offset_y_3, boss_hitbox_opt->width_3,
+                                        boss_hitbox_opt->height_3};
                     Vector2 bullet_pos = {bullet_pos_opt->x, bullet_pos_opt->y};
 
                     if (CheckCollisionCircleRec(bullet_pos, k_bullet_radius, rect_1) ||

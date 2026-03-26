@@ -27,13 +27,15 @@ void ui_input_field_updater(EngineContext& ctx, const ecs::SparseArray<cpnt::UII
 void bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Bullet> const& bullets);
 
-void BulletShooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                   ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
+void bullet_shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                           ecs::SparseArray<cpnt::Velocity> const& velocities,
+                           ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter);
 
 void collision_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Enemy> const& enemies,
                       ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Player> const& players,
-                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes, ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
+                      ecs::SparseArray<cpnt::Hitbox> const& hitboxes,
+                      ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
                       ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Stats> const& stats,
                       ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes);
 
@@ -46,15 +48,15 @@ void enemy_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& p
                   ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Sprite> const& sprites);
 
 void shooter_movement_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                           ecs::SparseArray<cpnt::MovementPattern> const& patterns,
-                           ecs::SparseArray<cpnt::Velocity> const& velocity,
-                           ecs::SparseArray<cpnt::Shooter> const& shooters,
-                           ecs::SparseArray<cpnt::Player> const& player);
+                             ecs::SparseArray<cpnt::MovementPattern> const& patterns,
+                             ecs::SparseArray<cpnt::Velocity> const& velocity,
+                             ecs::SparseArray<cpnt::Shooter> const& shooters,
+                             ecs::SparseArray<cpnt::Player> const& player);
 
 void shooter_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                  ecs::SparseArray<cpnt::Velocity> const& velocities,
-                  ecs::SparseArray<cpnt::Health> const& healths, ecs::SparseArray<cpnt::Sprite> const& sprites,
-                  ecs::SparseArray<cpnt::Shooter> const& shooters, ecs::SparseArray<cpnt::Player> const& player);
+                    ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Health> const& healths,
+                    ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Shooter> const& shooters,
+                    ecs::SparseArray<cpnt::Player> const& player);
 
 void explosion_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                       ecs::SparseArray<cpnt::Explosion> const& explosions,
@@ -73,18 +75,19 @@ void player_control_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform>
 
 void render_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                    ecs::SparseArray<cpnt::Sprite> const& sprites, ecs::SparseArray<cpnt::Star> const& stars,
-                   ecs::SparseArray<cpnt::Velocity> const& velocities, ecs::SparseArray<cpnt::Particle> const& particles,
-                   ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::Boss> const& bosses);
+                   ecs::SparseArray<cpnt::Velocity> const& velocities,
+                   ecs::SparseArray<cpnt::Particle> const& particles, ecs::SparseArray<cpnt::Stats> const& stats,
+                   ecs::SparseArray<cpnt::Boss> const& bosses);
 
-void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss, ecs::SparseArray<cpnt::Transform> const& positions,
-                     ecs::SparseArray<cpnt::Stats> const& stats, ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes,
-                     ecs::SparseArray<cpnt::Enemy> const& enemies, ecs::SparseArray<cpnt::Shooter> const& shooters,
-                     ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter, ecs::SparseArray<cpnt::Bullet> const& bullets, 
-                     ecs::SparseArray<cpnt::Health> const& healths);
+void boss_system(EngineContext& ctx, ecs::SparseArray<cpnt::Boss> const& boss,
+                 ecs::SparseArray<cpnt::Transform> const& positions, ecs::SparseArray<cpnt::Stats> const& stats,
+                 ecs::SparseArray<cpnt::BossHitbox> const& boss_hitboxes, ecs::SparseArray<cpnt::Enemy> const& enemies,
+                 ecs::SparseArray<cpnt::Shooter> const& shooters,
+                 ecs::SparseArray<cpnt::BulletShooter> const& bullets_shooter,
+                 ecs::SparseArray<cpnt::Bullet> const& bullets, ecs::SparseArray<cpnt::Health> const& healths);
 
 void star_scroll_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
                         ecs::SparseArray<cpnt::Star> const& stars);
-
 
 void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats);
 
@@ -97,11 +100,16 @@ void stat_system(EngineContext& ctx, ecs::SparseArray<cpnt::Stats> const& stats)
 void poll_input_events_from_client(EngineContext& ctx);
 void create_snapshot_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
 void update_snapshots_system(EngineContext& ctx);
-void send_snapshot_to_client_system(EngineContext& ctx, ecs::SparseArray<cpnt::Replicated> const& replicated_components);
-void clear_tombstones_system(EngineContext &ctx);
-
+void send_snapshot_to_client_system(EngineContext& ctx,
+                                    ecs::SparseArray<cpnt::Replicated> const& replicated_components);
+void clear_tombstones_system(EngineContext& ctx);
 
 void handle_snapshots_deltas_system(EngineContext& ctx);
+void apply_server_updates_system(EngineContext& ctx);
+void predict_local_player_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
+                                 ecs::SparseArray<cpnt::Player> const& players,
+                                 ecs::SparseArray<cpnt::Sprite> const& sprites,
+                                 ecs::SparseArray<cpnt::Velocity> const& velocities);
 void send_input_events_to_server(EngineContext& ctx);
 
 } // namespace sys

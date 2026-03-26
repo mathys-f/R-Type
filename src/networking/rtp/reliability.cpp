@@ -23,8 +23,13 @@ std::uint32_t ReliableSendQueue::next_sequence() {
     return k_current;
 }
 
-void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now, const asio::ip::udp::endpoint& endpoint) {
-    m_queue.push_back(Pending{.m_packet = packet, .m_last_sent = now, .m_attempts = 1, .m_rto = m_config.initial_rto, .m_endpoint = endpoint});
+void ReliableSendQueue::track(const Packet& packet, std::chrono::steady_clock::time_point now,
+                              const asio::ip::udp::endpoint& endpoint) {
+    m_queue.push_back(Pending{.m_packet = packet,
+                              .m_last_sent = now,
+                              .m_attempts = 1,
+                              .m_rto = m_config.initial_rto,
+                              .m_endpoint = endpoint});
 }
 
 void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::endpoint& endpoint) {
@@ -41,8 +46,9 @@ void ReliableSendQueue::acknowledge(std::uint32_t ackId, const asio::ip::udp::en
     }
 }
 
-std::vector<Packet> ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
-    std::vector<Packet> due{};
+std::vector<std::pair<Packet, asio::ip::udp::endpoint>>
+ReliableSendQueue::collect_timeouts(std::chrono::steady_clock::time_point now) {
+    std::vector<std::pair<Packet, asio::ip::udp::endpoint>> due{};
     for (auto it = m_queue.begin(); it != m_queue.end();) {
         Pending& pending = *it;
 
@@ -57,7 +63,7 @@ std::vector<Packet> ReliableSendQueue::collect_timeouts(std::chrono::steady_cloc
             pending.m_last_sent = now;
             ++pending.m_attempts;
             pending.m_rto = std::min(pending.m_rto * 2, m_config.max_rto);
-            due.push_back(pending.m_packet);
+            due.emplace_back(pending.m_packet, pending.m_endpoint);
         }
         ++it;
     }
@@ -89,23 +95,35 @@ std::vector<std::uint32_t> ReliableSendQueue::take_failures() {
     return failures;
 }
 
-bool ReliableSendQueue::is_acknowledged(std::uint32_t sequence, const asio::ip::udp::endpoint& endpoint) const {
+DeliveryStatus ReliableSendQueue::is_acknowledged(std::uint32_t sequence,
+                                                  const asio::ip::udp::endpoint& endpoint) const {
     if (sequence == 0) {
-        return false;
+        return DeliveryStatus::Failed;
     }
 
     if (!is_seq_newer(m_next_sequence, sequence)) {
-        return false;
+        return DeliveryStatus::Pending;
     }
 
     for (const Pending& pending : m_queue) {
         if (pending.m_packet.header.m_sequence == sequence && pending.m_endpoint == endpoint) {
-            return false; // Still in queue, not acknowledged
+            const auto k_now = std::chrono::steady_clock::now();
+            const auto k_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(k_now - pending.m_last_sent);
+            if (k_elapsed >= pending.m_rto) {
+                return DeliveryStatus::TimedOut;
+            }
+            return DeliveryStatus::Pending;
         }
     }
-    return true;
-}
 
+    for (std::uint32_t failed_seq : m_failed) {
+        if (failed_seq == sequence) {
+            return DeliveryStatus::Failed;
+        }
+    }
+
+    return DeliveryStatus::Acknowledged;
+}
 
 void ReliableReceiveWindow::observe(std::uint32_t sequence) {
     if (sequence == 0) {

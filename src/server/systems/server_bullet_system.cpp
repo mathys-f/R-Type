@@ -6,8 +6,8 @@
 using namespace engn;
 
 void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transform> const& positions,
-                        ecs::SparseArray<cpnt::Velocity> const& velocities,
-                        ecs::SparseArray<cpnt::Bullet> const& bullets) {
+                               ecs::SparseArray<cpnt::Velocity> const& velocities,
+                               ecs::SparseArray<cpnt::Bullet> const& bullets) {
     std::vector<ecs::Entity> to_kill;
     auto& reg = ctx.registry;
     float dt = ctx.delta_time;
@@ -23,7 +23,7 @@ void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transf
                 pos->y += vel_opt->vy * dt;
 
                 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-                if (pos->x > ctx.window_size.x || pos->x < 0 || pos->y > ctx.window_size.y || pos->y < 0) {
+                if (pos->x > ctx.window_size.x || pos->x < 0.0f || pos->y > ctx.window_size.y || pos->y < 0.0f) {
                     to_kill.push_back(entity);
                 }
                 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
@@ -32,6 +32,6 @@ void sys::server_bullet_system(EngineContext& ctx, ecs::SparseArray<cpnt::Transf
     }
 
     for (auto e : to_kill) {
-        reg.kill_entity(e);
+        reg.kill_entity_deferred(e);
     }
 }

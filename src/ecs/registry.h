@@ -12,8 +12,7 @@
 #include <vector>
 
 // Hash specialization for std::pair<ecs::Entity, std::type_index>
-template <>
-struct std::hash<std::pair<ecs::Entity, std::type_index>> {
+template <> struct std::hash<std::pair<ecs::Entity, std::type_index>> {
     std::size_t operator()(const std::pair<ecs::Entity, std::type_index>& pair) const noexcept {
         std::size_t h1 = std::hash<ecs::Entity>{}(pair.first);
         std::size_t h2 = std::hash<std::type_index>{}(pair.second);
@@ -71,6 +70,13 @@ class Registry {
     /// @param e The entity to destroy.
     void kill_entity(EntityType const& e);
 
+    /// Mark an entity for deferred destruction (destroyed at end of frame).
+    /// @param e The entity to destroy later.
+    void kill_entity_deferred(EntityType const& e);
+
+    /// Process all deferred entity destructions. Call this at the end of each frame.
+    void process_deferred_kills();
+
     // Component management
     /// Add or replace a component instance for the given entity.
     /// @tparam TComponent Component type to add.
@@ -103,9 +109,11 @@ class Registry {
     /// Dump all components stored in the registry for a given entity.
     /// @tparam Entity The entity whose components to retrieve.
     /// @param entity The entity whose components to retrieve.
-    /// @return A const reference to a map of component type_index to storage any which contains all components.
-    const std::unordered_map<std::type_index, std::any>& get_entity_components(Entity entity) const noexcept;
-
+    /// @return A map of component type_index to any-wrapped component value.
+    ///
+    /// Note: returned by value so each call is independent and thread-safe;
+    /// do not rely on the lifetime of components beyond their SparseArray entries.
+    std::unordered_map<std::type_index, std::any> get_entity_components(Entity entity) const noexcept;
 
     /// Get the tag registry (non-const).
     /// @return Reference to the tag registry.
@@ -127,16 +135,18 @@ class Registry {
     /// This must be called each time you modify a component you need to track (eg. for networking).
     /// @param e The entity whose component is dirty.
     /// @tparam TComponent The component type to mark as dirty.
-    template <typename TComponent>
-    void mark_dirty(EntityType const& e);
+    template <typename TComponent> void mark_dirty(EntityType const& e);
+
+    /// Reset all entities, components, and metadata to an empty initial state.
+    /// Equivalent to destruction + reconstruction, but safe to call on a live object
+    /// because it does not invalidate the object's own address.
+    void clear();
 
     const std::unordered_map<EntityType, Version>& get_entity_creation_tombstones() const noexcept;
     const std::unordered_map<EntityType, Version>& get_entity_destruction_tombstones() const noexcept;
-    const std::unordered_map<EntityType,
-        std::unordered_map<std::type_index, Version>>&
-        get_component_destruction_tombstones() const noexcept;
-    const std::unordered_map<std::pair<EntityType, std::type_index>, Version>&
-        get_component_metadata() const noexcept;
+    const std::unordered_map<EntityType, std::unordered_map<std::type_index, Version>>&
+    get_component_destruction_tombstones() const noexcept;
+    const std::unordered_map<std::pair<EntityType, std::type_index>, Version>& get_component_metadata() const noexcept;
 
     /// Must be called when the tombstone is no longer needed to save up RAM
     void remove_entity_creation_tombstone(EntityType const& e);
@@ -170,6 +180,7 @@ class Registry {
     // entity id management
     Entity::IdType m_next_entity{0};
     std::vector<EntityType> m_free_entities;
+    std::vector<EntityType> m_deferred_kills;
 
     // Current version counter
     Version m_current_version = 1; // The 0 is reserved for error values
@@ -179,12 +190,13 @@ class Registry {
     // Tumbstones to track destroyed entities
     std::unordered_map<EntityType, Version> m_entity_destruction_tumbstones;
     // Tumbstones to track destroyed components per entity
-    std::unordered_map<EntityType,
-        std::unordered_map<std::type_index, Version>>
-        m_component_destruction_tombstones;
+    std::unordered_map<EntityType, std::unordered_map<std::type_index, Version>> m_component_destruction_tombstones;
 
     // Last version in which an entity's component has changed/been created
     std::unordered_map<std::pair<EntityType, std::type_index>, Version> m_component_metadata;
+
+    // Inverse index: entity -> list of component types (for fast lookup)
+    std::unordered_map<EntityType, std::vector<std::type_index>> m_entity_to_components;
 
     /// Remove all of an entity's components metadatas entries
     void remove_entity_components_metadata(EntityType const& e);

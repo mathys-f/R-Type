@@ -1,15 +1,15 @@
 #include "components/player.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Player::Player(std::uint8_t player_id)
-    : id(player_id) {};
+Player::Player(std::uint8_t player_id) : id(player_id) {};
 
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 engn::SerializedComponent Player::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::player;
+    serialized.type = engn::ComponentType::Player;
     std::uint32_t size = sizeof(id) + sizeof(shoot_cooldown);
     serialized.data.resize(size);
 

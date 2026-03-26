@@ -22,6 +22,8 @@ const sidebars: SidebarsConfig = {
   architectureSidebar: [
     "architecture/overview",
     "architecture/ecs",
+    "architecture/engine",
+    "architecture/ui",
   ],
   gameplaySidebar: [
     "gameplay/game-design",
@@ -32,7 +34,9 @@ const sidebars: SidebarsConfig = {
   networkingSidebar: [
     "networking/rfc",
     "networking/flowcharts",
-    "networking/implementation-details"
+    "networking/implementation-details",
+    "networking/r-type-net",
+    "networking/game-snapshot",
   ],
   contributingSidebar: [
     "contributing/contributing",

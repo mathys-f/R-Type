@@ -14,7 +14,6 @@
 #include "components/tag.h"
 #include "components/transform.h"
 #include "components/velocity.h"
-#include "components/weapon.h"
 
 #include <any>
 
@@ -36,7 +35,6 @@ enum class ComponentType {
     Tag,
     Transform,
     Velocity,
-    Weapon,
     Sprite
 };
 

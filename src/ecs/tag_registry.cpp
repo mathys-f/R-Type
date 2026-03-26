@@ -66,6 +66,16 @@ std::string TagRegistry::get_tag_name(TagId tag_id) const {
     return it->second;
 }
 
+std::string TagRegistry::get_tag_name(Entity entity) const {
+    TagId tag_id = get_tag_id(entity);
+
+    if (tag_id == TagRegistry::k_invalid_tag_id) {
+        LOG_ERROR("No tag is bound to the entity n°{}", entity.value());
+        return "";
+    }
+    return get_tag_name(tag_id);
+}
+
 std::optional<Entity> TagRegistry::get_entity(TagId tag_id) const {
     auto it = m_tag_to_entity.find(tag_id);
     if (it == m_tag_to_entity.end()) {
@@ -83,4 +93,11 @@ std::optional<Entity> TagRegistry::get_entity(const std::string& name) const {
         return std::nullopt;
     }
     return get_entity(tag_id);
+}
+
+void TagRegistry::clear() {
+    m_name_to_id.clear();
+    m_id_to_name.clear();
+    m_tag_to_entity.clear();
+    m_next_id = 0;
 }

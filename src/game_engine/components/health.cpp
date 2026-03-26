@@ -1,14 +1,14 @@
 #include "components/health.h"
+
 #include <cstring>
 
 using namespace engn::cpnt;
 
-Health::Health(int hp, int max_hp, int changes)
-    : hp(hp), max_hp(max_hp), changes(changes) {}
+Health::Health(int hp, int max_hp, int changes) : hp(hp), max_hp(max_hp), changes(changes) {}
 
 engn::SerializedComponent Health::serialize() const {
     engn::SerializedComponent serialized;
-    serialized.type = engn::ComponentType::health;
+    serialized.type = engn::ComponentType::Health;
     std::uint32_t size = sizeof(hp) + sizeof(max_hp) + sizeof(changes);
     serialized.data.resize(size);
 

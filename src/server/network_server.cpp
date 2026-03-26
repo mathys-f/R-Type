@@ -8,6 +8,7 @@
 #include "networking/lobby/lobby_messages.h"
 #include "utils/logger.h"
 
+#include <algorithm>
 #include <iostream>
 
 using namespace engn;
@@ -22,36 +23,109 @@ NetworkServer::~NetworkServer() {
     stop();
 }
 
-EngineContext &NetworkServer::get_engine() {
+EngineContext& NetworkServer::get_engine() {
     return m_engine_ctx;
 }
 
 void NetworkServer::start() {
     // Set up connection callbacks
-    m_session->on_client_connect = [this](const asio::ip::udp::endpoint& endpoint) {
-        m_io.post([this, endpoint]() { handle_client_connect(endpoint); });
-    };
+    m_session->set_on_client_connect([this](const asio::ip::udp::endpoint& endpoint) {
+        m_io.post([this, endpoint]() {
+            handle_client_connect(endpoint);
+        }); // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+    });
 
-    m_session->on_client_disconnect = [this](const asio::ip::udp::endpoint& endpoint) {
+    m_session->set_on_client_disconnect([this](const asio::ip::udp::endpoint& endpoint) {
         m_io.post([this, endpoint]() { handle_client_disconnect(endpoint); });
-    };
+    });
 
     m_session->start(
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Update client activity timestamp whenever we receive a packet
             update_client_activity(from);
-            
-            if (net::handshake::handle_server_handshake(pkt, m_session, from)) {
+
+            if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KHeartbeat)) {
+                m_session->send(pkt, from, false);
+                return;
+            }
+
+            if (auto login_req = net::handshake::parse_req_login(pkt)) {
+                std::uint32_t assigned_id = 0;
+                bool id_available = false;
+                {
+                    std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+                    for (const auto& [player_id, endpoint] : m_engine_ctx.player_id_to_endpoint) {
+                        if (endpoint == from) {
+                            assigned_id = player_id;
+                            id_available = true;
+                            break;
+                        }
+                    }
+                    if (!id_available) {
+                        for (std::uint8_t id = 0; id < m_engine_ctx.k_player_count; ++id) {
+                            if (m_engine_ctx.player_id_to_endpoint.find(id) ==
+                                m_engine_ctx.player_id_to_endpoint.end()) {
+                                assigned_id = id;
+                                id_available = true;
+                                m_engine_ctx.player_id_to_endpoint[id] = from;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                const std::uint16_t k_requested = login_req->m_preferred_fragment_size;
+                const std::uint16_t k_effective =
+                    (k_requested == 0)
+                        ? static_cast<std::uint16_t>(net::k_max_payload_size)
+                        : static_cast<std::uint16_t>(std::min<std::size_t>(k_requested, net::k_max_payload_size));
+                m_session->set_fragment_payload_size(k_effective);
+
+                net::handshake::ResLogin resp_payload{
+                    .m_success = id_available, .m_player_id = assigned_id, .m_effective_fragment_size = k_effective};
+                net::Packet resp = net::handshake::make_res_login(resp_payload);
+                m_session->send(resp, from, true);
+
+                if (id_available) {
+                    std::lock_guard<std::mutex> lock(m_clients_mutex);
+                    m_client_usernames[from] = login_req->m_username;
+                }
+
+                {
+                    std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+                    m_engine_ctx.player_usernames[from] = login_req->m_username;
+                }
+
+                if (id_available && m_engine_ctx.backend_api_client != nullptr && m_engine_ctx.current_lobby_id != 0) {
+                    std::string player_ip = from.address().to_string(); // NOLINT
+                    auto session_id = m_engine_ctx.backend_api_client->add_player_session(
+                        m_engine_ctx.current_lobby_id, login_req->m_username, {}, player_ip);
+
+                    if (session_id.has_value()) {
+                        {
+                            std::lock_guard<std::mutex> lock(m_clients_mutex);
+                            m_client_session_ids[from] = session_id.value();
+                        }
+                        std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+                        m_engine_ctx.backend_session_ids[from] = session_id.value();
+                    } else {
+                        LOG_WARNING("Failed to create backend session for '{}' in lobby {}", login_req->m_username,
+                                    m_engine_ctx.current_lobby_id);
+                    }
+                }
+
+                if (!id_available) {
+                    LOG_WARNING("Rejecting login from {}:{} - no available Player slots", from.address().to_string(),
+                                from.port());
+                }
                 return;
             }
 
             // Handle logout requests
             if (auto logout_req = net::handshake::parse_req_logout(pkt)) {
-                LOG_INFO("Client {}:{} requested logout", from.address().to_string(), from.port());
-                // Trigger disconnect callback
-                if (m_session->on_client_disconnect) {
-                    m_session->on_client_disconnect(from);
-                }
+                (void)logout_req;
+                LOG_INFO("Client logout request from port {}", from.port());
+                handle_client_disconnect(from);
                 return;
             }
 
@@ -65,7 +139,13 @@ void NetworkServer::start() {
         [this](const net::Packet& pkt, const asio::ip::udp::endpoint& from) {
             // Update client activity for unreliable packets too
             update_client_activity(from);
-            // Handle unreliable packets here (player input, etc.)
+
+            if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KHeartbeat)) {
+                m_session->send(pkt, from, false);
+                return;
+            }
+
+            // Handle unreliable packets here (Player input, etc.)
             if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KClientInput)) {
                 handle_client_input(pkt, from);
             }
@@ -86,6 +166,9 @@ void NetworkServer::poll() {
 
 void NetworkServer::stop() {
     if (m_running.exchange(false)) {
+        if (m_session) {
+            m_session->stop();
+        }
         m_io.stop();
         if (m_io_thread.joinable()) {
             m_io_thread.join();
@@ -100,7 +183,7 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
         net::lobby::ResLobbyList res;
         res.m_lobbies = lobby_list;
         m_session->send(net::lobby::make_res_lobby_list(res), from, true);
-        std::cout << "Sent lobby list to " << from.address().to_string() << ":" << from.port() << "\n";
+        std::cout << "Sent lobby list to client on port " << from.port() << "\n";
         return;
     }
 
@@ -136,13 +219,40 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
         net::lobby::ResJoinLobby res;
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
 
+        std::string player_name = req->m_player_name;
+        if (player_name.empty()) {
+            std::lock_guard<std::mutex> lock(m_clients_mutex);
+            auto it = m_client_usernames.find(from);
+            if (it != m_client_usernames.end()) {
+                player_name = it->second;
+            }
+        }
+
+        if (player_name.empty()) {
+            res.m_success = false;
+            res.m_error_message = "Username required";
+            m_session->send(net::lobby::make_res_join_lobby(res), from, true);
+            return;
+        }
+
+        if (m_lobby_manager) {
+            auto ban_status = m_lobby_manager->check_player_ban(player_name);
+            if (ban_status.has_value() && ban_status->m_is_banned) {
+                res.m_success = false;
+                res.m_error_message = ban_status->m_reason.empty() ? "Banned" : ("Banned: " + ban_status->m_reason);
+                m_session->send(net::lobby::make_res_join_lobby(res), from, true);
+                return;
+            }
+        }
+
         if (lobby) {
             if (lobby->can_join()) {
-                std::string player_ip = from.address().to_string();
+                std::string player_ip = from.address().to_string(); // NOLINT
                 lobby->add_player(player_ip);
+
                 res.m_success = true;
                 res.m_port = lobby->get_port();
-                std::cout << "Player " << player_ip << " joined lobby ID " << req->m_lobby_id << "\n";
+                std::cout << "Player '" << player_name << "' joined lobby ID " << req->m_lobby_id << "\n";
             } else if (lobby->is_full()) {
                 res.m_success = false;
                 res.m_error_message = "Lobby is full";
@@ -163,9 +273,9 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
     if (auto req = net::lobby::parse_req_leave_lobby(pkt)) {
         auto lobby = m_lobby_manager->get_lobby(req->m_lobby_id);
         if (lobby) {
-            std::string player_ip = from.address().to_string();
+            std::string player_ip = from.address().to_string(); // NOLINT
             lobby->remove_player(player_ip);
-            std::cout << "Player " << player_ip << " left lobby ID " << req->m_lobby_id << "\n";
+            std::cout << "Player left lobby ID " << req->m_lobby_id << "\n";
         }
         return;
     }
@@ -174,8 +284,9 @@ void NetworkServer::handle_lobby_requests(const net::Packet& pkt, const asio::ip
 void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoint) {
     {
         std::lock_guard<std::mutex> lock(m_clients_mutex);
-        if (m_connected_clients.insert(endpoint).second) {
-            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(), endpoint.port());
+        if (m_connected_clients.insert(endpoint).second) { // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
+            LOG_INFO("Client connected from {}:{}", endpoint.address().to_string(),
+                     endpoint.port()); // NOLINT(clang-analyzer-nullability.NullPassedToNonnull)
         } else {
             return;
         }
@@ -185,11 +296,33 @@ void NetworkServer::handle_client_connect(const asio::ip::udp::endpoint& endpoin
 
 void NetworkServer::handle_client_disconnect(const asio::ip::udp::endpoint& endpoint) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
-    LOG_FATAL("DECONNEXION");
     if (m_connected_clients.erase(endpoint) > 0) {
-        LOG_INFO("Client disconnected: {}:{}", endpoint.address().to_string(), endpoint.port());
+        LOG_INFO("Client disconnected from port {}", endpoint.port());
+        m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        m_client_usernames.erase(endpoint);
+        m_client_session_ids.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+            m_engine_ctx.backend_session_ids.erase(endpoint);
+            m_engine_ctx.player_usernames.erase(endpoint);
+        }
+        {
+            std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+            m_engine_ctx.last_input_masks.erase(endpoint);
+
+            if (m_lobby_manager) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin();
+                     it != m_engine_ctx.player_id_to_endpoint.end();) {
+                    if (it->second == endpoint) {
+                        it = m_engine_ctx.player_id_to_endpoint.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -213,14 +346,35 @@ void NetworkServer::check_client_timeouts() {
 
     // Disconnect timed out clients
     for (const auto& endpoint : timed_out_clients) {
-        LOG_WARNING("Client {}:{} timed out after {} seconds of inactivity",
-                 endpoint.address().to_string(), endpoint.port(),
-                 net::k_client_timeout.count());
+        LOG_WARNING("Client timed out on port {}", endpoint.port());
 
         // Manually trigger disconnect (don't use the lock again)
         m_connected_clients.erase(endpoint);
+        m_session->remove_client_state(endpoint);
         m_engine_ctx.remove_client(endpoint);
         m_client_last_activity.erase(endpoint);
+        m_client_usernames.erase(endpoint);
+        m_client_session_ids.erase(endpoint);
+        {
+            std::lock_guard<std::mutex> session_lock(m_engine_ctx.backend_session_mutex);
+            m_engine_ctx.backend_session_ids.erase(endpoint);
+            m_engine_ctx.player_usernames.erase(endpoint);
+        }
+        {
+            std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
+            m_engine_ctx.last_input_masks.erase(endpoint);
+
+            if (m_lobby_manager) {
+                for (auto it = m_engine_ctx.player_id_to_endpoint.begin();
+                     it != m_engine_ctx.player_id_to_endpoint.end();) {
+                    if (it->second == endpoint) {
+                        it = m_engine_ctx.player_id_to_endpoint.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -258,6 +412,7 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
 
     std::lock_guard<std::mutex> lock(m_engine_ctx.player_input_queues_mutex);
     auto& player_queue = m_engine_ctx.player_input_queues[from];
+    std::uint8_t& last_mask = m_engine_ctx.last_input_masks[from];
     const auto& controls = m_engine_ctx.controls;
 
     if (move_up) {
@@ -272,7 +427,9 @@ void NetworkServer::handle_client_input(const net::Packet& pkt, const asio::ip::
     if (move_right) {
         player_queue.push(engn::evts::KeyHold{controls.move_right.primary});
     }
-    if (shoot) {
-        player_queue.push(engn::evts::KeyHold{controls.shoot.primary});
+    const bool k_shoot_pressed = shoot && ((last_mask & k_input_shoot) == 0);
+    if (k_shoot_pressed) {
+        player_queue.push(engn::evts::KeyPressed{controls.shoot.primary});
     }
+    last_mask = input_mask;
 }

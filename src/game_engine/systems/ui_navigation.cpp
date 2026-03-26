@@ -6,13 +6,7 @@ using namespace engn;
 
 namespace {
 
-enum class NavDirection {
-    None = 0,
-    Up,
-    Down,
-    Left,
-    Right
-};
+enum class NavDirection { None = 0, Up, Down, Left, Right };
 
 NavDirection read_navigation_direction(const evts::EventQueue<evts::Event>& events) {
     NavDirection direction = NavDirection::None;
@@ -21,11 +15,20 @@ NavDirection read_navigation_direction(const evts::EventQueue<evts::Event>& even
         if (direction != NavDirection::None)
             return;
         switch (evt.keycode) {
-            case evts::KeyboardKeyCode::KeyUp: direction = NavDirection::Up; break;
-            case evts::KeyboardKeyCode::KeyDown: direction = NavDirection::Down; break;
-            case evts::KeyboardKeyCode::KeyLeft: direction = NavDirection::Left; break;
-            case evts::KeyboardKeyCode::KeyRight: direction = NavDirection::Right; break;
-            default: break;
+            case evts::KeyboardKeyCode::KeyUp:
+                direction = NavDirection::Up;
+                break;
+            case evts::KeyboardKeyCode::KeyDown:
+                direction = NavDirection::Down;
+                break;
+            case evts::KeyboardKeyCode::KeyLeft:
+                direction = NavDirection::Left;
+                break;
+            case evts::KeyboardKeyCode::KeyRight:
+                direction = NavDirection::Right;
+                break;
+            default:
+                break;
         }
     });
 
@@ -33,11 +36,20 @@ NavDirection read_navigation_direction(const evts::EventQueue<evts::Event>& even
         if (direction != NavDirection::None)
             return;
         switch (evt.button) {
-            case evts::ControllerButton::ControllerButtonDpadUp: direction = NavDirection::Up; break;
-            case evts::ControllerButton::ControllerButtonDpadDown: direction = NavDirection::Down; break;
-            case evts::ControllerButton::ControllerButtonDpadLeft: direction = NavDirection::Left; break;
-            case evts::ControllerButton::ControllerButtonDpadRight: direction = NavDirection::Right; break;
-            default: break;
+            case evts::ControllerButton::ControllerButtonDpadUp:
+                direction = NavDirection::Up;
+                break;
+            case evts::ControllerButton::ControllerButtonDpadDown:
+                direction = NavDirection::Down;
+                break;
+            case evts::ControllerButton::ControllerButtonDpadLeft:
+                direction = NavDirection::Left;
+                break;
+            case evts::ControllerButton::ControllerButtonDpadRight:
+                direction = NavDirection::Right;
+                break;
+            default:
+                break;
         }
     });
 
@@ -74,8 +86,8 @@ bool is_valid_focus_entity(ecs::Entity entity, const ecs::SparseArray<cpnt::UIIn
 }
 
 std::optional<ecs::Entity> find_first_focusable(const ecs::SparseArray<cpnt::UIInteractable>& interactables,
-                                               const ecs::SparseArray<cpnt::UIFocusable>& focusables,
-                                               const ecs::Registry& registry) {
+                                                const ecs::SparseArray<cpnt::UIFocusable>& focusables,
+                                                const ecs::Registry& registry) {
     size_t max = std::min(interactables.size(), focusables.size());
     for (size_t i = 1; i < max; i++) {
         if (interactables[i].has_value() && focusables[i].has_value()) {
@@ -145,11 +157,20 @@ void sys::ui_navigation(EngineContext& ctx, const ecs::SparseArray<cpnt::UIInter
         const auto& nav = navigations[idx].value();
         ecs::TagRegistry::TagId next_tag = ecs::TagRegistry::k_invalid_tag_id;
         switch (direction) {
-            case NavDirection::Up: next_tag = nav.up_tag; break;
-            case NavDirection::Down: next_tag = nav.down_tag; break;
-            case NavDirection::Left: next_tag = nav.left_tag; break;
-            case NavDirection::Right: next_tag = nav.right_tag; break;
-            case NavDirection::None: break;
+            case NavDirection::Up:
+                next_tag = nav.up_tag;
+                break;
+            case NavDirection::Down:
+                next_tag = nav.down_tag;
+                break;
+            case NavDirection::Left:
+                next_tag = nav.left_tag;
+                break;
+            case NavDirection::Right:
+                next_tag = nav.right_tag;
+                break;
+            case NavDirection::None:
+                break;
         }
 
         if (next_tag != ecs::TagRegistry::k_invalid_tag_id) {

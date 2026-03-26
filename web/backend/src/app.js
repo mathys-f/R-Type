@@ -2,7 +2,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import corsSetup from './config/cors.js';
-import authRouter from './route/authRoute.js';
 import adminRouter from './route/adminRoute.js';
 import gameDataRouter from './route/gameDataRoute.js';
 import notFound from './middleware/notFound.js';
@@ -24,7 +23,6 @@ app.get('/health', (req, res) => {
 });
 
 /* Define routes */
-app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/game', gameDataRouter);
 

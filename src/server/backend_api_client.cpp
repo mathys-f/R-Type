@@ -5,41 +5,45 @@
 #endif
 
 #include "backend_api_client.h"
+
 #include "utils/logger.h"
+
 #include <httplib.h>
 
 namespace {
-    constexpr int k_http_ok = 200;
-    constexpr int k_http_created = 201;
-    constexpr int k_http_timeout_seconds = 2;
-}
+constexpr int k_http_ok = 200;
+constexpr int k_http_created = 201;
+constexpr int k_http_timeout_seconds = 2;
+} // namespace
 
 namespace engn {
 
-BackendAPIClient::BackendAPIClient(const std::string& host, std::uint16_t port)
-    : m_host(host), m_port(port) {}
+BackendAPIClient::BackendAPIClient(const std::string& host, std::uint16_t port) : m_host(host), m_port(port) {
+}
 
-std::optional<json> BackendAPIClient::post_request(const std::string& endpoint, const json& body) {
+std::optional<Json> BackendAPIClient::post_request(const std::string& endpoint, const Json& body) {
     try {
         httplib::Client cli(m_host, m_port);
         cli.set_connection_timeout(k_http_timeout_seconds, 0);
         cli.set_read_timeout(k_http_timeout_seconds, 0);
-        
-        auto res = cli.Post(endpoint, body.dump(), "application/json");
-        
+
+        httplib::Headers headers;
+
+        auto res = cli.Post(endpoint, headers, body.dump(), "application/json");
+
         if (!res) {
             m_last_error = "HTTP request failed: no response from backend";
             LOG_ERROR("Backend API error: {}", m_last_error);
             return std::nullopt;
         }
-        
+
         if (res->status != k_http_ok && res->status != k_http_created) {
             m_last_error = "HTTP error " + std::to_string(res->status) + ": " + res->body;
             LOG_ERROR("Backend API error: {}", m_last_error);
             return std::nullopt;
         }
-        
-        return json::parse(res->body);
+
+        return Json::parse(res->body);
     } catch (const std::exception& e) {
         m_last_error = std::string("Exception: ") + e.what();
         LOG_ERROR("Backend API exception: {}", m_last_error);
@@ -48,15 +52,15 @@ std::optional<json> BackendAPIClient::post_request(const std::string& endpoint, 
 }
 
 std::optional<std::uint32_t> BackendAPIClient::create_lobby(const std::string& name, std::uint8_t max_players) {
-    json body;
+    Json body;
     body["name"] = name;
     body["max_players"] = max_players;
-    
+
     auto res = post_request("/api/game/lobby/create", body);
     if (!res.has_value()) {
         return std::nullopt;
     }
-    
+
     try {
         const auto& json_res = res.value();
         if (json_res.contains("success") && json_res["success"].is_boolean()) {
@@ -66,13 +70,13 @@ std::optional<std::uint32_t> BackendAPIClient::create_lobby(const std::string& n
                 return std::nullopt;
             }
         }
-        
+
         if (json_res.contains("lobby") && json_res["lobby"].contains("id")) {
             std::uint32_t lobby_id = json_res["lobby"]["id"].get<std::uint32_t>();
             LOG_INFO("Created lobby via backend API: ID {}", lobby_id);
             return lobby_id;
         }
-        
+
         m_last_error = "Invalid response format from backend";
         return std::nullopt;
     } catch (const std::exception& e) {
@@ -82,13 +86,11 @@ std::optional<std::uint32_t> BackendAPIClient::create_lobby(const std::string& n
     }
 }
 
-std::optional<std::uint32_t> BackendAPIClient::add_player_session(
-    std::uint32_t lobby_id,
-    const std::string& player_name,
-    std::optional<std::uint32_t> account_id,
-    std::optional<std::string> ip_address
-) {
-    json body;
+std::optional<std::uint32_t> BackendAPIClient::add_player_session(std::uint32_t lobby_id,
+                                                                  const std::string& player_name,
+                                                                  std::optional<std::uint32_t> account_id,
+                                                                  std::optional<std::string> ip_address) {
+    Json body;
     body["lobbyId"] = lobby_id;
     body["playerName"] = player_name;
     if (account_id.has_value()) {
@@ -97,26 +99,26 @@ std::optional<std::uint32_t> BackendAPIClient::add_player_session(
     if (ip_address.has_value()) {
         body["ipAddress"] = ip_address.value();
     }
-    
+
     auto res = post_request("/api/game/session/add", body);
     if (!res.has_value()) {
         return std::nullopt;
     }
-    
+
     try {
         const auto& json_res = res.value();
         if (json_res.contains("success") && !json_res["success"].get<bool>()) {
             m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
-            LOG_ERROR("Failed to add player session: {}", m_last_error);
+            LOG_ERROR("Failed to add Player session: {}", m_last_error);
             return std::nullopt;
         }
-        
+
         if (json_res.contains("session") && json_res["session"].contains("id")) {
             std::uint32_t session_id = json_res["session"]["id"].get<std::uint32_t>();
-            LOG_INFO("Added player session to backend: Session ID {}", session_id);
+            LOG_INFO("Added Player session to backend: Session ID {}", session_id);
             return session_id;
         }
-        
+
         m_last_error = "Invalid response format from backend";
         return std::nullopt;
     } catch (const std::exception& e) {
@@ -126,13 +128,9 @@ std::optional<std::uint32_t> BackendAPIClient::add_player_session(
     }
 }
 
-bool BackendAPIClient::update_player_score(
-    std::uint32_t session_id,
-    std::uint32_t kills,
-    std::uint32_t deaths,
-    std::uint32_t score
-) {
-    json body;
+bool BackendAPIClient::update_player_score(std::uint32_t session_id, std::uint32_t kills, std::uint32_t deaths,
+                                           std::uint32_t score) {
+    Json body;
     body["sessionId"] = session_id;
     body["kills"] = kills;
     body["deaths"] = deaths;
@@ -147,7 +145,7 @@ bool BackendAPIClient::update_player_score(
         const auto& json_res = res.value();
         bool success = json_res.contains("success") ? json_res["success"].get<bool>() : false;
         if (success) {
-            LOG_DEBUG("Updated player score: Session {} - K:{} D:{} S:{}", session_id, kills, deaths, score);
+            LOG_DEBUG("Updated Player score: Session {} - K:{} D:{} S:{}", session_id, kills, deaths, score);
         } else {
             m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
             LOG_WARNING("Failed to update score: {}", m_last_error);
@@ -161,14 +159,14 @@ bool BackendAPIClient::update_player_score(
 }
 
 bool BackendAPIClient::finalize_match(std::uint32_t lobby_id) {
-    json body;
+    Json body;
     body["lobbyId"] = lobby_id;
-    
+
     auto res = post_request("/api/game/match/finalize", body);
     if (!res.has_value()) {
         return false;
     }
-    
+
     try {
         const auto& json_res = res.value();
         bool success = json_res.contains("success") ? json_res["success"].get<bool>() : false;
@@ -187,15 +185,15 @@ bool BackendAPIClient::finalize_match(std::uint32_t lobby_id) {
 }
 
 bool BackendAPIClient::update_lobby_player_count(std::uint32_t lobby_id, std::uint8_t player_count) {
-    json body;
+    Json body;
     body["lobbyId"] = lobby_id;
     body["playerCount"] = player_count;
-    
+
     auto res = post_request("/api/game/lobby/update-count", body);
     if (!res.has_value()) {
         return false;
     }
-    
+
     try {
         const auto& json_res = res.value();
         bool success = json_res.contains("success") ? json_res["success"].get<bool>() : false;
@@ -203,6 +201,37 @@ bool BackendAPIClient::update_lobby_player_count(std::uint32_t lobby_id, std::ui
     } catch (const std::exception& e) {
         m_last_error = std::string("JSON parsing error: ") + e.what();
         return false;
+    }
+}
+
+std::optional<BackendAPIClient::BanCheckResult> BackendAPIClient::check_player_ban(const std::string& player_name) {
+    Json body;
+    body["playerName"] = player_name;
+
+    auto res = post_request("/api/game/session/check-ban", body);
+    if (!res.has_value()) {
+        return std::nullopt;
+    }
+
+    try {
+        const auto& json_res = res.value();
+        if (!json_res.contains("success") || !json_res["success"].get<bool>()) {
+            m_last_error = json_res.contains("error") ? json_res["error"].get<std::string>() : "Unknown error";
+            return std::nullopt;
+        }
+
+        BanCheckResult result{};
+        result.m_is_banned = json_res.contains("banned") ? json_res["banned"].get<bool>() : false;
+
+        if (result.m_is_banned && json_res.contains("reason") && json_res["reason"].is_string()) {
+            result.m_reason = json_res["reason"].get<std::string>();
+        }
+
+        return result;
+    } catch (const std::exception& e) {
+        m_last_error = std::string("JSON parsing error: ") + e.what();
+        LOG_ERROR("Backend response parsing failed: {}", m_last_error);
+        return std::nullopt;
     }
 }
 

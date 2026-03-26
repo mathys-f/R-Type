@@ -1,12 +1,13 @@
 #include "game_engine/api/lua.h"
 #include "game_engine/components/components.h"
 #include "game_engine/engine.h"
-#include "game_engine/systems/systems.h"
 #include "game_engine/network_client.h"
+#include "game_engine/systems/systems.h"
 #include "raylib.h"
 #include "scenes_loaders.h"
 #include "systems/client_systems.h"
 
+#include <cstring>
 #include <iostream>
 #include <random>
 
@@ -15,10 +16,27 @@ using namespace engn;
 namespace {
 constexpr int k_rand_range = 1000;
 constexpr float k_rand_divisor = 1000.0f;
+
+bool parse_game_end_payload(const std::vector<std::byte>& payload, cpnt::Stats& stats, int& boss_kills_to_win) {
+    constexpr std::size_t k_payload_size = cpnt::Stats::kSerializedSize + sizeof(int);
+
+    if (payload.size() < k_payload_size) {
+        return false;
+    }
+
+    std::vector<std::byte> stats_payload(payload.begin(), payload.begin() + cpnt::Stats::kSerializedSize);
+    stats.deserialize(stats_payload);
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::memcpy(&boss_kills_to_win, payload.data() + cpnt::Stats::kSerializedSize, sizeof(boss_kills_to_win));
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return true;
+}
 } // namespace
 
 static float randf() {
-    return static_cast<float>(rand() % k_rand_range) / k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
+    return static_cast<float>(rand() % k_rand_range) /
+           k_rand_divisor; // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
 void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
@@ -35,6 +53,16 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     const int k_height = static_cast<int>(engine_ctx.window_size.y);
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
+    engine_ctx.game_over_retry_scene = "lobby";
+    engine_ctx.pending_game_over.store(false);
+    {
+        std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+        engine_ctx.pending_game_over_stats = cpnt::Stats{};
+        engine_ctx.pending_game_over_boss_kills_to_win = 0;
+        engine_ctx.game_over_stats = cpnt::Stats{};
+        engine_ctx.game_over_boss_kills_to_win = 0;
+    }
+
     auto& registry = engine_ctx.registry;
 
     std::random_device rd;
@@ -42,6 +70,7 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     std::uniform_real_distribution<float> dist(k_dist_min, k_dist_max);
 
     registry.register_component<cpnt::Bullet>();
+    registry.register_component<cpnt::BulletShooter>();
     registry.register_component<cpnt::Enemy>();
     registry.register_component<cpnt::Shooter>();
     registry.register_component<cpnt::Explosion>();
@@ -50,7 +79,11 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::MovementPattern>();
     registry.register_component<cpnt::Player>();
     registry.register_component<cpnt::Replicated>();
+    registry.register_component<cpnt::EntityType>();
     registry.register_component<cpnt::Sprite>();
+    registry.register_component<cpnt::Boss>();
+    registry.register_component<cpnt::BossHitbox>();
+    registry.register_component<cpnt::Particle>();
     registry.register_component<cpnt::Stats>();
     registry.register_component<cpnt::Tag>();
     registry.register_component<cpnt::Transform>();
@@ -68,41 +101,54 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     registry.register_component<cpnt::UIText>();
     registry.register_component<cpnt::UITransform>();
 
-    // Net
-    engine_ctx.add_system<>(sys::handle_snapshots_deltas_system);
     // IO
     engine_ctx.add_system<>(sys::fetch_inputs);
+    engine_ctx.add_system<>(sys::resolve_player_input);
     engine_ctx.add_system<>(send_input_system);
+    // Prediction
+    engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity>(
+        sys::predict_local_player_system);
+    // Net
+    engine_ctx.add_system<>(sys::apply_server_updates_system);
     // engine_ctx.add_system<>(sys::log_inputs);
     // UI
     engine_ctx.add_system<cpnt::UITransform>(sys::ui_hover);
     engine_ctx.add_system<cpnt::UIInteractable, cpnt::UIFocusable, cpnt::UINavigation>(sys::ui_navigation);
     engine_ctx.add_system<>(sys::ui_press);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::BulletShooter_system);
+    // Client should NOT simulate bullets in multiplayer - server is authoritative
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Bullet>(sys::bullet_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::BulletShooter>(sys::bullet_shooter_system);
 
     // SIM / Prediction
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox, cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats>(
-    //     sys::collision_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Bullet, cpnt::Enemy, cpnt::Health, cpnt::Player, cpnt::Hitbox,
+                          cpnt::BulletShooter, cpnt::Shooter, cpnt::Stats, cpnt::BossHitbox>(sys::collision_system);
     // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity>(sys::enemy_movement_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health, cpnt::Sprite>(sys::enemy_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet, cpnt::BulletShooter>(sys::particle_emission_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Player, cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Enemy, cpnt::Health,
+    // cpnt::Sprite>(sys::enemy_system);
+    engine_ctx.add_system<cpnt::Transform, cpnt::Explosion, cpnt::Sprite>(sys::explosion_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Particle, cpnt::Bullet,
+    // cpnt::BulletShooter>(sys::particle_emission_system); engine_ctx.add_system<cpnt::Transform, cpnt::Player,
+    // cpnt::Sprite, cpnt::Velocity, cpnt::Health>(
     //     sys::player_control_system);
     engine_ctx.add_system<cpnt::Transform, cpnt::Star>(sys::star_scroll_system);
-    engine_ctx.add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
-        sys::render_system);
+    engine_ctx
+        .add_system<cpnt::Transform, cpnt::Sprite, cpnt::Star, cpnt::Velocity, cpnt::Particle, cpnt::Stats, cpnt::Boss>(
+            sys::render_system);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_background_renderer);
     engine_ctx.add_system<cpnt::UITransform, cpnt::UIText, cpnt::UIStyle, cpnt::UIInteractable>(sys::ui_text_renderer);
     engine_ctx.add_system<>(handle_game_pause_inputs);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter, cpnt::Player>(sys::shooter_movement_system);
-    // engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health, cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
+    // engine_ctx.add_system<cpnt::Transform, cpnt::MovementPattern, cpnt::Velocity, cpnt::Shooter,
+    // cpnt::Player>(sys::shooter_movement_system); engine_ctx.add_system<cpnt::Transform, cpnt::Velocity, cpnt::Health,
+    // cpnt::Sprite, cpnt::Shooter, cpnt::Player>(sys::shooter_system);
 
     engine_ctx.assets_manager.load_texture("bulletExplosion", "assets/sprites/r-typesheet43.gif");
     engine_ctx.assets_manager.load_texture("explosion", "assets/sprites/r-typesheet44.gif");
     engine_ctx.assets_manager.load_texture("enemy_ship", "assets/sprites/r-typesheet5.gif");
     engine_ctx.assets_manager.load_texture("player_ship", "assets/sprites/r-typesheet1.gif");
+    engine_ctx.assets_manager.load_texture("players", "assets/sprites/r-typesheet42.gif");
+    engine_ctx.assets_manager.load_texture("shooter_sprite", "assets/sprites/r-typesheet19.gif");
+    engine_ctx.assets_manager.load_texture("shooter_bullet", "assets/sprites/r-typesheet1_bis.gif");
+    engine_ctx.assets_manager.load_texture("boss", "assets/sprites/r-typesheet30.gif");
 
     // Reset and create network client in engine context
     if (engine_ctx.network_client) {
@@ -110,32 +156,116 @@ void load_multiplayer_game_scene(engn::EngineContext& engine_ctx) {
     }
     engine_ctx.network_client = std::make_shared<engn::NetworkClient>();
 
-    engine_ctx.network_client->set_on_login([&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
-        if (success) {
-            LOG_DEBUG("Connected!");
-        } else {
-            LOG_ERROR("Login failed! Cannot start game.");
-            return;
-        }
-    });
+    engine_ctx.network_client->set_on_login(
+        [&engine_ctx, &registry, k_width, k_height](bool success, uint32_t player_id) {
+            if (success) {
+                LOG_DEBUG("Connected!");
+            } else {
+                LOG_ERROR("Login failed! Cannot start game.");
+                return;
+            }
+        });
 
     engine_ctx.network_client->set_on_reliable([&engine_ctx](const net::Packet& pkt) {
-        if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
+        if (pkt.header.m_command ==
+            static_cast<std::uint8_t>(net::CommandId::KServerEntityState)) { // Received snapshot
             WorldDelta delta = WorldDelta::deserialize(pkt.payload.data());
             engine_ctx.add_snapshot_delta(delta);
+        } else if (pkt.header.m_command == static_cast<std::uint8_t>(net::CommandId::kGameEnded)) {
+            cpnt::Stats final_stats;
+            int boss_kills_to_win = 0;
+
+            if (!parse_game_end_payload(pkt.payload, final_stats, boss_kills_to_win)) {
+                LOG_WARNING("Received malformed game over packet: payload too small ({})", pkt.payload.size());
+                return;
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(engine_ctx.game_over_payload_mutex);
+                engine_ctx.pending_game_over_stats = final_stats;
+                engine_ctx.pending_game_over_boss_kills_to_win = boss_kills_to_win;
+            }
+            engine_ctx.pending_game_over.store(true);
         }
     });
 
-    const char* player_name = "Player1";
+    engine_ctx.network_client->set_on_logout([&engine_ctx]() {
+        LOG_INFO("Disconnected from server.");
+
+        // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+        const float k_width = engine_ctx.window_size.x;
+        const float k_height = engine_ctx.window_size.y;
+        // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+
+        auto& registry = engine_ctx.registry;
+        auto& tag_registry = registry.get_tag_registry();
+
+        if (tag_registry.get_entity("disconnect_back_button").has_value()) {
+            return;
+        }
+
+        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        auto bg_entity = registry.spawn_entity();
+        registry.add_component(bg_entity, cpnt::UITransform{0, 0, 10, 100, 100, 0, 0, 0});
+        registry.add_component(bg_entity, cpnt::UIStyle{utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 200},
+                                                        utils::Color{0, 0, 0, 200}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                        utils::Color{0, 0, 0, 0}, 0, 0});
+        registry.add_component(bg_entity, cpnt::UIInteractable{});
+
+        auto text_entity = registry.spawn_entity();
+        registry.add_component(text_entity, cpnt::UITransform{50, 40, 11, 0, 0, 0.5f, 0.5f, 0});
+        registry.add_component(text_entity, cpnt::UIText{"Disconnected from server", 40});
+        registry.add_component(text_entity, cpnt::UIStyle{utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0},
+                                                          utils::Color{0, 0, 0, 0}, utils::Color{255, 50, 50, 255},
+                                                          utils::Color{255, 50, 50, 255},
+                                                          utils::Color{255, 50, 50, 255}, utils::Color{0, 0, 0, 0},
+                                                          utils::Color{0, 0, 0, 0}, utils::Color{0, 0, 0, 0}, 0, 0});
+
+        auto btn_entity = registry.spawn_entity();
+        tag_registry.create_and_bind_tag("disconnect_back_button", btn_entity);
+        registry.add_component(btn_entity, cpnt::Tag{tag_registry.get_tag_id("disconnect_back_button")});
+
+        registry.add_component(btn_entity, cpnt::UITransform{37.5f, 60, 11, 25, 8, 0.5f, 0.5f, 0});
+        registry.add_component(btn_entity, cpnt::UIText{"Back to Menu", 30});
+        registry.add_component(btn_entity,
+                               cpnt::UIStyle{utils::Color{50, 50, 50, 255}, utils::Color{70, 70, 70, 255},
+                                             utils::Color{30, 30, 30, 255}, utils::Color{255, 255, 255, 255},
+                                             utils::Color{255, 255, 255, 255}, utils::Color{200, 200, 200, 255},
+                                             utils::Color{100, 100, 100, 255}, utils::Color{120, 120, 120, 255},
+                                             utils::Color{80, 80, 80, 255}, 0.5f, 2.0f});
+        registry.add_component(btn_entity, cpnt::UIButton{});
+        registry.add_component(btn_entity, cpnt::UIInteractable{});
+        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    });
+
+    // Use actual player name from engine context
+    const auto& player_name = engine_ctx.current_player_username;
 
     LOG_INFO("Connecting to {}:{}...", engine_ctx.server_ip, engine_ctx.server_port);
-    engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name);
+    engine_ctx.network_client->connect(engine_ctx.server_ip.c_str(), engine_ctx.server_port, player_name.c_str());
 
-    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) { 
+    engine_ctx.add_system<>([&engine_ctx](engn::EngineContext& ctx) {
         if (engine_ctx.network_client) {
-            engine_ctx.network_client->poll(); 
+            engine_ctx.network_client->poll();
         }
     });
+
+    engine_ctx.add_system<>([](engn::EngineContext& ctx) {
+        if (!ctx.pending_game_over.exchange(false)) {
+            return;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(ctx.game_over_payload_mutex);
+            ctx.game_over_stats = ctx.pending_game_over_stats;
+            ctx.game_over_boss_kills_to_win = ctx.pending_game_over_boss_kills_to_win;
+        }
+        ctx.set_scene("game_over");
+    });
+
+    engine_ctx.add_system<>(handle_disconnect_ui_events);
 
     for (int i = 0; i < engine_ctx.k_stars; i++) {
         auto star = registry.spawn_entity();
